@@ -9,6 +9,7 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  TextField,
 } from '@material-ui/core';
 
 // Redux Actions
@@ -18,7 +19,7 @@ const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
 }));
 
-const QueryInfo = ({ dispatch, fields, handleChange, query }) => {
+const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, query }) => {
   const {
     dashboard: { clusterID },
   } = useSelector(state => state.dashboard);
@@ -27,11 +28,7 @@ const QueryInfo = ({ dispatch, fields, handleChange, query }) => {
 
   // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
   useEffect(() => {
-    const getQueryData = async () => {
-      return await getQueryInfo(clusterID, query);
-    };
-
-    getQueryData().then(action => dispatch(action));
+    getQueryInfo(clusterID, query).then(action => dispatch(action));
   }, [clusterID, dispatch, query]);
 
   return (
@@ -42,9 +39,15 @@ const QueryInfo = ({ dispatch, fields, handleChange, query }) => {
             <h3>Parameters</h3>
             {queryData.params.map(({ name, type }, index) => {
               return (
-                <p key={index}>
-                  {name}: {type}
-                </p>
+                <TextField
+                  key={index}
+                  label={`${name}: ${type}`}
+                  name={`params:${name}`}
+                  // Ternary is here to prevent error of input switching from uncontrolled to controlled
+                  value={params[name] === undefined ? '' : params[name]}
+                  onChange={handleChangeObj}
+                  autoComplete="off"
+                />
               );
             })}
           </Fragment>
@@ -59,7 +62,7 @@ const QueryInfo = ({ dispatch, fields, handleChange, query }) => {
             value={fields}
             onChange={handleChange}
             input={<Input />}
-            renderValue={selected => selected.join(', ')}
+            renderValue={selected => selected.sort().join(', ')}
             name="fields"
           >
             {queryData.fields.map(({ name, type }, index) => {

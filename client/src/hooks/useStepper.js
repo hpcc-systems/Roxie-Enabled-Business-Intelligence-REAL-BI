@@ -11,7 +11,11 @@ const useStepper = initState => {
     return setStep(prevState => prevState - 1);
   };
 
-  return { step, nextStep, prevStep };
+  const resetStep = () => {
+    return setStep(0);
+  };
+
+  return { step, nextStep, prevStep, resetStep };
 };
 
 export default useStepper;

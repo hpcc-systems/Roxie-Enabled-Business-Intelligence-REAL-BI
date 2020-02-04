@@ -7,6 +7,7 @@ const express = require('express');
 const { sequelize } = require('./models');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
+const chartRoutes = require('./routes/chart');
 const clusterRoutes = require('./routes/cluster');
 const dashboardRoutes = require('./routes/dashboard');
 const queryRoutes = require('./routes/query');
@@ -26,6 +27,7 @@ passport.jwtStrategy();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/chart', passport.authenticate(), chartRoutes);
 app.use('/api/cluster', passport.authenticate(), clusterRoutes);
 app.use('/api/dashboard', passport.authenticate(), dashboardRoutes);
 app.use('/api/query', passport.authenticate(), queryRoutes);

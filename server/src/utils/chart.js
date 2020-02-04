@@ -12,4 +12,14 @@ const getChartsByDashboard = async dashboardID => {
   return charts;
 };
 
-module.exports = { getChartsByDashboard };
+const createChart = async chart => {
+  try {
+    await chartModel.create(chart);
+  } catch (err) {
+    return err;
+  }
+
+  return;
+};
+
+module.exports = { createChart, getChartsByDashboard };

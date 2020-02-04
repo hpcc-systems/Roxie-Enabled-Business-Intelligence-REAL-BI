@@ -11,16 +11,15 @@ const SearchQuery = ({ handleChange, keyword }) => {
   const { textField } = useStyles();
 
   return (
-    <form autoComplete="off">
-      <TextField
-        className={textField}
-        fullWidth
-        label="Query Name Keyword"
-        name="keyword"
-        value={keyword}
-        onChange={handleChange}
-      />
-    </form>
+    <TextField
+      className={textField}
+      fullWidth
+      label="Query Name Keyword"
+      name="keyword"
+      value={keyword}
+      onChange={handleChange}
+      autoComplete="off"
+    />
   );
 };
 

@@ -1,5 +1,18 @@
 import axios from 'axios';
-import { ADD_DASHBOARD, GET_DASHBOARD, GET_DASHBOARDS, SET_DASHBOARD_ERRORS } from './';
+import { ADD_CHART, ADD_DASHBOARD, GET_DASHBOARD, GET_DASHBOARDS, SET_DASHBOARD_ERRORS } from './';
+
+const addChart = async (charts, chartObj) => {
+  try {
+    await axios.post('/api/chart/create', { chartObj });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_DASHBOARD_ERRORS, payload: err };
+  }
+
+  charts = [...charts, chartObj];
+
+  return { type: ADD_CHART, payload: charts };
+};
 
 const addDashboard = async dashboard => {
   let response;
@@ -40,4 +53,4 @@ const getDashboards = async () => {
   return { type: GET_DASHBOARDS, payload: response.data };
 };
 
-export { addDashboard, getDashboard, getDashboards };
+export { addChart, addDashboard, getDashboard, getDashboards };

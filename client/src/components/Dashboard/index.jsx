@@ -59,7 +59,7 @@ const Dashboard = () => {
           {charts.map((chart, index) => {
             return (
               <Grid key={index} item xs={12} md={6} xl={4}>
-                {chart}
+                {JSON.stringify(chart)}
               </Grid>
             );
           })}

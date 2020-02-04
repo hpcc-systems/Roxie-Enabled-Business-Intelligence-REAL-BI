@@ -20,9 +20,12 @@ const getQueryListFromCluster = async ({ host, port }, keyword) => {
   if (Object.keys(QuerysetQueries).length > 0) {
     const queryResults = QuerysetQueries.QuerySetQuery;
 
+    // Filter queries flagged as activated
+    queryList = queryResults.filter(({ Activated }) => Activated === true);
+
     // Remove duplicates from result array
-    queryList = Array.from(new Set(queryResults.map(({ Id }) => Id))).map(Id => {
-      return queryResults.find(({ Id: Id2 }) => Id2 === Id);
+    queryList = Array.from(new Set(queryList.map(({ Id }) => Id))).map(Id => {
+      return queryList.find(({ Id: Id2 }) => Id2 === Id);
     });
 
     // Reduce objects to only desired keys

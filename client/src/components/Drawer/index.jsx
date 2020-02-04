@@ -43,11 +43,7 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
 
   // ComponentDidMount -> Get list of dashboards from database
   useEffect(() => {
-    const getDashboardData = async () => {
-      return await getDashboards();
-    };
-
-    getDashboardData().then(action => dispatch(action));
+    getDashboards().then(action => dispatch(action));
   }, [dispatch]);
 
   // Get information about specific dashboard and hide drawer

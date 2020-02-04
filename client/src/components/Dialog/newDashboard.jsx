@@ -36,11 +36,7 @@ const NewDashboardDialog = ({
 
   // ComponentDidMount -> Get list of clusters from database
   useEffect(() => {
-    const getClusterData = async () => {
-      return await getClusters();
-    };
-
-    getClusterData().then(action => dispatch(action));
+    getClusters().then(action => dispatch(action));
   }, [dispatch]);
 
   return (
@@ -49,28 +45,27 @@ const NewDashboardDialog = ({
         <CloseIcon />
       </Button>
       <DialogContent>
-        <form autoComplete="off">
-          <FormControl className={formControl} fullWidth>
-            <InputLabel>HPCC Cluster</InputLabel>
-            <Select name="clusterID" value={clusterID} onChange={handleChange}>
-              {clusters.map(({ host, id, name, port }) => {
-                return (
-                  <MenuItem key={id} value={id}>
-                    {`${name} (${host}:${port})`}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-          <TextField
-            className={formControl}
-            fullWidth
-            label="Dashboard Name"
-            name="name"
-            value={name}
-            onChange={handleChange}
-          />
-        </form>
+        <FormControl className={formControl} fullWidth>
+          <InputLabel>HPCC Cluster</InputLabel>
+          <Select name="clusterID" value={clusterID} onChange={handleChange}>
+            {clusters.map(({ host, id, name, port }) => {
+              return (
+                <MenuItem key={id} value={id}>
+                  {`${name} (${host}:${port})`}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+        <TextField
+          className={formControl}
+          fullWidth
+          label="Dashboard Name"
+          name="name"
+          value={name}
+          onChange={handleChange}
+          autoComplete="off"
+        />
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={newDashboard} variant="contained">

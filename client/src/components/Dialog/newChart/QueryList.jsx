@@ -19,11 +19,7 @@ const QueryList = ({ dispatch, handleChange, keyword, query }) => {
 
   // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
   useEffect(() => {
-    const getQueryList = async () => {
-      return await getQueries(clusterID, keyword);
-    };
-
-    getQueryList().then(action => dispatch(action));
+    getQueries(clusterID, keyword).then(action => dispatch(action));
   }, [clusterID, dispatch, keyword]);
 
   return (
