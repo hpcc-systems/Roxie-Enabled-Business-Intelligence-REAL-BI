@@ -1,0 +1,24 @@
+# Top-most Editor Config file
+root = true
+
+# Matches all files
+[*]
+
+# 2 space identions
+indent_style = space
+indent_size = 2
+
+# Character Encoding
+charset = utf-8
+
+# Trims extra spaces before new line characters
+trim_trailing_whitespace = true
+
+# Adds new line to end of files
+insert_final_newline = true
+
+# Set Unix style new line
+end_of_line = lf
+
+# Disable hard line wrapping
+max_line_length = null
