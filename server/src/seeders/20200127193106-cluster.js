@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface) {
     return await queryInterface.bulkInsert('clusters', [
-      { name: 'Dev Cluster', host: 'http://10.173.147.1', port: 8010 },
+      { name: 'Dev Cluster', host: 'http://10.173.147.1', infoPort: 8010, dataPort: 8002 },
     ]);
   },
   async down(queryInterface) {

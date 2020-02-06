@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      port: {
+      infoPort: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      dataPort: {
         type: DataTypes.STRING,
         allowNull: false,
       },

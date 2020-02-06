@@ -48,10 +48,10 @@ const NewDashboardDialog = ({
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name="clusterID" value={clusterID} onChange={handleChange}>
-            {clusters.map(({ host, id, name, port }) => {
+            {clusters.map(({ host, id, infoPort, name }) => {
               return (
                 <MenuItem key={id} value={id}>
-                  {`${name} (${host}:${port})`}
+                  {`${name} (${host}:${infoPort})`}
                 </MenuItem>
               );
             })}

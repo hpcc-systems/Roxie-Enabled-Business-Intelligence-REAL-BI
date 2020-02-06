@@ -1,12 +1,12 @@
 const axios = require('axios');
 const { getFieldType, getParamsString } = require('./misc');
 
-const getQueryListFromCluster = async ({ host, port }, keyword) => {
+const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   let queryList = [];
   let response, url;
 
   // Build URL from cluster details and keyword provided by user
-  url = `${host}:${port}/WsWorkunits/WUListQueries.json?QueryName=*${keyword}*`;
+  url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?QueryName=*${keyword}*`;
 
   try {
     response = await axios.get(url);
@@ -38,13 +38,13 @@ const getQueryListFromCluster = async ({ host, port }, keyword) => {
   return queryList;
 };
 
-const getQueryParamsFromCluster = async ({ host }, query) => {
+const getQueryParamsFromCluster = async ({ host, dataPort }, query) => {
   const [querySet, queryName] = query.split(':');
   let response, data;
   let paramList = [];
 
   // Build URL from cluster and query details
-  const url = `${host}:8002/WsEcl/example/request/query/${querySet}/${queryName}/json?display`;
+  const url = `${host}:${dataPort}/WsEcl/example/request/query/${querySet}/${queryName}/json?display`;
 
   try {
     response = await axios.get(url);
@@ -68,13 +68,13 @@ const getQueryParamsFromCluster = async ({ host }, query) => {
   return paramList;
 };
 
-const getQueryFieldsFromCluster = async ({ host }, query) => {
+const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
   const [querySet, queryName] = query.split(':');
   let response, data;
   let fieldList = [];
 
   // Build URL from cluster and query details
-  const url = `${host}:8002/WsEcl/example/response/query/${querySet}/${queryName}/json?display`;
+  const url = `${host}:${dataPort}/WsEcl/example/response/query/${querySet}/${queryName}/json?display`;
 
   try {
     response = await axios.get(url);
@@ -100,11 +100,11 @@ const getQueryFieldsFromCluster = async ({ host }, query) => {
   return fieldList;
 };
 
-const getDataFromQuery = async ({ host }, { options, query }) => {
+const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
   const [querySet, queryName] = query.split(':');
   const paramsList = getParamsString(JSON.parse(options).params);
 
-  const url = `${host}:8002/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
+  const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
 
   try {
     response = await axios.get(url);

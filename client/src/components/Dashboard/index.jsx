@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Container, Grid, Menu, MenuItem } from '@material-ui/core';
+import { Button, Container, Grid, Menu, MenuItem, Typography } from '@material-ui/core';
 import {
   AddCircle as AddCircleIcon,
   Email as EmailIcon,
@@ -22,6 +22,7 @@ const useStyles = makeStyles({
   grid: { marginTop: 20 },
   shareBtn: { marginBottom: 10 },
   menuIcon: { marginRight: 10 },
+  typography: { fontSize: 24, marginBottom: 20 },
 });
 
 const Dashboard = () => {
@@ -29,11 +30,14 @@ const Dashboard = () => {
   const { charts = [] } = dashboard; // Provide default value of [] if dashboard hasn't been chosen yet
   const { showDialog, toggleDialog } = useDialog(false);
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
-  const { addBtn, grid, menuIcon, shareBtn } = useStyles();
+  const { addBtn, grid, menuIcon, shareBtn, typography } = useStyles();
 
   return (
     Object.keys(dashboard).length > 0 && (
       <Container maxWidth="xl">
+        <Typography variant="h2" className={typography}>
+          {dashboard.name}
+        </Typography>
         <Grid container direction="row" justify="space-between" alignItems="flex-start">
           <Grid item xs={11}>
             <Button color="primary" className={addBtn} onClick={toggleDialog}>
