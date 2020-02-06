@@ -12,6 +12,7 @@ import {
 // React Components
 import NewChartDialog from '../Dialog/newChart';
 import BarChart from '../Chart/Bar';
+import LineChart from '../Chart/Line';
 
 // React Hooks
 import useShare from '../../hooks/useShare';
@@ -70,9 +71,20 @@ const Dashboard = () => {
           spacing={3}
         >
           {charts.map((chart, index) => {
+            const { type } = chart;
+
             return (
               <Grid key={index} item xs={12} md={6} xl={4}>
-                <BarChart chart={chart} dashboard={dashboard} />
+                {(() => {
+                  switch (type) {
+                    case 'bar':
+                      return <BarChart chart={chart} dashboard={dashboard} />;
+                    case 'line':
+                      return <LineChart chart={chart} dashboard={dashboard} />;
+                    default:
+                      return 'Unknown chart type';
+                  }
+                })()}
               </Grid>
             );
           })}

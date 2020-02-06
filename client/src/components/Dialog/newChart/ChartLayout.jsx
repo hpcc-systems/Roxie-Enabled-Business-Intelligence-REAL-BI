@@ -22,7 +22,8 @@ const ChartLayout = ({ chart, config, fields, handleChangeObj }) => {
         onChange={handleChangeObj}
         autoComplete="off"
       />
-      {chart === 'bar' ? (
+      {/* Show axis fields only if it makes sense for the chart type */}
+      {chart === 'bar' || chart === 'line' ? (
         <Fragment>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>

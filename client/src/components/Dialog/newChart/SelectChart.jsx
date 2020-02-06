@@ -1,8 +1,11 @@
 import React from 'react';
 import { FormControlLabel, Grid, Radio, RadioGroup } from '@material-ui/core';
-import { BarChart as BarChartIcon } from '@material-ui/icons';
+import { BarChart as BarChartIcon, Timeline as LineChartIcon } from '@material-ui/icons';
 
-const charts = [{ icon: <BarChartIcon fontSize="large" />, value: 'bar' }];
+const charts = [
+  { icon: <BarChartIcon fontSize="large" />, value: 'bar' },
+  { icon: <LineChartIcon fontSize="large" />, value: 'line' },
+];
 
 const SelectChart = ({ chart, handleChange }) => {
   return (
