@@ -118,7 +118,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         })()}
       </DialogContent>
       <DialogActions>
-        <Button disabled={step === 0} color="primary" onClick={prevStep}>
+        <Button disabled={step === 0} color="secondary" onClick={prevStep}>
           Back
         </Button>
         {step === steps.length - 1 ? (
