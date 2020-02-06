@@ -48,14 +48,14 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   // Add chart to DB and store
   const newChart = () => {
     const chartObj = {
-      queryName: query,
+      query,
       type: chart,
-      options: JSON.stringify(config),
+      options: JSON.stringify({ ...config, params }),
       sort: charts.length + 1,
       dashboardID,
     };
 
-    addChart(charts, chartObj).then(action => dispatch(action));
+    addChart(chartObj).then(action => dispatch(action));
 
     // Reset and close dialog
     return resetDialog();
@@ -69,7 +69,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   return (
-    <Dialog onClose={resetDialog} open={show} fullWidth>
+    <Dialog open={show} fullWidth>
       <Button className={close} onClick={resetDialog}>
         <CloseIcon />
       </Button>

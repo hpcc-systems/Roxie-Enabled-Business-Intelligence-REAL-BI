@@ -4,7 +4,11 @@ const initState = { dashboards: [], errors: {}, dashboard: {} };
 export default (state = initState, { type, payload }) => {
   switch (type) {
     case ADD_CHART:
-      return { ...state, errors: {}, dashboard: { ...state.dashboard, charts: payload } };
+      return {
+        ...state,
+        errors: {},
+        dashboard: { ...state.dashboard, charts: [...state.dashboard.charts, payload] },
+      };
     case ADD_DASHBOARD:
       return { ...state, errors: {}, dashboards: payload };
     case GET_DASHBOARD:

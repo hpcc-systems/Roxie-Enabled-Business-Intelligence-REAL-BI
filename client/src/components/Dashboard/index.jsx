@@ -11,6 +11,7 @@ import {
 
 // React Components
 import NewChartDialog from '../Dialog/newChart';
+import BarChart from '../Chart/Bar';
 
 // React Hooks
 import useShare from '../../hooks/useShare';
@@ -18,6 +19,7 @@ import useDialog from '../../hooks/useDialog';
 
 const useStyles = makeStyles({
   addBtn: { padding: 0 },
+  grid: { marginTop: 20 },
   shareBtn: { marginBottom: 10 },
   menuIcon: { marginRight: 10 },
 });
@@ -27,7 +29,7 @@ const Dashboard = () => {
   const { charts = [] } = dashboard; // Provide default value of [] if dashboard hasn't been chosen yet
   const { showDialog, toggleDialog } = useDialog(false);
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
-  const { addBtn, menuIcon, shareBtn } = useStyles();
+  const { addBtn, grid, menuIcon, shareBtn } = useStyles();
 
   return (
     Object.keys(dashboard).length > 0 && (
@@ -55,11 +57,18 @@ const Dashboard = () => {
             </MenuItem>
           </Menu>
         </Grid>
-        <Grid container direction="row" justify="flex-start" alignItems="flex-start" spacing={3}>
+        <Grid
+          container
+          className={grid}
+          direction="row"
+          justify="space-between"
+          alignItems="center"
+          spacing={3}
+        >
           {charts.map((chart, index) => {
             return (
               <Grid key={index} item xs={12} md={6} xl={4}>
-                {JSON.stringify(chart)}
+                <BarChart chart={chart} dashboard={dashboard} />
               </Grid>
             );
           })}

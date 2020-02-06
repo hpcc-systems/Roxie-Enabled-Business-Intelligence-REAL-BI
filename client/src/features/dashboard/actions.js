@@ -1,17 +1,20 @@
 import axios from 'axios';
 import { ADD_CHART, ADD_DASHBOARD, GET_DASHBOARD, GET_DASHBOARDS, SET_DASHBOARD_ERRORS } from './';
 
-const addChart = async (charts, chartObj) => {
+const addChart = async chart => {
+  let response;
+
   try {
-    await axios.post('/api/chart/create', { chartObj });
+    response = await axios.post('/api/chart/create', { chart });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
   }
 
-  charts = [...charts, chartObj];
+  // prefix id created by DB to chart object
+  chart = { id: response.data.chartID, ...chart };
 
-  return { type: ADD_CHART, payload: charts };
+  return { type: ADD_CHART, payload: chart };
 };
 
 const addDashboard = async dashboard => {

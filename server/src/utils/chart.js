@@ -13,13 +13,27 @@ const getChartsByDashboard = async dashboardID => {
 };
 
 const createChart = async chart => {
+  let newChart;
+
   try {
-    await chartModel.create(chart);
+    newChart = await chartModel.create(chart);
   } catch (err) {
     return err;
   }
 
-  return;
+  return newChart.dataValues;
 };
 
-module.exports = { createChart, getChartsByDashboard };
+const getChartByID = async chartID => {
+  let chart;
+
+  try {
+    chart = await chartModel.findOne({ where: { id: chartID } });
+  } catch (err) {
+    return err;
+  }
+
+  return chart.dataValues;
+};
+
+module.exports = { createChart, getChartByID, getChartsByDashboard };

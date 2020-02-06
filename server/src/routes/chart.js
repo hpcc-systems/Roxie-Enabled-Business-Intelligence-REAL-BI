@@ -3,18 +3,17 @@ const { createChart } = require('../utils/chart');
 
 // Create a new chart
 router.post('/create', async (req, res) => {
-  const { chartObj } = req.body;
-
-  console.log(chartObj);
+  const { chart } = req.body;
+  let newChart;
 
   try {
-    await createChart(chartObj);
+    newChart = await createChart(chart);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(201).end();
+  return res.status(201).json({ chartID: newChart.id });
 });
 
 module.exports = router;

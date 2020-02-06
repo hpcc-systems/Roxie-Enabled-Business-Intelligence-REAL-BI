@@ -1,10 +1,12 @@
 const router = require('express').Router();
 const { getClusterByID } = require('../utils/cluster');
 const {
+  getDataFromQuery,
   getQueryFieldsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
 } = require('../utils/query');
+const { getChartByID } = require('../utils/chart');
 
 router.get('/search', async (req, res) => {
   const { clusterID, keyword = '*' } = req.query;
@@ -36,6 +38,23 @@ router.get('/info', async (req, res) => {
   }
 
   return res.status(200).json(queryInfo);
+});
+
+router.get('/data', async (req, res) => {
+  const { chartID, clusterID } = req.query;
+  let data = [];
+  let chart, cluster;
+
+  try {
+    cluster = await getClusterByID(clusterID);
+    chart = await getChartByID(chartID);
+    data = await getDataFromQuery(cluster, chart);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).end();
+  }
+
+  return res.status(200).json(data);
 });
 
 module.exports = router;

@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const chart = sequelize.define(
     'chart',
     {
-      queryName: DataTypes.STRING,
+      query: DataTypes.STRING,
       type: DataTypes.STRING,
       options: DataTypes.JSON,
       sort: DataTypes.INTEGER,

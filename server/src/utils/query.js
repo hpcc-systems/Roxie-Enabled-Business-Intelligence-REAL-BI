@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { getFieldType } = require('./misc');
+const { getFieldType, getParamsString } = require('./misc');
 
 const getQueryListFromCluster = async ({ host, port }, keyword) => {
   let queryList = [];
@@ -100,4 +100,28 @@ const getQueryFieldsFromCluster = async ({ host }, query) => {
   return fieldList;
 };
 
-module.exports = { getQueryFieldsFromCluster, getQueryListFromCluster, getQueryParamsFromCluster };
+const getDataFromQuery = async ({ host }, { options, query }) => {
+  const [querySet, queryName] = query.split(':');
+  const paramsList = getParamsString(JSON.parse(options).params);
+
+  const url = `${host}:8002/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
+
+  try {
+    response = await axios.get(url);
+  } catch (err) {
+    return err;
+  }
+
+  // Determine if query info was returned within response
+  data = response.data[`${queryName}Response`].Results['result_1'].Row;
+  data = data != undefined ? data : [];
+
+  return data;
+};
+
+module.exports = {
+  getDataFromQuery,
+  getQueryFieldsFromCluster,
+  getQueryListFromCluster,
+  getQueryParamsFromCluster,
+};
