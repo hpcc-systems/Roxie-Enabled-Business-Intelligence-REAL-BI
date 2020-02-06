@@ -25,11 +25,12 @@ import { addDashboard, getDashboard, getDashboards } from '../../features/dashbo
 
 const initState = { clusterID: '', name: '' };
 
-const useStyles = makeStyles({
+// Create styles
+const useStyles = makeStyles(() => ({
   button: { marginRight: 20, minWidth: 25, padding: 0 },
   drawer: { width: 250 },
   typography: { margin: '10px 0 15px 15px' },
-});
+}));
 
 const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
   const {

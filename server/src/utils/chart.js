@@ -36,4 +36,14 @@ const getChartByID = async chartID => {
   return chart.dataValues;
 };
 
-module.exports = { createChart, getChartByID, getChartsByDashboard };
+const deleteChartByID = async chartID => {
+  try {
+    await chartModel.destroy({ where: { id: chartID } });
+  } catch (err) {
+    return err;
+  }
+
+  return;
+};
+
+module.exports = { createChart, deleteChartByID, getChartByID, getChartsByDashboard };

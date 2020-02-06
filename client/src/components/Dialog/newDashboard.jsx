@@ -17,6 +17,7 @@ import { Close as CloseIcon } from '@material-ui/icons';
 // Redux Actions
 import { getClusters } from '../../features/cluster/actions';
 
+// Create styles
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
   formControl: { marginBottom: 24 },

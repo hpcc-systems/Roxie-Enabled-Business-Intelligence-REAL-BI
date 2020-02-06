@@ -29,6 +29,7 @@ const steps = [
   'Set chart fields',
 ];
 
+// Create styles
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
 }));

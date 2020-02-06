@@ -1,5 +1,12 @@
 import axios from 'axios';
-import { ADD_CHART, ADD_DASHBOARD, GET_DASHBOARD, GET_DASHBOARDS, SET_DASHBOARD_ERRORS } from './';
+import {
+  ADD_CHART,
+  ADD_DASHBOARD,
+  DELETE_CHART,
+  GET_DASHBOARD,
+  GET_DASHBOARDS,
+  SET_DASHBOARD_ERRORS,
+} from './';
 
 const addChart = async chart => {
   let response;
@@ -56,4 +63,18 @@ const getDashboards = async () => {
   return { type: GET_DASHBOARDS, payload: response.data };
 };
 
-export { addChart, addDashboard, getDashboard, getDashboards };
+const deleteChart = async (charts, chartID) => {
+  try {
+    await axios.delete('/api/chart/delete', { params: { chartID } });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_DASHBOARD_ERRORS, payload: err };
+  }
+
+  // Remove selected chart from array
+  charts = charts.filter(({ id }) => id !== chartID);
+
+  return { type: DELETE_CHART, payload: charts };
+};
+
+export { addChart, addDashboard, deleteChart, getDashboard, getDashboards };

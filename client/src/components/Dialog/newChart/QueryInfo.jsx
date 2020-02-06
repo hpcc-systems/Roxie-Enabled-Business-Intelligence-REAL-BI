@@ -15,6 +15,7 @@ import {
 // Redux Actions
 import { getQueryInfo } from '../../../features/query/actions';
 
+// Create styles
 const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
 }));

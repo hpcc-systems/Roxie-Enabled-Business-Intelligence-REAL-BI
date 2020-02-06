@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 
 // React Components
@@ -21,12 +22,22 @@ if (token) {
   store.dispatch(action);
 }
 
+// Create custom app theme
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#ed1c24' },
+    secondary: { main: '#666666' },
+  },
+});
+
 const App = () => {
   return (
     <Provider store={store}>
-      <CssBaseline />
-      <Header />
-      <Dashboard />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Header />
+        <Dashboard />
+      </ThemeProvider>
     </Provider>
   );
 };

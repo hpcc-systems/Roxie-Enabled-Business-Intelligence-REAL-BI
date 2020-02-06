@@ -6,6 +6,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 // Redux Actions
 import { getQueries } from '../../../features/query/actions';
 
+// Create styles
 const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
 }));

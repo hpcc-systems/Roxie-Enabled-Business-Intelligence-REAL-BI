@@ -1,4 +1,11 @@
-import { ADD_CHART, ADD_DASHBOARD, GET_DASHBOARD, GET_DASHBOARDS, SET_DASHBOARD_ERRORS } from './';
+import {
+  ADD_CHART,
+  ADD_DASHBOARD,
+  DELETE_CHART,
+  GET_DASHBOARD,
+  GET_DASHBOARDS,
+  SET_DASHBOARD_ERRORS,
+} from './';
 const initState = { dashboards: [], errors: {}, dashboard: {} };
 
 export default (state = initState, { type, payload }) => {
@@ -11,6 +18,12 @@ export default (state = initState, { type, payload }) => {
       };
     case ADD_DASHBOARD:
       return { ...state, errors: {}, dashboards: payload };
+    case DELETE_CHART:
+      return {
+        ...state,
+        errors: {},
+        dashboard: { ...state.dashboard, charts: payload },
+      };
     case GET_DASHBOARD:
       return { ...state, errors: {}, dashboard: payload };
     case GET_DASHBOARDS:

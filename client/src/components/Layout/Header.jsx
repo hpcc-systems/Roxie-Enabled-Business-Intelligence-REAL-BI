@@ -13,10 +13,11 @@ import { loginUser } from '../../features/auth/actions';
 // React Hooks
 import useDrawer from '../../hooks/useDrawer';
 
-const useStyles = makeStyles({
+// Create styles
+const useStyles = makeStyles(() => ({
   appBar: { marginBottom: 15 },
   typography: { flex: 1, marginLeft: 12 },
-});
+}));
 
 const Header = () => {
   const { showDrawer, toggleDrawer } = useDrawer(false);
