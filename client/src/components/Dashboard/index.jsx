@@ -48,7 +48,7 @@ const Dashboard = () => {
 
   return Object.keys(dashboard).length > 0 ? (
     <Container maxWidth="xl">
-      <Typography variant="h2" className={typography}>
+      <Typography variant="h2" color="inherit" className={typography}>
         {dashboard.name}
       </Typography>
       <Grid container direction="row" justify="space-between" alignItems="flex-start">
@@ -110,10 +110,10 @@ const Dashboard = () => {
     </Container>
   ) : (
     <Fragment>
-      <Typography variant="h2" align="center" className={header}>
+      <Typography variant="h2" align="center" color="inherit" className={header}>
         Welcome to HPCC Dashboard
       </Typography>
-      <Typography variant="h2" align="center" className={subheader}>
+      <Typography variant="h2" align="center" color="inherit" className={subheader}>
         Choose a dashboard from the left-hand menu to begin...
       </Typography>
     </Fragment>

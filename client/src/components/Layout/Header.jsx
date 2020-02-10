@@ -36,7 +36,7 @@ const Header = () => {
           <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={typography}>
+          <Typography variant="h6" color="inherit" className={typography}>
             HPCC Dashboard
           </Typography>
           <Button color="inherit" onClick={() => login()}>
