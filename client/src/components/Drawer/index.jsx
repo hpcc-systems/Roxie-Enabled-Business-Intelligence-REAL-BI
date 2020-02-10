@@ -30,6 +30,7 @@ const initState = { clusterID: '', name: '' };
 const useStyles = makeStyles(() => ({
   button: { marginRight: 20, minWidth: 25, padding: 0 },
   drawer: { width: 250 },
+  msg: { fontSize: 14, margin: '10px 0 15px 15px' },
   typography: { margin: '10px 0 15px 15px' },
 }));
 
@@ -41,7 +42,7 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
   } = useForm(initState);
   const { dashboards } = useSelector(state => state.dashboard);
   const { showDialog, toggleDialog } = useDialog(false);
-  const { button, drawer, typography } = useStyles();
+  const { button, drawer, msg, typography } = useStyles();
 
   // ComponentDidMount -> Get list of dashboards from database
   useEffect(() => {
@@ -83,16 +84,22 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
           </Grid>
         </Grid>
         <List component="nav">
-          {dashboards.map(({ id, name }, index) => {
-            return (
-              <ListItem key={index} button onClick={() => getDashboardInfo(id)}>
-                <ListItemIcon>
-                  <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary={name} />
-              </ListItem>
-            );
-          })}
+          {dashboards.length > 0 ? (
+            dashboards.map(({ id, name }, index) => {
+              return (
+                <ListItem key={index} button onClick={() => getDashboardInfo(id)}>
+                  <ListItemIcon>
+                    <DashboardIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={name} />
+                </ListItem>
+              );
+            })
+          ) : (
+            <Typography variant="h6" align="left" color="inherit" className={msg}>
+              Click '+' to add a dashbaord
+            </Typography>
+          )}
         </List>
       </div>
       <NewDashboardDialog
