@@ -9,7 +9,7 @@ const getFieldType = value => {
       ? 'number'
       : value == true || value == false
       ? 'boolean'
-      : value.toLowerCase();
+      : value.trim().toLowerCase();
 
   return type;
 };
@@ -39,8 +39,8 @@ const getParamsString = params => {
 
 const sortByKey = (array, key) => {
   const data = array.sort((a, b) => {
-    let aKey = typeof a[key] === 'string' ? a[key].trim().toLowerCase() : a[key];
-    let bKey = typeof b[key] === 'string' ? b[key].trim().toLowerCase() : b[key];
+    const aKey = typeof a[key] === 'string' ? a[key].trim().toLowerCase() : a[key];
+    const bKey = typeof b[key] === 'string' ? b[key].trim().toLowerCase() : b[key];
 
     return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
   });
