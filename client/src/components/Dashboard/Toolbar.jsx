@@ -13,20 +13,21 @@ import useShare from '../../hooks/useShare';
 
 // Create styles
 const useStyles = makeStyles({
+  addBtn: { marginRight: 10, paddingTop: 0, paddingBottom: 0 },
   menuIcon: { marginRight: 10 },
   typography: { flex: 1, fontSize: 24 },
 });
 
 const ToolbarComp = ({ name, toggleDialog }) => {
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
-  const { menuIcon, typography } = useStyles();
+  const { addBtn, menuIcon, typography } = useStyles();
 
   return (
     <Toolbar>
       <Typography variant="h2" color="inherit" className={typography}>
         {name}
       </Typography>
-      <Button color="primary" onClick={toggleDialog}>
+      <Button className={addBtn} color="primary" onClick={toggleDialog}>
         <AddCircleIcon fontSize="large" />
       </Button>
       <Button variant="contained" color="primary" onClick={showMenu}>
