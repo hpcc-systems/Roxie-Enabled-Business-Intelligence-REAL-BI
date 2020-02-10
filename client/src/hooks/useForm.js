@@ -24,7 +24,6 @@ const useForm = initState => {
   };
 
   const setSingleValue = ({ name, value }) => {
-    console.log('fired');
     return setValues(prevState => ({ ...prevState, [name]: value }));
   };
 

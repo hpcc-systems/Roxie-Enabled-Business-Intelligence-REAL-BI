@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { getFieldType, getParamsString, sortByKey } = require('./misc');
+const { findQueryResultsObj, getFieldType, getParamsString, sortByKey } = require('./misc');
 
 const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   let queryList = [];
@@ -82,9 +82,10 @@ const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
     return err;
   }
 
-  // Determine if query info was returned within response
-  data = response.data[`${queryName}Response`].Results['Result 1'].Row;
-  data = data != undefined ? data[0] : {};
+  // Find data array from response
+  const responseRef = response.data[`${queryName}Response`].Results;
+  data = findQueryResultsObj(responseRef);
+  data = data ? data[0] : {};
 
   // Format fields from query into array of objects
   fieldList = Object.keys(data).map(key => {
@@ -101,7 +102,7 @@ const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
 };
 
 const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
-  const { params, xAxis, yAxis } = JSON.parse(options);
+  const { params } = JSON.parse(options);
   const [querySet, queryName] = query.split(':');
   const paramsList = getParamsString(params);
 
@@ -113,23 +114,11 @@ const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
     return err;
   }
 
-  const nestedRef = response.data[`${queryName}Response`].Results;
-  const nestedKeys = ['result_1', 'Result 1'];
-  let data = [];
-
-  // Determine if query info was returned within response
-  // Used traditional for loop in order to use 'break;'
-  for (let i = 0; i < nestedKeys.length; i++) {
-    const nestedData = nestedRef[nestedKeys[i]];
-
-    if (nestedData != undefined) {
-      data = nestedData.Row;
-      break;
-    }
-  }
-
-  // Sort data
-  data = sortByKey(data, xAxis);
+  // Find data array from response
+  const responseRef = response.data[`${queryName}Response`].Results;
+  let data = findQueryResultsObj(responseRef);
+  data = data ? data : [];
+  // data = data ? sortByKey(data, xAxis) : [];
 
   return data;
 };

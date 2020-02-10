@@ -43,7 +43,7 @@ const BarChartComp = ({ chart, dashboard }) => {
         <XAxis dataKey={xAxis}>
           <Label value={title} offset={230} position="top" />
         </XAxis>
-        <YAxis />
+        <YAxis interval="preserveStartEnd" />
         <Tooltip />
         <Legend />
         <Bar dataKey={yAxis} fill="#8884d8" />

@@ -41,6 +41,17 @@ const getParamsString = params => {
   return urlString;
 };
 
+const findQueryResultsObj = response => {
+  const nestedKeys = Object.keys(response);
+  const data = response[nestedKeys[0]].Row;
+
+  if (response[nestedKeys[0]].Row == undefined) {
+    return false;
+  }
+
+  return data;
+};
+
 const sortByKey = (array, key) => {
   const data = array.sort((a, b) => {
     const aKey = typeof a[key] === 'string' ? a[key].trim().toLowerCase() : a[key];
@@ -52,4 +63,4 @@ const sortByKey = (array, key) => {
   return data;
 };
 
-module.exports = { getFieldType, getParamsString, sortByKey };
+module.exports = { findQueryResultsObj, getFieldType, getParamsString, sortByKey };
