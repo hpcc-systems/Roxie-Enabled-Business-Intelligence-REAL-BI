@@ -37,4 +37,15 @@ const getParamsString = params => {
   return urlString;
 };
 
-module.exports = { getFieldType, getParamsString };
+const sortByKey = (array, key) => {
+  const data = array.sort((a, b) => {
+    let aKey = typeof a[key] === 'string' ? a[key].trim().toLowerCase() : a[key];
+    let bKey = typeof b[key] === 'string' ? b[key].trim().toLowerCase() : b[key];
+
+    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
+  });
+
+  return data;
+};
+
+module.exports = { getFieldType, getParamsString, sortByKey };

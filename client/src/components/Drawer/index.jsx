@@ -22,6 +22,7 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { addDashboard, getDashboard, getDashboards } from '../../features/dashboard/actions';
+import { getCharts } from '../../features/chart/actions';
 
 const initState = { clusterID: '', name: '' };
 
@@ -49,7 +50,10 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
 
   // Get information about specific dashboard and hide drawer
   const getDashboardInfo = dashboardID => {
-    getDashboard(dashboardID).then(action => dispatch(action));
+    Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
+      actions.map(action => dispatch(action));
+    });
+
     toggleDrawer();
   };
 

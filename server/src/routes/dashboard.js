@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const { createDashboard, getDashboardByID, getDashboardsByUser } = require('../utils/dashboard');
-const { getChartsByDashboard } = require('../utils/chart');
 
 // Get all dashboards
 router.get('/all', async (req, res) => {
@@ -37,20 +36,16 @@ router.post('/create', async (req, res) => {
 // Get information about a single dashboard
 router.get('/info', async (req, res) => {
   const { dashboardID } = req.query;
-  let dashboard, charts;
+  let dashboard;
 
   try {
     dashboard = await getDashboardByID(dashboardID);
-    charts = await getChartsByDashboard(dashboardID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  // Add charts to dashboard object
-  dashboard.charts = charts;
-
-  return res.status(201).json(dashboard);
+  return res.status(200).json(dashboard);
 });
 
 module.exports = router;

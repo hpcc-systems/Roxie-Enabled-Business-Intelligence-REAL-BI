@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { getFieldType, getParamsString } = require('./misc');
+const { getFieldType, getParamsString, sortByKey } = require('./misc');
 
 const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   let queryList = [];
@@ -101,8 +101,9 @@ const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
 };
 
 const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
+  const { params, xAxis, yAxis } = JSON.parse(options);
   const [querySet, queryName] = query.split(':');
-  const paramsList = getParamsString(JSON.parse(options).params);
+  const paramsList = getParamsString(params);
 
   const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
 
@@ -112,9 +113,23 @@ const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
     return err;
   }
 
+  const nestedRef = response.data[`${queryName}Response`].Results;
+  const nestedKeys = ['result_1', 'Result 1'];
+  let data = [];
+
   // Determine if query info was returned within response
-  data = response.data[`${queryName}Response`].Results['result_1'].Row;
-  data = data != undefined ? data : [];
+  // Used traditional for loop in order to use 'break;'
+  for (let i = 0; i < nestedKeys.length; i++) {
+    const nestedData = nestedRef[nestedKeys[i]];
+
+    if (nestedData != undefined) {
+      data = nestedData.Row;
+      break;
+    }
+  }
+
+  // Sort data
+  data = sortByKey(data, xAxis);
 
   return data;
 };

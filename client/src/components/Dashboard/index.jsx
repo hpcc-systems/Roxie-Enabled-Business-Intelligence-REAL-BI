@@ -11,7 +11,7 @@ import {
 } from '@material-ui/icons';
 
 // Redux Actions
-import { deleteChart } from '../../features/dashboard/actions';
+import { deleteChart } from '../../features/chart/actions';
 
 // React Components
 import NewChartDialog from '../Dialog/newChart';
@@ -34,7 +34,7 @@ const useStyles = makeStyles({
 
 const Dashboard = () => {
   const { dashboard } = useSelector(state => state.dashboard);
-  const { charts, name } = dashboard;
+  const { charts } = useSelector(state => state.chart);
   const { showDialog, toggleDialog } = useDialog(false);
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
   const dispatch = useDispatch();
@@ -48,7 +48,7 @@ const Dashboard = () => {
     Object.keys(dashboard).length > 0 && (
       <Container maxWidth="xl">
         <Typography variant="h2" className={typography}>
-          {name}
+          {dashboard.name}
         </Typography>
         <Grid container direction="row" justify="space-between" alignItems="flex-start">
           <Grid item xs={11}>

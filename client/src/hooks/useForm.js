@@ -23,7 +23,12 @@ const useForm = initState => {
     return setValues(state);
   };
 
-  return { values, handleChange, handleChangeObj, resetState };
+  const setSingleValue = ({ name, value }) => {
+    console.log('fired');
+    return setValues(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  return { values, handleChange, handleChangeObj, resetState, setSingleValue };
 };
 
 export default useForm;

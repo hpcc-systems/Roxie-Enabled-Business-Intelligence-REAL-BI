@@ -5,7 +5,7 @@ import { Button, Dialog, DialogActions, DialogContent } from '@material-ui/core'
 import { Close as CloseIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { addChart } from '../../../features/dashboard/actions';
+import { addChart } from '../../../features/chart/actions';
 
 // React Components
 import Stepper from './Stepper';
@@ -40,9 +40,11 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     handleChange,
     handleChangeObj,
     resetState,
+    setSingleValue,
   } = useForm(initState);
   const { step, nextStep, prevStep, resetStep } = useStepper(0);
-  const { id: dashboardID, charts } = useSelector(state => state.dashboard.dashboard);
+  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
   const { close } = useStyles();
 
@@ -79,7 +81,14 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         {(() => {
           switch (step) {
             case 0:
-              return <SearchQuery handleChange={handleChange} keyword={keyword} />;
+              return (
+                <SearchQuery
+                  handleChange={handleChange}
+                  keyword={keyword}
+                  query={query}
+                  setSingleValue={setSingleValue}
+                />
+              );
             case 1:
               return (
                 <QueryList

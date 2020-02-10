@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 
@@ -7,8 +7,15 @@ const useStyles = makeStyles(() => ({
   textField: { marginBottom: 24 },
 }));
 
-const SearchQuery = ({ handleChange, keyword }) => {
+const SearchQuery = ({ handleChange, keyword, query, setSingleValue }) => {
   const { textField } = useStyles();
+
+  // If a user goes back and searches for a different query, clear the query state field
+  useEffect(() => {
+    if (query !== '') {
+      setSingleValue({ name: 'query', value: '' });
+    }
+  });
 
   return (
     <TextField
