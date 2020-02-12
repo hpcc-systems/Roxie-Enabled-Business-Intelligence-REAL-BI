@@ -1,4 +1,4 @@
-import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS } from './';
+import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS, UPDATE_CHART } from './';
 const initState = { charts: [], errors: {} };
 
 export default (state = initState, { type, payload }) => {
@@ -19,6 +19,8 @@ export default (state = initState, { type, payload }) => {
       return { ...state, charts: payload, errors: {} };
     case SET_CHART_ERRORS:
       return { ...state, errors: payload };
+    case UPDATE_CHART:
+      return { ...state, charts: payload, errors: {} };
     default:
       return state;
   }

@@ -36,6 +36,18 @@ const getChartByID = async chartID => {
   return chart.dataValues;
 };
 
+const updateChartByID = async chart => {
+  const { id, ...chartFields } = chart;
+
+  try {
+    await chartModel.update({ ...chartFields }, { where: { id } });
+  } catch (err) {
+    return err;
+  }
+
+  return;
+};
+
 const deleteChartByID = async chartID => {
   try {
     await chartModel.destroy({ where: { id: chartID } });
@@ -46,4 +58,10 @@ const deleteChartByID = async chartID => {
   return;
 };
 
-module.exports = { createChart, deleteChartByID, getChartByID, getChartsByDashboard };
+module.exports = {
+  createChart,
+  deleteChartByID,
+  getChartByID,
+  getChartsByDashboard,
+  updateChartByID,
+};

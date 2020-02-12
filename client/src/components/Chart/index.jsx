@@ -12,7 +12,7 @@ import { getChartData } from '../../utils/chart';
 
 // Create styles
 const useStyles = makeStyles({
-  progress: { margin: '0 0 10px 20px' },
+  progress: { margin: '0 0 10px 10px' },
 });
 
 const ChartComp = ({ chart, dashboard }) => {

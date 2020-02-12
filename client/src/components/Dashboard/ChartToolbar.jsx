@@ -5,23 +5,23 @@ import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
 
 // Create styles
 const useStyles = makeStyles({
+  button: { minWidth: 40 },
   div: { flex: 1 },
-  closeBtn: { width: 16 },
   toolbar: { padding: 0 },
 });
 
-const ChartToolbar = ({ chartID, removeChart }) => {
-  const { div, closeBtn, toolbar } = useStyles();
+const ChartToolbar = ({ chartID, toggleDialog, removeChart }) => {
+  const { button, div, toolbar } = useStyles();
 
   return (
     <Toolbar className={toolbar}>
       <div className={div}>
-        <Button className={closeBtn} onClick={() => removeChart(chartID)}>
+        <Button className={button} onClick={() => removeChart(chartID)}>
           <CloseIcon />
         </Button>
       </div>
-      <Button>
-        <EditIcon />
+      <Button className={button}>
+        <EditIcon onClick={() => toggleDialog(chartID)} />
       </Button>
     </Toolbar>
   );

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
@@ -11,15 +11,23 @@ import Toolbar from './Toolbar';
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 import NewChartDialog from '../Dialog/newChart';
+import EditChartDialog from '../Dialog/editChart';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
 const Dashboard = () => {
+  const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
-  const { showDialog, toggleDialog } = useDialog(false);
+  const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
+  const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const dispatch = useDispatch();
+
+  const editChart = chartID => {
+    setChartID(chartID);
+    editChartToggle();
+  };
 
   const removeChart = chartID => {
     deleteChart(charts, chartID).then(action => dispatch(action));
@@ -27,7 +35,7 @@ const Dashboard = () => {
 
   return Object.keys(dashboard).length > 0 ? (
     <Fragment>
-      <Toolbar name={dashboard.name} toggleDialog={toggleDialog} />
+      <Toolbar name={dashboard.name} toggleDialog={newChartToggle} />
       <Container maxWidth="xl">
         <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
           {charts.map((chart, index) => {
@@ -36,14 +44,17 @@ const Dashboard = () => {
             return (
               <Grid key={index} item md={12} lg={6} xl={4}>
                 <Paper>
-                  <ChartToolbar chartID={id} removeChart={removeChart} />
+                  <ChartToolbar chartID={id} toggleDialog={editChart} removeChart={removeChart} />
                   <Chart chart={chart} dashboard={dashboard} />
                 </Paper>
               </Grid>
             );
           })}
         </Grid>
-        <NewChartDialog show={showDialog} toggleDialog={toggleDialog} />
+        {newChartShow ? <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} /> : null}
+        {editChartShow ? (
+          <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
+        ) : null}
       </Container>
     </Fragment>
   ) : (

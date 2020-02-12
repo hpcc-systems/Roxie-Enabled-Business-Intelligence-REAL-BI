@@ -1,5 +1,10 @@
 const router = require('express').Router();
-const { createChart, deleteChartByID, getChartsByDashboard } = require('../utils/chart');
+const {
+  createChart,
+  deleteChartByID,
+  getChartsByDashboard,
+  updateChartByID,
+} = require('../utils/chart');
 
 // Get all charts for a given dashboard
 router.get('/all', async (req, res) => {
@@ -29,6 +34,18 @@ router.post('/create', async (req, res) => {
   }
 
   return res.status(201).json({ chartID: newChart.id });
+});
+
+router.put('/update', async (req, res) => {
+  const { chart } = req.body;
+
+  try {
+    await updateChartByID(chart);
+  } catch (err) {
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  return res.status(202).end();
 });
 
 router.delete('/delete', async (req, res) => {

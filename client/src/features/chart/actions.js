@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS } from './';
+import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS, UPDATE_CHART } from './';
 
 const getCharts = async dashboardID => {
   let response;
@@ -44,4 +44,21 @@ const deleteChart = async (charts, chartID) => {
   return { type: DELETE_CHART, payload: charts };
 };
 
-export { addChart, deleteChart, getCharts };
+const updateChart = async (charts, chart) => {
+  const { id: chartID } = chart;
+
+  try {
+    await axios.put('/api/chart/update', { chart });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_CHART_ERRORS, payload: err };
+  }
+
+  // Update selected chart in array
+  const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
+  charts[chartIndex] = chart;
+
+  return { type: UPDATE_CHART, payload: charts };
+};
+
+export { addChart, deleteChart, getCharts, updateChart };
