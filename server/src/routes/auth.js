@@ -15,6 +15,11 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
+  // No user found with provided id
+  if (!user) {
+    return res.status(500).json({ msg: 'No user found' });
+  }
+
   // Create Token
   return jwt.sign(user, JWT_SECRET, {}, (err, token) => {
     if (err) {

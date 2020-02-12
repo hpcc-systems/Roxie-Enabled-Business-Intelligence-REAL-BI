@@ -7,10 +7,10 @@ const charts = [
   { icon: <LineChartIcon fontSize="large" />, value: 'line' },
 ];
 
-const SelectChart = ({ chart, handleChange }) => {
+const SelectChart = ({ chartType, handleChange }) => {
   return (
     <Grid container direction="row" justify="space-evenly" alignItems="center">
-      <RadioGroup name="chart" value={chart} onChange={handleChange} row>
+      <RadioGroup name="chartType" value={chartType} onChange={handleChange} row>
         {charts.map(({ icon, value }, index) => {
           return (
             <FormControlLabel

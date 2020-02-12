@@ -17,9 +17,7 @@ const token = localStorage.getItem('hpccDashboardToken');
 
 // Check for existing token to log in user
 if (token) {
-  const action = setUserFromToken(token);
-
-  store.dispatch(action);
+  store.dispatch(setUserFromToken(token));
 }
 
 // Create custom app theme

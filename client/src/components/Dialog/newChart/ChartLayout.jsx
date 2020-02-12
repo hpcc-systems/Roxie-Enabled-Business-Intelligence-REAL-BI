@@ -7,7 +7,7 @@ const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 32 },
 }));
 
-const ChartLayout = ({ chart, config, fields, handleChangeObj }) => {
+const ChartLayout = ({ chartType, config, fields, handleChangeObj }) => {
   const { formControl } = useStyles();
 
   return (
@@ -23,7 +23,7 @@ const ChartLayout = ({ chart, config, fields, handleChangeObj }) => {
         autoComplete="off"
       />
       {/* Show axis fields only if it makes sense for the chart type */}
-      {chart === 'bar' || chart === 'line' ? (
+      {chartType === 'bar' || chartType === 'line' ? (
         <Fragment>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>

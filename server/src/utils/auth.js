@@ -9,6 +9,11 @@ const getUserByID = async userID => {
     return err;
   }
 
+  // No user found with provided id
+  if (!user) {
+    return false;
+  }
+
   return user.dataValues;
 };
 

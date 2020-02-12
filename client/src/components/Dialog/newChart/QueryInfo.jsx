@@ -29,7 +29,10 @@ const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, qu
 
   // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
   useEffect(() => {
-    getQueryInfo(clusterID, query).then(action => dispatch(action));
+    // Check for populated query value
+    if (query) {
+      getQueryInfo(clusterID, query).then(action => dispatch(action));
+    }
   }, [clusterID, dispatch, query]);
 
   return (
@@ -69,7 +72,7 @@ const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, qu
             {queryData.fields.map(({ name, type }, index) => {
               return (
                 <MenuItem key={index} value={name}>
-                  <Checkbox checked={fields.indexOf(name) > -1} />
+                  <Checkbox color="primary" checked={fields.indexOf(name) > -1} />
                   <ListItemText primary={`${name}: ${type}`} />
                 </MenuItem>
               );

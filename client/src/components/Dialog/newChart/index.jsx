@@ -19,7 +19,7 @@ import ChartLayout from './ChartLayout';
 import useForm from '../../../hooks/useForm';
 import useStepper from '../../../hooks/useStepper';
 
-const initState = { chart: '', config: {}, fields: [], keyword: '', params: {}, query: '' };
+const initState = { chartType: '', config: {}, fields: [], keyword: '', params: {}, query: '' };
 
 const steps = [
   'Search query',
@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => ({
 
 const NewChartDialog = ({ show, toggleDialog }) => {
   const {
-    values: { chart, config, fields, keyword, params, query },
+    values: { chartType, config, fields, keyword, params, query },
     handleChange,
     handleChangeObj,
     resetState,
@@ -52,7 +52,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const newChart = () => {
     const chartObj = {
       query,
-      type: chart,
+      type: chartType,
       options: JSON.stringify({ ...config, params }),
       sort: charts.length + 1,
       dashboardID,
@@ -110,11 +110,11 @@ const NewChartDialog = ({ show, toggleDialog }) => {
                 />
               );
             case 3:
-              return <SelectChart chart={chart} handleChange={handleChange} />;
+              return <SelectChart chartType={chartType} handleChange={handleChange} />;
             case 4:
               return (
                 <ChartLayout
-                  chart={chart}
+                  chartType={chartType}
                   config={config}
                   handleChange={handleChange}
                   fields={fields}
