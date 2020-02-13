@@ -9,8 +9,8 @@ import { addChart } from '../../../features/chart/actions';
 
 // React Components
 import Stepper from './Stepper';
-import SearchQuery from './SearchQuery';
-import QueryList from './QueryList';
+import QuerySearch from './QuerySearch';
+import SelectDataset from './SelectDataset';
 import QueryInfo from './QueryInfo';
 import SelectChart from './SelectChart';
 import ChartLayout from './ChartLayout';
@@ -19,14 +19,22 @@ import ChartLayout from './ChartLayout';
 import useForm from '../../../hooks/useForm';
 import useStepper from '../../../hooks/useStepper';
 
-const initState = { chartType: '', config: {}, fields: [], keyword: '', params: {}, query: '' };
+const initState = {
+  chartType: '',
+  config: {},
+  dataset: '',
+  fields: [],
+  keyword: '',
+  params: {},
+  query: '',
+};
 
 const steps = [
   'Search query',
-  'Select query',
+  'Select dataset',
   'Choose fields',
   'Choose chart type',
-  'Set chart fields',
+  'Set chart options',
 ];
 
 // Create styles
@@ -36,11 +44,10 @@ const useStyles = makeStyles(() => ({
 
 const NewChartDialog = ({ show, toggleDialog }) => {
   const {
-    values: { chartType, config, fields, keyword, params, query },
+    values: { chartType, config, dataset, fields, keyword, params, query },
     handleChange,
     handleChangeObj,
     resetState,
-    setSingleValue,
   } = useForm(initState);
   const { step, nextStep, prevStep, resetStep } = useStepper(0);
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
@@ -52,6 +59,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const newChart = () => {
     const chartObj = {
       query,
+      dataset,
       type: chartType,
       options: JSON.stringify({ ...config, params }),
       sort: charts.length + 1,
@@ -81,26 +89,20 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         {(() => {
           switch (step) {
             case 0:
-              return (
-                <SearchQuery
-                  handleChange={handleChange}
-                  keyword={keyword}
-                  query={query}
-                  setSingleValue={setSingleValue}
-                />
-              );
+              return <QuerySearch handleChange={handleChange} keyword={keyword} query={query} />;
             case 1:
               return (
-                <QueryList
+                <SelectDataset
+                  dataset={dataset}
                   dispatch={dispatch}
                   handleChange={handleChange}
-                  keyword={keyword}
                   query={query}
                 />
               );
             case 2:
               return (
                 <QueryInfo
+                  dataset={dataset}
                   dispatch={dispatch}
                   fields={fields}
                   handleChange={handleChange}

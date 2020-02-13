@@ -1,9 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
-  CircularProgress,
   FormControl,
   Input,
   InputLabel,
@@ -13,42 +12,22 @@ import {
   TextField,
 } from '@material-ui/core';
 
-// Redux Actions
-import { getQueryInfo } from '../../../features/query/actions';
-
 // Create styles
 const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
 }));
 
-const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, query }) => {
-  const [loading, setLoading] = useState(true);
-  const {
-    dashboard: { clusterID },
-  } = useSelector(state => state.dashboard);
-  const { query: queryData } = useSelector(state => state.query);
+const QueryInfo = ({ dataset, fields, handleChange, handleChangeObj, params }) => {
+  const { datasets, params: storeParams } = useSelector(state => state.query.query);
+  const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
   const { formControl } = useStyles();
 
-  // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
-  useEffect(() => {
-    // Check for populated query value
-    if (query) {
-      getQueryInfo(clusterID, query).then(action => {
-        dispatch(action);
-
-        setLoading(false);
-      });
-    }
-  }, [clusterID, dispatch, query]);
-
-  return loading ? (
-    <CircularProgress />
-  ) : (
+  return (
     <FormControl className={formControl} fullWidth>
-      {queryData.params.length > 0 ? (
+      {storeParams.length > 0 ? (
         <Fragment>
           <h3>Parameters</h3>
-          {queryData.params.map(({ name, type }, index) => {
+          {storeParams.map(({ name, type }, index) => {
             return (
               <TextField
                 key={index}
@@ -76,7 +55,7 @@ const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, qu
           renderValue={selected => selected.sort().join(', ')}
           name="fields"
         >
-          {queryData.fields.map(({ name, type }, index) => {
+          {selectedDataset.fields.map(({ name, type }, index) => {
             return (
               <MenuItem key={index} value={name}>
                 <Checkbox color="primary" checked={fields.indexOf(name) > -1} />

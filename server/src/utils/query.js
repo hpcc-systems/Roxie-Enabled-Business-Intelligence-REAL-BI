@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { findQueryResultsObj, getFieldType, getParamsString, sortByKey } = require('./misc');
+const { findDatasetFields, findQueryDatasets, getFieldType, getParamsString } = require('./misc');
 
 const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   let queryList = [];
@@ -68,10 +68,10 @@ const getQueryParamsFromCluster = async ({ host, dataPort }, query) => {
   return paramList;
 };
 
-const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
+const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
   const [querySet, queryName] = query.split(':');
-  let response, data;
-  let fieldList = [];
+  let response;
+  let data = [];
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/response/query/${querySet}/${queryName}/json?display`;
@@ -84,24 +84,21 @@ const getQueryFieldsFromCluster = async ({ host, dataPort }, query) => {
 
   // Find data array from response
   const responseRef = response.data[`${queryName}Response`].Results;
-  data = findQueryResultsObj(responseRef);
-  data = data ? data[0] : {};
+  const datasetRefs = findQueryDatasets(responseRef);
 
-  // Format fields from query into array of objects
-  fieldList = Object.keys(data).map(key => {
-    const value = data[key];
+  data = datasetRefs.map(dataset => {
+    const fields = findDatasetFields(responseRef[dataset].Row);
 
-    return {
-      name: key,
-      type: getFieldType(value),
-      checked: false, // Used by client
-    };
+    return { name: dataset, fields };
   });
 
-  return fieldList;
+  return data;
 };
 
-const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
+const getDataFromQuery = async (
+  { host, dataPort },
+  { dataset = 'count_by_weekday', options, query },
+) => {
   const { params } = JSON.parse(options);
   const [querySet, queryName] = query.split(':');
   const paramsList = getParamsString(params);
@@ -114,18 +111,16 @@ const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
     return err;
   }
 
-  // Find data array from response
+  // Get data array from response
   const responseRef = response.data[`${queryName}Response`].Results;
-  let data = findQueryResultsObj(responseRef);
-  data = data ? data : [];
-  // data = data ? sortByKey(data, xAxis) : [];
+  data = responseRef[dataset].Row;
 
   return data;
 };
 
 module.exports = {
   getDataFromQuery,
-  getQueryFieldsFromCluster,
+  getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
 };

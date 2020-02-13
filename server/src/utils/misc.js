@@ -41,26 +41,31 @@ const getParamsString = params => {
   return urlString;
 };
 
-const findQueryResultsObj = response => {
-  const nestedKeys = Object.keys(response);
-  const data = response[nestedKeys[0]].Row;
+const findQueryDatasets = response => {
+  const datasets = Object.keys(response);
 
-  if (response[nestedKeys[0]].Row == undefined) {
-    return false;
-  }
-
-  return data;
+  return datasets;
 };
 
-const sortByKey = (array, key) => {
-  const data = array.sort((a, b) => {
-    const aKey = typeof a[key] === 'string' ? a[key].trim().toLowerCase() : a[key];
-    const bKey = typeof b[key] === 'string' ? b[key].trim().toLowerCase() : b[key];
+const findDatasetFields = datasetRow => {
+  let fields = [];
 
-    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
+  datasetRow.forEach((rowObj, index) => {
+    const keys = Object.keys(rowObj);
+
+    fields = keys.map(key => {
+      // Get value of nested object key
+      const value = datasetRow[index][key];
+
+      return {
+        name: key,
+        type: getFieldType(value),
+        checked: false, // Used by client
+      };
+    });
   });
 
-  return data;
+  return fields;
 };
 
-module.exports = { findQueryResultsObj, getFieldType, getParamsString, sortByKey };
+module.exports = { findDatasetFields, findQueryDatasets, getFieldType, getParamsString };

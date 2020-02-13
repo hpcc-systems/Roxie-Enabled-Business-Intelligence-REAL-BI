@@ -21,15 +21,11 @@ const useForm = initState => {
 
   const resetState = state => setValues(state);
 
-  const setSingleValue = ({ name, value }) => {
-    return setValues(prevState => ({ ...prevState, [name]: value }));
-  };
-
   const updateState = useCallback(state => {
     return setValues(prevState => ({ ...prevState, ...state }));
   }, []);
 
-  return { values, handleChange, handleChangeObj, updateState, resetState, setSingleValue };
+  return { values, handleChange, handleChangeObj, updateState, resetState };
 };
 
 export default useForm;

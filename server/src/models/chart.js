@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     'chart',
     {
       query: DataTypes.STRING,
+      dataset: DataTypes.STRING,
       type: DataTypes.STRING,
       options: DataTypes.JSON,
       sort: DataTypes.INTEGER,

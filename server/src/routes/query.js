@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { getClusterByID } = require('../utils/cluster');
 const {
   getDataFromQuery,
-  getQueryFieldsFromCluster,
+  getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
 } = require('../utils/query');
@@ -31,7 +31,7 @@ router.get('/info', async (req, res) => {
   try {
     cluster = await getClusterByID(clusterID);
     queryInfo.params = await getQueryParamsFromCluster(cluster, query);
-    queryInfo.fields = await getQueryFieldsFromCluster(cluster, query);
+    queryInfo.datasets = await getQueryDatasetsFromCluster(cluster, query);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
