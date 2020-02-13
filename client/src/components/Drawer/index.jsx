@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
+  CircularProgress,
   Drawer,
   Grid,
   List,
@@ -35,6 +36,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
+  const [dashboardsLoading, setDashboardsLoading] = useState(true);
+  const [newDashboardLoading, setNewDashboardLoading] = useState(false);
   const {
     values: { clusterID, name },
     handleChange,
@@ -46,7 +49,10 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
 
   // ComponentDidMount -> Get list of dashboards from database
   useEffect(() => {
-    getDashboards().then(action => dispatch(action));
+    getDashboards().then(action => {
+      dispatch(action);
+      setDashboardsLoading(false);
+    });
   }, [dispatch]);
 
   // Get information about specific dashboard and hide drawer
@@ -60,7 +66,13 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
 
   // Add dashboard to database and hide dialog
   const newDashboard = () => {
-    addDashboard({ clusterID, name }).then(action => dispatch(action));
+    setNewDashboardLoading(true);
+
+    addDashboard({ clusterID, name }).then(action => {
+      dispatch(action);
+      setNewDashboardLoading(false);
+    });
+
     toggleDialog();
   };
 
@@ -83,24 +95,28 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
             </Button>
           </Grid>
         </Grid>
-        <List component="nav">
-          {dashboards.length > 0 ? (
-            dashboards.map(({ id, name }, index) => {
-              return (
-                <ListItem key={index} button onClick={() => getDashboardInfo(id)}>
-                  <ListItemIcon>
-                    <DashboardIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={name} />
-                </ListItem>
-              );
-            })
-          ) : (
-            <Typography variant="h6" align="left" color="inherit" className={msg}>
-              Click '+' to add a dashbaord
-            </Typography>
-          )}
-        </List>
+        {dashboardsLoading ? (
+          <CircularProgress />
+        ) : (
+          <List component="nav">
+            {dashboards.length > 0 ? (
+              dashboards.map(({ id, name }, index) => {
+                return (
+                  <ListItem key={index} button onClick={() => getDashboardInfo(id)}>
+                    <ListItemIcon>
+                      <DashboardIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={name} />
+                  </ListItem>
+                );
+              })
+            ) : (
+              <Typography variant="h6" align="left" color="inherit" className={msg}>
+                Click '+' to add a dashbaord
+              </Typography>
+            )}
+          </List>
+        )}
       </div>
       <NewDashboardDialog
         clusterID={clusterID}
@@ -108,6 +124,7 @@ const DrawerComp = ({ dispatch, showDrawer, toggleDrawer }) => {
         handleChange={handleChange}
         name={name}
         newDashboard={newDashboard}
+        newDashboardLoading={newDashboardLoading}
         resetDialog={resetDialog}
         show={showDialog}
       />

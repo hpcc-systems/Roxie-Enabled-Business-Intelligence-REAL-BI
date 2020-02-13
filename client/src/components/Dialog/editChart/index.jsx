@@ -122,8 +122,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
                 <ChartLayout
                   chartType={chartType}
                   config={config}
-                  handleChange={handleChange}
                   fields={fields}
+                  handleChange={handleChange}
                   handleChangeObj={handleChangeObj}
                 />
               );

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,6 +22,7 @@ import { getClusters } from '../../features/cluster/actions';
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
   formControl: { marginBottom: 24 },
+  progress: { marginLeft: 10 },
 }));
 
 const NewDashboardDialog = ({
@@ -29,11 +31,12 @@ const NewDashboardDialog = ({
   handleChange,
   name,
   newDashboard,
+  newDashboardLoading,
   resetDialog,
   show,
 }) => {
   const { clusters } = useSelector(state => state.cluster);
-  const { close, formControl } = useStyles();
+  const { close, formControl, progress } = useStyles();
 
   // ComponentDidMount -> Get list of clusters from database
   useEffect(() => {
@@ -69,8 +72,16 @@ const NewDashboardDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button color="primary" onClick={newDashboard} variant="contained">
+        <Button
+          disabled={newDashboardLoading}
+          color="primary"
+          onClick={newDashboard}
+          variant="contained"
+        >
           Create Dashboard
+          {newDashboardLoading && (
+            <CircularProgress className={progress} color="inherit" size={15} />
+          )}
         </Button>
       </DialogActions>
     </Dialog>
