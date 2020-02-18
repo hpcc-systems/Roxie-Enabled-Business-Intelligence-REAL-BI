@@ -110,6 +110,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
             case 0:
               return (
                 <QueryInfo
+                  dataset={dataset}
                   dispatch={dispatch}
                   fields={fields}
                   handleChange={handleChange}

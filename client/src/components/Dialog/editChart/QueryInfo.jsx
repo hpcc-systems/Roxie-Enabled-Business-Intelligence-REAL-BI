@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
 const QueryInfo = ({ dataset, dispatch, fields, handleChange, handleChangeObj, params, query }) => {
   const [loading, setLoading] = useState(true);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
-  const { datasets, params: paramsData } = useSelector(state => state.query.query);
+  const { datasets = [], params: paramsData } = useSelector(state => state.query.query);
   const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
   const { formControl } = useStyles();
 
