@@ -95,13 +95,9 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
   return data;
 };
 
-const getDataFromQuery = async (
-  { host, dataPort },
-  { dataset = 'count_by_weekday', options, query },
-) => {
-  const { params } = JSON.parse(options);
+const getDataFromQuery = async ({ host, dataPort }, { dataset, options, query }) => {
   const [querySet, queryName] = query.split(':');
-  const paramsList = getParamsString(params);
+  const paramsList = getParamsString(options.params);
 
   const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
 

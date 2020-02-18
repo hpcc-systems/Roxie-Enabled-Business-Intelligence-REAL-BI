@@ -18,12 +18,9 @@ const useStyles = makeStyles({
 const ChartComp = ({ chart, dashboard }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { id: chartID, type } = chart;
+  const { id: chartID, options, type } = chart;
   const { clusterID } = dashboard;
   const { progress } = useStyles();
-
-  // Parse chart options string from DB
-  let options = JSON.parse(chart.options);
 
   // ComponentDidMount -> get data from hpcc query
   useEffect(() => {

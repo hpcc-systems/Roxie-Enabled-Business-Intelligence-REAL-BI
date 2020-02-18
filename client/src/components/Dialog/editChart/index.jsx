@@ -55,7 +55,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     // Confirm that an index was returned
     if (chartIndex > -1) {
       const { type, dashboardID, id, options, query, sort } = charts[chartIndex];
-      const { params, title, xAxis, yAxis } = JSON.parse(options);
+      const { params, title, xAxis, yAxis } = options;
 
       const newInitState = {
         chartType: type,
@@ -77,7 +77,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
       id,
       query,
       type: chartType,
-      options: JSON.stringify({ ...config, params }),
+      options: { ...config, params },
       sort,
       dashboardID,
     };
