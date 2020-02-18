@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
@@ -7,38 +7,28 @@ import BarChart from './Bar';
 import LineChart from './Line';
 import NoData from './NoData';
 
-// Utils
-import { getChartData } from '../../utils/chart';
-
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
 });
 
-const ChartComp = ({ chart, dashboard }) => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { id: chartID, options, type } = chart;
-  const { clusterID } = dashboard;
+const ChartComp = ({ chart, dataObj }) => {
+  const { data = {}, loading = true } = dataObj;
+  const { dataset, options, type } = chart;
   const { progress } = useStyles();
 
-  // ComponentDidMount -> get data from hpcc query
-  useEffect(() => {
-    getChartData(chartID, clusterID).then(data => {
-      setData(data);
-      setLoading(false);
-    });
-  }, [chartID, clusterID]);
+  // Determine if chart data is available
+  const chartData = Object.keys(data).length > 0 ? data[dataset].Row : [];
 
   return loading ? (
     <CircularProgress className={progress} />
-  ) : data.length > 0 ? (
+  ) : chartData.length > 0 ? (
     (() => {
       switch (type) {
         case 'bar':
-          return <BarChart data={data} options={options} />;
+          return <BarChart data={chartData} options={options} />;
         case 'line':
-          return <LineChart data={data} options={options} />;
+          return <LineChart data={chartData} options={options} />;
         default:
           return 'Unknown chart type';
       }

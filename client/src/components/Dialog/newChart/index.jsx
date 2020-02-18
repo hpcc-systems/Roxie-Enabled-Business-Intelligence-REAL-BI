@@ -89,7 +89,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         {(() => {
           switch (step) {
             case 0:
-              return <QuerySearch handleChange={handleChange} keyword={keyword} query={query} />;
+              return <QuerySearch handleChange={handleChange} keyword={keyword} />;
             case 1:
               return (
                 <SelectDataset

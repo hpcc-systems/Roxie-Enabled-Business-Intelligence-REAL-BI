@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
   autocomplete: { marginBottom: 24 },
 }));
 
-const QuerySearch = ({ handleChange, keyword, query }) => {
+const QuerySearch = ({ handleChange, keyword }) => {
   const [timeout, setTimeOutState] = useState(null);
   const [loading, setLoading] = useState(false);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);

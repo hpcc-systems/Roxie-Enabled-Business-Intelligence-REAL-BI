@@ -95,7 +95,7 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
   return data;
 };
 
-const getDataFromQuery = async ({ host, dataPort }, { dataset, options, query }) => {
+const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
   const [querySet, queryName] = query.split(':');
   const paramsList = getParamsString(options.params);
 
@@ -109,9 +109,8 @@ const getDataFromQuery = async ({ host, dataPort }, { dataset, options, query })
 
   // Get data array from response
   const responseRef = response.data[`${queryName}Response`].Results;
-  data = responseRef[dataset].Row;
 
-  return data;
+  return responseRef;
 };
 
 module.exports = {
