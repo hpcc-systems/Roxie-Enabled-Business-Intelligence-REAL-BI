@@ -17,7 +17,7 @@ const SelectDataset = ({ dataset, dispatch, handleChange, query }) => {
   const { datasets } = useSelector(state => state.query.query);
   const { formControl } = useStyles();
 
-  // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
+  // ComponentDidMount -> Get list of query datasets from hpcc
   useEffect(() => {
     // Check for populated query value
     if (query) {

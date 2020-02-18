@@ -21,15 +21,14 @@ const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
 }));
 
-const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, query }) => {
+const QueryInfo = ({ dataset, dispatch, fields, handleChange, handleChangeObj, params, query }) => {
   const [loading, setLoading] = useState(true);
-  const {
-    dashboard: { clusterID },
-  } = useSelector(state => state.dashboard);
-  const { query: queryData } = useSelector(state => state.query);
+  const { clusterID } = useSelector(state => state.dashboard.dashboard);
+  const { datasets, params: paramsData } = useSelector(state => state.query.query);
+  const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
   const { formControl } = useStyles();
 
-  // ComponentDidMount -> Get list of queries from hpcc based on keyword provided
+  // ComponentDidMount -> Get list of query datasets from hpcc
   useEffect(() => {
     // Check for populated query value
     if (query) {
@@ -45,10 +44,10 @@ const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, qu
     <CircularProgress />
   ) : (
     <FormControl className={formControl} fullWidth>
-      {queryData.params.length > 0 ? (
+      {paramsData.length > 0 ? (
         <Fragment>
           <h3>Parameters</h3>
-          {queryData.params.map(({ name, type }, index) => {
+          {paramsData.map(({ name, type }, index) => {
             return (
               <TextField
                 key={index}
@@ -76,7 +75,7 @@ const QueryInfo = ({ dispatch, fields, handleChange, handleChangeObj, params, qu
           renderValue={selected => selected.sort().join(', ')}
           name="fields"
         >
-          {queryData.fields.map(({ name, type }, index) => {
+          {selectedDataset.fields.map(({ name, type }, index) => {
             return (
               <MenuItem key={index} value={name}>
                 <Checkbox color="primary" checked={fields.indexOf(name) > -1} />

@@ -18,16 +18,16 @@ const useStyles = makeStyles(() => ({
 }));
 
 const QueryInfo = ({ dataset, fields, handleChange, handleChangeObj, params }) => {
-  const { datasets, params: storeParams } = useSelector(state => state.query.query);
+  const { datasets, params: paramsData } = useSelector(state => state.query.query);
   const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
   const { formControl } = useStyles();
 
   return (
     <FormControl className={formControl} fullWidth>
-      {storeParams.length > 0 ? (
+      {paramsData.length > 0 ? (
         <Fragment>
           <h3>Parameters</h3>
-          {storeParams.map(({ name, type }, index) => {
+          {paramsData.map(({ name, type }, index) => {
             return (
               <TextField
                 key={index}

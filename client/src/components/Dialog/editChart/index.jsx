@@ -21,6 +21,7 @@ const initState = {
   chartType: '',
   config: {},
   dashboardID: 0,
+  dataset: '',
   fields: [],
   id: 0,
   params: {},
@@ -37,7 +38,7 @@ const useStyles = makeStyles(() => ({
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const {
-    values: { chartType, config, dashboardID, fields, id, params, query, sort },
+    values: { chartType, config, dashboardID, dataset, fields, id, params, query, sort },
     handleChange,
     handleChangeObj,
     resetState,
@@ -54,12 +55,13 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     // Confirm that an index was returned
     if (chartIndex > -1) {
-      const { type, dashboardID, id, options, query, sort } = charts[chartIndex];
+      const { type, dashboardID, dataset, id, options, query, sort } = charts[chartIndex];
       const { params, title, xAxis, yAxis } = options;
 
       const newInitState = {
         chartType: type,
         config: { title, xAxis, yAxis },
+        dataset,
         dashboardID,
         id,
         params,
@@ -76,6 +78,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     const chartObj = {
       id,
       query,
+      dataset,
       type: chartType,
       options: { ...config, params },
       sort,
