@@ -6,7 +6,7 @@ const getClusters = async () => {
   try {
     clusters = await clusterModel.findAll();
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return clusters;
@@ -18,7 +18,7 @@ const getClusterByID = async id => {
   try {
     cluster = await clusterModel.findOne({ where: { id } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return cluster.dataValues;

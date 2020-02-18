@@ -38,7 +38,7 @@ const getParamsString = params => {
     return param;
   });
 
-  return urlString;
+  return `?${urlString}`;
 };
 
 const findQueryDatasets = response => {

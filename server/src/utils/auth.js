@@ -6,7 +6,7 @@ const getUserByID = async userID => {
   try {
     user = await userModel.findOne({ where: { id: userID } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   // No user found with provided id

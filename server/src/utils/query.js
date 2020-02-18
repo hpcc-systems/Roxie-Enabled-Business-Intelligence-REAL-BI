@@ -11,7 +11,7 @@ const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   try {
     response = await axios.get(url);
   } catch (err) {
-    return err;
+    throw err;
   }
 
   const { QuerysetQueries = {} } = response.data.WUListQueriesResponse;
@@ -49,7 +49,7 @@ const getQueryParamsFromCluster = async ({ host, dataPort }, query) => {
   try {
     response = await axios.get(url);
   } catch (err) {
-    return err;
+    throw err;
   }
 
   // Determine if query info was returned within response
@@ -79,7 +79,7 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
   try {
     response = await axios.get(url);
   } catch (err) {
-    return err;
+    throw err;
   }
 
   // Find data array from response
@@ -99,12 +99,12 @@ const getDataFromQuery = async ({ host, dataPort }, { dataset, options, query })
   const [querySet, queryName] = query.split(':');
   const paramsList = getParamsString(options.params);
 
-  const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json?${paramsList}`;
+  const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json${paramsList}`;
 
   try {
     response = await axios.get(url);
   } catch (err) {
-    return err;
+    throw err;
   }
 
   // Get data array from response

@@ -6,7 +6,7 @@ const getChartsByDashboard = async dashboardID => {
   try {
     charts = await chartModel.findAll({ where: { dashboardID } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return charts;
@@ -18,7 +18,7 @@ const createChart = async chart => {
   try {
     newChart = await chartModel.create(chart);
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return newChart.dataValues;
@@ -30,7 +30,7 @@ const getChartByID = async chartID => {
   try {
     chart = await chartModel.findOne({ where: { id: chartID } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return chart.dataValues;
@@ -42,7 +42,7 @@ const updateChartByID = async chart => {
   try {
     await chartModel.update({ ...chartFields }, { where: { id } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return;
@@ -52,7 +52,7 @@ const deleteChartByID = async chartID => {
   try {
     await chartModel.destroy({ where: { id: chartID } });
   } catch (err) {
-    return err;
+    throw err;
   }
 
   return;
