@@ -20,23 +20,27 @@ const getFieldType = value => {
 
 const getParamsString = params => {
   const keys = Object.keys(params);
+  let urlString = '';
 
   // Query has no defined params
   if (keys.length === 0) {
-    return '';
+    return urlString;
   }
 
-  const urlString = keys.map((key, index) => {
+  urlString = keys.map((key, index) => {
     // Create 'key=value'
     let param = `${key}=${params[key]}`;
 
     // If this is not the last parameter, add an '&'
-    if (index !== params.length - 1) {
+    if (index !== keys.length - 1) {
       param = `${param}&`;
     }
 
     return param;
   });
+
+  // Convert array to string
+  urlString = urlString.join('');
 
   return `?${urlString}`;
 };
