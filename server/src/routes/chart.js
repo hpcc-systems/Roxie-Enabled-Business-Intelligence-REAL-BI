@@ -33,7 +33,7 @@ router.post('/create', async (req, res) => {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(201).json({ chartID: newChart.id });
+  return res.status(201).json(newChart);
 });
 
 router.put('/update', async (req, res) => {

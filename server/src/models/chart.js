@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
       query: DataTypes.STRING,
       dataset: DataTypes.STRING,
       type: DataTypes.STRING,
+      fields: DataTypes.STRING,
+      params: DataTypes.JSON,
       options: DataTypes.JSON,
       sort: DataTypes.INTEGER,
     },
