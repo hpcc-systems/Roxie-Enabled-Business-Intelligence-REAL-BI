@@ -3,18 +3,16 @@
 ## Installation
 
 1. Run `git clone https://gitlab.ins.risk.regn.net/HumaCh01/hpccdashboard.git`
-2. Navigate to the following directories and copy the `.env.example` files and rename the copies to `.env`
-   - `root` directory
-   - `client` directory
-3. Fill in `.env` values
-4. Create database in MySQL server that matches the database name provided in `.env`
-5. Navigate to the following directories and run install commands
-   - `root` directory -> `npm install`
-   - `server` directory -> `npm install`
-   - `client` directory -> `npm install`
-6. Navigate to the `root` directory and run command `npm run start`
-7. Navigate to `server` directory and run command `npm run seed`
+2. Navigate to the _root_ and _client_ directories and copy the **_.env.example_** files
+3. Rename the copied files to **_.env_** and fill in the values
+4. Create an empty database schema in MySQL server
+   - **NOTE:** The database schema name must match the value provided in the _root_ **_.env_** file for the **_DB_NAME_** field.
+5. Navigate to the _root_, _server_, and _client_ directories and run `npm install`
+6. Navigate to the _root_ directory and run `npm run start`
+7. Navigate to _server_ directory and run `npm run seed`
 
 ## Notes
 
-1. Before launching the application in development, confirm that the `NODE_PORT` value in the `root` directory `.env` matches the `proxy` address port in the `client` directory `package.json`.
+### Development Environment
+
+1. Confirm that the **NODE_PORT** value in the _root_ **_.env_** matches the **proxy** address port in the _client_ directory **package.json**.

@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
   const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
+  const { clusterID, name: dashboardName } = dashboard;
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
@@ -51,17 +52,17 @@ const Dashboard = () => {
 
       // Fetch data for each unique query
       uniqueQueries.forEach(({ id, query }) => {
-        getChartData(id, dashboard.clusterID).then(data => {
+        getChartData(id, clusterID).then(data => {
           // Set data in local state object with query name as key
           setQueryData(prevState => ({ ...prevState, [query]: { data, loading: false } }));
         });
       });
     }
-  }, [charts, dashboard.clusterID]);
+  }, [charts, clusterID]);
 
   return Object.keys(dashboard).length > 0 ? (
     <Fragment>
-      <Toolbar name={dashboard.name} toggleDialog={newChartToggle} />
+      <Toolbar name={dashboardName} toggleDialog={newChartToggle} />
       <Container maxWidth="xl">
         <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
           {charts.map((chart, index) => {
