@@ -3,15 +3,15 @@ import { Provider } from 'react-redux';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 
-// React Components
-import Header from './components/Layout/Header';
-import Dashboard from './components/Dashboard';
-
 // Redux Store
 import store from './store';
 
 // Redux Actions
 import { setUserFromToken } from './features/auth/actions';
+
+// React Components
+import Header from './components/Layout/Header';
+import Dashboard from './components/Dashboard';
 
 const token = localStorage.getItem('hpccDashboardToken');
 
