@@ -13,7 +13,6 @@ const useStyles = makeStyles(() => ({
 }));
 
 const QuerySearch = ({ handleChange, keyword }) => {
-  const [timeout, setTimeOutState] = useState(null);
   const [loading, setLoading] = useState(false);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const { queries } = useSelector(state => state.query);
@@ -29,33 +28,19 @@ const QuerySearch = ({ handleChange, keyword }) => {
       getQueries(clusterID, keyword).then(action => {
         dispatch(action);
         setLoading(false);
-
-        // Clear timeout to avoid side effects
-        clearTimeout(timeout);
-        setTimeOutState(null);
       });
     }
-  }, [clusterID, dispatch, keyword, timeout]);
+  }, [clusterID, dispatch, keyword]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {
-    // persists the event object for the original event that triggered this function
-    event.persist();
+    const { value } = event.target;
 
-    // If a setTimeout id exists, clear it
-    if (timeout) {
-      clearTimeout(timeout);
-      setTimeOutState(null);
-    }
-
-    // Create new setTimeout event
-    const newTimeout = setTimeout(() => {
+    // Check if the user has typed in at least 3 characters and a request is not already in progress
+    if (value.length >= 3 && !loading) {
       // Update 'keyword' field in state
       handleChange(event);
-    }, 1000);
-
-    // Update setTimeout id in local state
-    setTimeOutState(newTimeout);
+    }
   };
 
   return (
