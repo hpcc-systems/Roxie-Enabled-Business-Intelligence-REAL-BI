@@ -9,11 +9,23 @@ const getChartsByDashboard = async dashboardID => {
     throw err;
   }
 
+  charts.forEach(({ fields }, index) => {
+    // Convert string to array
+    fields = fields.split(';');
+
+    // Update chart
+    charts[index].fields = fields;
+  });
+
   return charts;
 };
 
 const createChart = async chart => {
+  const { fields } = chart;
   let newChart;
+
+  // Convert array to string
+  chart.fields = fields.sort().join(';');
 
   try {
     newChart = await chartModel.create(chart);
@@ -33,14 +45,25 @@ const getChartByID = async chartID => {
     throw err;
   }
 
-  return chart.dataValues;
+  // Un-nest object
+  chart = chart.dataValues;
+
+  // Convert string to array
+  const { fields } = chart;
+  chart.fields = fields.split(';');
+
+  return chart;
 };
 
 const updateChartByID = async chart => {
   const { id, ...chartFields } = chart;
+  let { fields } = chart;
+
+  // Convert array to string
+  fields = fields.sort().join(';');
 
   try {
-    await chartModel.update({ ...chartFields }, { where: { id } });
+    await chartModel.update({ ...chartFields, fields }, { where: { id } });
   } catch (err) {
     throw err;
   }

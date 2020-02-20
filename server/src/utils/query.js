@@ -95,9 +95,9 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
   return data;
 };
 
-const getDataFromQuery = async ({ host, dataPort }, { options, query }) => {
+const getDataFromQuery = async ({ host, dataPort }, { params, query }) => {
   const [querySet, queryName] = query.split(':');
-  const paramsList = getParamsString(options.params);
+  const paramsList = getParamsString(params);
 
   const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json${paramsList}`;
 

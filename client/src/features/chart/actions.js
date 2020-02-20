@@ -25,7 +25,8 @@ const addChart = async chart => {
   }
 
   // prefix id created by DB to chart object
-  chart = { id: response.data.chartID, ...chart };
+  const { id } = response.data;
+  chart = { id, ...chart };
 
   return { type: ADD_CHART, payload: chart };
 };
@@ -56,7 +57,8 @@ const updateChart = async (charts, chart) => {
 
   // Update selected chart in array
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  charts[chartIndex] = chart;
+  const selectedChart = charts[chartIndex];
+  charts[chartIndex] = { ...selectedChart, ...chart };
 
   return { type: UPDATE_CHART, payload: charts };
 };

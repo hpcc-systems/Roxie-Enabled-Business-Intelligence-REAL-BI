@@ -20,13 +20,11 @@ import useStepper from '../../../hooks/useStepper';
 const initState = {
   chartType: '',
   config: {},
-  dashboardID: 0,
   dataset: '',
   fields: [],
   id: 0,
   params: {},
   query: '',
-  sort: 0,
 };
 
 const steps = ['Choose fields', 'Choose chart type', 'Set chart fields'];
@@ -38,7 +36,7 @@ const useStyles = makeStyles(() => ({
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const {
-    values: { chartType, config, dashboardID, dataset, fields, id, params, query, sort },
+    values: { chartType, config, dataset, fields, id, params, query },
     handleChange,
     handleChangeObj,
     resetState,
@@ -55,18 +53,17 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     // Confirm that an index was returned
     if (chartIndex > -1) {
-      const { type, dashboardID, dataset, id, options, query, sort } = charts[chartIndex];
-      const { params, title, xAxis, yAxis } = options;
+      const { type, dataset, fields, id, options, params, query } = charts[chartIndex];
+      const { title, xAxis, yAxis } = options;
 
       const newInitState = {
         chartType: type,
         config: { title, xAxis, yAxis },
         dataset,
-        dashboardID,
+        fields,
         id,
         params,
         query,
-        sort,
       };
 
       updateState(newInitState);
@@ -77,12 +74,10 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const editChart = () => {
     const chartObj = {
       id,
-      query,
-      dataset,
+      fields,
+      params,
       type: chartType,
-      options: { ...config, params },
-      sort,
-      dashboardID,
+      options: config,
     };
 
     updateChart(charts, chartObj).then(action => dispatch(action));

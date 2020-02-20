@@ -61,7 +61,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       query,
       dataset,
       type: chartType,
-      options: { ...config, params },
+      fields,
+      params,
+      options: config,
       sort: charts.length + 1,
       dashboardID,
     };
