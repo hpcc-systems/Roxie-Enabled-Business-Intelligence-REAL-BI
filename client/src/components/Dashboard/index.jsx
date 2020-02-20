@@ -34,6 +34,17 @@ const Dashboard = () => {
     editChartToggle();
   };
 
+  const refreshChart = (chartID, query) => {
+    // Set loading
+    setQueryData(prevState => ({ ...prevState, [query]: { loading: true } }));
+
+    // Fetch data for query
+    getChartData(chartID, clusterID).then(data => {
+      // Set data in local state object with query name as key
+      setQueryData(prevState => ({ ...prevState, [query]: { data, loading: false } }));
+    });
+  };
+
   const removeChart = chartID => {
     deleteChart(charts, chartID).then(action => dispatch(action));
   };
@@ -71,8 +82,14 @@ const Dashboard = () => {
 
             return (
               <Grid key={index} item md={12} lg={6} xl={4}>
-                <Paper>
-                  <ChartToolbar chartID={id} toggleDialog={editChart} removeChart={removeChart} />
+                <Paper variant="outlined">
+                  <ChartToolbar
+                    chartID={id}
+                    query={query}
+                    refreshChart={refreshChart}
+                    removeChart={removeChart}
+                    toggleDialog={editChart}
+                  />
                   <Chart chart={chart} dataObj={dataObj} />
                 </Paper>
               </Grid>
