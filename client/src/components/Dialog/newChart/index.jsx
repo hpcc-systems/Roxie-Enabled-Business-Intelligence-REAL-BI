@@ -8,34 +8,20 @@ import { Close as CloseIcon } from '@material-ui/icons';
 import { addChart } from '../../../features/chart/actions';
 
 // React Components
-import Stepper from './Stepper';
-import QuerySearch from './QuerySearch';
-import SelectDataset from './SelectDataset';
-import QueryInfo from './QueryInfo';
-import SelectChart from './SelectChart';
-import ChartLayout from './ChartLayout';
+import ChartEditor from '../../ChartEditor';
 
 // React Hooks
 import useForm from '../../../hooks/useForm';
-import useStepper from '../../../hooks/useStepper';
 
 const initState = {
-  chartType: '',
+  chartType: 'bar',
   config: {},
   dataset: '',
-  fields: [],
+  datasetObj: {},
   keyword: '',
   params: {},
   query: '',
 };
-
-const steps = [
-  'Search query',
-  'Select dataset',
-  'Choose fields',
-  'Choose chart type',
-  'Set chart options',
-];
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -43,13 +29,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const NewChartDialog = ({ show, toggleDialog }) => {
-  const {
-    values: { chartType, config, dataset, fields, keyword, params, query },
-    handleChange,
-    handleChangeObj,
-    resetState,
-  } = useForm(initState);
-  const { step, nextStep, prevStep, resetStep } = useStepper(0);
+  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
@@ -57,18 +37,11 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add chart to DB and store
   const newChart = () => {
-    const chartObj = {
-      query,
-      dataset,
-      type: chartType,
-      fields,
-      params,
-      options: config,
-      sort: charts.length + 1,
-      dashboardID,
-    };
+    const { chartType: type, config: options } = localState;
+    const sort = charts.length + 1;
+    const newChartObj = { ...localState, dashboardID, options, sort, type };
 
-    addChart(chartObj).then(action => dispatch(action));
+    addChart(newChartObj).then(action => dispatch(action));
 
     // Reset and close dialog
     return resetDialog();
@@ -77,72 +50,30 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   // Reset state and hide dialog
   const resetDialog = () => {
     toggleDialog();
-    resetStep();
     return resetState(initState);
   };
 
   return (
-    <Dialog open={show} fullWidth>
+    <Dialog open={show} fullWidth maxWidth="xl">
       <Button className={close} onClick={resetDialog}>
         <CloseIcon />
       </Button>
-      <Stepper step={step} steps={steps} />
       <DialogContent>
-        {(() => {
-          switch (step) {
-            case 0:
-              return <QuerySearch handleChange={handleChange} keyword={keyword} />;
-            case 1:
-              return (
-                <SelectDataset
-                  dataset={dataset}
-                  dispatch={dispatch}
-                  handleChange={handleChange}
-                  query={query}
-                />
-              );
-            case 2:
-              return (
-                <QueryInfo
-                  dataset={dataset}
-                  dispatch={dispatch}
-                  fields={fields}
-                  handleChange={handleChange}
-                  handleChangeObj={handleChangeObj}
-                  params={params}
-                  query={query}
-                />
-              );
-            case 3:
-              return <SelectChart chartType={chartType} handleChange={handleChange} />;
-            case 4:
-              return (
-                <ChartLayout
-                  chartType={chartType}
-                  config={config}
-                  handleChange={handleChange}
-                  fields={fields}
-                  handleChangeObj={handleChangeObj}
-                />
-              );
-            default:
-              return 'Unknown step';
-          }
-        })()}
+        <ChartEditor
+          dispatch={dispatch}
+          handleChange={handleChange}
+          handleChangeObj={handleChangeObj}
+          localState={localState}
+          resetState={resetState}
+        />
       </DialogContent>
       <DialogActions>
-        <Button disabled={step === 0} color="secondary" onClick={prevStep}>
-          Back
+        <Button color="secondary" onClick={resetDialog}>
+          Cancel
         </Button>
-        {step === steps.length - 1 ? (
-          <Button variant="contained" color="primary" onClick={newChart}>
-            Finish
-          </Button>
-        ) : (
-          <Button variant="contained" color="primary" onClick={nextStep}>
-            Next
-          </Button>
-        )}
+        <Button variant="contained" color="primary" onClick={newChart}>
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );

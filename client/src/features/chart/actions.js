@@ -25,8 +25,7 @@ const addChart = async chart => {
   }
 
   // prefix id created by DB to chart object
-  const { id } = response.data;
-  chart = { id, ...chart };
+  chart = { id: response.data.id, ...chart };
 
   return { type: ADD_CHART, payload: chart };
 };
