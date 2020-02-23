@@ -5,43 +5,39 @@ import { Button, Dialog, DialogActions, DialogContent } from '@material-ui/core'
 import { Close as CloseIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { addChart } from '../../../features/chart/actions';
+import { updateChart } from '../../features/chart/actions';
 
 // React Components
-import ChartEditor from '../../ChartEditor';
+import ChartEditor from '../ChartEditor';
 
 // React Hooks
-import useForm from '../../../hooks/useForm';
-
-const initState = {
-  chartType: 'bar',
-  config: {},
-  dataset: '',
-  datasetObj: {},
-  keyword: '',
-  params: {},
-  query: '',
-};
+import useForm from '../../hooks/useForm';
 
 // Create styles
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog }) => {
-  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
-  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+const EditChartDialog = ({ chartID, show, toggleDialog }) => {
+  // Get selected chart
   const { charts } = useSelector(state => state.chart);
+  const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
+
+  // Create initial state object
+  const { type: chartType, options: config, ...otherVals } = charts[chartIndex];
+  const initState = { chartType, config, datasetObj: {}, ...otherVals };
+
+  // Set initial state
+  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const dispatch = useDispatch();
   const { close } = useStyles();
 
-  // Add chart to DB and store
-  const newChart = () => {
-    const { chartType: type, config: options } = localState;
-    const sort = charts.length + 1;
-    const newChartObj = { ...localState, dashboardID, options, sort, type };
+  // Update chart in DB and store
+  const editChart = () => {
+    const { chartType: type, config: options, id, params } = localState;
+    const chartObj = { id, params, type, options };
 
-    addChart(newChartObj).then(action => dispatch(action));
+    updateChart(charts, chartObj).then(action => dispatch(action));
 
     // Reset and close dialog
     return resetDialog();
@@ -64,14 +60,13 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
-          resetState={resetState}
         />
       </DialogContent>
       <DialogActions>
         <Button color="secondary" onClick={resetDialog}>
           Cancel
         </Button>
-        <Button variant="contained" color="primary" onClick={newChart}>
+        <Button variant="contained" color="primary" onClick={editChart}>
           Save
         </Button>
       </DialogActions>
@@ -79,4 +74,4 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   );
 };
 
-export default NewChartDialog;
+export default EditChartDialog;

@@ -8,15 +8,15 @@ import { getQueryInfo } from '../../features/query/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0`, marginBottom: 40 },
-  progress: { margin: `${theme.spacing(1)}px 0`, marginBottom: 40 },
+  formControl: { margin: `${theme.spacing(1)}px 0` },
+  progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
-const SelectDataset = ({ dispatch, handleChange, localState, resetState }) => {
+const SelectDataset = ({ dispatch, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const { datasets = [], params } = useSelector(state => state.query.query);
-  const { dataset, query } = localState;
+  const { dataset, id: chartID, query } = localState;
   const { formControl, progress } = useStyles();
 
   // ComponentDidMount -> Get list of query datasets from hpcc
@@ -24,46 +24,44 @@ const SelectDataset = ({ dispatch, handleChange, localState, resetState }) => {
     if (query) {
       setLoading(true);
 
-      // Query changed, clear dataset value
-      handleChange({ target: { name: 'dataset', value: '' } });
-
       getQueryInfo(clusterID, query).then(action => {
         dispatch(action);
 
         setLoading(false);
       });
     }
-  }, [clusterID, dispatch, handleChange, query]);
+  }, [clusterID, dispatch, query]);
 
   useEffect(() => {
     if (dataset) {
       const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
       const datasetObj = { params, ...selectedDataset };
 
-      // Partially reset state -> clear chart axes, title and params
-      resetState(prevState => ({ ...prevState, config: {}, params: {} }));
-
       // Set datasetObj
       handleChange({ target: { name: 'datasetObj', value: datasetObj } });
     }
-  }, [dataset, datasets, handleChange, params, resetState]);
+  }, [dataset, datasets, handleChange, params]);
 
-  return loading ? (
-    <CircularProgress className={progress} />
-  ) : (
-    <FormControl className={formControl} fullWidth>
-      <InputLabel>Dataset</InputLabel>
-      <Select name="dataset" value={dataset} onChange={handleChange}>
-        {datasets.map(({ name }, index) => {
-          return (
-            <MenuItem key={index} value={name}>
-              {name}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
-  );
+  // Do not show if in edit mode (chart ID populated)
+  // Continue to mount component to get useEffect to run
+  return !chartID ? (
+    loading ? (
+      <CircularProgress className={progress} />
+    ) : (
+      <FormControl className={formControl} fullWidth>
+        <InputLabel>Dataset</InputLabel>
+        <Select name="dataset" value={dataset} onChange={handleChange}>
+          {datasets.map(({ name }, index) => {
+            return (
+              <MenuItem key={index} value={name}>
+                {name}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    )
+  ) : null;
 };
 
 export default SelectDataset;

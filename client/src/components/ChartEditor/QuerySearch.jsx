@@ -16,13 +16,13 @@ const QuerySearch = ({ dispatch, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const { queries } = useSelector(state => state.query);
-  const { keyword } = localState;
+  const { id: chartID, keyword } = localState;
   const { autocomplete } = useStyles();
 
   // ComponentDidMount
-  // Get list of queries from hpcc based on keyword(s) provided, if an API request isn't in progress
+  // Get list of queries from hpcc
   useEffect(() => {
-    if (keyword !== '') {
+    if (keyword) {
       setLoading(true);
 
       getQueries(clusterID, keyword).then(action => {
@@ -43,7 +43,9 @@ const QuerySearch = ({ dispatch, handleChange, localState }) => {
     }
   };
 
-  return (
+  // Do not show if in edit mode (chart ID populated)
+  // Continue to mount component to get useEffect to run
+  return !chartID ? (
     <Autocomplete
       className={autocomplete}
       onChange={(event, newValue) => {
@@ -75,7 +77,7 @@ const QuerySearch = ({ dispatch, handleChange, localState }) => {
         />
       )}
     />
-  );
+  ) : null;
 };
 
 export default QuerySearch;
