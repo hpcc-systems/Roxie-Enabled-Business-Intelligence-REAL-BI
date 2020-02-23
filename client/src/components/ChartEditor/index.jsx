@@ -6,6 +6,7 @@ import { AppBar, Grid, Tab, Tabs } from '@material-ui/core';
 import QuerySearch from './QuerySearch';
 import SelectDataset from './SelectDataset';
 import { General, Parameters } from './Tabs';
+import Chart from '../Chart';
 
 const tabOptions = [
   { name: 'General', disabled: false },
@@ -20,6 +21,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
+  const { chartData, chartType } = props.localState;
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar } = useStyles();
 
@@ -51,7 +53,7 @@ const ChartEditor = props => {
         })()}
       </Grid>
       <Grid item xs={6}>
-        <p>Column 2</p>
+        <Chart chart={chartType} dataObj={chartData} />
       </Grid>
     </Grid>
   );

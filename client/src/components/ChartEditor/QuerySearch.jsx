@@ -9,7 +9,7 @@ import { getQueries } from '../../features/query/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  autocomplete: { margin: `${theme.spacing(1)}px 0` },
+  autocomplete: { margin: `${theme.spacing(1)}px 0`, marginTop: 0 },
 }));
 
 const QuerySearch = ({ dispatch, handleChange, localState }) => {

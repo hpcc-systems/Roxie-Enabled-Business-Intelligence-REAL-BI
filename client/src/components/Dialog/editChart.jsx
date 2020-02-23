@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Dialog, DialogActions, DialogContent } from '@material-ui/core';
-import { Close as CloseIcon } from '@material-ui/icons';
+import { Button, Dialog, DialogActions, DialogContent, Toolbar } from '@material-ui/core';
+import { Close as CloseIcon, Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { updateChart } from '../../features/chart/actions';
@@ -13,9 +13,14 @@ import ChartEditor from '../ChartEditor';
 // React Hooks
 import useForm from '../../hooks/useForm';
 
+// Utils
+import { getPreviewData } from '../../utils/chart';
+
 // Create styles
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
+  div: { flex: 1 },
+  toolbar: { padding: 0 },
 }));
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
@@ -25,12 +30,18 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Create initial state object
   const { type: chartType, options: config, ...otherVals } = charts[chartIndex];
-  const initState = { chartType, config, datasetObj: {}, ...otherVals };
+  const initState = {
+    chartData: { loading: false },
+    chartType,
+    config,
+    datasetObj: {},
+    ...otherVals,
+  };
 
   // Set initial state
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const dispatch = useDispatch();
-  const { close } = useStyles();
+  const { close, div, toolbar } = useStyles();
 
   // Update chart in DB and store
   const editChart = () => {
@@ -49,11 +60,29 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     return resetState(initState);
   };
 
+  const updateChartPreview = () => {
+    const { config, dataset, params, query } = localState;
+
+    // Fetch data for query
+    getPreviewData({ config, dataset, params, query }).then(data => {
+      console.log('data', data);
+      // Set data in local state object with query name as key
+      // setQueryData(prevState => ({ ...prevState, data, loading: false }));
+    });
+  };
+
   return (
     <Dialog open={show} fullWidth maxWidth="xl">
-      <Button className={close} onClick={resetDialog}>
-        <CloseIcon />
-      </Button>
+      <Toolbar className={toolbar}>
+        <div className={div}>
+          <Button className={close} onClick={resetDialog}>
+            <CloseIcon />
+          </Button>
+        </div>
+        <Button onClick={updateChartPreview}>
+          <RefreshIcon />
+        </Button>
+      </Toolbar>
       <DialogContent>
         <ChartEditor
           dispatch={dispatch}
