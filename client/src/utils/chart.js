@@ -13,18 +13,17 @@ const getChartData = async (chartID, clusterID) => {
   return response.data;
 };
 
-const getPreviewData = async chart => {
-  console.log('chart', chart);
-  // let response;
+const getPreviewData = async (chart, clusterID) => {
+  let response;
 
-  // try {
-  //   response = await axios.get('/api/query/editordata', { params: chart });
-  // } catch (err) {
-  //   console.error(err);
-  //   return [];
-  // }
+  try {
+    response = await axios.get('/api/query/editordata', { params: { chart, clusterID } });
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 
-  // return response.data;
+  return response.data;
 };
 
 export { getChartData, getPreviewData };

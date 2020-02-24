@@ -36,16 +36,16 @@ const useStyles = makeStyles(() => ({
 
 const NewChartDialog = ({ show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
-  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { clusterID, id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
   const { close, div, toolbar } = useStyles();
 
   // Add chart to DB and store
   const newChart = () => {
-    const { chartType: type, config: options } = localState;
+    const { chartType: type, config: options, dataset, params, query } = localState;
     const sort = charts.length + 1;
-    const newChartObj = { ...localState, dashboardID, options, sort, type };
+    const newChartObj = { dashboardID, dataset, options, params, query, sort, type };
 
     addChart(newChartObj).then(action => dispatch(action));
 
@@ -60,13 +60,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { config, dataset, params, query } = localState;
+    const { params, query } = localState;
 
     // Fetch data for query
-    getPreviewData({ config, dataset, params, query }).then(data => {
-      console.log('data', data);
+    getPreviewData({ params, query }, clusterID).then(data => {
       // Set data in local state object with query name as key
-      // setQueryData(prevState => ({ ...prevState, data, loading: false }));
+      handleChange({ target: { name: 'chartData', value: { data, loading: false } } });
     });
   };
 
@@ -88,6 +87,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
+          updateChartPreview={updateChartPreview}
         />
       </DialogContent>
       <DialogActions>

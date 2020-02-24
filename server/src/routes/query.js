@@ -57,4 +57,20 @@ router.get('/data', async (req, res) => {
   return res.status(200).json(data);
 });
 
+router.get('/editordata', async (req, res) => {
+  const { chart, clusterID } = req.query;
+  let data = [];
+  let cluster;
+
+  try {
+    cluster = await getClusterByID(clusterID);
+    data = await getDataFromQuery(cluster, JSON.parse(chart));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).end();
+  }
+
+  return res.status(200).json(data);
+});
+
 module.exports = router;

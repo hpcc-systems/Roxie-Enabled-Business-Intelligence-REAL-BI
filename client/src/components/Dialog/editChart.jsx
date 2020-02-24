@@ -40,6 +40,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Set initial state
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
+  const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const dispatch = useDispatch();
   const { close, div, toolbar } = useStyles();
 
@@ -61,13 +62,12 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { config, dataset, params, query } = localState;
+    const { params, query } = localState;
 
     // Fetch data for query
-    getPreviewData({ config, dataset, params, query }).then(data => {
-      console.log('data', data);
+    getPreviewData({ params, query }, clusterID).then(data => {
       // Set data in local state object with query name as key
-      // setQueryData(prevState => ({ ...prevState, data, loading: false }));
+      handleChange({ target: { name: 'chartData', value: { data, loading: false } } });
     });
   };
 
@@ -89,6 +89,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
+          updateChartPreview={updateChartPreview}
         />
       </DialogContent>
       <DialogActions>

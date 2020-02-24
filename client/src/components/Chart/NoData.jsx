@@ -17,7 +17,7 @@ const NoData = () => {
         No Data Received
       </Typography>
       <Typography variant="h3" align="center" color="inherit" className={subheader}>
-        Check query parameters...
+        Check chart options and refresh...
       </Typography>
     </Fragment>
   );

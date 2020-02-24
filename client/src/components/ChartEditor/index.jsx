@@ -21,13 +21,20 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { chartData, chartType } = props.localState;
+  const { chartData, chartType, config, dataset } = props.localState;
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
   };
+
+  // Create object of information to pass to chart
+  /*
+    Clear title for the preview because the offset
+    is different than when the chart is on the dashboard
+  */
+  const chart = { dataset, options: { ...config, title: '' }, type: chartType };
 
   return (
     <Grid container>
@@ -53,7 +60,7 @@ const ChartEditor = props => {
         })()}
       </Grid>
       <Grid item xs={6}>
-        <Chart chart={chartType} dataObj={chartData} />
+        <Chart chart={chart} dataObj={chartData} />
       </Grid>
     </Grid>
   );

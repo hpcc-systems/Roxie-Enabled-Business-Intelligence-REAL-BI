@@ -7,7 +7,7 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 12 },
 }));
 
-const ParametersTab = ({ handleChangeObj, localState }) => {
+const ParametersTab = ({ handleChangeObj, localState, updateChartPreview }) => {
   const { dataset, datasetObj, params } = localState;
   const { params: paramsData = [] } = datasetObj;
   const { formControl, typography } = useStyles();
@@ -28,6 +28,7 @@ const ParametersTab = ({ handleChangeObj, localState }) => {
                   onChange={handleChangeObj}
                   autoComplete="off"
                   className={formControl}
+                  onBlur={updateChartPreview} // Update chart on "lose focus" of field
                 />
               );
             })}
