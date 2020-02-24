@@ -1,28 +1,28 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 
 // Redux Actions
-import { getQueries } from '../../../features/query/actions';
+import { getQueries } from '../../features/query/actions';
 
 // Create styles
-const useStyles = makeStyles(() => ({
-  autocomplete: { marginBottom: 24 },
+const useStyles = makeStyles(theme => ({
+  autocomplete: { margin: `${theme.spacing(1)}px 0`, marginTop: 0 },
 }));
 
-const QuerySearch = ({ handleChange, keyword }) => {
+const QuerySearch = ({ dispatch, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const { queries } = useSelector(state => state.query);
-  const dispatch = useDispatch();
+  const { id: chartID, keyword } = localState;
   const { autocomplete } = useStyles();
 
   // ComponentDidMount
-  // Get list of queries from hpcc based on keyword(s) provided, if an API request isn't in progress
+  // Get list of queries from hpcc
   useEffect(() => {
-    if (keyword !== '') {
+    if (keyword) {
       setLoading(true);
 
       getQueries(clusterID, keyword).then(action => {
@@ -43,7 +43,9 @@ const QuerySearch = ({ handleChange, keyword }) => {
     }
   };
 
-  return (
+  // Do not show if in edit mode (chart ID populated)
+  // Continue to mount component to get useEffect to run
+  return !chartID ? (
     <Autocomplete
       className={autocomplete}
       onChange={(event, newValue) => {
@@ -61,7 +63,7 @@ const QuerySearch = ({ handleChange, keyword }) => {
           name="keyword"
           value={keyword}
           onChange={event => updateKeyword(event)}
-          label="Search Query"
+          label="Query"
           fullWidth
           InputProps={{
             ...params.InputProps,
@@ -75,7 +77,7 @@ const QuerySearch = ({ handleChange, keyword }) => {
         />
       )}
     />
-  );
+  ) : null;
 };
 
 export default QuerySearch;

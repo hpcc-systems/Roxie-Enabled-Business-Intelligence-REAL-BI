@@ -7,6 +7,9 @@ import BarChart from './Bar';
 import LineChart from './Line';
 import NoData from './NoData';
 
+// Utils
+import { groupByField } from '../../utils/chart';
+
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
@@ -15,10 +18,16 @@ const useStyles = makeStyles({
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
   const { dataset, options, type } = chart;
+  const { groupBy = {} } = options;
   const { progress } = useStyles();
 
   // Determine if chart data is available
-  const chartData = Object.keys(data).length > 0 ? data[dataset].Row : [];
+  let chartData = Object.keys(data).length > 0 ? data[dataset].Row : [];
+
+  // Group data by designated field
+  if (Object.keys(groupBy).length > 0) {
+    chartData = groupByField(chartData, groupBy);
+  }
 
   return loading ? (
     <CircularProgress className={progress} />
