@@ -17,11 +17,12 @@ import useForm from '../../hooks/useForm';
 import { getPreviewData } from '../../utils/chart';
 
 const initState = {
-  chartData: { loading: false },
   chartType: 'bar',
   config: {},
+  dataObj: { loading: false },
   dataset: '',
   datasetObj: {},
+  groupBy: {},
   keyword: '',
   params: {},
   query: '',
@@ -43,9 +44,16 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add chart to DB and store
   const newChart = () => {
-    const { chartType: type, config: options, dataset, params, query } = localState;
-    const sort = charts.length + 1;
-    const newChartObj = { dashboardID, dataset, options, params, query, sort, type };
+    const { chartType: type, config, dataset, groupBy, params, query } = localState;
+    const newChartObj = {
+      dashboardID,
+      dataset,
+      options: { ...config, groupBy },
+      params,
+      query,
+      sort: charts.length + 1,
+      type,
+    };
 
     addChart(newChartObj).then(action => dispatch(action));
 
@@ -65,7 +73,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     // Fetch data for query
     getPreviewData({ params, query }, clusterID).then(data => {
       // Set data in local state object with query name as key
-      handleChange({ target: { name: 'chartData', value: { data, loading: false } } });
+      handleChange({ target: { name: 'dataObj', value: { data, loading: false } } });
     });
   };
 
@@ -87,7 +95,6 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
-          updateChartPreview={updateChartPreview}
         />
       </DialogContent>
       <DialogActions>

@@ -29,12 +29,14 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
 
   // Create initial state object
-  const { type: chartType, options: config, ...otherVals } = charts[chartIndex];
+  const { type: chartType, options, ...otherVals } = charts[chartIndex];
+  const { groupBy = {}, ...config } = options;
   const initState = {
-    chartData: { loading: false },
     chartType,
     config,
+    dataObj: { loading: false },
     datasetObj: {},
+    groupBy,
     ...otherVals,
   };
 
@@ -46,8 +48,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Update chart in DB and store
   const editChart = () => {
-    const { chartType: type, config: options, id, params } = localState;
-    const chartObj = { id, params, type, options };
+    const { chartType: type, config, groupBy, id, params } = localState;
+    const chartObj = { id, params, type, options: { ...config, groupBy } };
 
     updateChart(charts, chartObj).then(action => dispatch(action));
 
@@ -67,7 +69,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     // Fetch data for query
     getPreviewData({ params, query }, clusterID).then(data => {
       // Set data in local state object with query name as key
-      handleChange({ target: { name: 'chartData', value: { data, loading: false } } });
+      handleChange({ target: { name: 'dataObj', value: { data, loading: false } } });
     });
   };
 
@@ -89,7 +91,6 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
-          updateChartPreview={updateChartPreview}
         />
       </DialogContent>
       <DialogActions>

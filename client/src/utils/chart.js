@@ -1,4 +1,5 @@
 import axios from 'axios';
+import jsonToPivotjson from 'json-to-pivot-json';
 
 const getChartData = async (chartID, clusterID) => {
   let response;
@@ -26,4 +27,8 @@ const getPreviewData = async (chart, clusterID) => {
   return response.data;
 };
 
-export { getChartData, getPreviewData };
+const groupByField = (data, options) => {
+  return jsonToPivotjson(data, options);
+};
+
+export { getChartData, getPreviewData, groupByField };

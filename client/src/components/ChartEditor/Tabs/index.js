@@ -1,4 +1,5 @@
 import General from './General';
 import Parameters from './Parameters';
+import GroupBy from './GroupBy';
 
-export { General, Parameters };
+export { General, GroupBy, Parameters };
