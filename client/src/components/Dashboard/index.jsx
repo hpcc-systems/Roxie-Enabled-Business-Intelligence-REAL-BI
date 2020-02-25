@@ -12,9 +12,11 @@ import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 import NewChartDialog from '../Dialog/newChart';
 import EditChartDialog from '../Dialog/editChart';
+import Drawer from '../Drawers/Filters';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
+import useDrawer from '../../hooks/useDrawer';
 
 // Utils
 import { getChartData } from '../../utils/chart';
@@ -27,6 +29,7 @@ const Dashboard = () => {
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
+  const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
 
   const editChart = chartID => {
@@ -73,7 +76,7 @@ const Dashboard = () => {
 
   return Object.keys(dashboard).length > 0 ? (
     <Fragment>
-      <Toolbar name={dashboardName} toggleDialog={newChartToggle} />
+      <Toolbar name={dashboardName} toggleDialog={newChartToggle} toggleDrawer={toggleDrawer} />
       <Container maxWidth="xl">
         <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
           {charts.map((chart, index) => {
@@ -96,10 +99,11 @@ const Dashboard = () => {
             );
           })}
         </Grid>
-        {newChartShow ? <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} /> : null}
-        {editChartShow ? (
+        <Drawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />
+        {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+        {editChartShow && (
           <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
-        ) : null}
+        )}
       </Container>
     </Fragment>
   ) : (

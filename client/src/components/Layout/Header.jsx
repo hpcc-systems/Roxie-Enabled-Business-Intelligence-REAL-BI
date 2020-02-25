@@ -5,7 +5,7 @@ import { AppBar, Button, IconButton, Toolbar, Typography } from '@material-ui/co
 import { Menu as MenuIcon } from '@material-ui/icons';
 
 // React Components
-import Drawer from '../Drawer';
+import Drawer from '../Drawers/Dashboards';
 
 // Redux Actions
 import { loginUser } from '../../features/auth/actions';

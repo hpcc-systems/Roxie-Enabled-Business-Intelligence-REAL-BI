@@ -1,7 +1,14 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Dialog, DialogActions, DialogContent, Toolbar } from '@material-ui/core';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Toolbar,
+  Typography,
+} from '@material-ui/core';
 import { Close as CloseIcon, Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
@@ -19,8 +26,8 @@ import { getPreviewData } from '../../utils/chart';
 // Create styles
 const useStyles = makeStyles(() => ({
   close: { padding: '10px 0', width: 16 },
-  div: { flex: 1 },
   toolbar: { padding: 0 },
+  typography: { flex: 1, marginLeft: 12 },
 }));
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
@@ -44,7 +51,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const { clusterID } = useSelector(state => state.dashboard.dashboard);
   const dispatch = useDispatch();
-  const { close, div, toolbar } = useStyles();
+  const { close, toolbar, typography } = useStyles();
 
   // Update chart in DB and store
   const editChart = () => {
@@ -76,11 +83,12 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   return (
     <Dialog open={show} fullWidth maxWidth="xl">
       <Toolbar className={toolbar}>
-        <div className={div}>
-          <Button className={close} onClick={resetDialog}>
-            <CloseIcon />
-          </Button>
-        </div>
+        <Button className={close} onClick={resetDialog}>
+          <CloseIcon />
+        </Button>
+        <Typography variant="h6" color="inherit" className={typography}>
+          Edit Chart
+        </Typography>
         <Button onClick={updateChartPreview}>
           <RefreshIcon />
         </Button>
