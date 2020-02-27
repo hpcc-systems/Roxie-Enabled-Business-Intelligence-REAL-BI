@@ -1,5 +1,14 @@
 // Misc. functions to separate reused code to keep files DRY
 
+const setJSONField = (obj, key) => {
+  let value = obj[key];
+
+  // Format data structure
+  value = !value ? {} : value;
+
+  return value;
+};
+
 const getFieldType = value => {
   let type;
 
@@ -72,4 +81,10 @@ const findDatasetFields = datasetRow => {
   return fields;
 };
 
-module.exports = { findDatasetFields, findQueryDatasets, getFieldType, getParamsString };
+module.exports = {
+  findDatasetFields,
+  findQueryDatasets,
+  getFieldType,
+  getParamsString,
+  setJSONField,
+};

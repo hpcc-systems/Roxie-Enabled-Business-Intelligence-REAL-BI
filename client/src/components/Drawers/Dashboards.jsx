@@ -37,24 +37,29 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
-  const [dashboardsLoading, setDashboardsLoading] = useState(true);
+  const [dashboardsLoading, setDashboardsLoading] = useState(false);
   const [newDashboardLoading, setNewDashboardLoading] = useState(false);
   const {
     values: { clusterID, name },
     handleChange,
     resetState,
   } = useForm(initState);
+  const { userID } = useSelector(state => state.auth);
   const { dashboards } = useSelector(state => state.dashboard);
   const { showDialog, toggleDialog } = useDialog(false);
   const { button, drawer, msg, toolbar, typography } = useStyles();
 
   // ComponentDidMount -> Get list of dashboards from database
   useEffect(() => {
-    getDashboards().then(action => {
-      dispatch(action);
-      setDashboardsLoading(false);
-    });
-  }, [dispatch]);
+    if (userID) {
+      setDashboardsLoading(true);
+
+      getDashboards().then(action => {
+        dispatch(action);
+        setDashboardsLoading(false);
+      });
+    }
+  }, [dispatch, userID]);
 
   // Get information about specific dashboard and hide drawer
   const getDashboardInfo = dashboardID => {

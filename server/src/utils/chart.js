@@ -1,4 +1,5 @@
 const { chart: chartModel } = require('../models');
+const { setJSONField } = require('./misc');
 
 const getChartsByDashboard = async dashboardID => {
   let charts;
@@ -8,6 +9,15 @@ const getChartsByDashboard = async dashboardID => {
   } catch (err) {
     throw err;
   }
+
+  // Iterate through array of charts
+  charts = charts.map(chart => {
+    // Format data structure
+    chart.params = setJSONField(chart, 'params');
+    chart.options = setJSONField(chart, 'options');
+
+    return chart;
+  });
 
   return charts;
 };
@@ -33,7 +43,14 @@ const getChartByID = async chartID => {
     throw err;
   }
 
-  return chart.dataValues;
+  // De-nest data
+  chart = chart.dataValues;
+
+  // Format data structure
+  chart.params = setJSONField(chart, 'params');
+  chart.options = setJSONField(chart, 'options');
+
+  return chart;
 };
 
 const updateChartByID = async chart => {

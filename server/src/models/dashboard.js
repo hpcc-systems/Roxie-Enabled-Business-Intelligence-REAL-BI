@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      params: DataTypes.JSON,
     },
     {
       charset: 'utf8',

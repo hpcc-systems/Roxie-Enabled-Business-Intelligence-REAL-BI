@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   );
 
+  // Create encrypt method on clusterAuth model
   clusterAuth.encrypt = password => {
     const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
     let encrypted = cipher.update(password);
@@ -27,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     return `${iv.toString('hex')}:${key.toString('hex')}=${encrypted.toString('hex')}`;
   };
 
+  // Create decrypt method on clusterAuth model
   clusterAuth.decrypt = hash => {
     let hashParts = hash.split(':');
     hashParts = [hashParts[0], ...hashParts[1].split('=')];

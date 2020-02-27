@@ -13,7 +13,7 @@ router.get('/all', async (req, res) => {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  res.status(200).json(dashboards);
+  return res.status(200).json(dashboards);
 });
 
 // Create a new dashboard
