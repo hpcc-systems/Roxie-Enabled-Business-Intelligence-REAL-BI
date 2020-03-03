@@ -7,29 +7,26 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       host: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false,
       },
       infoPort: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       dataPort: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },
-    {
-      charset: 'utf8',
-      collate: 'utf8_general_ci',
-      timestamps: false,
-    },
+    { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  // Create M:M table relating clusters to users
-  cluster.associate = ({ user }) => {
+  cluster.associate = ({ clusterAuth, user }) => {
+    // Many-to-Many relation between clusters and users
+    // Creates 'clusterID' foreign key on clusterAuth model
     cluster.belongsToMany(user, {
-      through: 'clusterAuth',
+      through: clusterAuth,
       foreignKey: { name: 'clusterID', allowNull: false },
       onDelete: 'cascade',
     });

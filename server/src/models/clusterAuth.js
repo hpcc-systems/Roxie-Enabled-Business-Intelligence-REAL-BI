@@ -1,21 +1,11 @@
-const crypto = require('crypto');
-const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
-
 module.exports = (sequelize, DataTypes) => {
   const clusterAuth = sequelize.define(
     'clusterAuth',
     {
-      username: DataTypes.STRING,
+      username: DataTypes.STRING(50),
       hash: DataTypes.STRING,
     },
-    {
-      charset: 'utf8',
-      collate: 'utf8_general_ci',
-      tableName: 'clusterAuth',
-      timestamps: false,
-    },
+    { charset: 'utf8', collate: 'utf8_general_ci', tableName: 'clusterAuth', timestamps: false },
   );
 
   // Create encrypt method on clusterAuth model
