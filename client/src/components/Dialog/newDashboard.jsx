@@ -26,26 +26,26 @@ const useStyles = makeStyles(() => ({
 }));
 
 const NewDashboardDialog = ({
-  clusterID,
   dispatch,
   handleChange,
-  name,
+  localState,
   newDashboard,
   newDashboardLoading,
-  resetDialog,
   show,
+  toggleDialog,
 }) => {
+  const { clusterID, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const { close, formControl, progress } = useStyles();
 
-  // ComponentDidMount -> Get list of clusters from database
+  // Get list of clusters from database
   useEffect(() => {
     getClusters().then(action => dispatch(action));
   }, [dispatch]);
 
   return (
-    <Dialog onClose={resetDialog} open={show} fullWidth>
-      <Button className={close} onClick={resetDialog}>
+    <Dialog onClose={toggleDialog} open={show} fullWidth>
+      <Button className={close} onClick={toggleDialog}>
         <CloseIcon />
       </Button>
       <DialogContent>

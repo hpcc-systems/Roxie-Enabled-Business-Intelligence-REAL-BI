@@ -14,52 +14,43 @@ const getCharts = async dashboardID => {
   return { type: GET_CHARTS, payload: response.data };
 };
 
-const addChart = async chart => {
+const addChart = async (chart, dashboardID, queryID) => {
   let response;
 
   try {
-    response = await axios.post('/api/chart/create', { chart });
+    response = await axios.post('/api/chart/create', { chart, dashboardID, queryID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  // prefix id created by DB to chart object
-  chart = { id: response.data.id, ...chart };
-
-  return { type: ADD_CHART, payload: chart };
+  return { type: ADD_CHART, payload: response.data };
 };
 
-const deleteChart = async (charts, chartID) => {
+const deleteChart = async (chartID, dashboardID) => {
+  let response;
+
   try {
-    await axios.delete('/api/chart/delete', { params: { chartID } });
+    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID } });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  // Remove selected chart from array
-  charts = charts.filter(({ id }) => id !== chartID);
-
-  return { type: DELETE_CHART, payload: charts };
+  return { type: DELETE_CHART, payload: response.data };
 };
 
-const updateChart = async (charts, chart) => {
-  const { id: chartID } = chart;
+const updateChart = async (chart, dashboardID, queryID) => {
+  let response;
 
   try {
-    await axios.put('/api/chart/update', { chart });
+    response = await axios.put('/api/chart/update', { chart, dashboardID, queryID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  // Update selected chart in array
-  const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const selectedChart = charts[chartIndex];
-  charts[chartIndex] = { ...selectedChart, ...chart };
-
-  return { type: UPDATE_CHART, payload: charts };
+  return { type: UPDATE_CHART, payload: response.data };
 };
 
 export { addChart, deleteChart, getCharts, updateChart };

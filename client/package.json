@@ -2,7 +2,7 @@
   "name": "client",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://localhost:3001",
+  "proxy": "http://0.0.0.0:3001",
   "scripts": {
     "build": "react-scritps build",
     "start": "react-scripts start"

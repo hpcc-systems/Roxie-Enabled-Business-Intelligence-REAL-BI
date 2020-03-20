@@ -15,8 +15,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
-  const { chartType, config, datasetObj } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = datasetObj;
+  const { chartType, options, selectedDataset } = localState;
+  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
   const { formControl, formControl2, menuIcon } = useStyles();
 
   return (
@@ -47,20 +47,14 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
         className={formControl2}
         fullWidth
         label="Chart Title"
-        name="config:title"
-        // Ternary is here to prevent error of input switching from uncontrolled to controlled
-        value={config['title'] === undefined ? '' : config['title']}
+        name="options:title"
+        value={options.title || ''}
         onChange={handleChangeObj}
         autoComplete="off"
       />
       <FormControl className={formControl2} fullWidth>
         <InputLabel>X Axis</InputLabel>
-        <Select
-          name="config:xAxis"
-          // Ternary is here to prevent error of input switching from uncontrolled to controlled
-          value={config['xAxis'] === undefined ? '' : config['xAxis']}
-          onChange={handleChangeObj}
-        >
+        <Select name="options:xAxis" value={options.xAxis || ''} onChange={handleChangeObj}>
           {fields.map(({ name, value = name }, index) => {
             return (
               <MenuItem key={index} value={value}>
@@ -72,12 +66,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
       </FormControl>
       <FormControl className={formControl2} fullWidth>
         <InputLabel>Y Axis</InputLabel>
-        <Select
-          name="config:yAxis"
-          // Ternary is here to prevent error of input switching from uncontrolled to controlled
-          value={config['yAxis'] === undefined ? '' : config['yAxis']}
-          onChange={handleChangeObj}
-        >
+        <Select name="options:yAxis" value={options.yAxis || ''} onChange={handleChangeObj}>
           {fields.map(({ name, value = name }, index) => {
             return (
               <MenuItem key={index} value={value}>

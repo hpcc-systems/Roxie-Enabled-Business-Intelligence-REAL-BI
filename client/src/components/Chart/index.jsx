@@ -17,15 +17,15 @@ const useStyles = makeStyles({
 
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
-  const { dataset, options, type } = chart;
-  const { groupBy = {} } = options;
+  const { dataset, groupBy, options, type } = chart;
+  const { row, column, value } = groupBy;
   const { progress } = useStyles();
 
   // Determine if chart data is available
   let chartData = Object.keys(data).length > 0 ? data[dataset].Row : [];
 
   // Group data by designated field
-  if (Object.keys(groupBy).length > 0) {
+  if (row && column && value) {
     chartData = groupByField(chartData, groupBy);
   }
 
@@ -35,9 +35,9 @@ const ChartComp = ({ chart, dataObj }) => {
     (() => {
       switch (type) {
         case 'bar':
-          return <BarChart data={chartData} options={options} />;
+          return <BarChart data={chartData} groupBy={groupBy} options={options} />;
         case 'line':
-          return <LineChart data={chartData} options={options} />;
+          return <LineChart data={chartData} groupBy={groupBy} options={options} />;
         default:
           return 'Unknown chart type';
       }

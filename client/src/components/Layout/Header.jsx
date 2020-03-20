@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Button, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { Menu as MenuIcon } from '@material-ui/icons';
 
 // React Components
-import Drawer from '../Drawer';
+import Drawer from '../Drawers/Dashboards';
 
 // Redux Actions
 import { loginUser } from '../../features/auth/actions';
@@ -21,6 +21,7 @@ const useStyles = makeStyles(() => ({
 
 const Header = () => {
   const { showDrawer, toggleDrawer } = useDrawer(false);
+  const { userID } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const { appBar, typography } = useStyles();
 
@@ -39,9 +40,11 @@ const Header = () => {
           <Typography variant="h6" color="inherit" className={typography}>
             HPCC Dashboard
           </Typography>
-          <Button color="inherit" onClick={() => login()}>
-            Log In
-          </Button>
+          {!userID && (
+            <Button color="inherit" onClick={() => login()}>
+              Log In
+            </Button>
+          )}
           <Button color="inherit">Settings</Button>
         </Toolbar>
       </AppBar>

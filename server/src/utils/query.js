@@ -1,121 +1,104 @@
-const axios = require('axios');
-const { findDatasetFields, findQueryDatasets, getFieldType, getParamsString } = require('./misc');
+// DB Models
+const { dashboard: dashboardModel, query: queryModel } = require('../models');
 
-const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
-  let queryList = [];
-  let response, url;
+// Utils
+const { unNestSequelizeObj } = require('./misc');
 
-  // Build URL from cluster details and keyword provided by user
-  url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?QueryName=*${keyword}*`;
+const createQuery = async query => {
+  let newQuery;
 
   try {
-    response = await axios.get(url);
+    newQuery = await queryModel.create(query);
   } catch (err) {
     throw err;
   }
 
-  const { QuerysetQueries = {} } = response.data.WUListQueriesResponse;
+  // Get nested object
+  newQuery = unNestSequelizeObj(newQuery);
 
-  // Loop through any returned results
-  if (Object.keys(QuerysetQueries).length > 0) {
-    const queryResults = QuerysetQueries.QuerySetQuery;
-
-    // Filter queries flagged as activated
-    queryList = queryResults.filter(({ Activated }) => Activated === true);
-
-    // Remove duplicates from result array
-    queryList = Array.from(new Set(queryList.map(({ Id }) => Id))).map(Id => {
-      return queryList.find(({ Id: Id2 }) => Id2 === Id);
-    });
-
-    // Reduce objects to only desired keys
-    queryList = queryList.map(queryObj => {
-      const { Id: id, Name: name, QuerySetId: querySet } = queryObj;
-      return { id, name, querySet: `${querySet}:${name}` };
-    });
-  }
-
-  return queryList;
+  return newQuery;
 };
 
-const getQueryParamsFromCluster = async ({ host, dataPort }, query) => {
-  const [querySet, queryName] = query.split(':');
-  let response, data;
-  let paramList = [];
-
-  // Build URL from cluster and query details
-  const url = `${host}:${dataPort}/WsEcl/example/request/query/${querySet}/${queryName}/json?display`;
+const getQueriesByDashboard = async dashboardID => {
+  let queries;
 
   try {
-    response = await axios.get(url);
+    queries = await queryModel.findAll({
+      include: { model: dashboardModel, attributes: [], where: { id: dashboardID } },
+    });
   } catch (err) {
     throw err;
   }
 
-  // Determine if query info was returned within response
-  data = response.data[queryName] != undefined ? response.data[queryName] : {};
+  return queries;
+};
 
-  // Format parameters for query into array of objects
-  paramList = Object.keys(data).map(key => {
-    const value = data[key];
+const getQueryByHpccID = async ({ hpccID }) => {
+  let query;
 
-    return {
-      name: key,
-      type: getFieldType(value),
-    };
+  try {
+    query = await queryModel.findOne({ where: { hpccID } });
+  } catch (err) {
+    throw err;
+  }
+
+  if (!query) {
+    return;
+  }
+
+  // Get nested object
+  query = unNestSequelizeObj(query);
+
+  return query;
+};
+
+const getQueryByID = async queryID => {
+  let query;
+
+  try {
+    query = await queryModel.findOne({ where: { id: queryID } });
+  } catch (err) {
+    throw err;
+  }
+
+  // Get nested object
+  query = unNestSequelizeObj(query);
+
+  return query;
+};
+
+const getQueriesByDashboardID = async dashboardID => {
+  let dashboard, queries;
+
+  try {
+    dashboard = await dashboardModel.findOne({
+      attributes: [],
+      where: { id: dashboardID },
+      include: { model: queryModel },
+    });
+  } catch (err) {
+    throw err;
+  }
+
+  // Get nested objects
+  dashboard = unNestSequelizeObj(dashboard);
+  queries = dashboard.queries.map(query => {
+    // Get nested object
+    query = unNestSequelizeObj(query);
+
+    // Remove unnecessay key
+    delete query.dashboardSource;
+
+    return query;
   });
 
-  return paramList;
-};
-
-const getQueryDatasetsFromCluster = async ({ host, dataPort }, query) => {
-  const [querySet, queryName] = query.split(':');
-  let response;
-  let data = [];
-
-  // Build URL from cluster and query details
-  const url = `${host}:${dataPort}/WsEcl/example/response/query/${querySet}/${queryName}/json?display`;
-
-  try {
-    response = await axios.get(url);
-  } catch (err) {
-    throw err;
-  }
-
-  // Find data array from response
-  const responseRef = response.data[`${queryName}Response`].Results;
-  const datasetRefs = findQueryDatasets(responseRef);
-
-  data = datasetRefs.map(dataset => {
-    const fields = findDatasetFields(responseRef[dataset].Row);
-
-    return { name: dataset, fields };
-  });
-
-  return data;
-};
-
-const getDataFromQuery = async ({ host, dataPort }, { params, query }) => {
-  const [querySet, queryName] = query.split(':');
-  const paramsList = getParamsString(params);
-
-  const url = `${host}:${dataPort}/WsEcl/submit/query/${querySet}/${queryName}/json${paramsList}`;
-
-  try {
-    response = await axios.get(url);
-  } catch (err) {
-    throw err;
-  }
-
-  // Get data array from response
-  const responseRef = response.data[`${queryName}Response`].Results;
-
-  return responseRef;
+  return queries;
 };
 
 module.exports = {
-  getDataFromQuery,
-  getQueryDatasetsFromCluster,
-  getQueryListFromCluster,
-  getQueryParamsFromCluster,
+  createQuery,
+  getQueriesByDashboard,
+  getQueriesByDashboardID,
+  getQueryByHpccID,
+  getQueryByID,
 };

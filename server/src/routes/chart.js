@@ -2,32 +2,55 @@ const router = require('express').Router();
 const {
   createChart,
   deleteChartByID,
-  getChartsByDashboard,
+  getChartsByDashboardID,
   updateChartByID,
 } = require('../utils/chart');
+const { createQueryParams, findAllQueryParams, updateQueryParam } = require('../utils/queryParam');
 
-// Get all charts for a given dashboard
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
   let charts;
 
   try {
-    charts = await getChartsByDashboard(dashboardID);
+    charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
+  // Loop through and add params to each chart
+  if (charts.length > 0) {
+    const promises = charts.map(async chart => {
+      let chartParams;
+
+      try {
+        chartParams = await findAllQueryParams(null, chart.id);
+      } catch (err) {
+        return console.error(err);
+      }
+
+      return { ...chart, params: chartParams };
+    });
+
+    // Wait for promises to complete and update charts variable
+    try {
+      charts = await Promise.all(promises);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ msg: 'Internal Error' });
+    }
+  }
+
   return res.status(200).json(charts);
 });
 
-// Create a new chart
 router.post('/create', async (req, res) => {
-  const { chart } = req.body;
+  const { chart, dashboardID, queryID } = req.body;
   let newChart;
 
   try {
-    newChart = await createChart(chart);
+    newChart = await createChart(chart, dashboardID, queryID);
+    await createQueryParams(queryID, chart, null, newChart.id);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -37,27 +60,58 @@ router.post('/create', async (req, res) => {
 });
 
 router.put('/update', async (req, res) => {
-  const { chart } = req.body;
+  const { chart, dashboardID } = req.body;
+  let charts;
 
   try {
     await updateChartByID(chart);
+
+    const promises = chart.params.map(async ({ id, value }) => {
+      return await updateQueryParam(id, value);
+    });
+
+    await Promise.all(promises);
+
+    charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(202).end();
+  const promises = charts.map(async chart => {
+    let chartParams;
+
+    try {
+      chartParams = await findAllQueryParams(null, chart.id);
+    } catch (err) {
+      return console.error(err);
+    }
+
+    return { ...chart, params: chartParams };
+  });
+
+  // Wait for promises to complete and update charts variable
+  try {
+    charts = await Promise.all(promises);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  return res.status(202).json(charts);
 });
 
 router.delete('/delete', async (req, res) => {
-  const { chartID } = req.query;
+  const { chartID, dashboardID } = req.query;
+  let charts;
 
   try {
     await deleteChartByID(chartID);
+    charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(202).end();
+  return res.status(202).json(charts);
 });
 
 module.exports = router;

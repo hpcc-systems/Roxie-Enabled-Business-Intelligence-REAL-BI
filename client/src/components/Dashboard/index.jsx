@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
@@ -12,21 +12,25 @@ import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 import NewChartDialog from '../Dialog/newChart';
 import EditChartDialog from '../Dialog/editChart';
+import FilterDrawer from '../Drawers/Filters';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
+import useDrawer from '../../hooks/useDrawer';
 
 // Utils
-import { getChartData } from '../../utils/chart';
+import { checkForChartParams, getChartData } from '../../utils/chart';
+import { getDashboardData } from '../../utils/dashboard';
 
 const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
+  const [callType, setCallType] = useState('single');
   const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
-  const { clusterID, name: dashboardName } = dashboard;
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
+  const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
 
   const editChart = chartID => {
@@ -34,59 +38,85 @@ const Dashboard = () => {
     editChartToggle();
   };
 
-  const refreshChart = (chartID, query) => {
-    // Set loading
-    setQueryData(prevState => ({ ...prevState, [query]: { loading: true } }));
-
-    // Fetch data for query
-    getChartData(chartID, clusterID).then(data => {
-      // Set data in local state object with query name as key
-      setQueryData(prevState => ({ ...prevState, [query]: { data, loading: false } }));
-    });
-  };
-
   const removeChart = chartID => {
-    deleteChart(charts, chartID).then(action => dispatch(action));
+    deleteChart(chartID, dashboard.id).then(action => dispatch(action));
   };
 
-  useEffect(() => {
-    if (charts.length > 0) {
-      // Get unique query values
-      const uniqueQueries = Array.from(new Set(charts.map(({ query }) => query))).map(query => {
-        return charts.find(({ query: query2 }) => query === query2);
+  const dataCall = useCallback(() => {
+    const { clusterID, id: dashboardID } = dashboard;
+    const dashboardParamsExist = dashboard.params.some(({ value }) => value !== null);
+    const chartParamsExist = checkForChartParams(charts);
+
+    if (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist)) {
+      setCallType('single');
+
+      // Fetch data for dashboard
+      getDashboardData(clusterID, dashboardID).then(data => {
+        const newDataObj = {};
+
+        // Create nested object for local state
+        Object.keys(data).forEach(key => {
+          return (newDataObj[key] = { data: { ...data[key] }, loading: false });
+        });
+
+        // Set data in local state object with chartID as key
+        setQueryData(prevState => ({ ...prevState, ...newDataObj }));
       });
+    } else {
+      setCallType('multiple');
 
       // Set initial object keys and loading
-      uniqueQueries.forEach(({ query }) => {
-        setQueryData(prevState => ({ ...prevState, [query]: { loading: true } }));
+      charts.forEach(({ id: chartID }) => {
+        setQueryData(prevState => ({ ...prevState, [chartID]: { loading: true } }));
       });
 
-      // Fetch data for each unique query
-      uniqueQueries.forEach(({ id, query }) => {
-        getChartData(id, clusterID).then(data => {
-          // Set data in local state object with query name as key
-          setQueryData(prevState => ({ ...prevState, [query]: { data, loading: false } }));
+      // Fetch data for each chart
+      charts.forEach(({ id: chartID }) => {
+        getChartData(chartID, dashboard.clusterID).then(data => {
+          // Set data in local state object with chartID as key
+          setQueryData(prevState => ({ ...prevState, [chartID]: { data, loading: false } }));
         });
       });
     }
-  }, [charts, clusterID]);
+  }, [charts, dashboard]);
+
+  useEffect(() => {
+    if (Object.keys(dashboard).length > 0 && charts.length > 0) {
+      dataCall();
+    }
+  }, [charts, dashboard, dataCall]);
 
   return Object.keys(dashboard).length > 0 ? (
     <Fragment>
-      <Toolbar name={dashboardName} toggleDialog={newChartToggle} />
+      <Toolbar
+        name={dashboard.name}
+        refreshChart={dataCall}
+        toggleDialog={newChartToggle}
+        toggleDrawer={toggleDrawer}
+      />
       <Container maxWidth="xl">
         <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
           {charts.map((chart, index) => {
-            const { id, query } = chart;
-            const dataObj = Object.keys(queryData).length > 0 ? queryData[query] : {};
+            const { id: chartID, queryName } = chart;
+            let dataObj = {};
+
+            if (callType === 'single') {
+              dataObj = queryData[queryName];
+            } else {
+              dataObj = queryData[chartID];
+            }
+
+            // Data not loaded
+            if (!dataObj || !dataObj.data) {
+              dataObj = {};
+            }
 
             return (
-              <Grid key={index} item md={12} lg={6} xl={4}>
+              // Change grid column layout based on numver of charts
+              <Grid key={index} item md={12} lg={6} xl={charts.length > 2 ? 4 : 6}>
                 <Paper variant="outlined">
                   <ChartToolbar
-                    chartID={id}
-                    query={query}
-                    refreshChart={refreshChart}
+                    chartID={chartID}
                     removeChart={removeChart}
                     toggleDialog={editChart}
                   />
@@ -96,10 +126,17 @@ const Dashboard = () => {
             );
           })}
         </Grid>
-        {newChartShow ? <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} /> : null}
-        {editChartShow ? (
+        <FilterDrawer
+          dashboard={dashboard}
+          dispatch={dispatch}
+          showDrawer={showDrawer}
+          toggleDrawer={toggleDrawer}
+          queryData={queryData}
+        />
+        {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+        {editChartShow && (
           <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
-        ) : null}
+        )}
       </Container>
     </Fragment>
   ) : (

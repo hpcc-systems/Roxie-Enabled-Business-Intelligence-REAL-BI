@@ -1,11 +1,27 @@
 import axios from 'axios';
-import { GET_QUERIES, GET_QUERY_INFO, SET_QUERY_ERRORS } from './';
+import { ADD_QUERY, GET_QUERIES, GET_QUERY_INFO, SET_QUERY_ERRORS } from './';
 
-const getQueries = async (clusterID, keyword) => {
+const addQuery = async (dashboardID, query) => {
   let response;
 
   try {
-    response = await axios.get('/api/query/search', { params: { clusterID, keyword } });
+    response = await axios.post('/api/query/create', { dashboardID, query });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_QUERY_ERRORS, payload: err };
+  }
+
+  return {
+    action: { type: ADD_QUERY, payload: response.data },
+    queryID: response.data.id,
+  };
+};
+
+const getQueries = async () => {
+  let response;
+
+  try {
+    response = await axios.get('/api/query/all');
   } catch (err) {
     console.error(err);
     return { type: SET_QUERY_ERRORS, payload: err };
@@ -27,4 +43,4 @@ const getQueryInfo = async (clusterID, query) => {
   return { type: GET_QUERY_INFO, payload: response.data };
 };
 
-export { getQueries, getQueryInfo };
+export { addQuery, getQueries, getQueryInfo };

@@ -1,31 +1,28 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0`, marginTop: 25 },
-  formControl2: { margin: `${theme.spacing(1)}px 0` },
+  formControl2: { margin: `${theme.spacing(2)}px 0` },
+  typography: { marginTop: 20 },
 }));
 
-// A dropdown choice to clear the dropdown selection
-const ClearSelect = () => <MenuItem value={''}>Clear Selection</MenuItem>;
-
 const GroupByTab = ({ handleChangeObj, localState }) => {
-  const { datasetObj, groupBy } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = datasetObj;
-  const { formControl, formControl2 } = useStyles();
+  const {
+    dataset,
+    groupBy: { column, row, value },
+    selectedDataset,
+  } = localState;
+  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
+  const { formControl, formControl2, typography } = useStyles();
 
-  return (
+  return dataset ? (
     <Fragment>
       <FormControl className={formControl} fullWidth>
         <InputLabel>Row</InputLabel>
-        <Select
-          name="groupBy:row"
-          // Ternary is here to prevent error of input switching from uncontrolled to controlled
-          value={groupBy.row === undefined ? '' : groupBy.row}
-          onChange={handleChangeObj}
-        >
-          {fields.length > 1 ? ClearSelect() : null}
+        <Select name="groupBy:row" value={row} onChange={handleChangeObj}>
+          {row !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
           {fields.map(({ name, value = name }, index) => {
             return (
               <MenuItem key={index} value={value}>
@@ -37,13 +34,8 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
       </FormControl>
       <FormControl className={formControl2} fullWidth>
         <InputLabel>Column</InputLabel>
-        <Select
-          name="groupBy:column"
-          // Ternary is here to prevent error of input switching from uncontrolled to controlled
-          value={groupBy.column === undefined ? '' : groupBy.column}
-          onChange={handleChangeObj}
-        >
-          {fields.length > 1 ? ClearSelect() : null}
+        <Select name="groupBy:column" value={column} onChange={handleChangeObj}>
+          {column !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
           {fields.map(({ name, value = name }, index) => {
             return (
               <MenuItem key={index} value={value}>
@@ -55,13 +47,8 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
       </FormControl>
       <FormControl className={formControl2} fullWidth>
         <InputLabel>Value</InputLabel>
-        <Select
-          name="groupBy:value"
-          // Ternary is here to prevent error of input switching from uncontrolled to controlled
-          value={groupBy.value === undefined ? '' : groupBy.value}
-          onChange={handleChangeObj}
-        >
-          {fields.length > 1 ? ClearSelect() : null}
+        <Select name="groupBy:value" value={value} onChange={handleChangeObj}>
+          {value !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
           {fields.map(({ name, value = name }, index) => {
             return (
               <MenuItem key={index} value={value}>
@@ -72,6 +59,10 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
         </Select>
       </FormControl>
     </Fragment>
+  ) : (
+    <Typography variant="h6" color="inherit" align="center" className={typography}>
+      Choose a dataset
+    </Typography>
   );
 };
 

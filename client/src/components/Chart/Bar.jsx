@@ -13,14 +13,13 @@ import {
 
 const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
 
-const BarChartComp = ({ data, options }) => {
-  const { groupBy, title, xAxis, yAxis } = options;
+const BarChartComp = ({ data, groupBy, options }) => {
+  const { title, xAxis, yAxis } = options;
   const { row, column, value } = groupBy;
-  let etlData = data;
 
   // If group by values in place, transform data
-  if (row !== '' && column !== '' && value !== '') {
-    etlData = data.map(row => {
+  if (row && column && value) {
+    data = data.map(row => {
       // Get all object keys except for the xAxis row
       const keys = Object.keys(row).filter(key => key !== xAxis);
 
@@ -34,7 +33,7 @@ const BarChartComp = ({ data, options }) => {
 
   return (
     <ResponsiveContainer minWidth={10} minHeight={300}>
-      <BarChart {...staticConfig} data={etlData}>
+      <BarChart {...staticConfig} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey={xAxis}>
           <Label value={title} offset={230} position="top" />

@@ -1,39 +1,77 @@
-const { chart: chartModel } = require('../models');
+// DB Models
+const { chart: chartModel, query: queryModel } = require('../models');
 
-const getChartsByDashboard = async dashboardID => {
+// Utils
+const { unNestSequelizeObj } = require('./misc');
+
+const getChartsByDashboardID = async dashboardID => {
   let charts;
 
   try {
-    charts = await chartModel.findAll({ where: { dashboardID } });
+    charts = await chartModel.findAll({
+      attributes: { exclude: ['dashboardID'] },
+      where: { dashboardID },
+      include: [
+        {
+          model: queryModel,
+          attributes: [['name', 'queryName']],
+        },
+      ],
+    });
   } catch (err) {
     throw err;
   }
+
+  // Create new array of flattened objects
+  charts = charts.map(chart => {
+    // Get nested objects
+    chart = unNestSequelizeObj(chart);
+    let { queryName } = unNestSequelizeObj(chart.query); // Equivalent of chart.query.dataValues.queryName
+
+    // Create new chart object
+    const newObj = { ...chart, queryName };
+
+    // Remove original nested object
+    delete newObj.query;
+
+    return newObj;
+  });
 
   return charts;
 };
 
-const createChart = async chart => {
+const createChart = async (chart, dashboardID, queryID) => {
   let newChart;
 
   try {
-    newChart = await chartModel.create(chart);
+    newChart = await chartModel.create({ ...chart, dashboardID, queryID });
   } catch (err) {
     throw err;
   }
 
-  return newChart.dataValues;
+  // Get nested object
+  newChart = unNestSequelizeObj(newChart);
+
+  return newChart;
 };
 
 const getChartByID = async chartID => {
-  let chart;
+  let chart, query;
 
   try {
-    chart = await chartModel.findOne({ where: { id: chartID } });
+    chart = await chartModel.findOne({
+      where: { id: chartID },
+      include: { model: queryModel },
+    });
   } catch (err) {
     throw err;
   }
 
-  return chart.dataValues;
+  // Get nested objects
+  chart = unNestSequelizeObj(chart);
+  query = unNestSequelizeObj(chart.query);
+
+  return { ...chart, query };
 };
 
 const updateChartByID = async chart => {
@@ -62,6 +100,6 @@ module.exports = {
   createChart,
   deleteChartByID,
   getChartByID,
-  getChartsByDashboard,
+  getChartsByDashboardID,
   updateChartByID,
 };

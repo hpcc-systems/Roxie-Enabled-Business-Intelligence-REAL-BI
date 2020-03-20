@@ -1,10 +1,19 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Dialog, DialogActions, DialogContent, Toolbar } from '@material-ui/core';
-import { Close as CloseIcon, Refresh as RefreshIcon } from '@material-ui/icons';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Toolbar,
+  Typography,
+} from '@material-ui/core';
+import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
+import { getDashboardParams } from '../../features/dashboard/actions';
+import { addQuery } from '../../features/query/actions';
 import { addChart } from '../../features/chart/actions';
 
 // React Components
@@ -14,91 +23,105 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { getPreviewData } from '../../utils/chart';
+import { createChartObj, getPreviewData } from '../../utils/chart';
+import { createQueryObj } from '../../utils/query';
 
 const initState = {
   chartType: 'bar',
-  config: {},
   dataObj: { loading: false },
   dataset: '',
-  datasetObj: {},
-  groupBy: {},
+  datasets: [],
+  groupBy: { row: '', column: '', value: '' },
   keyword: '',
-  params: {},
-  query: '',
+  options: {},
+  params: [],
+  queries: [],
+  selectedDataset: {},
+  selectedQuery: {},
 };
 
 // Create styles
 const useStyles = makeStyles(() => ({
-  close: { padding: '10px 0', width: 16 },
-  div: { flex: 1 },
   toolbar: { padding: 0 },
+  typography: { flex: 1, marginLeft: 12 },
 }));
 
 const NewChartDialog = ({ show, toggleDialog }) => {
-  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
-  const { clusterID, id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { values: localState, handleChange, handleChangeArr, handleChangeObj } = useForm(initState);
+  const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
-  const { close, div, toolbar } = useStyles();
+  const { toolbar, typography } = useStyles();
 
-  // Add chart to DB and store
-  const newChart = () => {
-    const { chartType: type, config, dataset, groupBy, params, query } = localState;
-    const newChartObj = {
-      dashboardID,
-      dataset,
-      options: { ...config, groupBy },
-      params,
-      query,
-      sort: charts.length + 1,
-      type,
-    };
+  // Reference values
+  const {
+    dataObj: { loading: previewLoading },
+    selectedDataset,
+    selectedQuery,
+  } = localState;
+  const queryKeys = Object.keys(selectedQuery).length;
+  const datasetKeys = Object.keys(selectedDataset).length;
 
-    addChart(newChartObj).then(action => dispatch(action));
+  // Add components to DB
+  const newChart = async () => {
+    const { id: dashboardID } = dashboard;
+    const queryObj = createQueryObj(localState);
+    const newChartObj = createChartObj(localState, charts.length + 1);
 
-    // Reset and close dialog
-    return resetDialog();
-  };
+    try {
+      const { action: action1, queryID } = await addQuery(dashboardID, queryObj);
+      const action2 = await addChart(newChartObj, dashboardID, queryID);
+      const action3 = await getDashboardParams(dashboardID);
 
-  // Reset state and hide dialog
-  const resetDialog = () => {
-    toggleDialog();
-    return resetState(initState);
+      // Dispatch each action
+      [action1, action2, action3].forEach(action => dispatch(action));
+    } catch (err) {
+      console.error(err);
+    }
+
+    // Close dialog
+    return toggleDialog();
   };
 
   const updateChartPreview = () => {
-    const { params, query } = localState;
+    const { params, selectedQuery } = localState;
 
-    // Fetch data for query
-    getPreviewData({ params, query }, clusterID).then(data => {
-      // Set data in local state object with query name as key
-      handleChange({ target: { name: 'dataObj', value: { data, loading: false } } });
-    });
+    if (queryKeys > 0 && datasetKeys > 0) {
+      // Set loading
+      handleChange(null, { name: 'dataObj', value: { loading: true } });
+
+      // Fetch data for selectedQuery
+      getPreviewData(dashboard.clusterID, { params, query: selectedQuery }).then(data => {
+        // Set data in local state object with query name as key
+        handleChange(null, { name: 'dataObj', value: { data, loading: false } });
+      });
+    }
   };
 
   return (
     <Dialog open={show} fullWidth maxWidth="xl">
       <Toolbar className={toolbar}>
-        <div className={div}>
-          <Button className={close} onClick={resetDialog}>
-            <CloseIcon />
-          </Button>
-        </div>
-        <Button onClick={updateChartPreview}>
+        <Typography variant="h6" color="inherit" className={typography}>
+          New Chart
+        </Typography>
+        <Button
+          disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading}
+          onClick={updateChartPreview}
+        >
           <RefreshIcon />
         </Button>
       </Toolbar>
       <DialogContent>
         <ChartEditor
-          dispatch={dispatch}
+          dashboard={dashboard}
           handleChange={handleChange}
+          handleChangeArr={handleChangeArr}
           handleChangeObj={handleChangeObj}
           localState={localState}
         />
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" onClick={resetDialog}>
+        <Button color="secondary" onClick={toggleDialog}>
           Cancel
         </Button>
         <Button variant="contained" color="primary" onClick={newChart}>

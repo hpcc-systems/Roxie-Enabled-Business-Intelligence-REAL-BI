@@ -1,18 +1,10 @@
+// DB Models
 const { dashboard: dashboardModel } = require('../models');
 
-const getDashboardByID = async id => {
-  let dashboard;
+// Utils
+const { unNestSequelizeObj } = require('./misc');
 
-  try {
-    dashboard = await dashboardModel.findOne({ where: { id } });
-  } catch (err) {
-    throw err;
-  }
-
-  return dashboard.dataValues;
-};
-
-const getDashboardsByUser = async userID => {
+const getDashboardsByUserID = async userID => {
   let dashboards;
 
   try {
@@ -22,6 +14,21 @@ const getDashboardsByUser = async userID => {
   }
 
   return dashboards;
+};
+
+const getDashboardByID = async dashboardID => {
+  let dashboard;
+
+  try {
+    dashboard = await dashboardModel.findOne({ where: { id: dashboardID } });
+  } catch (err) {
+    throw err;
+  }
+
+  // Get nested object
+  dashboard = unNestSequelizeObj(dashboard);
+
+  return dashboard;
 };
 
 const createDashboard = async (clusterID, name, userID) => {
@@ -34,4 +41,4 @@ const createDashboard = async (clusterID, name, userID) => {
   return;
 };
 
-module.exports = { createDashboard, getDashboardByID, getDashboardsByUser };
+module.exports = { createDashboard, getDashboardByID, getDashboardsByUserID };
