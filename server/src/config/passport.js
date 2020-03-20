@@ -2,6 +2,9 @@ const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 const { user: userModel } = require('../models');
 
+// Utils
+const { unNestSequelizeObj } = require('../utils/misc');
+
 const { JWT_SECRET } = process.env;
 
 const jwtParams = {
@@ -17,7 +20,8 @@ const jwtStrategy = new Strategy(jwtParams, async ({ id }, done) => {
     // Find user by ID
     user = await userModel.findByPk(id);
   } catch (err) {
-    return done(null, false);
+    console.error(err);
+    return done(err, false);
   }
 
   // No user found
@@ -26,7 +30,7 @@ const jwtStrategy = new Strategy(jwtParams, async ({ id }, done) => {
   }
 
   // Un-nest user object
-  user = { ...user.dataValues };
+  user = unNestSequelizeObj(user);
 
   return done(null, user);
 });
