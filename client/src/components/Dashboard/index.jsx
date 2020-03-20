@@ -128,7 +128,6 @@ const Dashboard = () => {
         </Grid>
         <FilterDrawer
           dashboard={dashboard}
-          dispatch={dispatch}
           showDrawer={showDrawer}
           toggleDrawer={toggleDrawer}
           queryData={queryData}

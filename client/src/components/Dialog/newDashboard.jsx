@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -26,7 +26,6 @@ const useStyles = makeStyles(() => ({
 }));
 
 const NewDashboardDialog = ({
-  dispatch,
   handleChange,
   localState,
   newDashboard,
@@ -36,6 +35,7 @@ const NewDashboardDialog = ({
 }) => {
   const { clusterID, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
+  const dispatch = useDispatch();
   const { close, formControl, progress } = useStyles();
 
   // Get list of clusters from database
