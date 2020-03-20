@@ -39,17 +39,13 @@ const useStyles = makeStyles(theme => ({
 const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
   const [dashboardsLoading, setDashboardsLoading] = useState(false);
   const [newDashboardLoading, setNewDashboardLoading] = useState(false);
-  const {
-    values: { clusterID, name },
-    handleChange,
-    resetState,
-  } = useForm(initState);
+  const { values: localState, handleChange } = useForm(initState);
   const { userID } = useSelector(state => state.auth);
   const { dashboards } = useSelector(state => state.dashboard);
   const { showDialog, toggleDialog } = useDialog(false);
   const { button, drawer, msg, toolbar, typography } = useStyles();
 
-  // ComponentDidMount -> Get list of dashboards from database
+  // Get list of dashboards from database
   useEffect(() => {
     if (userID) {
       setDashboardsLoading(true);
@@ -72,6 +68,7 @@ const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
 
   // Add dashboard to database and hide dialog
   const newDashboard = () => {
+    const { clusterID, name } = localState;
     setNewDashboardLoading(true);
 
     addDashboard({ clusterID, name }).then(action => {
@@ -80,12 +77,6 @@ const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
     });
 
     toggleDialog();
-  };
-
-  // Reset state and hide dialog
-  const resetDialog = () => {
-    toggleDialog();
-    return resetState(initState);
   };
 
   return (
@@ -123,14 +114,13 @@ const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
         )}
       </div>
       <NewDashboardDialog
-        clusterID={clusterID}
         dispatch={dispatch}
         handleChange={handleChange}
-        name={name}
+        localState={localState}
         newDashboard={newDashboard}
         newDashboardLoading={newDashboardLoading}
-        resetDialog={resetDialog}
         show={showDialog}
+        toggleDialog={toggleDialog}
       />
     </Drawer>
   );

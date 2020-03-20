@@ -1,51 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
-// Redux Actions
-import { getQueryInfo } from '../../features/query/actions';
+// Utils
+import { getQueryInfo } from '../../utils/query';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0` },
+  formControl: { margin: `${theme.spacing(1)}px 0 ${theme.spacing(4)}px 0` },
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
-const SelectDataset = ({ dispatch, handleChange, localState }) => {
+const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { clusterID } = useSelector(state => state.dashboard.dashboard);
-  const { datasets = [], params } = useSelector(state => state.query.query);
-  const { dataset, id: chartID, query } = localState;
+  const { chartID, dataset, datasets = [], selectedQuery } = localState;
+  const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
-  // ComponentDidMount -> Get list of query datasets from hpcc
+  // Get list of query datasets from hpcc
   useEffect(() => {
-    if (query) {
+    if (Object.keys(selectedQuery).length > 0) {
       setLoading(true);
 
-      getQueryInfo(clusterID, query).then(action => {
-        dispatch(action);
+      getQueryInfo(clusterID, selectedQuery).then(({ datasets, params }) => {
+        handleChange(null, { name: 'datasets', value: datasets });
+
+        if (!chartID) {
+          // Populate paramArr with each param provided by the query
+          const paramArr = params.map(param => ({ ...param, dataset: '', value: '' }));
+
+          handleChange(null, { name: 'params', value: paramArr });
+        }
 
         setLoading(false);
       });
     }
-  }, [clusterID, dispatch, query]);
+  }, [chartID, clusterID, handleChange, selectedQuery]);
 
   useEffect(() => {
-    if (dataset) {
-      const selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
-      const datasetObj = { params, ...selectedDataset };
+    if (datasets.length > 0 && dataset) {
+      let selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
 
-      // Set datasetObj
-      handleChange({ target: { name: 'datasetObj', value: datasetObj } });
+      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
     }
-  }, [dataset, datasets, handleChange, params]);
+  }, [dataset, datasets, handleChange]);
 
   // Do not show if in edit mode (chart ID populated)
   // Continue to mount component to get useEffect to run
-  return !chartID ? (
-    loading ? (
+  return (
+    !chartID &&
+    (loading ? (
       <CircularProgress className={progress} />
     ) : (
       <FormControl className={formControl} fullWidth>
@@ -60,8 +64,8 @@ const SelectDataset = ({ dispatch, handleChange, localState }) => {
           })}
         </Select>
       </FormControl>
-    )
-  ) : null;
+    ))
+  );
 };
 
 export default SelectDataset;

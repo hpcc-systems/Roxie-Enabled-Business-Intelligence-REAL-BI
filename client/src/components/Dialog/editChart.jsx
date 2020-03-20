@@ -9,7 +9,7 @@ import {
   Toolbar,
   Typography,
 } from '@material-ui/core';
-import { Close as CloseIcon, Refresh as RefreshIcon } from '@material-ui/icons';
+import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { updateChart } from '../../features/chart/actions';
@@ -21,7 +21,7 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { getPreviewData } from '../../utils/chart';
+import { createChartObj, getPreviewData, setEditorState } from '../../utils/chart';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -33,76 +33,79 @@ const useStyles = makeStyles(() => ({
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   // Get selected chart
   const { charts } = useSelector(state => state.chart);
-  const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-
-  // Create initial state object
-  const { type: chartType, options, ...otherVals } = charts[chartIndex];
-  const { groupBy = {}, ...config } = options;
-  const initState = {
-    chartType,
-    config,
-    dataObj: { loading: false },
-    datasetObj: {},
-    groupBy,
-    ...otherVals,
-  };
+  const initState = setEditorState(charts, chartID);
 
   // Set initial state
-  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
-  const { clusterID } = useSelector(state => state.dashboard.dashboard);
+  const { values: localState, handleChange, handleChangeArr, handleChangeObj } = useForm(initState);
+  const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { close, toolbar, typography } = useStyles();
+  const { toolbar, typography } = useStyles();
+
+  // Reference values
+  const {
+    dataObj: { loading: previewLoading },
+    selectedDataset,
+    selectedQuery,
+  } = localState;
+  const queryKeys = Object.keys(selectedQuery).length;
+  const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
   const editChart = () => {
-    const { chartType: type, config, groupBy, id, params } = localState;
-    const chartObj = { id, params, type, options: { ...config, groupBy } };
+    const { chartID, queryID, sort } = localState;
+    const chartObj = createChartObj(localState, sort);
 
-    updateChart(charts, chartObj).then(action => dispatch(action));
+    // Update chart and global params in DB
+    updateChart({ id: chartID, ...chartObj }, dashboard.id, queryID).then(action => {
+      dispatch(action);
 
-    // Reset and close dialog
-    return resetDialog();
-  };
-
-  // Reset state and hide dialog
-  const resetDialog = () => {
-    toggleDialog();
-    return resetState(initState);
+      // Close dialog
+      return toggleDialog();
+    });
   };
 
   const updateChartPreview = () => {
-    const { params, query } = localState;
+    const { params, selectedQuery } = localState;
 
-    // Fetch data for query
-    getPreviewData({ params, query }, clusterID).then(data => {
-      // Set data in local state object with query name as key
-      handleChange({ target: { name: 'dataObj', value: { data, loading: false } } });
-    });
+    if (queryKeys > 0 && datasetKeys > 0) {
+      // Set loading
+      handleChange(null, { name: 'dataObj', value: { loading: true } });
+
+      // Fetch data for selectedQuery
+      getPreviewData(dashboard.clusterID, { params, query: selectedQuery }).then(data => {
+        // Set data in local state object with query name as key
+        handleChange(null, { name: 'dataObj', value: { data, loading: false } });
+      });
+    }
   };
 
   return (
     <Dialog open={show} fullWidth maxWidth="xl">
       <Toolbar className={toolbar}>
-        <Button className={close} onClick={resetDialog}>
-          <CloseIcon />
-        </Button>
         <Typography variant="h6" color="inherit" className={typography}>
           Edit Chart
         </Typography>
-        <Button onClick={updateChartPreview}>
+        <Button
+          disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading}
+          onClick={updateChartPreview}
+        >
           <RefreshIcon />
         </Button>
       </Toolbar>
       <DialogContent>
-        <ChartEditor
-          dispatch={dispatch}
-          handleChange={handleChange}
-          handleChangeObj={handleChangeObj}
-          localState={localState}
-        />
+        {/* Load editor components once localState is set */}
+        {Object.keys(localState).length > 0 && (
+          <ChartEditor
+            dashboard={dashboard}
+            handleChange={handleChange}
+            handleChangeArr={handleChangeArr}
+            handleChangeObj={handleChangeObj}
+            localState={localState}
+          />
+        )}
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" onClick={resetDialog}>
+        <Button color="secondary" onClick={toggleDialog}>
           Cancel
         </Button>
         <Button variant="contained" color="primary" onClick={editChart}>

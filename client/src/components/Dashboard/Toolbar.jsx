@@ -6,6 +6,7 @@ import {
   Email as EmailIcon,
   FilterList as FilterListIcon,
   GetApp as GetAppIcon,
+  Refresh as RefreshIcon,
   Share as ShareIcon,
 } from '@material-ui/icons';
 
@@ -19,7 +20,7 @@ const useStyles = makeStyles({
   typography: { flex: 1, fontSize: 24 },
 });
 
-const ToolbarComp = ({ name, toggleDialog, toggleDrawer }) => {
+const ToolbarComp = ({ name, refreshChart, toggleDialog, toggleDrawer }) => {
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
   const { button, icon, typography } = useStyles();
 
@@ -28,6 +29,9 @@ const ToolbarComp = ({ name, toggleDialog, toggleDrawer }) => {
       <Typography variant="h2" color="inherit" className={typography}>
         {name}
       </Typography>
+      <Button className={button} variant="contained" color="primary" onClick={refreshChart}>
+        <RefreshIcon />
+      </Button>
       <Button className={button} variant="contained" color="primary" onClick={toggleDialog}>
         <AddCircleIcon />
       </Button>

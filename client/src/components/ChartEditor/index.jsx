@@ -16,13 +16,14 @@ const tabOptions = [
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  appbar: { margin: `${theme.spacing(3)}px 0 ${theme.spacing(1)}px 0` },
+  appbar: { marginBottom: theme.spacing(1) },
+  gridContainer: { overflowY: 'hidden' },
 }));
 
 const ChartEditor = props => {
-  const { chartType, config, dataObj, dataset, groupBy } = props.localState;
+  const { chartType, dataObj, dataset, groupBy, options } = props.localState;
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar } = useStyles();
+  const { appbar, gridContainer } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -33,10 +34,10 @@ const ChartEditor = props => {
     Clear title for the preview because the offset
     is different than when the chart is on the dashboard
   */
-  const chart = { dataset, options: { ...config, groupBy, title: '' }, type: chartType };
+  const chart = { dataset, groupBy, options: { ...options, title: '' }, type: chartType };
 
   return (
-    <Grid container>
+    <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={6}>
         <QuerySearch {...props} />
         <SelectDataset {...props} />
