@@ -11,6 +11,7 @@ const chartRoutes = require('./routes/chart');
 const clusterRoutes = require('./routes/cluster');
 const dashboardRoutes = require('./routes/dashboard');
 const queryRoutes = require('./routes/query');
+const queryParamRoutes = require('./routes/queryParams');
 
 const { PORT, NODE_PORT } = process.env;
 const port = PORT || NODE_PORT;
@@ -31,6 +32,7 @@ app.use('/api/chart', passport.authenticate(), chartRoutes);
 app.use('/api/cluster', passport.authenticate(), clusterRoutes);
 app.use('/api/dashboard', passport.authenticate(), dashboardRoutes);
 app.use('/api/query', passport.authenticate(), queryRoutes);
+app.use('/api/param', passport.authenticate(), queryParamRoutes);
 
 sequelize
   // .sync({ force: true })

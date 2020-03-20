@@ -1,7 +1,10 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
+
+// Utils
 const { getUserByID } = require('../utils/auth');
 
+// Environment variables
 const { JWT_SECRET } = process.env;
 
 router.post('/login', async (req, res) => {
@@ -15,12 +18,12 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  // No user found with provided id
+  // No user found
   if (!user) {
     return res.status(500).json({ msg: 'No user found' });
   }
 
-  // Create Token
+  // Create and Sign JWT token
   return jwt.sign(user, JWT_SECRET, {}, (err, token) => {
     if (err) {
       console.error(err);

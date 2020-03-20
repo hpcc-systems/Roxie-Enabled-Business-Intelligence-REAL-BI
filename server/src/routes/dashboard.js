@@ -1,13 +1,14 @@
 const router = require('express').Router();
-const { createDashboard, getDashboardByID, getDashboardsByUser } = require('../utils/dashboard');
 
-// Get all dashboards
+// Utils
+const { createDashboard, getDashboardByID, getDashboardsByUserID } = require('../utils/dashboard');
+const { findAllQueryParams } = require('../utils/queryParam');
+
 router.get('/all', async (req, res) => {
-  const { id: userID } = req.user;
   let dashboards;
 
   try {
-    dashboards = await getDashboardsByUser(userID);
+    dashboards = await getDashboardsByUserID(req.user.id);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -16,15 +17,16 @@ router.get('/all', async (req, res) => {
   return res.status(200).json(dashboards);
 });
 
-// Create a new dashboard
 router.post('/create', async (req, res) => {
-  const { clusterID, name } = req.body;
-  const { id: userID } = req.user;
+  const {
+    body: { clusterID, name },
+    user: { id: userID },
+  } = req;
   let dashboards;
 
   try {
     await createDashboard(clusterID, name, userID);
-    dashboards = await getDashboardsByUser(userID);
+    dashboards = await getDashboardsByUserID(userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -33,19 +35,19 @@ router.post('/create', async (req, res) => {
   return res.status(201).json(dashboards);
 });
 
-// Get information about a single dashboard
 router.get('/info', async (req, res) => {
   const { dashboardID } = req.query;
-  let dashboard;
+  let dashboard, params;
 
   try {
     dashboard = await getDashboardByID(dashboardID);
+    params = await findAllQueryParams(dashboardID, null);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(200).json(dashboard);
+  return res.status(200).json({ ...dashboard, params });
 });
 
 module.exports = router;

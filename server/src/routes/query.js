@@ -1,16 +1,21 @@
 const router = require('express').Router();
-const { getClusterByID } = require('../utils/cluster');
+
+// Utils
 const {
-  getDataFromQuery,
+  getClusterByID,
+  getDataFromCluster,
   getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
-} = require('../utils/query');
+} = require('../utils/cluster');
 const { getChartByID } = require('../utils/chart');
+const { createDashboardSource, getDashboardSource } = require('../utils/dashboardSource');
+const { createQuery, getQueriesByDashboardID, getQueryByHpccID } = require('../utils/query');
+const { createQueryParams, findAllQueryParams } = require('../utils/queryParam');
 
 router.get('/search', async (req, res) => {
   const { clusterID, keyword = '*' } = req.query;
-  let cluster;
+  let cluster, queryList;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -25,13 +30,13 @@ router.get('/search', async (req, res) => {
 
 router.get('/info', async (req, res) => {
   const { clusterID, query } = req.query;
-  let queryInfo = {};
+  const queryInfo = {};
   let cluster;
 
   try {
     cluster = await getClusterByID(clusterID);
-    queryInfo.params = await getQueryParamsFromCluster(cluster, query);
-    queryInfo.datasets = await getQueryDatasetsFromCluster(cluster, query);
+    queryInfo.params = await getQueryParamsFromCluster(cluster, JSON.parse(query));
+    queryInfo.datasets = await getQueryDatasetsFromCluster(cluster, JSON.parse(query));
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -40,15 +45,14 @@ router.get('/info', async (req, res) => {
   return res.status(200).json(queryInfo);
 });
 
-router.get('/data', async (req, res) => {
-  const { chartID, clusterID } = req.query;
+router.get('/editordata', async (req, res) => {
+  const { dataOptions, clusterID } = req.query;
   let data = [];
-  let chart, cluster;
+  let cluster;
 
   try {
     cluster = await getClusterByID(clusterID);
-    chart = await getChartByID(chartID);
-    data = await getDataFromQuery(cluster, chart);
+    data = await getDataFromCluster(cluster, JSON.parse(dataOptions));
   } catch (err) {
     console.error(err);
     return res.status(500).end();
@@ -57,17 +61,81 @@ router.get('/data', async (req, res) => {
   return res.status(200).json(data);
 });
 
-router.get('/editordata', async (req, res) => {
-  const { chart, clusterID } = req.query;
-  let data = [];
-  let cluster;
+router.post('/create', async (req, res) => {
+  const { dashboardID, query } = req.body;
+  let dashboardSource, dbQuery;
+
+  try {
+    // Look for existing query in DB
+    dbQuery = await getQueryByHpccID(query);
+
+    // Query not found
+    if (!dbQuery) {
+      dbQuery = await createQuery(query);
+      await createQueryParams(dbQuery.id, query, dashboardID, null);
+    } else {
+      // Look for existing dashboard source in DB
+      dashboardSource = await getDashboardSource(dashboardID, dbQuery.id);
+    }
+
+    // Dashbaord Source not already in DB
+    if (!dashboardSource) {
+      await createDashboardSource(dashboardID, dbQuery.id);
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  return res.status(201).json(dbQuery);
+});
+
+router.get('/data/single', async (req, res) => {
+  const { clusterID, dashboardID } = req.query;
+  let cluster, params, queries;
+  let data = {};
 
   try {
     cluster = await getClusterByID(clusterID);
-    data = await getDataFromQuery(cluster, JSON.parse(chart));
+    queries = await getQueriesByDashboardID(dashboardID);
+    params = await findAllQueryParams(dashboardID, null);
   } catch (err) {
     console.error(err);
-    return res.status(500).end();
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  if (!queries) {
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  // Create nested data objects with the name of the query as the key
+  for (let query of queries) {
+    const { name } = query;
+
+    try {
+      query = await getDataFromCluster(cluster, { params, query });
+    } catch (err) {
+      return console.error(err);
+    }
+
+    data[name] = query;
+  }
+
+  return res.status(200).json(data);
+});
+
+router.get('/data/multiple', async (req, res) => {
+  const { chartID, clusterID } = req.query;
+  let chart, cluster, data, params;
+
+  try {
+    cluster = await getClusterByID(clusterID);
+    chart = await getChartByID(chartID);
+    params = await findAllQueryParams(null, chartID);
+    data = await getDataFromCluster(cluster, { params, query: chart.query });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
   }
 
   return res.status(200).json(data);

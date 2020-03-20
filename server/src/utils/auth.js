@@ -1,4 +1,8 @@
+// DB Models
 const { user: userModel } = require('../models');
+
+// Utils
+const { unNestSequelizeObj } = require('./misc');
 
 const getUserByID = async userID => {
   let user;
@@ -14,7 +18,10 @@ const getUserByID = async userID => {
     return false;
   }
 
-  return user.dataValues;
+  // Get nested object
+  user = unNestSequelizeObj(user);
+
+  return user;
 };
 
 module.exports = { getUserByID };
