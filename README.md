@@ -1,4 +1,4 @@
-# HPCC Dashboard
+# REAL BI
 
 ## Installation
 
