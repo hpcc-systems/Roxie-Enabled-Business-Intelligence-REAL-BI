@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(50),
         allowNull: false,
       },
+      directory: DataTypes.JSON,
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
