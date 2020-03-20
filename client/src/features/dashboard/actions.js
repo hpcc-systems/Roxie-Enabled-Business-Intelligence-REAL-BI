@@ -3,7 +3,6 @@ import {
   ADD_DASHBOARD,
   GET_DASHBOARD,
   GET_DASHBOARD_PARAMS,
-  GET_DASHBOARDS,
   SET_DASHBOARD_ERRORS,
   UPDATE_DASHBOARD_PARAM,
 } from './';
@@ -34,19 +33,6 @@ const getDashboard = async dashboardID => {
   return { type: GET_DASHBOARD, payload: response.data };
 };
 
-const getDashboards = async () => {
-  let response;
-
-  try {
-    response = await axios.get('/api/dashboard/all');
-  } catch (err) {
-    console.error(err);
-    return { type: SET_DASHBOARD_ERRORS, payload: err };
-  }
-
-  return { type: GET_DASHBOARDS, payload: response.data };
-};
-
 const getDashboardParams = async dashboardID => {
   let response;
 
@@ -73,4 +59,4 @@ const updateDashboardParam = async (dashboardID, paramID, value) => {
   return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-export { addDashboard, getDashboard, getDashboards, getDashboardParams, updateDashboardParam };
+export { addDashboard, getDashboard, getDashboardParams, updateDashboardParam };

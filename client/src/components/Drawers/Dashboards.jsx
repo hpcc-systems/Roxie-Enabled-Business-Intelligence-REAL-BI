@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
-  CircularProgress,
   Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  // List,
+  // ListItem,
+  // ListItemIcon,
+  // ListItemText,
   Toolbar,
   Typography,
 } from '@material-ui/core';
-import { AddBox, Dashboard as DashboardIcon } from '@material-ui/icons';
+import {
+  AddBox,
+  // Dashboard as DashboardIcon
+} from '@material-ui/icons';
 
 // React Components
 import NewDashboardDialog from '../Dialog/newDashboard';
@@ -22,106 +24,73 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { addDashboard, getDashboard, getDashboards } from '../../features/dashboard/actions';
-import { getCharts } from '../../features/chart/actions';
+import { getDirectoryTree } from '../../features/auth/actions';
+// import { getDashboard } from '../../features/dashboard/actions';
+// import { getCharts } from '../../features/chart/actions';
 
-const initState = { clusterID: '', name: '' };
+const initState = { clusterID: '', name: '', type: '' };
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { minWidth: 25, padding: 0 },
   drawer: { width: 'auto', minWidth: 250 },
-  msg: { fontSize: 14, margin: '10px 0 15px 15px' },
+  msg: { fontSize: 14, margin: '10px 0 15px 18px' },
   toolbar: { marginLeft: theme.spacing(2), paddingLeft: 0 },
-  typography: { flex: 1, margin: 15, marginLeft: 0 },
+  typography: { margin: 15, marginLeft: 0 },
 }));
 
-const DashboardDrawer = ({ dispatch, showDrawer, toggleDrawer }) => {
-  const [dashboardsLoading, setDashboardsLoading] = useState(false);
-  const [newDashboardLoading, setNewDashboardLoading] = useState(false);
+const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
-  const { userID } = useSelector(state => state.auth);
-  const { dashboards } = useSelector(state => state.dashboard);
+  const { directory, id: userID } = useSelector(state => state.auth.user);
   const { showDialog, toggleDialog } = useDialog(false);
+  const dispatch = useDispatch();
   const { button, drawer, msg, toolbar, typography } = useStyles();
 
-  // Get list of dashboards from database
+  // Get directory tree for user
   useEffect(() => {
     if (userID) {
-      setDashboardsLoading(true);
-
-      getDashboards().then(action => {
-        dispatch(action);
-        setDashboardsLoading(false);
-      });
+      getDirectoryTree().then(action => dispatch(action));
     }
   }, [dispatch, userID]);
 
-  // Get information about specific dashboard and hide drawer
-  const getDashboardInfo = dashboardID => {
-    Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
-      actions.map(action => dispatch(action));
-    });
+  // // Get information about specific dashboard and hide drawer
+  // const getDashboardInfo = dashboardID => {
+  //   Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
+  //     actions.map(action => dispatch(action));
+  //   });
 
-    toggleDrawer();
-  };
+  //   toggleDrawer();
+  // };
 
-  // Add dashboard to database and hide dialog
-  const newDashboard = () => {
-    const { clusterID, name } = localState;
-    setNewDashboardLoading(true);
-
-    addDashboard({ clusterID, name }).then(action => {
-      dispatch(action);
-      setNewDashboardLoading(false);
-    });
-
-    toggleDialog();
-  };
+  console.log('directory', directory);
 
   return (
     <Drawer open={showDrawer} onClose={toggleDrawer}>
       <div className={drawer} role="presentation">
         <Toolbar className={toolbar}>
           <Typography variant="h6" align="left" color="inherit" className={typography}>
-            HPCC Dashboard
+            REAL BI
           </Typography>
           <Button className={button} onClick={toggleDialog}>
             <AddBox />
           </Button>
         </Toolbar>
-        {dashboardsLoading ? (
-          <CircularProgress />
+        {directory.length > 0 ? (
+          directory
         ) : (
-          <List component="nav">
-            {dashboards.length > 0 ? (
-              dashboards.map(({ id, name }, index) => {
-                return (
-                  <ListItem key={index} button onClick={() => getDashboardInfo(id)}>
-                    <ListItemIcon>
-                      <DashboardIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={name} />
-                  </ListItem>
-                );
-              })
-            ) : (
-              <Typography variant="h6" align="left" color="inherit" className={msg}>
-                Click '+' to add a dashbaord
-              </Typography>
-            )}
-          </List>
+          <Typography variant="h6" align="left" color="inherit" className={msg}>
+            Click '+' to get started
+          </Typography>
         )}
       </div>
-      <NewDashboardDialog
-        dispatch={dispatch}
-        handleChange={handleChange}
-        localState={localState}
-        newDashboard={newDashboard}
-        newDashboardLoading={newDashboardLoading}
-        show={showDialog}
-        toggleDialog={toggleDialog}
-      />
+      {showDialog && (
+        <NewDashboardDialog
+          handleChange={handleChange}
+          localState={localState}
+          show={showDialog}
+          toggleDialog={toggleDialog}
+        />
+      )}
     </Drawer>
   );
 };
