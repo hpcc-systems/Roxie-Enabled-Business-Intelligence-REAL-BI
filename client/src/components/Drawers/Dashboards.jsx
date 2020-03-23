@@ -17,6 +17,7 @@ import {
 } from '@material-ui/icons';
 
 // React Components
+import DirectoryTree from './DirectoryTree';
 import NewDashboardDialog from '../Dialog/newDashboard';
 
 // React Hooks
@@ -24,11 +25,13 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { getDirectoryTree } from '../../features/auth/actions';
-// import { getDashboard } from '../../features/dashboard/actions';
-// import { getCharts } from '../../features/chart/actions';
+import { getDashboard } from '../../features/dashboard/actions';
+import { getCharts } from '../../features/chart/actions';
 
-const initState = { clusterID: '', name: '', type: '' };
+// Utils
+import { addDashboard, getDirectory, updateDirectory } from '../../utils/dashboard';
+
+const initState = { clusterID: '', directory: [], name: '' };
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -41,7 +44,7 @@ const useStyles = makeStyles(theme => ({
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
-  const { directory, id: userID } = useSelector(state => state.auth.user);
+  const { id: userID } = useSelector(state => state.auth.user);
   const { showDialog, toggleDialog } = useDialog(false);
   const dispatch = useDispatch();
   const { button, drawer, msg, toolbar, typography } = useStyles();
@@ -49,20 +52,50 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   // Get directory tree for user
   useEffect(() => {
     if (userID) {
-      getDirectoryTree().then(action => dispatch(action));
+      getDirectory().then(data => handleChange(null, { name: 'directory', value: data }));
     }
-  }, [dispatch, userID]);
+  }, [handleChange, userID]);
 
-  // // Get information about specific dashboard and hide drawer
-  // const getDashboardInfo = dashboardID => {
-  //   Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
-  //     actions.map(action => dispatch(action));
-  //   });
+  // Get information about specific dashboard and hide drawer
+  const getDashboardInfo = dashboardID => {
+    Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
+      actions.map(action => dispatch(action));
+    });
 
-  //   toggleDrawer();
-  // };
+    toggleDrawer();
+  };
 
-  console.log('directory', directory);
+  const createDashboard = async () => {
+    const { directory } = localState;
+    const type = 'dashboard';
+    let dashboard;
+
+    try {
+      dashboard = await addDashboard(localState);
+    } catch (err) {
+      return console.error(err);
+    }
+
+    // Get desired values from object and create updated directory
+    const { userID, ...desiredKeys } = dashboard;
+    const updatedDirectory = [...directory, { ...desiredKeys, type }];
+
+    try {
+      // Update DB
+      await updateDirectory(updatedDirectory);
+    } catch (err) {
+      return console.error(err);
+    }
+
+    // Update local state
+    handleChange(null, { name: 'directory', value: updatedDirectory });
+
+    // Close dialog
+    toggleDialog();
+  };
+
+  // Destructured reference
+  const { directory } = localState;
 
   return (
     <Drawer open={showDrawer} onClose={toggleDrawer}>
@@ -76,7 +109,15 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
           </Button>
         </Toolbar>
         {directory.length > 0 ? (
-          directory
+          directory.map((directoryObj, index) => {
+            return (
+              <DirectoryTree
+                key={index}
+                directoryObj={directoryObj}
+                getDashboardInfo={getDashboardInfo}
+              />
+            );
+          })
         ) : (
           <Typography variant="h6" align="left" color="inherit" className={msg}>
             Click '+' to get started
@@ -85,6 +126,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
       </div>
       {showDialog && (
         <NewDashboardDialog
+          createDashboard={createDashboard}
           handleChange={handleChange}
           localState={localState}
           show={showDialog}

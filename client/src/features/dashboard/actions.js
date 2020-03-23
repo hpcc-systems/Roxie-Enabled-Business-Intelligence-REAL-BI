@@ -1,24 +1,10 @@
 import axios from 'axios';
 import {
-  ADD_DASHBOARD,
   GET_DASHBOARD,
   GET_DASHBOARD_PARAMS,
   SET_DASHBOARD_ERRORS,
   UPDATE_DASHBOARD_PARAM,
 } from './';
-
-const addDashboard = async dashboard => {
-  let response;
-
-  try {
-    response = await axios.post('/api/dashboard/create', dashboard);
-  } catch (err) {
-    console.error(err);
-    return { type: SET_DASHBOARD_ERRORS, payload: err };
-  }
-
-  return { type: ADD_DASHBOARD, payload: response.data };
-};
 
 const getDashboard = async dashboardID => {
   let response;
@@ -59,4 +45,4 @@ const updateDashboardParam = async (dashboardID, paramID, value) => {
   return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-export { addDashboard, getDashboard, getDashboardParams, updateDashboardParam };
+export { getDashboard, getDashboardParams, updateDashboardParam };

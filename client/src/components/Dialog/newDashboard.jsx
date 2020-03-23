@@ -3,40 +3,30 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
+  DialogTitle,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   TextField,
 } from '@material-ui/core';
-import { Close as CloseIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { getClusters } from '../../features/cluster/actions';
 
 // Create styles
 const useStyles = makeStyles(() => ({
-  close: { padding: '10px 0', width: 16 },
   formControl: { marginBottom: 24 },
-  progress: { marginLeft: 10 },
 }));
 
-const NewDashboardDialog = ({
-  handleChange,
-  localState,
-  newDashboard,
-  newDashboardLoading,
-  show,
-  toggleDialog,
-}) => {
+const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, toggleDialog }) => {
   const { clusterID, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
-  const { close, formControl, progress } = useStyles();
+  const { formControl } = useStyles();
 
   // Get list of clusters from database
   useEffect(() => {
@@ -45,9 +35,7 @@ const NewDashboardDialog = ({
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
-      <Button className={close} onClick={toggleDialog}>
-        <CloseIcon />
-      </Button>
+      <DialogTitle>New Dashboard</DialogTitle>
       <DialogContent>
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
@@ -72,16 +60,11 @@ const NewDashboardDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          disabled={newDashboardLoading}
-          color="primary"
-          onClick={newDashboard}
-          variant="contained"
-        >
-          Create Dashboard
-          {newDashboardLoading && (
-            <CircularProgress className={progress} color="inherit" size={15} />
-          )}
+        <Button color="secondary" variant="contained" onClick={toggleDialog}>
+          Cancel
+        </Button>
+        <Button color="primary" variant="contained" onClick={createDashboard}>
+          Create
         </Button>
       </DialogActions>
     </Dialog>

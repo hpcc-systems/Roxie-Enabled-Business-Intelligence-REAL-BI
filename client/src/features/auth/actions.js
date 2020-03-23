@@ -1,6 +1,6 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { GET_DIRECTORY_TREE, SET_AUTH_ERRORS, SET_AUTH_USER } from './';
+import { SET_AUTH_ERRORS, SET_AUTH_USER } from './';
 
 // Utils
 import setAuthHeader from '../../utils/axiosConfig';
@@ -38,17 +38,4 @@ const setUserFromToken = token => {
   return { type: SET_AUTH_USER, payload: user };
 };
 
-const getDirectoryTree = async () => {
-  let response;
-
-  try {
-    response = await axios.get('/api/user/directory');
-  } catch (err) {
-    console.error(err);
-    return { type: SET_AUTH_ERRORS, payload: err };
-  }
-
-  return { type: GET_DIRECTORY_TREE, payload: response.data };
-};
-
-export { getDirectoryTree, loginUser, setUserFromToken };
+export { loginUser, setUserFromToken };
