@@ -12,9 +12,20 @@ const getUserDirectory = async userID => {
     throw err;
   }
 
+  // Get nested object
   user = unNestSequelizeObj(user);
 
   return user;
 };
 
-module.exports = { getUserDirectory };
+const updateUserDirectory = async (directory, userID) => {
+  try {
+    await userModel.update({ directory }, { where: { id: userID } });
+  } catch (err) {
+    throw err;
+  }
+
+  return;
+};
+
+module.exports = { getUserDirectory, updateUserDirectory };
