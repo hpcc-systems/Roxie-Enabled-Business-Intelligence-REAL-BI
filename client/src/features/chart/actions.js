@@ -14,7 +14,7 @@ const getCharts = async dashboardID => {
   return { type: GET_CHARTS, payload: response.data };
 };
 
-const addChart = async (chart, dashboardID, queryID) => {
+const addChart = async (chart, dashboardID, queryID, queryName) => {
   let response;
 
   try {
@@ -24,7 +24,7 @@ const addChart = async (chart, dashboardID, queryID) => {
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  return { type: ADD_CHART, payload: response.data };
+  return { type: ADD_CHART, payload: { ...response.data, queryName } };
 };
 
 const deleteChart = async (chartID, dashboardID) => {
