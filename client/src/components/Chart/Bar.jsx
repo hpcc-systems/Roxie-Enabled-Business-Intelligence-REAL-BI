@@ -16,6 +16,7 @@ const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
 const BarChartComp = ({ data, groupBy, options }) => {
   const { title, xAxis, yAxis } = options;
   const { row, column, value } = groupBy;
+  const COLORS = ["#8884d8", "#ff4500", "#00eeee", "#b2445f", "#00cccc"];
 
   // If group by values in place, transform data
   if (row && column && value) {
@@ -41,7 +42,12 @@ const BarChartComp = ({ data, groupBy, options }) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey={yAxis} fill="#8884d8" />
+        {Array.isArray(yAxis) ? 
+          yAxis.map((entry, index) => {
+            return <Bar key={"bar-"+index} stackId="a" dataKey={entry} fill={COLORS[index]} />
+          }) : <Bar dataKey={yAxis} fill={"#8884d8"} /> }
+
+       
       </BarChart>
     </ResponsiveContainer>
   );

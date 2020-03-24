@@ -62,7 +62,6 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target })
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`;
-
   try {
     response = await axios.get(url);
   } catch (err) {
@@ -75,8 +74,7 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target })
   // Create array of formatted objects
   datasets = findQueryDatasets(Results).map(dataset => {
     const fields = getDatasetFields(Results[dataset].Row);
-
-    return { name: dataset, fields };
+    return { name: dataset.replace(" ", "_").toLowerCase(), fields };
   });
 
   return datasets;
