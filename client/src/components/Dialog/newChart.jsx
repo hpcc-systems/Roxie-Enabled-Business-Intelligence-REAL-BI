@@ -69,8 +69,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const newChartObj = createChartObj(localState, charts.length + 1);
 
     try {
-      const { action: action1, queryID } = await addQuery(dashboardID, queryObj);
-      const action2 = await addChart(newChartObj, dashboardID, queryID);
+      const { action: action1, queryID, queryName } = await addQuery(dashboardID, queryObj);
+      const action2 = await addChart(newChartObj, dashboardID, queryID, queryName);
       const action3 = await getDashboardParams(dashboardID);
 
       // Dispatch each action
