@@ -95,7 +95,7 @@ const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   }
 
   // Get nested query object
-  const { QuerysetQueries = {} } = response.data.WUListQueriesResponse;
+  const { QuerysetQueries = { QuerySetQuery: [] } } = response.data.WUListQueriesResponse;
 
   // Filter queries flagged as activated
   queries = QuerysetQueries.QuerySetQuery.filter(({ Activated }) => Activated === true);
