@@ -11,9 +11,12 @@ const addQuery = async (dashboardID, query) => {
     return { type: SET_QUERY_ERRORS, payload: err };
   }
 
+  const { id: queryID, name: queryName } = response.data;
+
   return {
     action: { type: ADD_QUERY, payload: response.data },
-    queryID: response.data.id,
+    queryID,
+    queryName,
   };
 };
 
