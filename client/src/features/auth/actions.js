@@ -30,12 +30,12 @@ const setUserFromToken = token => {
     return { type: SET_AUTH_USER, payload: null };
   }
 
-  const { id: userID } = jwt_decode(token);
+  const user = jwt_decode(token);
 
   // Set global axios authorization header
   setAuthHeader(token);
 
-  return { type: SET_AUTH_USER, payload: userID };
+  return { type: SET_AUTH_USER, payload: user };
 };
 
 export { loginUser, setUserFromToken };

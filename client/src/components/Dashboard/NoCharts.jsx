@@ -14,7 +14,7 @@ const NoCharts = () => {
   return (
     <Fragment>
       <Typography variant="h2" align="center" color="inherit" className={header}>
-        Welcome to HPCC Dashboard
+        Welcome to REAL BI
       </Typography>
       <Typography variant="h2" align="center" color="inherit" className={subheader}>
         Choose a dashboard from the left-hand menu to begin...
