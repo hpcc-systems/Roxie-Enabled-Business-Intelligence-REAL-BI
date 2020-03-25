@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Drawer, Toolbar, Typography } from '@material-ui/core';
-import { AddBox as AddBoxIcon, CreateNewFolder as CreateNewFolderIcon } from '@material-ui/icons';
+import { Drawer, Toolbar, Typography } from '@material-ui/core';
 
 // React Components
 import DirectoryTree from './DirectoryTree';
@@ -31,10 +30,9 @@ const initState = { clusterID: '', directory: [], name: '', parentID: 0 };
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
   drawer: { width: 'auto', minWidth: 250 },
   toolbar: { marginLeft: theme.spacing(1), paddingLeft: 0 },
-  typography: { fontSize: 24, margin: theme.spacing(2), marginLeft: 0 },
+  typography: { fontSize: 24, marginLeft: 0, textDecoration: 'underline' },
 }));
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
@@ -43,7 +41,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { showDialog: showDashboardDialog, toggleDialog: toggleDashboardDialog } = useDialog(false);
   const { showDialog: showFolderDialog, toggleDialog: toggleFolderDialog } = useDialog(false);
   const dispatch = useDispatch();
-  const { button, drawer, toolbar, typography } = useStyles();
+  const { drawer, toolbar, typography } = useStyles();
 
   // Get directory tree for user
   useEffect(() => {
@@ -135,12 +133,6 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
       <div className={drawer} role="presentation">
         <Toolbar className={toolbar}>
           <Typography className={typography}>REAL BI</Typography>
-          <Button className={button} onClick={() => addNewDashboard('root')}>
-            <AddBoxIcon />
-          </Button>
-          <Button className={button} onClick={() => addNewFolder('root')}>
-            <CreateNewFolderIcon />
-          </Button>
         </Toolbar>
         <FavoritesTree
           favorites={favorites}
@@ -148,13 +140,10 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
           updateDirectoryObj={updateDirectoryObj}
         />
         <DirectoryTree
-          addDashboard={addNewDashboard}
-          addFolder={addNewFolder}
+          addNewDashboard={addNewDashboard}
+          addNewFolder={addNewFolder}
           directory={directory}
           getDashboardInfo={getDashboardInfo}
-          handleChange={handleChange}
-          toggleDashboardDialog={toggleDashboardDialog}
-          toggleFolderDialog={toggleFolderDialog}
           updateDirectoryObj={updateDirectoryObj}
         />
       </div>

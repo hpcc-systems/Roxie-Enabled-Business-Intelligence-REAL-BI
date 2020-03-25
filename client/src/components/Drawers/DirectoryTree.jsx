@@ -12,11 +12,15 @@ import {
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
+import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
   root: { flexGrow: 1 },
+  rootEmpty: { marginLeft: theme.spacing(1) },
+  rootText: { fontSize: 20, marginRight: theme.spacing(4) },
   button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
   buttonsDiv: { marginRight: theme.spacing(2) },
+  div: { display: 'flex' },
   labelIcon: { marginRight: theme.spacing(1) },
   labelRoot: {
     alignItems: 'center',
@@ -24,21 +28,37 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1, 0),
   },
   labelText: { flexGrow: 1 },
-  rootText: { fontSize: 20 },
 }));
 
 const RecursiveTreeView = ({
-  addDashboard,
-  addFolder,
+  addNewDashboard,
+  addNewFolder,
   directory,
   getDashboardInfo,
-  handleChange,
-  toggleDashboardDialog,
-  toggleFolderDialog,
   updateDirectoryObj,
 }) => {
-  const { button, buttonsDiv, labelIcon, labelRoot, labelText, root, rootText } = useStyles();
-  const rootLabel = <Typography className={rootText}>Directory</Typography>;
+  const {
+    button,
+    buttonsDiv,
+    div,
+    labelIcon,
+    labelRoot,
+    labelText,
+    root,
+    rootEmpty,
+    rootText,
+  } = useStyles();
+  const rootLabel = (
+    <div className={div}>
+      <Typography className={rootText}>Directory</Typography>
+      <Button className={button} onClick={() => addNewDashboard('root')}>
+        <AddBoxIcon />
+      </Button>
+      <Button className={button} onClick={() => addNewFolder('root')}>
+        <CreateNewFolderIcon />
+      </Button>
+    </div>
+  );
 
   const renderTree = ({ children, id, name, favorite }) => {
     const isFolder = Boolean(children);
@@ -53,10 +73,10 @@ const RecursiveTreeView = ({
         <div className={buttonsDiv}>
           {isFolder ? (
             <Fragment>
-              <Button className={button} onClick={() => addDashboard(id)}>
+              <Button className={button} onClick={() => addNewDashboard(id)}>
                 <AddBoxIcon />
               </Button>
-              <Button className={button} onClick={() => addFolder(id)}>
+              <Button className={button} onClick={() => addNewFolder(id)}>
                 <CreateNewFolderIcon />
               </Button>
             </Fragment>
@@ -87,7 +107,7 @@ const RecursiveTreeView = ({
 
   return (
     <TreeView
-      className={root}
+      className={classNames(root, { [rootEmpty]: directory.length === 0 })}
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
