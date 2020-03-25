@@ -13,7 +13,7 @@ const getDashboardData = async (clusterID, dashboardID) => {
   return response.data;
 };
 
-const addDashboard = async dashboard => {
+const addDashboardToDB = async dashboard => {
   let response;
 
   try {
@@ -49,4 +49,4 @@ const updateDirectory = async directory => {
   return;
 };
 
-export { addDashboard, getDashboardData, getDirectory, updateDirectory };
+export { addDashboardToDB, getDashboardData, getDirectory, updateDirectory };

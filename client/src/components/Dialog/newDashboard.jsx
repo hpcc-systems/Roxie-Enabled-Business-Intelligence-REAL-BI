@@ -33,6 +33,12 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
     getClusters().then(action => dispatch(action));
   }, [dispatch]);
 
+  // Clear name
+  useEffect(() => {
+    handleChange(null, { name: 'name', value: '' });
+    handleChange(null, { name: 'clusterID', value: '' });
+  }, [handleChange]);
+
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
       <DialogTitle>New Dashboard</DialogTitle>
