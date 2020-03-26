@@ -11,25 +11,19 @@ import {
   YAxis,
 } from 'recharts';
 
+// https://stackoverflow.com/questions/1484506/random-color-generator
+const getRandomColor = () => `#${Math.floor(Math.random() * 16777216).toString(16)}`;
+
 const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
 
 const BarChartComp = ({ data, groupBy, options }) => {
   const { title, xAxis, yAxis } = options;
   const { row, column, value } = groupBy;
-  const COLORS = ["#8884d8", "#ff4500", "#00eeee", "#b2445f", "#00cccc"];
+  let yKeys = [yAxis]; // Default to an array with 1 index
 
-  // If group by values in place, transform data
+  // If group by values in place, get other object keys for stacking
   if (row && column && value) {
-    data = data.map(row => {
-      // Get all object keys except for the xAxis row
-      const keys = Object.keys(row).filter(key => key !== xAxis);
-
-      // Sum all object key values
-      const sum = keys.reduce((acc, val) => acc + row[val], 0);
-
-      // Return an object with the xAxis key and the yAxis key summation
-      return { [xAxis]: row[xAxis], [yAxis]: sum };
-    });
+    yKeys = Object.keys(data[0]).filter(key => key !== xAxis);
   }
 
   return (
@@ -42,12 +36,9 @@ const BarChartComp = ({ data, groupBy, options }) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        {Array.isArray(yAxis) ? 
-          yAxis.map((entry, index) => {
-            return <Bar key={"bar-"+index} stackId="a" dataKey={entry} fill={COLORS[index]} />
-          }) : <Bar dataKey={yAxis} fill={"#8884d8"} /> }
-
-       
+        {yKeys.map((key, index) => {
+          return <Bar key={index} stackId="a" dataKey={key} fill={getRandomColor()} />;
+        })}
       </BarChart>
     </ResponsiveContainer>
   );

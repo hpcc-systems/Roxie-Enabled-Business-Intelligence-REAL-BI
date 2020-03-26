@@ -74,7 +74,8 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target })
   // Create array of formatted objects
   datasets = findQueryDatasets(Results).map(dataset => {
     const fields = getDatasetFields(Results[dataset].Row);
-    return { name: dataset.replace(" ", "_").toLowerCase(), fields };
+
+    return { name: dataset, fields };
   });
 
   return datasets;

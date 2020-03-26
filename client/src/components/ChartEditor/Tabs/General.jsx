@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 import { BarChart as BarChartIcon, Timeline as LineChartIcon } from '@material-ui/icons';
-import Chip from '@material-ui/core/Chip';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
@@ -11,16 +10,14 @@ const charts = [
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0`, marginTop: 25 },
-  formControl2: { margin: `${theme.spacing(1)}px 0`,  },
+  formControl2: { margin: `${theme.spacing(1)}px 0` },
   menuIcon: { marginRight: 10 },
-  chips: {display: 'flex', flexWrap: 'wrap'},
-  chip: {margin: 2},
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
   const { chartType, options, selectedDataset } = localState;
   const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
-  const { formControl, formControl2, menuIcon, chips, chip } = useStyles();
+  const { formControl, formControl2, menuIcon } = useStyles();
 
   return (
     <Fragment>
@@ -69,21 +66,14 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
       </FormControl>
       <FormControl className={formControl2} fullWidth>
         <InputLabel>Y Axis</InputLabel>
-        <Select name="options:yAxis" value={options.yAxis || []} multiple onChange={handleChangeObj} 
-          renderValue={selected => (
-            <div className={chips}>
-              {selected.map(value => (
-                <Chip key={value} label={value} className={chip} />
-              ))}
-            </div>
-          )}>
-            {fields.map(({ name, value = name }, index) => {
-              return (
-                <MenuItem key={index} value={value}>
-                  {name}
-                </MenuItem>
-              );
-            })}
+        <Select name="options:yAxis" value={options.yAxis || ''} onChange={handleChangeObj}>
+          {fields.map(({ name, value = name }, index) => {
+            return (
+              <MenuItem key={index} value={value}>
+                {name}
+              </MenuItem>
+            );
+          })}
         </Select>
       </FormControl>
     </Fragment>
