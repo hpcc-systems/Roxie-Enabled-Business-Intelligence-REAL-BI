@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   CartesianGrid,
-  Label,
   Legend,
   LineChart,
   Line,
@@ -11,22 +10,23 @@ import {
   YAxis,
 } from 'recharts';
 
+// Utils
+import { getRandomColor } from '../../utils/misc';
+
 const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
 
 const LineChartComp = ({ data, options }) => {
-  const { title, xAxis, yAxis } = options;
+  const { xAxis, yAxis } = options;
 
   return (
     <ResponsiveContainer minWidth={10} minHeight={300}>
       <LineChart {...staticConfig} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={xAxis}>
-          <Label value={title} offset={235} position="top" />
-        </XAxis>
+        <XAxis dataKey={xAxis} />
         <YAxis interval="preserveStartEnd" />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey={yAxis} stroke="#8884d8" />
+        <Line type="monotone" dataKey={yAxis} stroke={getRandomColor()} />
       </LineChart>
     </ResponsiveContainer>
   );

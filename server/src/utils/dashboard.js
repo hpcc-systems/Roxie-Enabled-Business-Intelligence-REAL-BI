@@ -32,13 +32,18 @@ const getDashboardByID = async dashboardID => {
 };
 
 const createDashboard = async (clusterID, name, userID) => {
+  let dashboard;
+
   try {
-    await dashboardModel.create({ clusterID, name, userID });
+    dashboard = await dashboardModel.create({ clusterID, name, userID });
   } catch (err) {
     throw err;
   }
 
-  return;
+  // Get nested object
+  dashboard = unNestSequelizeObj(dashboard);
+
+  return dashboard;
 };
 
 module.exports = { createDashboard, getDashboardByID, getDashboardsByUserID };

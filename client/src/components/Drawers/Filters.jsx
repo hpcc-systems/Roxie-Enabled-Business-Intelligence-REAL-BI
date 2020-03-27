@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
@@ -13,8 +14,9 @@ const useStyles = makeStyles(theme => ({
   typography: { margin: theme.spacing(1), marginBottom: 0 },
 }));
 
-const FilterDrawer = ({ dashboard, dispatch, showDrawer, toggleDrawer, queryData }) => {
+const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
   const { id: dashboardID, params = [] } = dashboard;
+  const dispatch = useDispatch();
   const { div, drawer, formControl, typography } = useStyles();
   let datasets = {};
 

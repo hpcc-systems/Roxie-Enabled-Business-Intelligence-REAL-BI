@@ -5,7 +5,7 @@ import { AppBar, Button, IconButton, Toolbar, Typography } from '@material-ui/co
 import { Menu as MenuIcon } from '@material-ui/icons';
 
 // React Components
-import Drawer from '../Drawers/Dashboards';
+import DashboardDrawer from '../Drawers/Dashboards';
 
 // Redux Actions
 import { loginUser } from '../../features/auth/actions';
@@ -21,7 +21,7 @@ const useStyles = makeStyles(() => ({
 
 const Header = () => {
   const { showDrawer, toggleDrawer } = useDrawer(false);
-  const { userID } = useSelector(state => state.auth);
+  const { id: userID } = useSelector(state => state.auth.user);
   const dispatch = useDispatch();
   const { appBar, typography } = useStyles();
 
@@ -38,7 +38,7 @@ const Header = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" color="inherit" className={typography}>
-            HPCC Dashboard
+            REAL BI
           </Typography>
           {!userID && (
             <Button color="inherit" onClick={() => login()}>
@@ -48,7 +48,7 @@ const Header = () => {
           <Button color="inherit">Settings</Button>
         </Toolbar>
       </AppBar>
-      <Drawer dispatch={dispatch} showDrawer={showDrawer} toggleDrawer={toggleDrawer} />
+      <DashboardDrawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />
     </Fragment>
   );
 };

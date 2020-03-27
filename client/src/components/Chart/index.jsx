@@ -5,6 +5,7 @@ import { CircularProgress } from '@material-ui/core';
 //React Components
 import BarChart from './Bar';
 import LineChart from './Line';
+import PieChart from './Pie';
 import NoData from './NoData';
 
 // Utils
@@ -38,6 +39,8 @@ const ChartComp = ({ chart, dataObj }) => {
           return <BarChart data={chartData} groupBy={groupBy} options={options} />;
         case 'line':
           return <LineChart data={chartData} groupBy={groupBy} options={options} />;
+        case 'pie':
+          return <PieChart data={chartData} groupBy={groupBy} options={options} />;
         default:
           return 'Unknown chart type';
       }
