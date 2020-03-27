@@ -40,7 +40,7 @@ const ChartComp = ({ chart, dataObj }) => {
         case 'line':
           return <LineChart data={chartData} groupBy={groupBy} options={options} />;
         case 'pie':
-          return <PieChart data={chartData} groupBy={groupBy} options={options} />;  
+          return <PieChart data={chartData} groupBy={groupBy} options={options} />;
         default:
           return 'Unknown chart type';
       }
