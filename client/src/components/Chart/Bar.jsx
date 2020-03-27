@@ -3,7 +3,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Label,
   Legend,
   ResponsiveContainer,
   Tooltip,
@@ -11,10 +10,13 @@ import {
   YAxis,
 } from 'recharts';
 
+// Utils
+import { getRandomColor } from '../../utils/misc';
+
 const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
 
 const BarChartComp = ({ data, groupBy, options }) => {
-  const { title, xAxis, yAxis } = options;
+  const { xAxis, yAxis } = options;
   const { row, column, value } = groupBy;
 
   // If group by values in place, transform data
@@ -35,13 +37,11 @@ const BarChartComp = ({ data, groupBy, options }) => {
     <ResponsiveContainer minWidth={10} minHeight={300}>
       <BarChart {...staticConfig} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={xAxis}>
-          <Label value={title} offset={230} position="top" />
-        </XAxis>
+        <XAxis dataKey={xAxis} />
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey={yAxis} fill="#8884d8" />
+        <Bar dataKey={yAxis} fill={getRandomColor()} />
       </BarChart>
     </ResponsiveContainer>
   );

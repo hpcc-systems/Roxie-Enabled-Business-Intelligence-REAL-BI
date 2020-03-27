@@ -1,11 +1,19 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
-import { BarChart as BarChartIcon, Timeline as LineChartIcon } from '@material-ui/icons';
+import {
+  BarChart as BarChartIcon,
+  Timeline as LineChartIcon,
+  PieChart as PieChartIcon,
+} from '@material-ui/icons';
+
+// React Components
+import GeneralChartParams from './GeneralChartParams';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Line', value: 'line' },
+  { name: 'Pie', value: 'pie' },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -16,7 +24,6 @@ const useStyles = makeStyles(theme => ({
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
   const { chartType, options, selectedDataset } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
   const { formControl, formControl2, menuIcon } = useStyles();
 
   return (
@@ -33,6 +40,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
                       return <BarChartIcon className={menuIcon} />;
                     case 'line':
                       return <LineChartIcon className={menuIcon} />;
+                    case 'pie':
+                      return <PieChartIcon className={menuIcon} />;
                     default:
                       return null;
                   }
@@ -52,30 +61,12 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
         onChange={handleChangeObj}
         autoComplete="off"
       />
-      <FormControl className={formControl2} fullWidth>
-        <InputLabel>X Axis</InputLabel>
-        <Select name="options:xAxis" value={options.xAxis || ''} onChange={handleChangeObj}>
-          {fields.map(({ name, value = name }, index) => {
-            return (
-              <MenuItem key={index} value={value}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-      <FormControl className={formControl2} fullWidth>
-        <InputLabel>Y Axis</InputLabel>
-        <Select name="options:yAxis" value={options.yAxis || ''} onChange={handleChangeObj}>
-          {fields.map(({ name, value = name }, index) => {
-            return (
-              <MenuItem key={index} value={value}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      <GeneralChartParams
+        chartType={chartType}
+        handleChangeObj={handleChangeObj}
+        options={options}
+        selectedDataset={selectedDataset}
+      />
     </Fragment>
   );
 };

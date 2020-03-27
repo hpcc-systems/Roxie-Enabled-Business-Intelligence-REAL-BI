@@ -29,12 +29,8 @@ const ChartEditor = props => {
     setTabIndex(newValue);
   };
 
-  // Create object of information to pass to chart
-  /*
-    Clear title for the preview because the offset
-    is different than when the chart is on the dashboard
-  */
-  const chart = { dataset, groupBy, options: { ...options, title: '' }, type: chartType };
+  // Create object of information to pass to chart components
+  const chart = { dataset, groupBy, options, type: chartType };
 
   return (
     <Grid container spacing={4} className={gridContainer}>

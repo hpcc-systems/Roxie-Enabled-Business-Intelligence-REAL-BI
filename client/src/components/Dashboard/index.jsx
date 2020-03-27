@@ -97,7 +97,7 @@ const Dashboard = () => {
       <Container maxWidth="xl">
         <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
           {charts.map((chart, index) => {
-            const { id: chartID, queryName } = chart;
+            const { id: chartID, options, queryName } = chart;
             let dataObj = {};
 
             if (callType === 'single') {
@@ -117,6 +117,7 @@ const Dashboard = () => {
                 <Paper variant="outlined">
                   <ChartToolbar
                     chartID={chartID}
+                    options={options}
                     removeChart={removeChart}
                     toggleDialog={editChart}
                   />
