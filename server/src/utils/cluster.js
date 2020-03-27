@@ -62,7 +62,6 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target })
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`;
-
   try {
     response = await axios.get(url);
   } catch (err) {
