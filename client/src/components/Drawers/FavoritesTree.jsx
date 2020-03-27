@@ -43,6 +43,7 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
     <TreeView
       className={classNames(root, { [rootEmpty]: favorites.length === 0 })}
       defaultCollapseIcon={<ExpandMoreIcon />}
+      defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
     >
       <TreeItem nodeId="root" label={rootLabel}>

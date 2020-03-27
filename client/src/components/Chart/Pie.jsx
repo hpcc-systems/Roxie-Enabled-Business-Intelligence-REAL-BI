@@ -1,13 +1,12 @@
 import React from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-// Utils
-import { getRandomColor } from '../../utils/misc';
-
 // Constants
 const RADIAN = Math.PI / 180;
+const colors = ['#FF3333', '#30E324', '#FA7411', '#2F56F3', '#F770E7', '#F1D83B', '#BC44F3'];
+const staticConfig = { margin: { top: 10, right: 30, left: 10 } };
 
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -18,8 +17,6 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
     </text>
   );
 };
-
-const staticConfig = { margin: { top: 10, right: 30, left: 10 } };
 
 const PieChartComp = ({ data, options }) => {
   const { xAxis, yAxis } = options;
@@ -36,7 +33,7 @@ const PieChartComp = ({ data, options }) => {
           label={renderCustomizedLabel}
         >
           {data.map((obj, index) => (
-            <Cell key={index} fill={getRandomColor()} />
+            <Cell key={index} fill={colors[index]} />
           ))}
         </Pie>
         <Tooltip />

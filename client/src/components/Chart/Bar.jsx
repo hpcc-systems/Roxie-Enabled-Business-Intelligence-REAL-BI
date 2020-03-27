@@ -10,10 +10,9 @@ import {
   YAxis,
 } from 'recharts';
 
-// Utils
-import { getRandomColor } from '../../utils/misc';
-
+// Constants
 const staticConfig = { margin: { top: 40, right: 30, left: 10 } };
+const colors = ['#FF3333', '#30E324', '#FA7411', '#2F56F3', '#F770E7', '#F1D83B', '#BC44F3'];
 
 const BarChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
@@ -34,7 +33,7 @@ const BarChartComp = ({ data, groupBy, options }) => {
         <Tooltip />
         <Legend />
         {yKeys.map((key, index) => {
-          return <Bar key={index} stackId="a" dataKey={key} fill={getRandomColor()} />;
+          return <Bar key={index} stackId="a" dataKey={key} fill={colors[index]} />;
         })}
       </BarChart>
     </ResponsiveContainer>

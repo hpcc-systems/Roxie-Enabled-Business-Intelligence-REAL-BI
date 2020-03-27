@@ -28,7 +28,12 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
   }
 
   const setParam = (event, paramID) => {
-    const { value } = event.target;
+    let { value } = event.target;
+
+    // If array of values, join together as string
+    if (Array.isArray(value)) {
+      value = value.sort().join(',');
+    }
 
     updateDashboardParam(dashboardID, paramID, value).then(action => dispatch(action));
   };
@@ -43,11 +48,18 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
       <div className={div}>
         {params.length > 0 &&
           params.map(({ dataset, id, name, value }, index) => {
+            if (value) {
+              if (value.indexOf(',') > -1) {
+                value = value.split(',').sort();
+              } else {
+                value = [value];
+              }
+            }
+
             return (
               <FormControl key={index} className={formControl} fullWidth>
                 <InputLabel>{name}</InputLabel>
-                <Select value={value || ''} onChange={event => setParam(event, id)}>
-                  {datasets[dataset] && <MenuItem value={''}>Clear Selection</MenuItem>}
+                <Select multiple value={value || []} onChange={event => setParam(event, id)}>
                   {(() => {
                     if (datasets[dataset]) {
                       // Get the first key from the first object from reference dataset
