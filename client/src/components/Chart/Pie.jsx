@@ -4,7 +4,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 // Constants
 const RADIAN = Math.PI / 180;
 const colors = ['#FF3333', '#30E324', '#FA7411', '#2F56F3', '#F770E7', '#F1D83B', '#BC44F3'];
-const staticConfig = { margin: { top: 10, right: 30, left: 10 } };
+const staticConfig = { margin: { top: 5, right: 15, bottom: 15, left: 15 } };
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
