@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  CircularProgress,
   FormControl,
   Grid,
   InputLabel,
@@ -12,12 +13,13 @@ import {
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0` },
+  progress: { margin: 0, marginTop: 50 },
   typography: { marginTop: 20 },
 }));
 
 const ParametersTab = ({ handleChangeArr, localState }) => {
-  const { dataset, datasets = [], params = [] } = localState;
-  const { formControl, typography } = useStyles();
+  const { chartID, dataset, datasets = [], params = [] } = localState;
+  const { formControl, progress, typography } = useStyles();
 
   // Remove the dataset used for chart data from the list of options
   const datasetOptions = datasets.filter(({ name }) => name !== dataset);
@@ -58,19 +60,23 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
                 <Grid item xs={6}>
                   <FormControl className={formControl} fullWidth>
                     <InputLabel>Values Dataset</InputLabel>
-                    <Select
-                      name="params"
-                      value={params[index].dataset || ''}
-                      onChange={event => setParamObj(event, 'dataset', index)}
-                    >
-                      {datasetOptions.map(({ name }, index) => {
-                        return (
-                          <MenuItem key={index} value={name}>
-                            {name}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
+                    {chartID && datasetOptions.length === 0 ? (
+                      <CircularProgress className={progress} size={20} />
+                    ) : (
+                      <Select
+                        name="params"
+                        value={params[index].dataset || ''}
+                        onChange={event => setParamObj(event, 'dataset', index)}
+                      >
+                        {datasetOptions.map(({ name }, index) => {
+                          return (
+                            <MenuItem key={index} value={name}>
+                              {name}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    )}
                   </FormControl>
                 </Grid>
               </Fragment>

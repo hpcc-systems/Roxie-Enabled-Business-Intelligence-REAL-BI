@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
-  const { chartType, options, selectedDataset } = localState;
+  const { chartID, chartType, options, selectedDataset } = localState;
   const { formControl, formControl2, menuIcon } = useStyles();
 
   return (
@@ -62,6 +62,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
         autoComplete="off"
       />
       <GeneralChartParams
+        chartID={chartID}
         chartType={chartType}
         handleChangeObj={handleChangeObj}
         options={options}

@@ -93,16 +93,13 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         </Button>
       </Toolbar>
       <DialogContent>
-        {/* Load editor components once localState is set */}
-        {Object.keys(localState).length > 0 && (
-          <ChartEditor
-            dashboard={dashboard}
-            handleChange={handleChange}
-            handleChangeArr={handleChangeArr}
-            handleChangeObj={handleChangeObj}
-            localState={localState}
-          />
-        )}
+        <ChartEditor
+          dashboard={dashboard}
+          handleChange={handleChange}
+          handleChangeArr={handleChangeArr}
+          handleChangeObj={handleChangeObj}
+          localState={localState}
+        />
       </DialogContent>
       <DialogActions>
         <Button color="secondary" onClick={toggleDialog}>
