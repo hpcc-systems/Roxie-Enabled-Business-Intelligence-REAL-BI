@@ -46,27 +46,33 @@ router.get('/all', async (req, res) => {
 
 router.post('/create', async (req, res) => {
   const { chart, dashboardID, queryID } = req.body;
-  let newChart;
+  let newChart, chartParams;
 
   try {
     newChart = await createChart(chart, dashboardID, queryID);
+
     await createQueryParams(queryID, chart, null, newChart.id);
+
+    chartParams = await findAllQueryParams(null, newChart.id);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
+
+  // Add params array to new chart object
+  newChart = { ...newChart, params: chartParams };
 
   return res.status(201).json(newChart);
 });
 
 router.put('/update', async (req, res) => {
   const { chart, dashboardID } = req.body;
-  let charts;
+  let charts, promises;
 
   try {
     await updateChartByID(chart);
 
-    const promises = chart.params.map(async ({ id, value }) => {
+    promises = chart.params.map(async ({ id, value }) => {
       return await updateQueryParam(id, value);
     });
 
@@ -77,7 +83,7 @@ router.put('/update', async (req, res) => {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  const promises = charts.map(async chart => {
+  promises = charts.map(async chart => {
     let chartParams;
 
     try {
