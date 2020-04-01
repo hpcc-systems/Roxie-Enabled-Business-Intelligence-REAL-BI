@@ -27,7 +27,10 @@ const setUserFromToken = token => {
     // Remove global axios authorization header
     setAuthHeader();
 
-    return { type: SET_AUTH_USER, payload: null };
+    // Create object that matches initial state of user object in redux store
+    const storeInitUserObj = { id: null, directory: [] };
+
+    return { type: SET_AUTH_USER, payload: storeInitUserObj };
   }
 
   const user = jwt_decode(token);

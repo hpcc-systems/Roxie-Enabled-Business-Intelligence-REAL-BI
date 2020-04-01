@@ -1,5 +1,5 @@
 import { GET_DIRECTORY_TREE, SET_AUTH_ERRORS, SET_AUTH_USER } from './';
-const initState = { errors: {}, user: null };
+const initState = { errors: {}, user: { id: null, directory: [] } };
 
 export default (state = initState, { type, payload }) => {
   switch (type) {
