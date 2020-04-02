@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
 // Redux Actions
-import { deleteChart } from '../../features/chart/actions';
+import { getDashboard } from '../../features/dashboard/actions';
+import { deleteChart, getCharts } from '../../features/chart/actions';
 
 // React Components
 import NoCharts from './NoCharts';
@@ -26,12 +27,21 @@ const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
   const [callType, setCallType] = useState('single');
   const [chartID, setChartID] = useState(null);
+  const { lastDashboard } = useSelector(state => state.auth.user);
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (lastDashboard) {
+      Promise.all([getDashboard(lastDashboard), getCharts(lastDashboard)]).then(actions => {
+        actions.map(action => dispatch(action));
+      });
+    }
+  }, [dispatch, lastDashboard]);
 
   const editChart = chartID => {
     setChartID(chartID);

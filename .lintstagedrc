@@ -1,0 +1,6 @@
+{
+  "{server,client}/**/*.{js,jsx}": [
+    "eslint . --fix",
+    "prettier --write"
+  ]
+}

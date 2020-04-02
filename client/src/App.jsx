@@ -6,19 +6,9 @@ import { CssBaseline } from '@material-ui/core';
 // Redux Store
 import store from './store';
 
-// Redux Actions
-import { setUserFromToken } from './features/auth/actions';
-
 // React Components
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard';
-
-const token = localStorage.getItem('hpccDashboardToken');
-
-// Check for existing token to log in user
-if (token) {
-  store.dispatch(setUserFromToken(token));
-}
 
 // Create custom app theme
 const theme = createMuiTheme({

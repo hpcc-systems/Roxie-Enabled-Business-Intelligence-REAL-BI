@@ -11,8 +11,8 @@ import {
 } from 'recharts';
 
 // Constants
+import { chartColors } from '../../constants';
 const staticConfig = { margin: { top: 5, right: 15, bottom: 15, left: 15 } };
-const colors = ['#FF3333', '#30E324', '#FA7411', '#2F56F3', '#F770E7', '#F1D83B', '#BC44F3'];
 
 const BarChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
@@ -33,7 +33,7 @@ const BarChartComp = ({ data, groupBy, options }) => {
         <Tooltip />
         <Legend />
         {yKeys.map((key, index) => {
-          return <Bar key={index} stackId="a" dataKey={key} fill={colors[index]} />;
+          return <Bar key={index} stackId="a" dataKey={key} fill={chartColors[index]} />;
         })}
       </BarChart>
     </ResponsiveContainer>

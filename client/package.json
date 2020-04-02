@@ -7,6 +7,9 @@
     "build": "react-scritps build",
     "start": "react-scripts start"
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "dependencies": {
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
