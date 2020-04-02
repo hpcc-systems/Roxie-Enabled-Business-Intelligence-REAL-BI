@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Toolbar, Typography } from '@material-ui/core';
@@ -14,17 +14,19 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
+import { updateLastDashboard } from '../../features/auth/actions';
 import { getDashboard } from '../../features/dashboard/actions';
 import { getCharts } from '../../features/chart/actions';
 
 // Utils
-import { addDashboardToDB, getDirectory, updateDirectory } from '../../utils/dashboard';
+import { addDashboardToDB, updateDirectory } from '../../utils/dashboard';
 import {
   addObjectToDirectory,
   getDashboardsFromDirectory,
   getFavoriteDashboards,
   updateDashboardObj,
 } from '../../utils/directory';
+import { useEffect } from 'react';
 
 const initState = { clusterID: '', directory: [], name: '', parentID: 0 };
 
@@ -37,22 +39,24 @@ const useStyles = makeStyles(theme => ({
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
-  const { id: userID } = useSelector(state => state.auth.user);
+  const { directory: storeDirectory } = useSelector(state => state.auth.user);
   const { showDialog: showDashboardDialog, toggleDialog: toggleDashboardDialog } = useDialog(false);
   const { showDialog: showFolderDialog, toggleDialog: toggleFolderDialog } = useDialog(false);
   const dispatch = useDispatch();
   const { drawer, toolbar, typography } = useStyles();
 
-  // Get directory tree for user
+  // Add redux store directory to component local state
   useEffect(() => {
-    if (userID) {
-      getDirectory().then(data => handleChange(null, { name: 'directory', value: data }));
-    }
-  }, [handleChange, userID]);
+    handleChange(null, { name: 'directory', value: storeDirectory });
+  }, [handleChange, storeDirectory]);
 
   // Get information about specific dashboard and hide drawer
   const getDashboardInfo = dashboardID => {
-    Promise.all([getDashboard(dashboardID), getCharts(dashboardID)]).then(actions => {
+    Promise.all([
+      getDashboard(dashboardID),
+      getCharts(dashboardID),
+      updateLastDashboard(dashboardID),
+    ]).then(actions => {
       actions.map(action => dispatch(action));
     });
 

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { SET_AUTH_ERRORS, SET_AUTH_USER } from './';
+import { SET_AUTH_ERRORS, SET_AUTH_USER, SET_LAST_DASHBOARD } from './';
 
-// Utils
-import setAuthHeader from '../../utils/axiosConfig';
+//Constants
+import { initUserObj } from '../../constants';
 
 const loginUser = async () => {
   let response;
@@ -16,29 +16,38 @@ const loginUser = async () => {
   }
 
   const { jwt } = response.data;
-  localStorage.setItem('hpccDashboardToken', jwt);
+  const user = jwt_decode(jwt);
+  localStorage.setItem('realBIToken', jwt);
 
-  return setUserFromToken(jwt);
+  return { action: { type: SET_AUTH_USER, payload: user }, token: jwt };
 };
 
-// Set local storage jwt and return redux action object
-const setUserFromToken = token => {
-  if (!token) {
-    // Remove global axios authorization header
-    setAuthHeader();
+const getLatestUserData = async () => {
+  let response;
 
-    // Create object that matches initial state of user object in redux store
-    const storeInitUserObj = { id: null, directory: [] };
-
-    return { type: SET_AUTH_USER, payload: storeInitUserObj };
+  try {
+    response = await axios.get('/api/user/getdata');
+  } catch (err) {
+    console.error(err);
+    return { type: SET_AUTH_ERRORS, payload: err };
   }
 
-  const user = jwt_decode(token);
-
-  // Set global axios authorization header
-  setAuthHeader(token);
-
-  return { type: SET_AUTH_USER, payload: user };
+  return { type: SET_AUTH_USER, payload: response.data };
 };
 
-export { loginUser, setUserFromToken };
+const updateLastDashboard = async dashboardID => {
+  try {
+    await axios.put('/api/user/updatelastdashboard', { dashboardID });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_AUTH_ERRORS, payload: err };
+  }
+
+  return { type: SET_LAST_DASHBOARD, payload: dashboardID };
+};
+
+const logoutUser = () => {
+  return { type: SET_AUTH_USER, payload: initUserObj };
+};
+
+export { getLatestUserData, loginUser, logoutUser, updateLastDashboard };

@@ -8,10 +8,13 @@ import { Menu as MenuIcon } from '@material-ui/icons';
 import DashboardDrawer from '../Drawers/Dashboards';
 
 // Redux Actions
-import { loginUser } from '../../features/auth/actions';
+import { getLatestUserData, loginUser, logoutUser } from '../../features/auth/actions';
 
 // React Hooks
 import useDrawer from '../../hooks/useDrawer';
+
+// Utils
+import setAuthHeader from '../../utils/axiosConfig';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -22,13 +25,28 @@ const useStyles = makeStyles(() => ({
 const Header = () => {
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const { id: userID } = useSelector(state => state.auth.user);
+  const token = localStorage.getItem('realBIToken');
   const dispatch = useDispatch();
   const { appBar, typography } = useStyles();
 
   // Get jwt for user from back-end and store in localStorage for future data requests
   const login = async () => {
-    loginUser().then(action => dispatch(action));
+    loginUser().then(({ action, token }) => {
+      setAuthHeader(token);
+      dispatch(action);
+    });
   };
+
+  // Check for existing token to log in user
+  if (token && !userID) {
+    console.log('yes token');
+    setAuthHeader(token);
+    getLatestUserData().then(action => dispatch(action));
+  } else if (!token && userID) {
+    console.log('no token');
+    setAuthHeader();
+    logoutUser().then(action => dispatch(action));
+  }
 
   return (
     <Fragment>
