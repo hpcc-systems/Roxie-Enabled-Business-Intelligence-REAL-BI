@@ -37,7 +37,7 @@ const ChartEditor = props => {
       <Grid item xs={6}>
         <QuerySearch {...props} />
         <SelectDataset {...props} />
-        <AppBar className={appbar} position="static" color="inherit">
+        <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map(({ name, disabled }, index) => {
               return <Tab key={index} label={name} disabled={disabled} />;

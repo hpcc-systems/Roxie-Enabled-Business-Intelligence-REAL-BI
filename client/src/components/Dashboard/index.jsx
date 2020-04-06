@@ -104,8 +104,8 @@ const Dashboard = () => {
         toggleDialog={newChartToggle}
         toggleDrawer={toggleDrawer}
       />
-      <Container maxWidth="xl">
-        <Grid container direction="row" justify="space-between" alignItems="center" spacing={3}>
+      <Container maxWidth='xl'>
+        <Grid container direction='row' justify='space-between' alignItems='center' spacing={3}>
           {charts.map((chart, index) => {
             const { id: chartID, options, queryName } = chart;
             let dataObj = {};
@@ -124,7 +124,7 @@ const Dashboard = () => {
             return (
               // Change grid column layout based on numver of charts
               <Grid key={index} item md={12} lg={6} xl={charts.length > 2 ? 4 : 6}>
-                <Paper variant="outlined">
+                <Paper variant='outlined'>
                   <ChartToolbar
                     chartID={chartID}
                     options={options}

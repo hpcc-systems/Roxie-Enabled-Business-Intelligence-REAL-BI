@@ -13,10 +13,10 @@ const NoData = () => {
 
   return (
     <Fragment>
-      <Typography variant="h3" align="center" color="inherit" className={header}>
+      <Typography variant='h3' align='center' color='inherit' className={header}>
         No Data Received
       </Typography>
-      <Typography variant="h3" align="center" color="inherit" className={subheader}>
+      <Typography variant='h3' align='center' color='inherit' className={subheader}>
         Check chart options and refresh...
       </Typography>
     </Fragment>

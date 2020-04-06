@@ -26,19 +26,19 @@ const ToolbarComp = ({ name, refreshChart, toggleDialog, toggleDrawer }) => {
 
   return (
     <Toolbar>
-      <Typography variant="h2" color="inherit" className={typography}>
+      <Typography variant='h2' color='inherit' className={typography}>
         {name}
       </Typography>
-      <Button className={button} variant="contained" color="primary" onClick={refreshChart}>
+      <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
         <RefreshIcon />
       </Button>
-      <Button className={button} variant="contained" color="primary" onClick={toggleDialog}>
+      <Button className={button} variant='contained' color='primary' onClick={toggleDialog}>
         <AddCircleIcon />
       </Button>
-      <Button className={button} variant="contained" color="primary" onClick={toggleDrawer}>
+      <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
         <FilterListIcon />
       </Button>
-      <Button className={button} variant="contained" color="primary" onClick={showMenu}>
+      <Button className={button} variant='contained' color='primary' onClick={showMenu}>
         <ShareIcon />
       </Button>
       <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={hideMenu}>

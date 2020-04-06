@@ -1,13 +1,6 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from '@material-ui/core';
+import { CircularProgress, FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0`, marginTop: 25 },
@@ -33,7 +26,7 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name="groupBy:row" value={row} onChange={handleChangeObj}>
+          <Select name='groupBy:row' value={row} onChange={handleChangeObj}>
             {row !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
             {fields.map(({ name, value = name }, index) => {
               return (
@@ -50,7 +43,7 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name="groupBy:column" value={column} onChange={handleChangeObj}>
+          <Select name='groupBy:column' value={column} onChange={handleChangeObj}>
             {column !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
             {fields.map(({ name, value = name }, index) => {
               return (
@@ -67,7 +60,7 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name="groupBy:value" value={value} onChange={handleChangeObj}>
+          <Select name='groupBy:value' value={value} onChange={handleChangeObj}>
             {value !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
             {fields.map(({ name, value = name }, index) => {
               return (
@@ -81,7 +74,7 @@ const GroupByTab = ({ handleChangeObj, localState }) => {
       </FormControl>
     </Fragment>
   ) : (
-    <Typography variant="h6" color="inherit" align="center" className={typography}>
+    <Typography variant='h6' color='inherit' align='center' className={typography}>
       Choose a dataset
     </Typography>
   );

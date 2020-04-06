@@ -36,7 +36,7 @@ const GeneralChartParams = ({ chartID, chartType, handleChangeObj, options, sele
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name="options:xAxis" value={options.xAxis || ''} onChange={handleChangeObj}>
+          <Select name='options:xAxis' value={options.xAxis || ''} onChange={handleChangeObj}>
             {fields.map(({ name, value = name }, index) => {
               return (
                 <MenuItem key={index} value={value}>
@@ -52,7 +52,7 @@ const GeneralChartParams = ({ chartID, chartType, handleChangeObj, options, sele
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name="options:yAxis" value={options.yAxis || ''} onChange={handleChangeObj}>
+          <Select name='options:yAxis' value={options.yAxis || ''} onChange={handleChangeObj}>
             {fields.map(({ name, value = name }, index) => {
               return (
                 <MenuItem key={index} value={value}>

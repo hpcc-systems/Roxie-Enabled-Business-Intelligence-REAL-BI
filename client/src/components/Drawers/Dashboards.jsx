@@ -52,13 +52,11 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
   // Get information about specific dashboard and hide drawer
   const getDashboardInfo = dashboardID => {
-    Promise.all([
-      getDashboard(dashboardID),
-      getCharts(dashboardID),
-      updateLastDashboard(dashboardID),
-    ]).then(actions => {
-      actions.map(action => dispatch(action));
-    });
+    Promise.all([getDashboard(dashboardID), getCharts(dashboardID), updateLastDashboard(dashboardID)]).then(
+      actions => {
+        actions.map(action => dispatch(action));
+      },
+    );
 
     toggleDrawer();
   };
@@ -74,8 +72,8 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     }
 
     // Create new dashboard object
-    const { userID, ...desiredKeys } = dashboard;
-    const newDashboardObj = { ...desiredKeys, favorite: false };
+    const newDashboardObj = { ...dashboard, favorite: false };
+    delete newDashboardObj.userID;
 
     // Add dashboard to directory in local state and update DB
     const newDirectory = addObjectToDirectory(directory, parentID, newDashboardObj);
@@ -134,7 +132,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
   return (
     <Drawer open={showDrawer} onClose={toggleDrawer}>
-      <div className={drawer} role="presentation">
+      <div className={drawer} role='presentation'>
         <Toolbar className={toolbar}>
           <Typography className={typography}>REAL BI</Typography>
         </Toolbar>

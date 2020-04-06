@@ -37,17 +37,7 @@ const RecursiveTreeView = ({
   getDashboardInfo,
   updateDirectoryObj,
 }) => {
-  const {
-    button,
-    buttonsDiv,
-    div,
-    labelIcon,
-    labelRoot,
-    labelText,
-    root,
-    rootEmpty,
-    rootText,
-  } = useStyles();
+  const { button, buttonsDiv, div, labelIcon, labelRoot, labelText, root, rootEmpty, rootText } = useStyles();
   const rootLabel = (
     <div className={div}>
       <Typography className={rootText}>Directory</Typography>
@@ -65,9 +55,9 @@ const RecursiveTreeView = ({
     const label = (
       <div className={labelRoot}>
         {isFolder ? (
-          <FolderIcon color="inherit" className={labelIcon} />
+          <FolderIcon color='inherit' className={labelIcon} />
         ) : (
-          <DashboardIcon color="inherit" className={labelIcon} />
+          <DashboardIcon color='inherit' className={labelIcon} />
         )}
         <Typography className={labelText}>{name}</Typography>
         <div className={buttonsDiv}>
@@ -112,7 +102,7 @@ const RecursiveTreeView = ({
       defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
     >
-      <TreeItem nodeId="root" label={rootLabel}>
+      <TreeItem nodeId='root' label={rootLabel}>
         {directory.map(directoryObj => renderTree(directoryObj))}
       </TreeItem>
     </TreeView>

@@ -63,16 +63,16 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
         renderInput={params => (
           <TextField
             {...params}
-            name="keyword"
+            name='keyword'
             value={keyword}
             onChange={updateKeyword}
-            label="Query"
+            label='Query'
             fullWidth
             InputProps={{
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),

@@ -30,7 +30,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
     <Fragment>
       <FormControl className={formControl} fullWidth>
         <InputLabel>Chart Type</InputLabel>
-        <Select name="chartType" value={chartType} onChange={handleChange}>
+        <Select name='chartType' value={chartType} onChange={handleChange}>
           {charts.map(({ name, value }, index) => {
             return (
               <MenuItem key={index} value={value}>
@@ -55,11 +55,11 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
       <TextField
         className={formControl2}
         fullWidth
-        label="Chart Title"
-        name="options:title"
+        label='Chart Title'
+        name='options:title'
         value={options.title || ''}
         onChange={handleChangeObj}
-        autoComplete="off"
+        autoComplete='off'
       />
       <GeneralChartParams
         chartID={chartID}

@@ -26,16 +26,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
-  const {
-    button,
-    buttonsDiv,
-    labelIcon,
-    labelRoot,
-    labelText,
-    root,
-    rootEmpty,
-    rootText,
-  } = useStyles();
+  const { button, buttonsDiv, labelIcon, labelRoot, labelText, root, rootEmpty, rootText } = useStyles();
 
   const rootLabel = <Typography className={rootText}>Favorites</Typography>;
 
@@ -46,31 +37,21 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
       defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
     >
-      <TreeItem nodeId="root" label={rootLabel}>
+      <TreeItem nodeId='root' label={rootLabel}>
         {favorites.map(({ id, name }) => {
           const label = (
             <div className={labelRoot}>
-              <DashboardIcon color="inherit" className={labelIcon} />
+              <DashboardIcon color='inherit' className={labelIcon} />
               <Typography className={labelText}>{name}</Typography>
               <div className={buttonsDiv}>
-                <Button
-                  className={button}
-                  onClick={() => updateDirectoryObj(id, 'favorite', false)}
-                >
+                <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>
                   <FavoriteIcon />
                 </Button>
               </div>
             </div>
           );
 
-          return (
-            <TreeItem
-              key={id}
-              nodeId={String(id)}
-              label={label}
-              onClick={() => getDashboardInfo(id)}
-            />
-          );
+          return <TreeItem key={id} nodeId={String(id)} label={label} onClick={() => getDashboardInfo(id)} />;
         })}
       </TreeItem>
     </TreeView>

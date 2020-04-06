@@ -54,7 +54,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     ) : (
       <FormControl className={formControl} fullWidth>
         <InputLabel>Dataset</InputLabel>
-        <Select name="dataset" value={dataset} onChange={handleChange}>
+        <Select name='dataset' value={dataset} onChange={handleChange}>
           {datasets.map(({ name }, index) => {
             return (
               <MenuItem key={index} value={name}>

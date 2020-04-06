@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Constants
 import { chartColors } from '../../constants';
@@ -27,13 +18,13 @@ const BarChartComp = ({ data, groupBy, options }) => {
   return (
     <ResponsiveContainer minWidth={10} minHeight={300}>
       <BarChart {...staticConfig} data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid strokeDasharray='3 3' />
         <XAxis dataKey={xAxis} interval={0} />
         <YAxis interval={0} />
         <Tooltip />
         <Legend />
         {yKeys.map((key, index) => {
-          return <Bar key={index} stackId="a" dataKey={key} fill={chartColors[index]} />;
+          return <Bar key={index} stackId='a' dataKey={key} fill={chartColors[index]} />;
         })}
       </BarChart>
     </ResponsiveContainer>

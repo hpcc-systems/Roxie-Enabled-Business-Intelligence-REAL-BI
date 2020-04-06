@@ -39,9 +39,9 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
   };
 
   return (
-    <Drawer open={showDrawer} onClose={toggleDrawer} anchor="right">
-      <div className={drawer} role="presentation">
-        <Typography variant="h6" align="center" color="inherit" className={typography}>
+    <Drawer open={showDrawer} onClose={toggleDrawer} anchor='right'>
+      <div className={drawer} role='presentation'>
+        <Typography variant='h6' align='center' color='inherit' className={typography}>
           Dashboard Filters
         </Typography>
       </div>

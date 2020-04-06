@@ -50,20 +50,20 @@ const Header = () => {
 
   return (
     <Fragment>
-      <AppBar position="static" className={appBar}>
+      <AppBar position='static' className={appBar}>
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer}>
+          <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" color="inherit" className={typography}>
+          <Typography variant='h6' color='inherit' className={typography}>
             REAL BI
           </Typography>
           {!userID && (
-            <Button color="inherit" onClick={() => login()}>
+            <Button color='inherit' onClick={() => login()}>
               Log In
             </Button>
           )}
-          <Button color="inherit">Settings</Button>
+          <Button color='inherit'>Settings</Button>
         </Toolbar>
       </AppBar>
       <DashboardDrawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />

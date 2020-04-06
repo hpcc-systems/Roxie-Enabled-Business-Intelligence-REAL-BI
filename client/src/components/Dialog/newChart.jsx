@@ -1,14 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Toolbar,
-  Typography,
-} from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
@@ -99,15 +92,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   return (
-    <Dialog open={show} fullWidth maxWidth="xl">
+    <Dialog open={show} fullWidth maxWidth='xl'>
       <Toolbar className={toolbar}>
-        <Typography variant="h6" color="inherit" className={typography}>
+        <Typography variant='h6' color='inherit' className={typography}>
           New Chart
         </Typography>
-        <Button
-          disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading}
-          onClick={updateChartPreview}
-        >
+        <Button disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading} onClick={updateChartPreview}>
           <RefreshIcon />
         </Button>
       </Toolbar>
@@ -121,10 +111,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" onClick={toggleDialog}>
+        <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant="contained" color="primary" onClick={newChart}>
+        <Button variant='contained' color='primary' onClick={newChart}>
           Save
         </Button>
       </DialogActions>

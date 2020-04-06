@@ -1,2 +1,3 @@
 # Packages directory
+package*.json
 node_modules/

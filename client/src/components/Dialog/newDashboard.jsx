@@ -45,7 +45,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
       <DialogContent>
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
-          <Select name="clusterID" value={clusterID} onChange={handleChange}>
+          <Select name='clusterID' value={clusterID} onChange={handleChange}>
             {clusters.map(({ host, id, infoPort, name }) => {
               return (
                 <MenuItem key={id} value={id}>
@@ -58,18 +58,18 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
         <TextField
           className={formControl}
           fullWidth
-          label="Dashboard Name"
-          name="name"
+          label='Dashboard Name'
+          name='name'
           value={name}
           onChange={handleChange}
-          autoComplete="off"
+          autoComplete='off'
         />
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" variant="contained" onClick={toggleDialog}>
+        <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color="primary" variant="contained" onClick={createDashboard}>
+        <Button color='primary' variant='contained' onClick={createDashboard}>
           Create
         </Button>
       </DialogActions>

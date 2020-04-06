@@ -42,17 +42,17 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
   return dataset ? (
     <FormControl className={formControl} fullWidth>
       {params.length > 0 ? (
-        <Grid container direction="row" justify="space-between" alignItems="center" spacing={1}>
+        <Grid container direction='row' justify='space-between' alignItems='center' spacing={1}>
           {params.map(({ name, type }, index) => {
             return (
               <Fragment key={index}>
                 <Grid item xs={6}>
                   <TextField
                     label={`${name}: ${type}`}
-                    name="params"
+                    name='params'
                     value={params[index].value || ''}
                     onChange={event => setParamObj(event, 'value', index)}
-                    autoComplete="off"
+                    autoComplete='off'
                     className={formControl}
                     fullWidth
                   />
@@ -64,7 +64,7 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
                       <CircularProgress className={progress} size={20} />
                     ) : (
                       <Select
-                        name="params"
+                        name='params'
                         value={params[index].dataset || ''}
                         onChange={event => setParamObj(event, 'dataset', index)}
                       >
@@ -84,13 +84,13 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
           })}
         </Grid>
       ) : (
-        <Typography variant="h6" color="inherit" align="center" className={typography}>
+        <Typography variant='h6' color='inherit' align='center' className={typography}>
           No Parameters
         </Typography>
       )}
     </FormControl>
   ) : (
-    <Typography variant="h6" color="inherit" align="center" className={typography}>
+    <Typography variant='h6' color='inherit' align='center' className={typography}>
       Choose a dataset
     </Typography>
   );

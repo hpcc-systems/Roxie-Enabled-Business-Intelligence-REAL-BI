@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  CartesianGrid,
-  Legend,
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { CartesianGrid, Legend, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Constants
 import { chartColors } from '../../constants';
@@ -27,13 +18,13 @@ const LineChartComp = ({ data, groupBy, options }) => {
   return (
     <ResponsiveContainer minWidth={10} minHeight={300}>
       <LineChart {...staticConfig} data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid strokeDasharray='3 3' />
         <XAxis dataKey={xAxis} interval={0} />
         <YAxis interval={0} />
         <Tooltip />
         <Legend />
         {yKeys.map((key, index) => {
-          return <Line key={index} type="monotone" dataKey={key} stroke={chartColors[index]} />;
+          return <Line key={index} type='monotone' dataKey={key} stroke={chartColors[index]} />;
         })}
       </LineChart>
     </ResponsiveContainer>

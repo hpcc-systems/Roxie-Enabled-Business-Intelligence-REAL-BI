@@ -1,13 +1,6 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-} from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -31,18 +24,18 @@ const NewFolderDialog = ({ createFolder, handleChange, localState, show, toggleD
         <TextField
           className={formControl}
           fullWidth
-          label="Folder Name"
-          name="name"
+          label='Folder Name'
+          name='name'
           value={name}
           onChange={handleChange}
-          autoComplete="off"
+          autoComplete='off'
         />
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" variant="contained" onClick={toggleDialog}>
+        <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color="primary" variant="contained" onClick={createFolder}>
+        <Button color='primary' variant='contained' onClick={createFolder}>
           Create
         </Button>
       </DialogActions>
