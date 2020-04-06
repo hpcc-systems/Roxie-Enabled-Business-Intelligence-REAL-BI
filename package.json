@@ -4,8 +4,6 @@
   "description": "",
   "main": "",
   "scripts": {
-    "lint": "eslint . --ext .js,.jsx",
-    "lint:fix": "npm run lint -- --fix",
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:dev": "concurrently \"nodemon\" \"cd client && npm start\"",
     "start:prod": "node server/src/index.js"
@@ -26,17 +24,11 @@
     "if-env": "^1.0.4"
   },
   "devDependencies": {
-    "babel-eslint": "^10.1.0",
     "concurrently": "^5.1.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.4.0",
-    "eslint-config-react-app": "^5.2.1",
-    "eslint-plugin-flowtype": "^4.3.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-react": "^7.16.0",
-    "eslint-plugin-react-hooks": "^2.1.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.1.1",
     "nodemon": "^2.0.2",

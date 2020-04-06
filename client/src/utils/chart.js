@@ -75,11 +75,4 @@ const checkForChartParams = chartsArr => {
   return exists;
 };
 
-export {
-  checkForChartParams,
-  createChartObj,
-  getChartData,
-  getPreviewData,
-  groupByField,
-  setEditorState,
-};
+export { checkForChartParams, createChartObj, getChartData, getPreviewData, groupByField, setEditorState };

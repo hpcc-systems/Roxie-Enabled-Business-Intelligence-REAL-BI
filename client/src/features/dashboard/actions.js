@@ -1,10 +1,5 @@
 import axios from 'axios';
-import {
-  GET_DASHBOARD,
-  GET_DASHBOARD_PARAMS,
-  SET_DASHBOARD_ERRORS,
-  UPDATE_DASHBOARD_PARAM,
-} from './';
+import { GET_DASHBOARD, GET_DASHBOARD_PARAMS, SET_DASHBOARD_ERRORS, UPDATE_DASHBOARD_PARAM } from './';
 
 const getDashboard = async dashboardID => {
   let response;

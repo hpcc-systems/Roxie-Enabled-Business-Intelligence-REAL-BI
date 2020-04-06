@@ -1,10 +1,5 @@
 const router = require('express').Router();
-const {
-  createChart,
-  deleteChartByID,
-  getChartsByDashboardID,
-  updateChartByID,
-} = require('../utils/chart');
+const { createChart, deleteChartByID, getChartsByDashboardID, updateChartByID } = require('../utils/chart');
 const { createQueryParams, findAllQueryParams, updateQueryParam } = require('../utils/queryParam');
 
 router.get('/all', async (req, res) => {

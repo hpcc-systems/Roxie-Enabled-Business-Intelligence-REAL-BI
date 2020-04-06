@@ -44,6 +44,7 @@ const updateDashboardObj = (directory, searchID, key, value) => {
     // Found the right ID and it is not a folder object
     if (foundID && !children) {
       // The object has the key being searched for
+      // eslint-disable-next-line no-prototype-builtins
       if (obj.hasOwnProperty(key)) {
         // Update key value
         obj[key] = value;
@@ -103,9 +104,4 @@ const addObjectToDirectory = (directory, searchID, newObj) => {
   return newDirectory;
 };
 
-export {
-  addObjectToDirectory,
-  getDashboardsFromDirectory,
-  getFavoriteDashboards,
-  updateDashboardObj,
-};
+export { addObjectToDirectory, getDashboardsFromDirectory, getFavoriteDashboards, updateDashboardObj };

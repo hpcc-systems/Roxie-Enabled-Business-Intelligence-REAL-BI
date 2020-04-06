@@ -1,2 +1,8 @@
-# Dependency directories
+# Packages directory
+package*.json
 node_modules/
+
+# Config files
+.eslint*
+.prettier*
+.lintstaged*
