@@ -13,7 +13,7 @@ const updateUserDirectory = async (directory, userID) => {
 };
 
 const updateLastDashboard = async (lastDashboard, userID) => {
-  let [err] = await userModel.update({ lastDashboard }, { where: { id: userID } });
+  let [err] = await awaitHandler(userModel.update({ lastDashboard }, { where: { id: userID } }));
 
   // Return error
   if (err) throw err;
