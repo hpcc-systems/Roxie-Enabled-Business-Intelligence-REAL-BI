@@ -2,16 +2,13 @@
 const { dashboardSource: dashboardSourceModel } = require('../models');
 
 // Utils
-const { unNestSequelizeObj } = require('./misc');
+const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
 const createDashboardSource = async (dashboardID, queryID) => {
-  let dashboardSource;
+  let [err, dashboardSource] = await awaitHandler(dashboardSourceModel.create({ dashboardID, queryID }));
 
-  try {
-    dashboardSource = await dashboardSourceModel.create({ dashboardID, queryID });
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   // Get nested object
   dashboardSource = unNestSequelizeObj(dashboardSource);
@@ -20,13 +17,12 @@ const createDashboardSource = async (dashboardID, queryID) => {
 };
 
 const getDashboardSource = async (dashboardID, queryID) => {
-  let dashboardSource;
+  let [err, dashboardSource] = await awaitHandler(
+    dashboardSourceModel.findOne({ where: { dashboardID, queryID } }),
+  );
 
-  try {
-    dashboardSource = await dashboardSourceModel.findOne({ where: { dashboardID, queryID } });
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   // Get nested object
   dashboardSource = unNestSequelizeObj(dashboardSource);

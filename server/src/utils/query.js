@@ -2,16 +2,13 @@
 const { dashboard: dashboardModel, query: queryModel } = require('../models');
 
 // Utils
-const { unNestSequelizeObj } = require('./misc');
+const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
 const createQuery = async query => {
-  let newQuery;
+  let [err, newQuery] = await awaitHandler(queryModel.create(query));
 
-  try {
-    newQuery = await queryModel.create(query);
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   // Get nested object
   newQuery = unNestSequelizeObj(newQuery);
@@ -20,27 +17,23 @@ const createQuery = async query => {
 };
 
 const getQueriesByDashboard = async dashboardID => {
-  let queries;
-
-  try {
-    queries = await queryModel.findAll({
+  let [err, queries] = await awaitHandler(
+    queryModel.findAll({
       include: { model: dashboardModel, attributes: [], where: { id: dashboardID } },
-    });
-  } catch (err) {
-    throw err;
-  }
+    }),
+  );
+
+  // Return error
+  if (err) throw err;
 
   return queries;
 };
 
 const getQueryByHpccID = async ({ hpccID }) => {
-  let query;
+  let [err, query] = await awaitHandler(queryModel.findOne({ where: { hpccID } }));
 
-  try {
-    query = await queryModel.findOne({ where: { hpccID } });
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   if (!query) {
     return;
@@ -53,13 +46,10 @@ const getQueryByHpccID = async ({ hpccID }) => {
 };
 
 const getQueryByID = async queryID => {
-  let query;
+  let [err, query] = await awaitHandler(queryModel.findOne({ where: { id: queryID } }));
 
-  try {
-    query = await queryModel.findOne({ where: { id: queryID } });
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   // Get nested object
   query = unNestSequelizeObj(query);
@@ -68,21 +58,20 @@ const getQueryByID = async queryID => {
 };
 
 const getQueriesByDashboardID = async dashboardID => {
-  let dashboard, queries;
-
-  try {
-    dashboard = await dashboardModel.findOne({
+  let [err, dashboard] = await awaitHandler(
+    dashboardModel.findOne({
       attributes: [],
       where: { id: dashboardID },
       include: { model: queryModel },
-    });
-  } catch (err) {
-    throw err;
-  }
+    }),
+  );
+
+  // Return error
+  if (err) throw err;
 
   // Get nested objects
   dashboard = unNestSequelizeObj(dashboard);
-  queries = dashboard.queries.map(query => {
+  let queries = dashboard.queries.map(query => {
     // Get nested object
     query = unNestSequelizeObj(query);
 

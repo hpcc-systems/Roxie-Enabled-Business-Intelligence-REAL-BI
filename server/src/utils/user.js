@@ -1,21 +1,22 @@
 const { user: userModel } = require('../models');
 
+//Utils
+const { awaitHandler } = require('../utils/misc');
+
 const updateUserDirectory = async (directory, userID) => {
-  try {
-    await userModel.update({ directory }, { where: { id: userID } });
-  } catch (err) {
-    throw err;
-  }
+  let [err] = await awaitHandler(userModel.update({ directory }, { where: { id: userID } }));
+
+  // Return error
+  if (err) throw err;
 
   return;
 };
 
 const updateLastDashboard = async (lastDashboard, userID) => {
-  try {
-    await userModel.update({ lastDashboard }, { where: { id: userID } });
-  } catch (err) {
-    throw err;
-  }
+  let [err] = await userModel.update({ lastDashboard }, { where: { id: userID } });
+
+  // Return error
+  if (err) throw err;
 
   return;
 };

@@ -2,16 +2,13 @@
 const { user: userModel } = require('../models');
 
 // Utils
-const { unNestSequelizeObj } = require('./misc');
+const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
 const getUserByID = async userID => {
-  let user;
+  let [err, user] = await awaitHandler(userModel.findOne({ where: { id: userID } }));
 
-  try {
-    user = await userModel.findOne({ where: { id: userID } });
-  } catch (err) {
-    throw err;
-  }
+  // Return error
+  if (err) throw err;
 
   // No user found with provided id
   if (!user) {

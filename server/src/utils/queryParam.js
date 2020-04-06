@@ -2,7 +2,7 @@
 const { queryParam: queryParamModel } = require('../models');
 
 // Utils
-const { unNestSequelizeObj } = require('./misc');
+const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
 const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
   let field = 'dashboardID';
@@ -29,10 +29,11 @@ const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
     return queryParamModel.create({ ...otherKeys, dataset, [field]: id, queryID, value });
   });
 
-  try {
-    await Promise.all(promises);
-  } catch (err) {
-    throw err;
+  for (const promise in promises) {
+    let [err] = await awaitHandler(promise);
+
+    // Return error
+    if (err) throw err;
   }
 
   return;
@@ -41,7 +42,6 @@ const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
 const findAllQueryParams = async (dashboardID, chartID) => {
   let field = 'dashboardID';
   let id = dashboardID;
-  let params;
 
   // chartID was provided instead of dashboardID
   if (chartID) {
@@ -49,14 +49,15 @@ const findAllQueryParams = async (dashboardID, chartID) => {
     id = chartID;
   }
 
-  try {
-    params = await queryParamModel.findAll({
+  let [err, params] = await awaitHandler(
+    queryParamModel.findAll({
       attributes: { exclude: ['chartID', 'dashboardID'] },
       where: { [field]: id },
-    });
-  } catch (err) {
-    throw err;
-  }
+    }),
+  );
+
+  // Return error
+  if (err) throw err;
 
   // Create array of flattened objects
   params = params.map(param => unNestSequelizeObj(param));
@@ -70,11 +71,10 @@ const updateQueryParam = async (id, value) => {
     value = null;
   }
 
-  try {
-    await queryParamModel.update({ value }, { where: { id } });
-  } catch (err) {
-    throw err;
-  }
+  let [err] = await awaitHandler(queryParamModel.update({ value }, { where: { id } }));
+
+  // Return error
+  if (err) throw err;
 
   return;
 };

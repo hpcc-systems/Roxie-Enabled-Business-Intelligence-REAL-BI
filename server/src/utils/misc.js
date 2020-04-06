@@ -98,7 +98,12 @@ const unNestSequelizeObj = (sequelizeObj = {}) => {
   return sequelizeObj.dataValues;
 };
 
+const awaitHandler = promise => {
+  return promise.then(data => [null, data]).catch(err => [err]);
+};
+
 module.exports = {
+  awaitHandler,
   createParamString,
   findQueryDatasets,
   getDatasetFields,
