@@ -80,7 +80,7 @@ const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   let queries, url;
 
   // Build URL from cluster details and keyword provided by user
-  url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?QueryName=*${keyword}*`;
+  url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`;
 
   let [err, response] = await awaitHandler(axios.get(url));
 
@@ -90,8 +90,8 @@ const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   // Get nested query object
   const { QuerysetQueries = { QuerySetQuery: [] } } = response.data.WUListQueriesResponse;
 
-  // Filter queries flagged as activated
-  queries = QuerysetQueries.QuerySetQuery.filter(({ Activated }) => Activated === true);
+  // Get array reference
+  queries = QuerysetQueries.QuerySetQuery;
 
   // Remove duplicates from queries array
   queries = Array.from(new Set(queries.map(({ Id }) => Id))).map(Id => {

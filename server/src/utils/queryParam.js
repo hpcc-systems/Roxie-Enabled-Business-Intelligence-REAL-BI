@@ -29,7 +29,7 @@ const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
     return queryParamModel.create({ ...otherKeys, dataset, [field]: id, queryID, value });
   });
 
-  for (const promise in promises) {
+  for (const promise of promises) {
     let [err] = await awaitHandler(promise);
 
     // Return error
