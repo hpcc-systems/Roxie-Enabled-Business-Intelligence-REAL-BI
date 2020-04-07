@@ -21,9 +21,17 @@ const ChartComp = ({ chart, dataObj }) => {
   const { dataset, groupBy, options, type } = chart;
   const { row, column, value } = groupBy;
   const { progress } = useStyles();
+  let chartData = [];
+  let err = null;
 
   // Determine if chart data is available
-  let chartData = Object.keys(data).length > 0 ? data[dataset].Row : [];
+  if (Object.keys(data).length > 0) {
+    if (data.Exception) {
+      err = data.Exception.Message;
+    } else if (data[dataset]) {
+      chartData = data[dataset].Row;
+    }
+  }
 
   // Group data by designated field
   if (row && column && value) {
@@ -32,7 +40,7 @@ const ChartComp = ({ chart, dataObj }) => {
 
   return loading ? (
     <CircularProgress className={progress} />
-  ) : chartData.length > 0 ? (
+  ) : chartData.length > 0 && !err ? (
     (() => {
       switch (type) {
         case 'bar':
@@ -46,7 +54,7 @@ const ChartComp = ({ chart, dataObj }) => {
       }
     })()
   ) : (
-    <NoData />
+    <NoData err={err} />
   );
 };
 

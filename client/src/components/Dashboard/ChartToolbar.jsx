@@ -6,18 +6,17 @@ import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
 // Create styles
 const useStyles = makeStyles({
   button: { minWidth: 40 },
-  div: { flex: 1 },
   toolbar: { padding: 0 },
-  typography: { flexGrow: 1 },
+  typography: { flexGrow: 1, textAlign: 'center' },
 });
 
 const ChartToolbar = ({ chartID, options, removeChart, toggleDialog }) => {
   const { title } = options;
-  const { button, div, toolbar, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   return (
     <Toolbar className={toolbar}>
-      <div className={div}>
+      <div>
         <Button className={button} onClick={() => removeChart(chartID)}>
           <CloseIcon />
         </Button>

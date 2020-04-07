@@ -105,10 +105,10 @@ const Dashboard = () => {
         toggleDrawer={toggleDrawer}
       />
       <Container maxWidth='xl'>
-        <Grid container direction='row' justify='space-between' alignItems='center' spacing={3}>
+        <Grid container direction='row' spacing={3}>
           {charts.map((chart, index) => {
             const { id: chartID, options, queryName } = chart;
-            let dataObj = {};
+            let dataObj;
 
             if (callType === 'single') {
               dataObj = queryData[queryName];

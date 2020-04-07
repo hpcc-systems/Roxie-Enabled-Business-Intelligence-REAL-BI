@@ -8,16 +8,16 @@ const useStyles = makeStyles({
   subheader: { fontSize: 20, paddingBottom: 20 },
 });
 
-const NoData = () => {
+const NoData = ({ err }) => {
   const { header, subheader } = useStyles();
 
   return (
     <Fragment>
       <Typography variant='h3' align='center' color='inherit' className={header}>
-        No Data Received
+        {err ? 'Error received from HPCC cluster' : 'No Data Received'}
       </Typography>
       <Typography variant='h3' align='center' color='inherit' className={subheader}>
-        Check chart options and refresh...
+        {err ? `${err.slice(0, 35)}...` : 'Check chart options and refresh...'}
       </Typography>
     </Fragment>
   );
