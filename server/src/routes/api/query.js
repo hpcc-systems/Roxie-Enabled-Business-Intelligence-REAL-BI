@@ -7,11 +7,11 @@ const {
   getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
-} = require('../utils/cluster');
-const { getChartByID } = require('../utils/chart');
-const { createDashboardSource, getDashboardSource } = require('../utils/dashboardSource');
-const { createQuery, getQueriesByDashboardID, getQueryByHpccID } = require('../utils/query');
-const { createQueryParams, findAllQueryParams } = require('../utils/queryParam');
+} = require('../../utils/cluster');
+const { getChartByID } = require('../../utils/chart');
+const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
+const { createQuery, getQueriesByDashboardID, getQueryByHpccID } = require('../../utils/query');
+const { createQueryParams, findAllQueryParams } = require('../../utils/queryParam');
 
 router.get('/search', async (req, res) => {
   const { clusterID, keyword = '*' } = req.query;

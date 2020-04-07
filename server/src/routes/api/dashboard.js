@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
 // Utils
-const { createDashboard, getDashboardByID } = require('../utils/dashboard');
-const { findAllQueryParams } = require('../utils/queryParam');
+const { createDashboard, getDashboardByID } = require('../../utils/dashboard');
+const { findAllQueryParams } = require('../../utils/queryParam');
 
 router.post('/create', async (req, res) => {
   const {

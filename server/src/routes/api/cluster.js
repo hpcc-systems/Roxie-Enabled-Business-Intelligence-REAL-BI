@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getClusters } = require('../utils/cluster');
+const { getClusters } = require('../../utils/cluster');
 
 router.get('/all', async (req, res) => {
   let clusters;

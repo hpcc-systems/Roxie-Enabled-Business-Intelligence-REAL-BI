@@ -6,13 +6,7 @@ require('dotenv').config({ path: path.join(process.cwd(), '.env') });
 const express = require('express');
 const { sequelize } = require('./models');
 const passport = require('./config/passport');
-const authRoutes = require('./routes/auth');
-const chartRoutes = require('./routes/chart');
-const clusterRoutes = require('./routes/cluster');
-const dashboardRoutes = require('./routes/dashboard');
-const queryRoutes = require('./routes/query');
-const queryParamRoutes = require('./routes/queryParams');
-const userRoutes = require('./routes/user');
+const { auth, chart, cluster, dashboard, query, queryParam, user } = require('./routes');
 
 const { PORT, NODE_PORT } = process.env;
 const port = PORT || NODE_PORT;
@@ -28,16 +22,15 @@ app.use(passport.initialize());
 passport.jwtStrategy();
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/chart', passport.authenticate(), chartRoutes);
-app.use('/api/cluster', passport.authenticate(), clusterRoutes);
-app.use('/api/dashboard', passport.authenticate(), dashboardRoutes);
-app.use('/api/param', passport.authenticate(), queryParamRoutes);
-app.use('/api/query', passport.authenticate(), queryRoutes);
-app.use('/api/user', passport.authenticate(), userRoutes);
+app.use('/api/auth', auth);
+app.use('/api/chart', passport.authenticate(), chart);
+app.use('/api/cluster', passport.authenticate(), cluster);
+app.use('/api/dashboard', passport.authenticate(), dashboard);
+app.use('/api/param', passport.authenticate(), queryParam);
+app.use('/api/query', passport.authenticate(), query);
+app.use('/api/user', passport.authenticate(), user);
 
 sequelize
-  // .sync({ force: true })
   .sync()
   .then(() => {
     app.listen(port, () => console.log(`Server listening on port ${port}.`));

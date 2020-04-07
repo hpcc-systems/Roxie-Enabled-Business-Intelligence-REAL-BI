@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { findAllQueryParams, updateQueryParam } = require('../utils/queryParam');
+const { findAllQueryParams, updateQueryParam } = require('../../utils/queryParam');
 
 router.get('/all', async (req, res) => {
   const { chartID, dashboardID } = req.query;

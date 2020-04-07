@@ -2,7 +2,7 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 
 // Utils
-const { getUserByID } = require('../utils/auth');
+const { getUserByID } = require('../../utils/auth');
 
 // Environment variables
 const { JWT_SECRET } = process.env;

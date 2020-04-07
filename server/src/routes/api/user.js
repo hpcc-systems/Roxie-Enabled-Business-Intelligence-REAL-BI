@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
 // Utils
-const { getUserByID } = require('../utils/auth');
-const { updateLastDashboard, updateUserDirectory } = require('../utils/user');
+const { getUserByID } = require('../../utils/auth');
+const { updateLastDashboard, updateUserDirectory } = require('../../utils/user');
 
 router.get('/getdata', async (req, res) => {
   const { id: userID } = req.user;
