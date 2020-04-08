@@ -69,6 +69,21 @@ const getChartByID = async chartID => {
   return { ...chart, query };
 };
 
+const getChartsByDashboardAndQueryID = async (dashboardID, queryID) => {
+  let err, charts;
+
+  if (!dashboardID) {
+    [err, charts] = await awaitHandler(chartModel.findAll({ where: { queryID } }));
+  } else {
+    [err, charts] = await awaitHandler(chartModel.findAll({ where: { dashboardID, queryID } }));
+  }
+
+  // Return error
+  if (err) throw err;
+
+  return charts.length;
+};
+
 const updateChartByID = async chart => {
   const { id, ...chartFields } = chart;
 
@@ -92,6 +107,7 @@ const deleteChartByID = async chartID => {
 module.exports = {
   createChart,
   deleteChartByID,
+  getChartsByDashboardAndQueryID,
   getChartByID,
   getChartsByDashboardID,
   updateChartByID,

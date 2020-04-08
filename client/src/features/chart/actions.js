@@ -27,11 +27,11 @@ const addChart = async (chart, dashboardID, queryID, queryName) => {
   return { type: ADD_CHART, payload: { ...response.data, queryName } };
 };
 
-const deleteChart = async (chartID, dashboardID) => {
+const deleteChart = async (chartID, dashboardID, queryID) => {
   let response;
 
   try {
-    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID } });
+    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID, queryID } });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };

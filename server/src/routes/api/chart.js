@@ -2,10 +2,18 @@ const router = require('express').Router();
 const {
   createChart,
   deleteChartByID,
+  getChartsByDashboardAndQueryID,
   getChartsByDashboardID,
   updateChartByID,
 } = require('../../utils/chart');
-const { createQueryParams, findAllQueryParams, updateQueryParam } = require('../../utils/queryParam');
+const { deleteDashboardSource } = require('../../utils/dashboardSource');
+const { deleteQueryByID } = require('../../utils/query');
+const {
+  createQueryParams,
+  deleteQueryParams,
+  findAllQueryParams,
+  updateQueryParam,
+} = require('../../utils/queryParam');
 
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
@@ -107,11 +115,30 @@ router.put('/update', async (req, res) => {
 });
 
 router.delete('/delete', async (req, res) => {
-  const { chartID, dashboardID } = req.query;
-  let charts;
+  const { chartID, dashboardID, queryID } = req.query;
+  let charts, numOfCharts;
 
   try {
     await deleteChartByID(chartID);
+
+    // Determine if any other charts in the application are using the same query
+    numOfCharts = await getChartsByDashboardAndQueryID(null, queryID);
+
+    // No other charts in the application are using the same query
+    if (numOfCharts === 0) {
+      await deleteQueryByID(queryID);
+    } else {
+      // Determine if any other charts on the same dashboard are using the same query
+      numOfCharts = await getChartsByDashboardAndQueryID(dashboardID, queryID);
+
+      // No other charts on the dashboard are using the same query
+      if (numOfCharts === 0) {
+        // Delete dashboard Source and 'Dashboard Level' params
+        await deleteDashboardSource(dashboardID, queryID);
+        await deleteQueryParams(null, null, dashboardID, queryID);
+      }
+    }
+
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
     return res.status(500).json({ msg: 'Internal Error' });

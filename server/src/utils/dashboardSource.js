@@ -30,4 +30,13 @@ const getDashboardSource = async (dashboardID, queryID) => {
   return dashboardSource;
 };
 
-module.exports = { createDashboardSource, getDashboardSource };
+const deleteDashboardSource = async (dashboardID, queryID) => {
+  let [err] = await awaitHandler(dashboardSourceModel.destroy({ where: { dashboardID, queryID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
+module.exports = { createDashboardSource, deleteDashboardSource, getDashboardSource };

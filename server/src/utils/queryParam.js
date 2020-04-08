@@ -5,14 +5,7 @@ const { queryParam: queryParamModel } = require('../models');
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
 const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
-  let field = 'dashboardID';
-  let id = dashboardID;
-
-  // chartID was provided instead of dashboardID
-  if (chartID) {
-    field = 'chartID';
-    id = chartID;
-  }
+  const [field, id] = setDashboardOrChart(chartID, dashboardID);
 
   // Create array of promises
   const promises = params.map(({ dataset, value, ...otherKeys }) => {
@@ -29,6 +22,7 @@ const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
     return queryParamModel.create({ ...otherKeys, dataset, [field]: id, queryID, value });
   });
 
+  // Loop through and execute promises, throw any errors
   for (const promise of promises) {
     let [err] = await awaitHandler(promise);
 
@@ -40,14 +34,7 @@ const createQueryParams = async (queryID, { params }, dashboardID, chartID) => {
 };
 
 const findAllQueryParams = async (dashboardID, chartID) => {
-  let field = 'dashboardID';
-  let id = dashboardID;
-
-  // chartID was provided instead of dashboardID
-  if (chartID) {
-    field = 'chartID';
-    id = chartID;
-  }
+  const [field, id] = setDashboardOrChart(chartID, dashboardID);
 
   let [err, params] = await awaitHandler(
     queryParamModel.findAll({
@@ -79,4 +66,39 @@ const updateQueryParam = async (id, value) => {
   return;
 };
 
-module.exports = { createQueryParams, findAllQueryParams, updateQueryParam };
+const deleteQueryParams = async (paramID, chartID, dashboardID, queryID) => {
+  let err;
+
+  if (paramID) {
+    [err] = await awaitHandler(queryParamModel.destroy({ where: { id: paramID } }));
+  } else if (queryID) {
+    const [field, id] = setDashboardOrChart(null, dashboardID);
+
+    [err] = await awaitHandler(queryParamModel.destroy({ where: { [field]: id, queryID } }));
+  } else {
+    const [field, id] = setDashboardOrChart(chartID, dashboardID);
+
+    [err] = await awaitHandler(queryParamModel.destroy({ where: { [field]: id } }));
+  }
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
+// Helper function to promote DRY code
+const setDashboardOrChart = (chartID, dashboardID) => {
+  let field = 'dashboardID';
+  let id = dashboardID;
+
+  // chartID was provided instead of dashboardID
+  if (chartID) {
+    field = 'chartID';
+    id = chartID;
+  }
+
+  return [field, id];
+};
+
+module.exports = { createQueryParams, deleteQueryParams, findAllQueryParams, updateQueryParam };
