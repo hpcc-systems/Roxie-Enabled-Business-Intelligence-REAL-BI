@@ -13,6 +13,21 @@ const getQueries = async (clusterID, keyword) => {
   return response.data;
 };
 
+const addQuery = async (dashboardID, query) => {
+  let response;
+
+  try {
+    response = await axios.post('/api/query/create', { dashboardID, query });
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
+  const { id: queryID, name: queryName } = response.data;
+
+  return { queryID, queryName };
+};
+
 const getQueryInfo = async (clusterID, query) => {
   let response;
 
@@ -44,4 +59,4 @@ const getUniqueQueries = charts => {
   return uniqueQueries;
 };
 
-export { createQueryObj, getQueries, getQueryInfo, getUniqueQueries };
+export { addQuery, createQueryObj, getQueries, getQueryInfo, getUniqueQueries };
