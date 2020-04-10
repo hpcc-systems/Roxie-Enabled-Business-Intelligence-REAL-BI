@@ -8,16 +8,17 @@
     "start": "react-scripts start"
   },
   "dependencies": {
+    "@antv/g2plot": "^1.0.3",
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.40",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
     "crossfilter": "^1.3.12",
-    "json-to-pivot-json": "^1.0.1",
     "jwt-decode": "^2.2.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-g2plot": "^0.1.1",
     "react-redux": "^7.1.3",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.3.0",
