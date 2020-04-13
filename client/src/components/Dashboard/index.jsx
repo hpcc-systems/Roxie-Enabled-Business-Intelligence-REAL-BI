@@ -48,8 +48,8 @@ const Dashboard = () => {
     editChartToggle();
   };
 
-  const removeChart = chartID => {
-    deleteChart(chartID, dashboard.id).then(action => dispatch(action));
+  const removeChart = (chartID, queryID) => {
+    deleteChart(chartID, dashboard.id, queryID).then(action => dispatch(action));
   };
 
   const dataCall = useCallback(() => {
@@ -107,7 +107,7 @@ const Dashboard = () => {
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
           {charts.map((chart, index) => {
-            const { id: chartID, options, queryName } = chart;
+            const { id: chartID, options, queryID, queryName } = chart;
             let dataObj;
 
             if (callType === 'single') {
@@ -128,6 +128,7 @@ const Dashboard = () => {
                   <ChartToolbar
                     chartID={chartID}
                     options={options}
+                    queryID={queryID}
                     removeChart={removeChart}
                     toggleDialog={editChart}
                   />

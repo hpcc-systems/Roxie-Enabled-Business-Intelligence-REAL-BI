@@ -84,8 +84,18 @@ const getQueriesByDashboardID = async dashboardID => {
   return queries;
 };
 
+const deleteQueryByID = async queryID => {
+  let [err] = await awaitHandler(queryModel.destroy({ where: { id: queryID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
 module.exports = {
   createQuery,
+  deleteQueryByID,
   getQueriesByDashboard,
   getQueriesByDashboardID,
   getQueryByHpccID,
