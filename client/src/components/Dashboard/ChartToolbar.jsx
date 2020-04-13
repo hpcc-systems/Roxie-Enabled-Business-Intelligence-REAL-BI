@@ -10,14 +10,14 @@ const useStyles = makeStyles({
   typography: { flexGrow: 1, textAlign: 'center' },
 });
 
-const ChartToolbar = ({ chartID, options, removeChart, toggleDialog }) => {
+const ChartToolbar = ({ chartID, options, queryID, removeChart, toggleDialog }) => {
   const { title } = options;
   const { button, toolbar, typography } = useStyles();
 
   return (
     <Toolbar className={toolbar}>
       <div>
-        <Button className={button} onClick={() => removeChart(chartID)}>
+        <Button className={button} onClick={() => removeChart(chartID, queryID)}>
           <CloseIcon />
         </Button>
       </div>

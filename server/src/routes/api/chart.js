@@ -2,10 +2,19 @@ const router = require('express').Router();
 const {
   createChart,
   deleteChartByID,
+  getChartOwnerByID,
+  getChartsByDashboardAndQueryID,
   getChartsByDashboardID,
   updateChartByID,
 } = require('../../utils/chart');
-const { createQueryParams, findAllQueryParams, updateQueryParam } = require('../../utils/queryParam');
+const { deleteDashboardSource } = require('../../utils/dashboardSource');
+const { deleteQueryByID } = require('../../utils/query');
+const {
+  createQueryParams,
+  deleteQueryParams,
+  findAllQueryParams,
+  updateQueryParam,
+} = require('../../utils/queryParam');
 
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
@@ -45,11 +54,14 @@ router.get('/all', async (req, res) => {
 });
 
 router.post('/create', async (req, res) => {
-  const { chart, dashboardID, queryID } = req.body;
+  const {
+    body: { chart, dashboardID, queryID },
+    user: { id: userID },
+  } = req;
   let newChart, chartParams;
 
   try {
-    newChart = await createChart(chart, dashboardID, queryID);
+    newChart = await createChart(chart, dashboardID, queryID, userID);
 
     await createQueryParams(queryID, chart, null, newChart.id);
 
@@ -66,17 +78,25 @@ router.post('/create', async (req, res) => {
 });
 
 router.put('/update', async (req, res) => {
-  const { chart, dashboardID } = req.body;
-  let charts, promises;
+  const {
+    body: { chart, dashboardID },
+    user: { id: userID },
+  } = req;
+  let dbChart, charts, promises;
 
   try {
-    await updateChartByID(chart);
+    dbChart = await getChartOwnerByID(chart.id, userID);
 
-    promises = chart.params.map(async ({ id, value }) => {
-      return await updateQueryParam(id, value);
-    });
+    // User is the owner of the chart
+    if (Object.keys(dbChart).length > 0) {
+      await updateChartByID(chart);
 
-    await Promise.all(promises);
+      promises = chart.params.map(async ({ id, value }) => {
+        return await updateQueryParam(id, value);
+      });
+
+      await Promise.all(promises);
+    }
 
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
@@ -107,11 +127,38 @@ router.put('/update', async (req, res) => {
 });
 
 router.delete('/delete', async (req, res) => {
-  const { chartID, dashboardID } = req.query;
-  let charts;
+  const {
+    query: { chartID, dashboardID, queryID },
+    user: { id: userID },
+  } = req;
+  let chart, charts, numOfCharts;
 
   try {
-    await deleteChartByID(chartID);
+    chart = await getChartOwnerByID(chartID, userID);
+
+    // User is the owner of the chart
+    if (Object.keys(chart).length > 0) {
+      await deleteChartByID(chartID);
+
+      // Determine if any other charts in the application are using the same query
+      numOfCharts = await getChartsByDashboardAndQueryID(null, queryID);
+
+      // No other charts in the application are using the same query
+      if (numOfCharts === 0) {
+        await deleteQueryByID(queryID);
+      } else {
+        // Determine if any other charts on the same dashboard are using the same query
+        numOfCharts = await getChartsByDashboardAndQueryID(dashboardID, queryID);
+
+        // No other charts on the dashboard are using the same query
+        if (numOfCharts === 0) {
+          // Delete dashboard Source and 'Dashboard Level' params
+          await deleteDashboardSource(dashboardID, queryID);
+          await deleteQueryParams(null, null, dashboardID, queryID);
+        }
+      }
+    }
+
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
     return res.status(500).json({ msg: 'Internal Error' });

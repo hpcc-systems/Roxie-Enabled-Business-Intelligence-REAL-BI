@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  chart.associate = ({ dashboard, query }) => {
+  chart.associate = ({ dashboard, query, user }) => {
     // One-to-One relation between charts and dashboards
     // Creates 'dashboardID' foreign key on chart model
     chart.belongsTo(dashboard, {
@@ -37,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
     chart.belongsTo(query, {
       foreignKey: { name: 'queryID', allowNull: false },
       onDelete: 'cascade',
+    });
+
+    // One-to-One relation between charts and users
+    // Creates 'ownerID' foreign key on chart model
+    chart.belongsTo(user, {
+      foreignKey: { name: 'ownerID', allowNull: false },
     });
   };
 
