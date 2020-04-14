@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { Line } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparater } from '../../constants';
+import { thousandsSeparator } from '../../constants';
 
 const LineChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
@@ -17,7 +17,7 @@ const LineChartComp = ({ data, groupBy, options }) => {
     },
     meta: {
       [yAxis]: {
-        formatter: v => thousandsSeparater(v),
+        formatter: v => thousandsSeparator(v),
       },
     },
     responsive: true,

@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { Pie } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparater } from '../../constants';
+import { thousandsSeparator } from '../../constants';
 
 // Helper Functions
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
@@ -25,7 +25,7 @@ const PieChartComp = ({ data, options }) => {
     },
     meta: {
       [yAxis]: {
-        formatter: v => thousandsSeparater(v),
+        formatter: v => thousandsSeparator(v),
       },
     },
     legend: {
@@ -37,7 +37,7 @@ const PieChartComp = ({ data, options }) => {
     tooltip: {
       formatter: (v, text) => ({
         name: text,
-        value: `${thousandsSeparater(v)} (${percentageOfPie(v, total)})`,
+        value: `${thousandsSeparator(v)} (${percentageOfPie(v, total)})`,
       }),
     },
   };
