@@ -15,7 +15,7 @@ const useStyles = makeStyles({
 
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
-  const { dataset, options, type } = chart;
+  const { dataset, groupBy, options, type } = chart;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -35,9 +35,9 @@ const ChartComp = ({ chart, dataObj }) => {
     (() => {
       switch (type) {
         case 'bar':
-          return <BarChart data={chartData} options={options} />;
+          return <BarChart data={chartData} groupBy={groupBy} options={options} />;
         case 'line':
-          return <LineChart data={chartData} options={options} />;
+          return <LineChart data={chartData} groupBy={groupBy} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
         default:

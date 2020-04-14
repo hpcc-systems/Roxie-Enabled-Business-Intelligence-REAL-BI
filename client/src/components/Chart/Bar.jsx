@@ -5,7 +5,7 @@ import { StackedColumn } from '@antv/g2plot';
 // Constants
 import { thousandsSeparater } from '../../constants';
 
-const BarChartComp = ({ data, options }) => {
+const BarChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
 
   const config = {
@@ -21,13 +21,17 @@ const BarChartComp = ({ data, options }) => {
       },
     },
     responsive: true,
-    stackField: 'state',
     xField: xAxis,
     yAxis: {
       min: 0,
     },
     yField: yAxis,
   };
+
+  // Add key to config object, if groupBy is populated
+  if (groupBy) {
+    config.stackField = groupBy;
+  }
 
   return <ReactG2Plot Ctor={StackedColumn} config={config} />;
 };

@@ -24,7 +24,7 @@ const initState = {
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
-  groupBy: { row: '', column: '', value: '' },
+  groupBy: '',
   keyword: '',
   options: {},
   params: [],

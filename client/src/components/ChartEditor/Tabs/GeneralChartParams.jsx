@@ -25,7 +25,8 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
-const GeneralChartParams = ({ chartID, chartType, handleChangeObj, options, selectedDataset }) => {
+const GeneralChartParams = ({ handleChangeObj, localState }) => {
+  const { chartID, chartType, options, selectedDataset } = localState;
   const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 

@@ -5,7 +5,7 @@ import { Line } from '@antv/g2plot';
 // Constants
 import { thousandsSeparater } from '../../constants';
 
-const LineChartComp = ({ data, options }) => {
+const LineChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
 
   const config = {
@@ -21,11 +21,15 @@ const LineChartComp = ({ data, options }) => {
       },
     },
     responsive: true,
-    seriesField: 'state',
     smooth: true,
     xField: xAxis,
     yField: yAxis,
   };
+
+  // Add key to config object, if groupBy is populated
+  if (groupBy) {
+    config.seriesField = groupBy;
+  }
 
   return <ReactG2Plot Ctor={Line} config={config} />;
 };

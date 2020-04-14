@@ -11,10 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         allowNull: false,
       },
-      groupBy: {
-        type: DataTypes.JSON,
-        allowNull: false,
-      },
+      groupBy: DataTypes.STRING,
       sort: {
         type: DataTypes.INTEGER,
         allowNull: false,
