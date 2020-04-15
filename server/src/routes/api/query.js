@@ -70,7 +70,7 @@ router.post('/create', async (req, res) => {
     dbQuery = await getQueryByHpccID(query);
 
     // Query not found
-    if (!dbQuery) {
+    if (Object.keys(dbQuery).length === 0) {
       dbQuery = await createQuery(query);
       await createQueryParams(dbQuery.id, query, dashboardID, null);
     } else {
@@ -79,7 +79,7 @@ router.post('/create', async (req, res) => {
     }
 
     // Dashbaord Source not already in DB
-    if (!dashboardSource) {
+    if (Object.keys(dashboardSource).length === 0) {
       await createDashboardSource(dashboardID, dbQuery.id);
     }
   } catch (err) {

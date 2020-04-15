@@ -11,6 +11,14 @@ const LineChartComp = ({ data, groupBy, options }) => {
   const config = {
     data,
     forceFit: true,
+    label: {
+      formatter: v => thousandsSeparator(v),
+      position: 'top',
+      style: {
+        fontSize: 12,
+      },
+      visible: true,
+    },
     legend: {
       position: 'bottom',
       visible: true,
@@ -19,6 +27,9 @@ const LineChartComp = ({ data, groupBy, options }) => {
       [yAxis]: {
         formatter: v => thousandsSeparator(v),
       },
+    },
+    point: {
+      visible: true,
     },
     responsive: true,
     smooth: true,

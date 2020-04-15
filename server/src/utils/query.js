@@ -35,10 +35,6 @@ const getQueryByHpccID = async ({ hpccID }) => {
   // Return error
   if (err) throw err;
 
-  if (!query) {
-    return;
-  }
-
   // Get nested object
   query = unNestSequelizeObj(query);
 

@@ -39,11 +39,9 @@ const Header = () => {
 
   // Check for existing token to log in user
   if (token && !userID) {
-    console.log('yes token');
     setAuthHeader(token);
     getLatestUserData().then(action => dispatch(action));
   } else if (!token && userID) {
-    console.log('no token');
     setAuthHeader();
     logoutUser().then(action => dispatch(action));
   }

@@ -11,8 +11,16 @@ const BarChartComp = ({ data, groupBy, options }) => {
   const config = {
     data,
     forceFit: true,
+    label: {
+      formatter: v => thousandsSeparator(v),
+      position: 'top',
+      style: {
+        fontSize: 12,
+      },
+      visible: true,
+    },
     legend: {
-      position: 'bottom',
+      position: 'right-top',
       visible: true,
     },
     meta: {
@@ -31,6 +39,7 @@ const BarChartComp = ({ data, groupBy, options }) => {
   // Add key to config object, if groupBy is populated
   if (groupBy) {
     config.stackField = groupBy;
+    config.label.position = 'middle'; // Move label to give a cleaner look when stacked bars are used
   }
 
   return <ReactG2Plot Ctor={StackedColumn} config={config} />;
