@@ -33,7 +33,6 @@ const PieChartComp = ({ data, options }) => {
       visible: true,
     },
     radius: 0.8,
-    responsive: true,
     tooltip: {
       formatter: (v, text) => ({
         name: text,

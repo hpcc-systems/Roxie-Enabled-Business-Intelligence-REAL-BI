@@ -28,7 +28,6 @@ const BarChartComp = ({ data, groupBy, options }) => {
         formatter: v => thousandsSeparator(v),
       },
     },
-    responsive: true,
     xField: xAxis,
     yAxis: {
       min: 0,

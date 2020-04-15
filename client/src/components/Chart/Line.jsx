@@ -31,7 +31,6 @@ const LineChartComp = ({ data, groupBy, options }) => {
     point: {
       visible: true,
     },
-    responsive: true,
     smooth: true,
     xField: xAxis,
     yField: yAxis,
