@@ -1,5 +1,4 @@
 import axios from 'axios';
-import jsonToPivotjson from 'json-to-pivot-json';
 
 const getChartData = async (chartID, clusterID) => {
   let response;
@@ -25,10 +24,6 @@ const getPreviewData = async (clusterID, dataOptions) => {
   }
 
   return response.data;
-};
-
-const groupByField = (data, options) => {
-  return jsonToPivotjson(data, options);
 };
 
 const createChartObj = (localState, sort) => {
@@ -75,4 +70,4 @@ const checkForChartParams = chartsArr => {
   return exists;
 };
 
-export { checkForChartParams, createChartObj, getChartData, getPreviewData, groupByField, setEditorState };
+export { checkForChartParams, createChartObj, getChartData, getPreviewData, setEditorState };

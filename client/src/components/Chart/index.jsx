@@ -8,9 +8,6 @@ import LineChart from './Line';
 import PieChart from './Pie';
 import NoData from './NoData';
 
-// Utils
-import { groupByField } from '../../utils/chart';
-
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
@@ -19,7 +16,6 @@ const useStyles = makeStyles({
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
   const { dataset, groupBy, options, type } = chart;
-  const { row, column, value } = groupBy;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -33,11 +29,6 @@ const ChartComp = ({ chart, dataObj }) => {
     }
   }
 
-  // Group data by designated field
-  if (row && column && value) {
-    chartData = groupByField(chartData, groupBy);
-  }
-
   return loading ? (
     <CircularProgress className={progress} />
   ) : chartData.length > 0 && !err ? (
@@ -48,7 +39,7 @@ const ChartComp = ({ chart, dataObj }) => {
         case 'line':
           return <LineChart data={chartData} groupBy={groupBy} options={options} />;
         case 'pie':
-          return <PieChart data={chartData} groupBy={groupBy} options={options} />;
+          return <PieChart data={chartData} options={options} />;
         default:
           return 'Unknown chart type';
       }

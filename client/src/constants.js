@@ -1,9 +1,6 @@
 const initUserObj = { id: null, directory: [], lastDashboard: null };
 
-// Color array for chart elements
-const chartColors = ['#FF3333', '#30E324', '#FA7411', '#2F56F3', '#F770E7', '#F1D83B', '#BC44F3'];
+// Convert a number to a string with a thousands place separator
+const thousandsSeparator = num => `${num}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`);
 
-// Convert PI to radians for pie chart
-const radian = Math.PI / 180;
-
-export { chartColors, initUserObj, radian };
+export { initUserObj, thousandsSeparator };

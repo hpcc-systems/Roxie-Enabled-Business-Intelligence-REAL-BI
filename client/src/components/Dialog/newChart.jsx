@@ -6,7 +6,6 @@ import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { getDashboardParams } from '../../features/dashboard/actions';
-import { addQuery } from '../../features/query/actions';
 import { addChart } from '../../features/chart/actions';
 
 // React Components
@@ -17,14 +16,14 @@ import useForm from '../../hooks/useForm';
 
 // Utils
 import { createChartObj, getPreviewData } from '../../utils/chart';
-import { createQueryObj } from '../../utils/query';
+import { addQuery, createQueryObj } from '../../utils/query';
 
 const initState = {
   chartType: 'bar',
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
-  groupBy: { row: '', column: '', value: '' },
+  groupBy: '',
   keyword: '',
   options: {},
   params: [],
@@ -62,12 +61,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const newChartObj = createChartObj(localState, charts.length + 1);
 
     try {
-      const { action: action1, queryID, queryName } = await addQuery(dashboardID, queryObj);
-      const action2 = await addChart(newChartObj, dashboardID, queryID, queryName);
-      const action3 = await getDashboardParams(dashboardID);
+      const { queryID, queryName } = await addQuery(dashboardID, queryObj);
+      const action1 = await addChart(newChartObj, dashboardID, queryID, queryName);
+      const action2 = await getDashboardParams(dashboardID);
 
       // Dispatch each action
-      [action1, action2, action3].forEach(action => dispatch(action));
+      [action1, action2].forEach(action => dispatch(action));
     } catch (err) {
       console.error(err);
     }

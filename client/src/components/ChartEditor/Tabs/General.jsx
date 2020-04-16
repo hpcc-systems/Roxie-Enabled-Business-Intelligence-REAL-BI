@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
-  const { chartID, chartType, options, selectedDataset } = localState;
+  const { chartType, options } = localState;
   const { formControl, formControl2, menuIcon } = useStyles();
 
   return (
@@ -61,13 +61,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
         onChange={handleChangeObj}
         autoComplete='off'
       />
-      <GeneralChartParams
-        chartID={chartID}
-        chartType={chartType}
-        handleChangeObj={handleChangeObj}
-        options={options}
-        selectedDataset={selectedDataset}
-      />
+      <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
     </Fragment>
   );
 };

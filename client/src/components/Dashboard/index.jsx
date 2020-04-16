@@ -123,7 +123,7 @@ const Dashboard = () => {
 
             return (
               // Change grid column layout based on numver of charts
-              <Grid key={index} item md={12} lg={6} xl={charts.length > 2 ? 4 : 6}>
+              <Grid key={index} item md={12}>
                 <Paper variant='outlined'>
                   <ChartToolbar
                     chartID={chartID}

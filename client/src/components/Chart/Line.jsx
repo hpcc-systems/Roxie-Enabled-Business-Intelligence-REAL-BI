@@ -1,34 +1,47 @@
 import React from 'react';
-import { CartesianGrid, Legend, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import ReactG2Plot from 'react-g2plot';
+import { Line } from '@antv/g2plot';
 
 // Constants
-import { chartColors } from '../../constants';
-const staticConfig = { margin: { top: 5, right: 15, bottom: 15, left: 15 } };
+import { thousandsSeparator } from '../../constants';
 
 const LineChartComp = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
-  const { row, column, value } = groupBy;
-  let yKeys = [yAxis]; // Default to an array with 1 index
 
-  // If group by values in place, get other object keys for stacking
-  if (row && column && value) {
-    yKeys = Object.keys(data[0]).filter(key => key !== xAxis);
+  const config = {
+    data,
+    forceFit: true,
+    label: {
+      formatter: v => thousandsSeparator(v),
+      position: 'top',
+      style: {
+        fontSize: 12,
+      },
+      visible: true,
+    },
+    legend: {
+      position: 'bottom',
+      visible: true,
+    },
+    meta: {
+      [yAxis]: {
+        formatter: v => thousandsSeparator(v),
+      },
+    },
+    point: {
+      visible: true,
+    },
+    smooth: true,
+    xField: xAxis,
+    yField: yAxis,
+  };
+
+  // Add key to config object, if groupBy is populated
+  if (groupBy) {
+    config.seriesField = groupBy;
   }
 
-  return (
-    <ResponsiveContainer minWidth={10} minHeight={300}>
-      <LineChart {...staticConfig} data={data}>
-        <CartesianGrid strokeDasharray='3 3' />
-        <XAxis dataKey={xAxis} interval={0} />
-        <YAxis interval={0} />
-        <Tooltip />
-        <Legend />
-        {yKeys.map((key, index) => {
-          return <Line key={index} type='monotone' dataKey={key} stroke={chartColors[index]} />;
-        })}
-      </LineChart>
-    </ResponsiveContainer>
-  );
+  return <ReactG2Plot Ctor={Line} config={config} />;
 };
 
 export default LineChartComp;
