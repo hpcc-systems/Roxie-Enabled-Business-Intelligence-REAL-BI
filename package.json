@@ -4,9 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
-    "start:dev": "concurrently \"nodemon\" \"cd client && npm start\"",
-    "start:prod": "node server/src/index.js"
+    "start": "concurrently \"cd server && npm run start\" \"cd client && npm start\""
   },
   "husky": {
     "hooks": {
@@ -20,9 +18,7 @@
   "keywords": [],
   "author": "Chris Human",
   "license": "ISC",
-  "dependencies": {
-    "if-env": "^1.0.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "concurrently": "^5.1.0",
     "eslint": "^6.6.0",
@@ -31,7 +27,6 @@
     "eslint-plugin-react": "^7.16.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.1.1",
-    "nodemon": "^2.0.2",
     "prettier": "^1.19.1"
   }
 }
