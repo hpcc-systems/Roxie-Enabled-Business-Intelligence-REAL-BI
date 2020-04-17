@@ -78,8 +78,8 @@ router.post('/create', async (req, res) => {
       dashboardSource = await getDashboardSource(dashboardID, dbQuery.id);
     }
 
-    // Dashbaord Source not already in DB
-    if (Object.keys(dashboardSource).length === 0) {
+    // Dashboard Source not already in DB
+    if (!dashboardSource || Object.keys(dashboardSource).length === 0) {
       await createDashboardSource(dashboardID, dbQuery.id);
     }
   } catch (err) {
