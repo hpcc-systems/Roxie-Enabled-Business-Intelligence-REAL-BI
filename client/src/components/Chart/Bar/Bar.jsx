@@ -11,7 +11,6 @@ const BarChart = ({ data, options }) => {
   const config = {
     data,
     forceFit: true,
-    interactions: [{ type: 'scrollbar' }],
     label: {
       formatter: v => thousandsSeparator(v),
       position: 'right',
@@ -25,7 +24,11 @@ const BarChart = ({ data, options }) => {
     meta: {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    xAxis: { min: 0 },
+    xAxis: {
+      grid: { visible: true },
+      label: { visible: true },
+      min: 0,
+    },
     xField: xAxis,
     yAxis: {
       line: { visible: true },

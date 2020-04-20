@@ -25,7 +25,12 @@ const StackedBarChart = ({ data, groupBy, options }) => {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
     stackField: groupBy,
+    xAxis: { min: 0 },
     xField: xAxis,
+    yAxis: {
+      line: { visible: true },
+      min: 0,
+    },
     yField: yAxis,
   };
 
