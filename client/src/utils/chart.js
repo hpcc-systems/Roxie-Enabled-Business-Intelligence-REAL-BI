@@ -32,7 +32,7 @@ const createChartObj = (localState, sort) => {
   const { horizontal = false } = options;
 
   // Change horizontal value if it doesn't apply to the chart type
-  if (chartType !== 'bar' && horizontal) {
+  if ((chartType !== 'bar' && horizontal) || !('horizontal' in options)) {
     options = { ...options, horizontal: false };
   }
 
