@@ -15,7 +15,7 @@ const useForm = initState => {
 
   const handleChangeObj = useCallback((event, obj) => {
     // Determine if this part of an event or manually passed
-    const dataObj = event.target || obj;
+    const dataObj = event ? event.target : obj;
 
     // Destructure for data
     const { name, value } = dataObj;
