@@ -9,7 +9,7 @@ import { thousandsSeparator } from '../../constants';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => Number(acc) + Number(currentVal); // Sum function for array.reduce()
 
-const PieChartComp = ({ data, options }) => {
+const PieChart = ({ data, options }) => {
   const { xAxis, yAxis } = options;
   const total = data.map(obj => obj[yAxis]).reduce(reducer); // Gets total of yAxis values
 
@@ -44,4 +44,4 @@ const PieChartComp = ({ data, options }) => {
   return <ReactG2Plot Ctor={Pie} config={config} />;
 };
 
-export default PieChartComp;
+export default PieChart;

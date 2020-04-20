@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 //React Components
-import BarChart from './Bar';
+import { BarChart, ColumnChart, StackedBarChart, StackedColumnChart } from './Bar';
 import LineChart from './Line';
 import PieChart from './Pie';
 import NoData from './NoData';
@@ -15,7 +15,8 @@ const useStyles = makeStyles({
 
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
-  const { dataset, groupBy, options, type } = chart;
+  const { dataset, groupBy, options } = chart;
+  let { type } = chart;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -29,13 +30,36 @@ const ChartComp = ({ chart, dataObj }) => {
     }
   }
 
+  // Confirm bar chart type
+  if (type === 'bar') {
+    if (options.horizontal) {
+      if (groupBy) {
+        type = 'bar-stacked';
+      } else {
+        type = 'bar';
+      }
+    } else {
+      if (groupBy) {
+        type = 'column-stacked';
+      } else {
+        type = 'column';
+      }
+    }
+  }
+
   return loading ? (
     <CircularProgress className={progress} />
   ) : chartData.length > 0 && !err ? (
     (() => {
       switch (type) {
         case 'bar':
-          return <BarChart data={chartData} groupBy={groupBy} options={options} />;
+          return <BarChart data={chartData} options={options} />;
+        case 'bar-stacked':
+          return <StackedBarChart data={chartData} groupBy={groupBy} options={options} />;
+        case 'column':
+          return <ColumnChart data={chartData} options={options} />;
+        case 'column-stacked':
+          return <StackedColumnChart data={chartData} groupBy={groupBy} options={options} />;
         case 'line':
           return <LineChart data={chartData} groupBy={groupBy} options={options} />;
         case 'pie':

@@ -65,8 +65,16 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       const action1 = await addChart(newChartObj, dashboardID, queryID, queryName);
       const action2 = await getDashboardParams(dashboardID);
 
+      // Close dialog
+      /*
+        Closing the dialog happens here because React will attempt to update the component
+        after the actions update the Redux store, causing a memory leak error because the component
+        will already be un-mounted.
+      */
+      toggleDialog();
+
       // Dispatch each action
-      [action1, action2].forEach(action => dispatch(action));
+      return [action1, action2].forEach(action => dispatch(action));
     } catch (err) {
       console.error(err);
     }

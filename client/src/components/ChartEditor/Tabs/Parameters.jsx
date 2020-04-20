@@ -42,7 +42,7 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
   return dataset ? (
     <FormControl className={formControl} fullWidth>
       {params.length > 0 ? (
-        <Grid container direction='row' justify='space-between' alignItems='center' spacing={1}>
+        <Grid container direction='row' justify='space-between' spacing={2}>
           {params.map(({ name, type }, index) => {
             return (
               <Fragment key={index}>

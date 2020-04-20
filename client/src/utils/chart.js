@@ -27,7 +27,14 @@ const getPreviewData = async (clusterID, dataOptions) => {
 };
 
 const createChartObj = (localState, sort) => {
-  const { chartType, dataset, groupBy, options, params } = localState;
+  const { chartType, dataset, groupBy, params } = localState;
+  let { options } = localState;
+  const { horizontal = false } = options;
+
+  // Change horizontal value if it doesn't apply to the chart type
+  if ((chartType !== 'bar' && horizontal) || !('horizontal' in options)) {
+    options = { ...options, horizontal: false };
+  }
 
   return { dataset, groupBy, options, params, sort, type: chartType };
 };

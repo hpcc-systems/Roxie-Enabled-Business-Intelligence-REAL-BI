@@ -1,6 +1,15 @@
-import React, { Fragment } from 'react';
+import React, { useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
 import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
@@ -16,53 +25,87 @@ const charts = [
   { name: 'Pie', value: 'pie' },
 ];
 
-const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0`, marginTop: 25 },
-  formControl2: { margin: `${theme.spacing(1)}px 0` },
+const useStyles = makeStyles(() => ({
+  formControl: { marginTop: 25 },
   menuIcon: { marginRight: 10 },
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
-  const { chartType, options } = localState;
-  const { formControl, formControl2, menuIcon } = useStyles();
+  const {
+    chartType,
+    options: { horizontal, title },
+  } = localState;
+  const { formControl, menuIcon } = useStyles();
+
+  const handleCheckbox = useCallback(
+    event => {
+      const { name, checked } = event.target;
+
+      // Update local state
+      handleChangeObj(null, { name, value: checked });
+    },
+    [handleChangeObj],
+  );
 
   return (
-    <Fragment>
-      <FormControl className={formControl} fullWidth>
-        <InputLabel>Chart Type</InputLabel>
-        <Select name='chartType' value={chartType} onChange={handleChange}>
-          {charts.map(({ name, value }, index) => {
-            return (
-              <MenuItem key={index} value={value}>
-                {(() => {
-                  switch (value) {
-                    case 'bar':
-                      return <BarChartIcon className={menuIcon} />;
-                    case 'line':
-                      return <LineChartIcon className={menuIcon} />;
-                    case 'pie':
-                      return <PieChartIcon className={menuIcon} />;
-                    default:
-                      return null;
-                  }
-                })()}
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-      <TextField
-        className={formControl2}
-        fullWidth
-        label='Chart Title'
-        name='options:title'
-        value={options.title || ''}
-        onChange={handleChangeObj}
-        autoComplete='off'
-      />
-      <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
-    </Fragment>
+    <Grid container direction='row' alignContent='space-between'>
+      <Grid item md={chartType === 'bar' ? 10 : 12}>
+        <FormControl className={formControl} fullWidth>
+          <InputLabel>Chart Type</InputLabel>
+          <Select name='chartType' value={chartType} onChange={handleChange}>
+            {charts.map(({ name, value }, index) => {
+              return (
+                <MenuItem key={index} value={value}>
+                  {(() => {
+                    switch (value) {
+                      case 'bar':
+                        return <BarChartIcon className={menuIcon} />;
+                      case 'line':
+                        return <LineChartIcon className={menuIcon} />;
+                      case 'pie':
+                        return <PieChartIcon className={menuIcon} />;
+                      default:
+                        return null;
+                    }
+                  })()}
+                  {name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </Grid>
+      {chartType === 'bar' && (
+        <Grid item md={2}>
+          <FormControlLabel
+            className={formControl}
+            control={
+              <Checkbox
+                name='options:horizontal'
+                checked={horizontal || false}
+                onChange={handleCheckbox}
+                color='primary'
+              />
+            }
+            label='Horizontal'
+            labelPlacement='top'
+          />
+        </Grid>
+      )}
+      <Grid item md={12}>
+        <TextField
+          fullWidth
+          label='Chart Title'
+          name='options:title'
+          value={title || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
+      </Grid>
+      <Grid item md={12}>
+        <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
+      </Grid>
+    </Grid>
   );
 };
 
