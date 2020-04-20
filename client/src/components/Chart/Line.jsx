@@ -5,7 +5,7 @@ import { Line } from '@antv/g2plot';
 // Constants
 import { thousandsSeparator } from '../../constants';
 
-const LineChartComp = ({ data, groupBy, options }) => {
+const LineChart = ({ data, groupBy, options }) => {
   const { xAxis, yAxis } = options;
 
   const config = {
@@ -44,4 +44,4 @@ const LineChartComp = ({ data, groupBy, options }) => {
   return <ReactG2Plot Ctor={Line} config={config} />;
 };
 
-export default LineChartComp;
+export default LineChart;
