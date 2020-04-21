@@ -8,8 +8,13 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 20 },
 }));
 
-const GroupByTab = ({ handleChange, localState }) => {
-  const { chartID, dataset, groupBy, selectedDataset } = localState;
+const GroupByTab = ({ handleChangeObj, localState }) => {
+  const {
+    chartID,
+    dataset,
+    options: { groupBy },
+    selectedDataset,
+  } = localState;
   const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
   const { formControl, progress, typography } = useStyles();
 
@@ -19,7 +24,7 @@ const GroupByTab = ({ handleChange, localState }) => {
       {chartID && fields.length <= 1 ? (
         <CircularProgress className={progress} size={20} />
       ) : (
-        <Select name='groupBy' value={groupBy || ''} onChange={handleChange}>
+        <Select name='options:groupBy' value={groupBy || ''} onChange={handleChangeObj}>
           {groupBy !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
           {fields.map(({ name, value = name }, index) => {
             return (

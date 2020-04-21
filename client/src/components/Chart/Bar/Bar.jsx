@@ -6,7 +6,7 @@ import { Bar } from '@antv/g2plot';
 import { thousandsSeparator } from '../../../constants';
 
 const BarChart = ({ data, options }) => {
-  const { xAxis, yAxis } = options;
+  const { groupBy, xAxis, yAxis } = options;
 
   const config = {
     data,
@@ -24,6 +24,7 @@ const BarChart = ({ data, options }) => {
     meta: {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
+    stackField: groupBy,
     xAxis: {
       grid: { visible: true },
       label: { visible: true },

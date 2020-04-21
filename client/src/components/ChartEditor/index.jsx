@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { chartType, dataObj, dataset, groupBy, options } = props.localState;
+  const { chartType, dataObj, dataset, options } = props.localState;
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, gridContainer } = useStyles();
 
@@ -30,7 +30,7 @@ const ChartEditor = props => {
   };
 
   // Create object of information to pass to chart components
-  const chart = { dataset, groupBy, options, type: chartType };
+  const chart = { dataset, options, type: chartType };
 
   return (
     <Grid container spacing={4} className={gridContainer}>

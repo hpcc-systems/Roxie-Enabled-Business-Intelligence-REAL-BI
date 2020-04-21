@@ -23,7 +23,6 @@ const initState = {
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
-  groupBy: '',
   keyword: '',
   options: {},
   params: [],

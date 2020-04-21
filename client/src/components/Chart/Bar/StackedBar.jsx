@@ -5,8 +5,8 @@ import { StackedBar } from '@antv/g2plot';
 // Constants
 import { thousandsSeparator } from '../../../constants';
 
-const StackedBarChart = ({ data, groupBy, options }) => {
-  const { xAxis, yAxis } = options;
+const StackedBarChart = ({ data, options }) => {
+  const { groupBy, xAxis, yAxis } = options;
 
   const config = {
     data,
