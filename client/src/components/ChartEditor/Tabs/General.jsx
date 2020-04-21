@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import {
   BarChart as BarChartIcon,
+  ClearAll as ClearAllIcon,
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
 } from '@material-ui/icons';
@@ -19,10 +20,14 @@ import {
 // React Components
 import GeneralChartParams from './GeneralChartParams';
 
+// Constants
+import { hasHorizontalOption, hasStackedOption } from '../../../constants';
+
 const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
+  { name: 'Range', value: 'range' },
 ];
 
 const useStyles = makeStyles(() => ({
@@ -33,7 +38,7 @@ const useStyles = makeStyles(() => ({
 const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
   const {
     chartType,
-    options: { horizontal, title },
+    options: { horizontal, stacked, title, xAxis, yAxis },
   } = localState;
   const { formControl, menuIcon } = useStyles();
 
@@ -43,13 +48,22 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
 
       // Update local state
       handleChangeObj(null, { name, value: checked });
+
+      // Switch X and Y axis if they are already defined in local state
+      if (name === 'options:horizontal' && xAxis && yAxis) {
+        const xVal = xAxis;
+        const yVal = yAxis;
+
+        handleChangeObj(null, { name: 'options:xAxis', value: yVal });
+        handleChangeObj(null, { name: 'options:yAxis', value: xVal });
+      }
     },
-    [handleChangeObj],
+    [handleChangeObj, xAxis, yAxis],
   );
 
   return (
     <Grid container direction='row' alignContent='space-between'>
-      <Grid item md={chartType === 'bar' ? 10 : 12}>
+      <Grid item md={hasStackedOption(chartType) ? 8 : hasHorizontalOption(chartType) ? 10 : 12}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Chart Type</InputLabel>
           <Select name='chartType' value={chartType} onChange={handleChange}>
@@ -64,6 +78,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
                         return <LineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
+                      case 'range':
+                        return <ClearAllIcon className={menuIcon} />;
                       default:
                         return null;
                     }
@@ -75,7 +91,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
           </Select>
         </FormControl>
       </Grid>
-      {chartType === 'bar' && (
+      {hasHorizontalOption(chartType) && (
         <Grid item md={2}>
           <FormControlLabel
             className={formControl}
@@ -88,6 +104,23 @@ const GeneralTab = ({ handleChange, handleChangeObj, localState }) => {
               />
             }
             label='Horizontal'
+            labelPlacement='top'
+          />
+        </Grid>
+      )}
+      {hasStackedOption(chartType) && (
+        <Grid item md={2}>
+          <FormControlLabel
+            className={formControl}
+            control={
+              <Checkbox
+                name='options:stacked'
+                checked={stacked || false}
+                onChange={handleCheckbox}
+                color='primary'
+              />
+            }
+            label='Stacked'
             labelPlacement='top'
           />
         </Grid>

@@ -1,20 +1,21 @@
 import React from 'react';
 import ReactG2Plot from 'react-g2plot';
-import { Column } from '@antv/g2plot';
+import { RangeBar } from '@antv/g2plot';
 
 // Constants
 import { thousandsSeparator } from '../../../constants';
 
-const BarChart = ({ data, options }) => {
+const RangeBarChart = ({ data, options }) => {
   const { xAxis, yAxis } = options;
+
+  // Change xAxis value to array with a 0 for proper chart rendering
+  data = data.map(obj => ({ ...obj, [xAxis]: [0, obj[xAxis]] }));
 
   const config = {
     data,
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
-      position: 'top',
-      style: { fontSize: 12 },
       visible: true,
     },
     legend: {
@@ -22,15 +23,13 @@ const BarChart = ({ data, options }) => {
       visible: true,
     },
     meta: {
-      [yAxis]: { formatter: v => thousandsSeparator(v) },
+      [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    xAxis: { min: 0 },
     xField: xAxis,
-    yAxis: { min: 0 },
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={Column} config={config} />;
+  return <ReactG2Plot Ctor={RangeBar} config={config} />;
 };
 
-export default BarChart;
+export default RangeBarChart;
