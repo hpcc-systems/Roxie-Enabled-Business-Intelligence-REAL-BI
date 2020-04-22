@@ -13,7 +13,7 @@ const GroupBarChart = ({ data, options }) => {
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
-      position: 'middle',
+      position: 'right',
       style: { fontSize: 12 },
       visible: true,
     },
@@ -25,7 +25,14 @@ const GroupBarChart = ({ data, options }) => {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
     groupField: groupBy,
+    xAxis: {
+      grid: { visible: true },
+      label: { visible: true },
+    },
     xField: xAxis,
+    yAxis: {
+      line: { visible: true },
+    },
     yField: yAxis,
   };
 

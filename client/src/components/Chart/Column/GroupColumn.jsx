@@ -13,6 +13,9 @@ const GroupColumnChart = ({ data, options }) => {
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
+      position: 'top',
+      style: { fontSize: 12 },
+      visible: true,
     },
     legend: {
       position: 'right-top',
