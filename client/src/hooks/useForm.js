@@ -31,9 +31,19 @@ const useForm = initState => {
     return setValues(prevState => ({ ...prevState, [name]: arr }));
   }, []);
 
+  const handleCheckbox = useCallback(event => {
+    const { name, checked } = event.target;
+    const [state, key] = name.split(':');
+
+    return setValues(prevState => ({
+      ...prevState,
+      [state]: { ...prevState[state], [key]: checked },
+    }));
+  }, []);
+
   const resetState = useCallback(state => setValues(state), []);
 
-  return { values, handleChange, handleChangeArr, handleChangeObj, resetState };
+  return { values, handleChange, handleChangeArr, handleChangeObj, handleCheckbox, resetState };
 };
 
 export default useForm;

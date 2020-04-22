@@ -29,7 +29,9 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const initState = setEditorState(charts, chartID);
 
   // Set initial state
-  const { values: localState, handleChange, handleChangeArr, handleChangeObj } = useForm(initState);
+  const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
+    initState,
+  );
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { toolbar, typography } = useStyles();
@@ -93,6 +95,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeArr={handleChangeArr}
           handleChangeObj={handleChangeObj}
+          handleCheckbox={handleCheckbox}
           localState={localState}
         />
       </DialogContent>

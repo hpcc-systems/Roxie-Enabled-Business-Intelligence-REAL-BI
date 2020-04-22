@@ -38,7 +38,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 const NewChartDialog = ({ show, toggleDialog }) => {
-  const { values: localState, handleChange, handleChangeArr, handleChangeObj } = useForm(initState);
+  const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
+    initState,
+  );
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
@@ -113,6 +115,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           handleChange={handleChange}
           handleChangeArr={handleChangeArr}
           handleChangeObj={handleChangeObj}
+          handleCheckbox={handleCheckbox}
           localState={localState}
         />
       </DialogContent>
