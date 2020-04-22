@@ -1,6 +1,5 @@
 import BarChart from './Bar';
-import ColumnChart from './Column';
+import GroupBarChart from './GroupBar';
 import StackedBarChart from './StackedBar';
-import StackedColumnChart from './StackedColumn';
 
-export { BarChart, ColumnChart, StackedBarChart, StackedColumnChart };
+export { BarChart, GroupBarChart, StackedBarChart };

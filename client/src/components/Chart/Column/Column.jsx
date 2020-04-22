@@ -5,7 +5,7 @@ import { Column } from '@antv/g2plot';
 // Constants
 import { thousandsSeparator } from '../../../constants';
 
-const BarChart = ({ data, options }) => {
+const ColumnChart = ({ data, options }) => {
   const { xAxis, yAxis } = options;
 
   const config = {
@@ -33,4 +33,4 @@ const BarChart = ({ data, options }) => {
   return <ReactG2Plot Ctor={Column} config={config} />;
 };
 
-export default BarChart;
+export default ColumnChart;

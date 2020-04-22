@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Constants
+import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../constants';
+
 const getChartData = async (chartID, clusterID) => {
   let response;
 
@@ -27,16 +30,26 @@ const getPreviewData = async (clusterID, dataOptions) => {
 };
 
 const createChartObj = (localState, sort) => {
-  const { chartType, dataset, groupBy, params } = localState;
+  const { chartType, dataset, params } = localState;
   let { options } = localState;
-  const { horizontal = false } = options;
+  const { groupBy, horizontal, stacked } = options;
 
-  // Change horizontal value if it doesn't apply to the chart type
-  if ((chartType !== 'bar' && horizontal) || !('horizontal' in options)) {
+  // Change horizontal value if it doesn't apply to the chart type or is missing
+  if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in options)) {
     options = { ...options, horizontal: false };
   }
 
-  return { dataset, groupBy, options, params, sort, type: chartType };
+  // Change stacked value if it doesn't apply to the chart type or is missing
+  if ((!hasStackedOption(chartType) && stacked) || !('stacked' in options)) {
+    options = { ...options, stacked: false };
+  }
+
+  // Change groupBy value if it doesn't apply to the chart type or is missing
+  if ((!hasGroupByOption(chartType) && groupBy) || !('groupBy' in options)) {
+    options = { ...options, groupBy: '' };
+  }
+
+  return { dataset, options, params, sort, type: chartType };
 };
 
 const setEditorState = (charts, chartID) => {

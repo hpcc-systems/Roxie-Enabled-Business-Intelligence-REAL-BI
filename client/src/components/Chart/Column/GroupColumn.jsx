@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactG2Plot from 'react-g2plot';
-import { StackedBar } from '@antv/g2plot';
+import { GroupedColumn } from '@antv/g2plot';
 
 // Constants
 import { thousandsSeparator } from '../../../constants';
 
-const StackedBarChart = ({ data, options }) => {
+const GroupColumnChart = ({ data, options }) => {
   const { groupBy, xAxis, yAxis } = options;
 
   const config = {
@@ -13,7 +13,7 @@ const StackedBarChart = ({ data, options }) => {
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
-      position: 'middle',
+      position: 'top',
       style: { fontSize: 12 },
       visible: true,
     },
@@ -22,19 +22,14 @@ const StackedBarChart = ({ data, options }) => {
       visible: true,
     },
     meta: {
-      [xAxis]: { formatter: v => thousandsSeparator(v) },
+      [yAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    stackField: groupBy,
-    xAxis: { min: 0 },
+    groupField: groupBy,
     xField: xAxis,
-    yAxis: {
-      line: { visible: true },
-      min: 0,
-    },
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={StackedBar} config={config} />;
+  return <ReactG2Plot Ctor={GroupedColumn} config={config} />;
 };
 
-export default StackedBarChart;
+export default GroupColumnChart;

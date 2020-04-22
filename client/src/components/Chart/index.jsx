@@ -3,7 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 //React Components
-import { BarChart, ColumnChart, StackedBarChart, StackedColumnChart } from './Bar';
+import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
+import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
 import LineChart from './Line';
 import PieChart from './Pie';
 import NoData from './NoData';
@@ -15,8 +16,9 @@ const useStyles = makeStyles({
 
 const ChartComp = ({ chart, dataObj }) => {
   const { data = {}, loading = true } = dataObj;
-  const { dataset, groupBy, options } = chart;
-  let { type } = chart;
+  const { dataset, options } = chart;
+  const { groupBy, horizontal, stacked } = options;
+  let { type } = chart; // Move this nested key to a 'let' so it could be changed
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -27,22 +29,14 @@ const ChartComp = ({ chart, dataObj }) => {
       err = data.Exception.Message;
     } else if (data[dataset]) {
       chartData = data[dataset].Row;
-    }
-  }
 
-  // Confirm bar chart type
-  if (type === 'bar') {
-    if (options.horizontal) {
-      if (groupBy) {
-        type = 'bar-stacked';
-      } else {
-        type = 'bar';
-      }
-    } else {
-      if (groupBy) {
-        type = 'column-stacked';
-      } else {
-        type = 'column';
+      // Confirm chart type
+      if (type === 'bar') {
+        if (horizontal) {
+          type = stacked ? 'bar-stacked' : groupBy ? 'bar-group' : 'bar';
+        } else {
+          type = stacked ? 'column-stacked' : groupBy ? 'column-group' : 'column';
+        }
       }
     }
   }
@@ -54,14 +48,18 @@ const ChartComp = ({ chart, dataObj }) => {
       switch (type) {
         case 'bar':
           return <BarChart data={chartData} options={options} />;
+        case 'bar-group':
+          return <GroupBarChart data={chartData} options={options} />;
         case 'bar-stacked':
-          return <StackedBarChart data={chartData} groupBy={groupBy} options={options} />;
+          return <StackedBarChart data={chartData} options={options} />;
         case 'column':
           return <ColumnChart data={chartData} options={options} />;
+        case 'column-group':
+          return <GroupColumnChart data={chartData} options={options} />;
         case 'column-stacked':
-          return <StackedColumnChart data={chartData} groupBy={groupBy} options={options} />;
+          return <StackedColumnChart data={chartData} options={options} />;
         case 'line':
-          return <LineChart data={chartData} groupBy={groupBy} options={options} />;
+          return <LineChart data={chartData} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
         default:
