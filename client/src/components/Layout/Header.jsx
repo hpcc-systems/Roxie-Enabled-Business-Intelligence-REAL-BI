@@ -8,7 +8,7 @@ import { Menu as MenuIcon } from '@material-ui/icons';
 import DashboardDrawer from '../Drawers/Dashboards';
 
 // Redux Actions
-import { getLatestUserData, loginUser, logoutUser } from '../../features/auth/actions';
+import { getLatestUserData, logoutUser } from '../../features/auth/actions';
 
 // React Hooks
 import useDrawer from '../../hooks/useDrawer';
@@ -29,14 +29,6 @@ const Header = () => {
   const dispatch = useDispatch();
   const { appBar, typography } = useStyles();
 
-  // Get jwt for user from back-end and store in localStorage for future data requests
-  const login = async () => {
-    loginUser().then(({ action, token }) => {
-      setAuthHeader(token);
-      dispatch(action);
-    });
-  };
-
   // Check for existing token to log in user
   if (token && !userID) {
     setAuthHeader(token);
@@ -46,22 +38,31 @@ const Header = () => {
     logoutUser().then(action => dispatch(action));
   }
 
+  const logout = () => {
+    localStorage.removeItem('realBIToken');
+    window.location.reload(false); // Temporary method to reload page after token is removed from browser storage
+  };
+
   return (
     <Fragment>
       <AppBar position='static' className={appBar}>
         <Toolbar>
-          <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
-            <MenuIcon />
-          </IconButton>
+          {userID && (
+            <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant='h6' color='inherit' className={typography}>
             REAL BI
           </Typography>
-          {!userID && (
-            <Button color='inherit' onClick={() => login()}>
-              Log In
-            </Button>
+          {userID && (
+            <Fragment>
+              <Button color='inherit'>Settings</Button>
+              <Button color='inherit' onClick={logout}>
+                Logout
+              </Button>
+            </Fragment>
           )}
-          <Button color='inherit'>Settings</Button>
         </Toolbar>
       </AppBar>
       <DashboardDrawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />

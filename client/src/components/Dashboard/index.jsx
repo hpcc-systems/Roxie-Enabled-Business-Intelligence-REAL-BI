@@ -7,6 +7,7 @@ import { getDashboard } from '../../features/dashboard/actions';
 import { deleteChart, getCharts } from '../../features/chart/actions';
 
 // React Components
+import Login from './Login';
 import NoCharts from './NoCharts';
 import Toolbar from './Toolbar';
 import ChartToolbar from './ChartToolbar';
@@ -27,7 +28,7 @@ const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
   const [callType, setCallType] = useState('single');
   const [chartID, setChartID] = useState(null);
-  const { lastDashboard } = useSelector(state => state.auth.user);
+  const { id: userID, lastDashboard } = useSelector(state => state.auth.user);
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
@@ -96,62 +97,66 @@ const Dashboard = () => {
     }
   }, [charts, dashboard, dataCall]);
 
-  return Object.keys(dashboard).length > 0 ? (
-    <Fragment>
-      <Toolbar
-        name={dashboard.name}
-        refreshChart={dataCall}
-        toggleDialog={newChartToggle}
-        toggleDrawer={toggleDrawer}
-      />
-      <Container maxWidth='xl'>
-        <Grid container direction='row' spacing={3}>
-          {charts.map((chart, index) => {
-            const { id: chartID, options, queryID, queryName } = chart;
-            let dataObj;
-
-            if (callType === 'single') {
-              dataObj = queryData[queryName];
-            } else {
-              dataObj = queryData[chartID];
-            }
-
-            // Data not loaded
-            if (!dataObj || !dataObj.data) {
-              dataObj = {};
-            }
-
-            return (
-              // Change grid column layout based on numver of charts
-              <Grid key={index} item md={12}>
-                <Paper variant='outlined'>
-                  <ChartToolbar
-                    chartID={chartID}
-                    options={options}
-                    queryID={queryID}
-                    removeChart={removeChart}
-                    toggleDialog={editChart}
-                  />
-                  <Chart chart={chart} dataObj={dataObj} />
-                </Paper>
-              </Grid>
-            );
-          })}
-        </Grid>
-        <FilterDrawer
-          dashboard={dashboard}
-          showDrawer={showDrawer}
+  return userID ? (
+    Object.keys(dashboard).length > 0 ? (
+      <Fragment>
+        <Toolbar
+          name={dashboard.name}
+          refreshChart={dataCall}
+          toggleDialog={newChartToggle}
           toggleDrawer={toggleDrawer}
-          queryData={queryData}
         />
-        {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
-        {editChartShow && (
-          <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
-        )}
-      </Container>
-    </Fragment>
+        <Container maxWidth='xl'>
+          <Grid container direction='row' spacing={3}>
+            {charts.map((chart, index) => {
+              const { id: chartID, options, queryID, queryName } = chart;
+              let dataObj;
+
+              if (callType === 'single') {
+                dataObj = queryData[queryName];
+              } else {
+                dataObj = queryData[chartID];
+              }
+
+              // Data not loaded
+              if (!dataObj || !dataObj.data) {
+                dataObj = {};
+              }
+
+              return (
+                // Change grid column layout based on numver of charts
+                <Grid key={index} item md={12}>
+                  <Paper variant='outlined'>
+                    <ChartToolbar
+                      chartID={chartID}
+                      options={options}
+                      queryID={queryID}
+                      removeChart={removeChart}
+                      toggleDialog={editChart}
+                    />
+                    <Chart chart={chart} dataObj={dataObj} />
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+          <FilterDrawer
+            dashboard={dashboard}
+            showDrawer={showDrawer}
+            toggleDrawer={toggleDrawer}
+            queryData={queryData}
+          />
+          {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+          {editChartShow && (
+            <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
+          )}
+        </Container>
+      </Fragment>
+    ) : (
+      <NoCharts />
+    )
   ) : (
-    <NoCharts />
+    <Login />
   );
 };
 
