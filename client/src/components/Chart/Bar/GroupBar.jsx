@@ -25,12 +25,7 @@ const GroupBarChart = ({ data, options }) => {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
     groupField: groupBy,
-    xAxis: { min: 0 },
     xField: xAxis,
-    yAxis: {
-      line: { visible: true },
-      min: 0,
-    },
     yField: yAxis,
   };
 

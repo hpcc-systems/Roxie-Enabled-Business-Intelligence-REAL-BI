@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 //React Components
-import { BarChart, GroupBarChart, RangeBarChart, StackedBarChart } from './Bar';
-import { ColumnChart, GroupColumnChart, RangeColumnChart, StackedColumnChart } from './Column';
+import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
+import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
 import LineChart from './Line';
 import PieChart from './Pie';
 import NoData from './NoData';
@@ -37,8 +37,6 @@ const ChartComp = ({ chart, dataObj }) => {
         } else {
           type = stacked ? 'column-stacked' : groupBy ? 'column-group' : 'column';
         }
-      } else if (type === 'range') {
-        type = horizontal ? 'range-bar' : 'range-column';
       }
     }
   }
@@ -64,10 +62,6 @@ const ChartComp = ({ chart, dataObj }) => {
           return <LineChart data={chartData} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
-        case 'range-bar':
-          return <RangeBarChart data={chartData} options={options} />;
-        case 'range-column':
-          return <RangeColumnChart data={chartData} options={options} />;
         default:
           return 'Unknown chart type';
       }
