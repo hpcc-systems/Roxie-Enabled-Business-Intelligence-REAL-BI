@@ -22,9 +22,10 @@ import setAuthHeader from '../../utils/axiosConfig';
 // React Hooks
 import useForm from '../../hooks/useForm';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   grid: { minHeight: '50vh' },
   progress: { marginRight: 15 },
+  textfield: { margin: `${theme.spacing(1)}px 0` },
 }));
 
 const initState = {
@@ -37,7 +38,7 @@ const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
   const dispatch = useDispatch();
-  const { grid, progress } = useStyles();
+  const { grid, progress, textfield } = useStyles();
 
   const loginUserFn = async () => {
     handleChange(null, { name: 'loading', value: true });
@@ -49,13 +50,14 @@ const Login = () => {
   };
 
   return (
-    <Container>
+    <Container maxWidth='xl'>
       <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
         <Grid item>
           <Card>
             <CardContent>
               <Typography variant='h6'>Login</Typography>
               <TextField
+                className={textfield}
                 label='Username'
                 name='username'
                 value={username}
@@ -63,6 +65,7 @@ const Login = () => {
                 fullWidth
               />
               <TextField
+                className={textfield}
                 label='Password'
                 name='password'
                 type='password'
