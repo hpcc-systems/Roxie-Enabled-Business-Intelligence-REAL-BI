@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. Run `git clone https://gitlab.ins.risk.regn.net/HumaCh01/hpccdashboard.git`
+1. Run `git clone https://github.com/hpcc-systems/REAL-BI.git`
 2. Navigate to the _root_ and _client_ directories and copy the **_.env.example_** files
 3. Rename the copied files to **_.env_** and fill in the values
 4. Create an empty database schema in MySQL server
