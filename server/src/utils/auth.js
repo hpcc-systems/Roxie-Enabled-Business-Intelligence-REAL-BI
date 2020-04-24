@@ -32,7 +32,6 @@ const encryptPassword = password => {
 
   encrypted = Buffer.concat([encrypted, cipher.final()]);
 
-  console.log('hash', `${iv.toString('hex')}:${key.toString('hex')}=${encrypted.toString('hex')}`);
   return `${iv.toString('hex')}:${key.toString('hex')}=${encrypted.toString('hex')}`;
 };
 
@@ -49,7 +48,6 @@ const decryptHash = hash => {
 
   decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-  console.log('password', decrypted.toString());
   return decrypted.toString();
 };
 
