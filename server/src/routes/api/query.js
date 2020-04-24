@@ -140,7 +140,7 @@ router.get('/data/multiple', async (req, res) => {
   const {
     query: { chartID, clusterID },
     user: { id: userID },
-  } = req.query;
+  } = req;
   let chart, cluster, data, params;
 
   try {
