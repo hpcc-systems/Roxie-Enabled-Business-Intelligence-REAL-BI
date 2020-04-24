@@ -4,6 +4,7 @@ const axios = require('axios');
 const { cluster: clusterModel } = require('../models');
 
 // Utils
+const { getClusterAuth } = require('./clusterAuth');
 const {
   awaitHandler,
   createParamString,
@@ -34,14 +35,15 @@ const getClusters = async () => {
   return clusters;
 };
 
-const getDataFromCluster = async ({ host, dataPort }, { params, query }) => {
+const getDataFromCluster = async ({ id: clusterID, host, dataPort }, { params, query }, userID) => {
   const { name, target } = query;
   const paramsList = createParamString(params);
+  const clusterAuth = await getClusterAuth(clusterID, userID);
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`;
 
-  let [err, response] = await awaitHandler(axios.get(url));
+  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -52,13 +54,14 @@ const getDataFromCluster = async ({ host, dataPort }, { params, query }) => {
   return Results;
 };
 
-const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target }) => {
+const getQueryDatasetsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {
+  const clusterAuth = await getClusterAuth(clusterID, userID);
   let datasets;
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`;
 
-  let [err, response] = await awaitHandler(axios.get(url));
+  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -76,13 +79,14 @@ const getQueryDatasetsFromCluster = async ({ host, dataPort }, { name, target })
   return datasets;
 };
 
-const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
+const getQueryListFromCluster = async ({ id: clusterID, host, infoPort }, keyword, userID) => {
+  const clusterAuth = await getClusterAuth(clusterID, userID);
   let queries, url;
 
   // Build URL from cluster details and keyword provided by user
   url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`;
 
-  let [err, response] = await awaitHandler(axios.get(url));
+  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -106,13 +110,14 @@ const getQueryListFromCluster = async ({ host, infoPort }, keyword) => {
   return queries;
 };
 
-const getQueryParamsFromCluster = async ({ host, dataPort }, { name, target }) => {
+const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {
+  const clusterAuth = await getClusterAuth(clusterID, userID);
   let params;
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/request/query/${target}/${name}/json?display`;
 
-  let [err, response] = await awaitHandler(axios.get(url));
+  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
