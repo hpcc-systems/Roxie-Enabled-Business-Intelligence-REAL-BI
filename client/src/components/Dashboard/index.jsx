@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
 // Redux Actions
@@ -38,7 +38,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (lastDashboard) {
       Promise.all([getDashboard(lastDashboard), getCharts(lastDashboard)]).then(actions => {
-        actions.map(action => dispatch(action));
+        // Batch dispatch each action to only have React re-render once
+        batch(() => {
+          dispatch(actions[0]);
+          dispatch(actions[1]);
+        });
       });
     }
   }, [dispatch, lastDashboard]);

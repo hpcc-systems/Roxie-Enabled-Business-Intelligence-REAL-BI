@@ -73,7 +73,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       */
       // toggleDialog();
 
-      // Batch dispatch each action to only have React re-render once instead of twice
+      // Batch dispatch each action to only have React re-render once
       batch(() => {
         dispatch(action1);
         dispatch(action2);
