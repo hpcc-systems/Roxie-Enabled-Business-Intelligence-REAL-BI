@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Toolbar, Typography } from '@material-ui/core';
 
@@ -54,7 +54,12 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const getDashboardInfo = dashboardID => {
     Promise.all([getDashboard(dashboardID), getCharts(dashboardID), updateLastDashboard(dashboardID)]).then(
       actions => {
-        actions.map(action => dispatch(action));
+        // Batch dispatch each action to only have React re-render once
+        batch(() => {
+          dispatch(actions[0]);
+          dispatch(actions[1]);
+          dispatch(actions[2]);
+        });
       },
     );
 

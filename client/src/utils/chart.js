@@ -29,7 +29,7 @@ const getPreviewData = async (clusterID, dataOptions) => {
   return response.data;
 };
 
-const createChartObj = (localState, sort) => {
+const createChartObj = localState => {
   const { chartType, dataset, params } = localState;
   let { options } = localState;
   const { groupBy, horizontal, stacked } = options;
@@ -49,7 +49,7 @@ const createChartObj = (localState, sort) => {
     options = { ...options, groupBy: '' };
   }
 
-  return { dataset, options, params, sort, type: chartType };
+  return { dataset, options, params, type: chartType };
 };
 
 const setEditorState = (charts, chartID) => {

@@ -14,11 +14,8 @@ const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
 });
 
-const ChartComp = ({ chart, dataObj }) => {
-  const { data = {}, loading = true } = dataObj;
-  const { dataset, options } = chart;
+const ChartComp = ({ chart: { dataset, options, type }, dataObj: { data = {}, loading = true } }) => {
   const { groupBy, horizontal, stacked } = options;
-  let { type } = chart; // Move this nested key to a 'let' so it could be changed
   const { progress } = useStyles();
   let chartData = [];
   let err = null;

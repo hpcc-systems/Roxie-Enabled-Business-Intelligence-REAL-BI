@@ -1,4 +1,5 @@
 // Misc. functions to separate reused code to keep files DRY
+const qs = require('qs');
 
 const getType = (value = '') => {
   // Necessary ternary because default parameter value above is not applied to "null"
@@ -28,25 +29,12 @@ const createParamString = (params = []) => {
   let urlString = '';
 
   // Query has no defined params
-  if (params.length === 0) {
-    return urlString;
-  }
+  if (params.length === 0) return urlString;
 
-  // Iterate over array and create url string
-  params.forEach(({ name, value }, index) => {
-    // If there is no value, skip param
-    if (!value) {
-      return;
-    }
+  params.forEach(({ name, value }) => {
+    if (!value) return;
 
-    let param = `${name}=${value}`;
-
-    // If this is not the last parameter, add an '&'
-    if (index !== params.length - 1) {
-      param = `${param}&`;
-    }
-
-    return (urlString += param);
+    urlString += qs.stringify({ [name]: value }, { encodeValuesOnly: true });
   });
 
   return `?${urlString}`;

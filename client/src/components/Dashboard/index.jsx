@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
 // Redux Actions
@@ -26,7 +26,6 @@ import { getDashboardData } from '../../utils/dashboard';
 
 const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
-  const [callType, setCallType] = useState('single');
   const [chartID, setChartID] = useState(null);
   const { id: userID, lastDashboard } = useSelector(state => state.auth.user);
   const { dashboard } = useSelector(state => state.dashboard);
@@ -39,7 +38,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (lastDashboard) {
       Promise.all([getDashboard(lastDashboard), getCharts(lastDashboard)]).then(actions => {
-        actions.map(action => dispatch(action));
+        // Batch dispatch each action to only have React re-render once
+        batch(() => {
+          dispatch(actions[0]);
+          dispatch(actions[1]);
+        });
       });
     }
   }, [dispatch, lastDashboard]);
@@ -59,8 +62,6 @@ const Dashboard = () => {
     const chartParamsExist = checkForChartParams(charts);
 
     if (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist)) {
-      setCallType('single');
-
       // Fetch data for dashboard
       getDashboardData(clusterID, dashboardID).then(data => {
         const newDataObj = {};
@@ -70,15 +71,13 @@ const Dashboard = () => {
           return (newDataObj[key] = { data: { ...data[key] }, loading: false });
         });
 
-        // Set data in local state object with chartID as key
+        // Set data in local state object with query name as key
         setQueryData(prevState => ({ ...prevState, ...newDataObj }));
       });
     } else {
-      setCallType('multiple');
-
       // Set initial object keys and loading
       charts.forEach(({ id: chartID }) => {
-        setQueryData(prevState => ({ ...prevState, [chartID]: { loading: true } }));
+        setQueryData(prevState => ({ ...prevState, [chartID]: {} }));
       });
 
       // Fetch data for each chart
@@ -110,18 +109,7 @@ const Dashboard = () => {
           <Grid container direction='row' spacing={3}>
             {charts.map((chart, index) => {
               const { id: chartID, options, queryID, queryName } = chart;
-              let dataObj;
-
-              if (callType === 'single') {
-                dataObj = queryData[queryName];
-              } else {
-                dataObj = queryData[chartID];
-              }
-
-              // Data not loaded
-              if (!dataObj || !dataObj.data) {
-                dataObj = {};
-              }
+              const dataObj = queryData[chartID] || queryData[queryName] || {};
 
               return (
                 // Change grid column layout based on numver of charts

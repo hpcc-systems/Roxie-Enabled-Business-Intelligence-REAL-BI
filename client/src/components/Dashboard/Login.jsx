@@ -40,7 +40,9 @@ const Login = () => {
   const dispatch = useDispatch();
   const { grid, progress, textfield } = useStyles();
 
-  const loginUserFn = async () => {
+  const loginUserFn = event => {
+    event.preventDefault();
+
     handleChange(null, { name: 'loading', value: true });
 
     loginUser().then(({ action, token }) => {
@@ -53,38 +55,41 @@ const Login = () => {
     <Container maxWidth='xl'>
       <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
         <Grid item>
-          <Card>
-            <CardContent>
-              <Typography variant='h6'>Login</Typography>
-              <TextField
-                className={textfield}
-                label='Username'
-                name='username'
-                value={username}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                className={textfield}
-                label='Password'
-                name='password'
-                type='password'
-                value={password}
-                onChange={handleChange}
-                fullWidth
-              />
-            </CardContent>
-            <CardActions>
-              <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
-                <Grid item>
-                  <Button variant='contained' color='primary' onClick={loginUserFn} disabled={loading}>
-                    {loading && <CircularProgress color='inherit' size={20} className={progress} />}
-                    Login
-                  </Button>
+          <form onSubmit={loginUserFn}>
+            <Card>
+              <CardContent>
+                <Typography variant='h6'>Login</Typography>
+                <TextField
+                  className={textfield}
+                  label='Username'
+                  name='username'
+                  value={username}
+                  onChange={handleChange}
+                  fullWidth
+                />
+                <TextField
+                  className={textfield}
+                  label='Password'
+                  name='password'
+                  type='password'
+                  value={password}
+                  onChange={handleChange}
+                  autoComplete='false'
+                  fullWidth
+                />
+              </CardContent>
+              <CardActions>
+                <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
+                  <Grid item>
+                    <Button variant='contained' color='primary' type='submit' disabled={loading}>
+                      {loading && <CircularProgress color='inherit' size={20} className={progress} />}
+                      Login
+                    </Button>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </CardActions>
-          </Card>
+              </CardActions>
+            </Card>
+          </form>
         </Grid>
       </Grid>
     </Container>
