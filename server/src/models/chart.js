@@ -11,11 +11,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         allowNull: false,
       },
-      sort: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );

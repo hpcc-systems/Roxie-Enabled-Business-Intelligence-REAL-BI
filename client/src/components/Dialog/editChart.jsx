@@ -47,8 +47,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Update chart in DB and store
   const editChart = () => {
-    const { chartID, queryID, sort } = localState;
-    const chartObj = createChartObj(localState, sort);
+    const { chartID, queryID } = localState;
+    const chartObj = createChartObj(localState);
 
     // Update chart and global params in DB
     updateChart({ id: chartID, ...chartObj }, dashboard.id, queryID).then(action => {
