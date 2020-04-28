@@ -22,9 +22,10 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Header />
-        <Dashboard />
+        <CssBaseline>
+          <Header />
+          <Dashboard />
+        </CssBaseline>
       </ThemeProvider>
     </Provider>
   );
