@@ -71,10 +71,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         after the actions update the Redux store, causing a memory leak error because the component
         will already be un-mounted.
       */
-      // toggleDialog();
+      toggleDialog();
 
       // Batch dispatch each action to only have React re-render once
-      batch(() => {
+      return batch(() => {
         dispatch(action1);
         dispatch(action2);
       });
