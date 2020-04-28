@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
@@ -42,13 +42,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     initState,
   );
   const { dashboard } = useSelector(state => state.dashboard);
-  const { charts } = useSelector(state => state.chart);
   const dispatch = useDispatch();
   const { toolbar, typography } = useStyles();
 
   // Reference values
   const {
-    dataObj: { loading: previewLoading },
+    dataObj: { loading },
     selectedDataset,
     selectedQuery,
   } = localState;
@@ -59,7 +58,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const newChart = async () => {
     const { id: dashboardID } = dashboard;
     const queryObj = createQueryObj(localState);
-    const newChartObj = createChartObj(localState, charts.length + 1);
+    const newChartObj = createChartObj(localState);
 
     try {
       const { queryID, queryName } = await addQuery(dashboardID, queryObj);
@@ -72,10 +71,13 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         after the actions update the Redux store, causing a memory leak error because the component
         will already be un-mounted.
       */
-      toggleDialog();
+      // toggleDialog();
 
-      // Dispatch each action
-      return [action1, action2].forEach(action => dispatch(action));
+      // Batch dispatch each action to only have React re-render once instead of twice
+      batch(() => {
+        dispatch(action1);
+        dispatch(action2);
+      });
     } catch (err) {
       console.error(err);
     }
@@ -105,7 +107,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         <Typography variant='h6' color='inherit' className={typography}>
           New Chart
         </Typography>
-        <Button disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading} onClick={updateChartPreview}>
+        <Button disabled={!queryKeys > 0 || !datasetKeys > 0 || loading} onClick={updateChartPreview}>
           <RefreshIcon />
         </Button>
       </Toolbar>
