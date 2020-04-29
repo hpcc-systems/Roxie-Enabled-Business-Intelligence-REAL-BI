@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       directory: DataTypes.JSON,
+      directoryDepth: DataTypes.JSON,
       lastDashboard: DataTypes.INTEGER,
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },

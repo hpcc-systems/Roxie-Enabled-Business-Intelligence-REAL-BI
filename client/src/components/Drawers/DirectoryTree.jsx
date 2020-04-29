@@ -12,54 +12,91 @@ import {
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
-  root: { flexGrow: 1 },
-  rootEmpty: { marginLeft: theme.spacing(1) },
-  rootText: { fontSize: 20, marginRight: theme.spacing(4) },
-  button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
-  buttonsDiv: { marginRight: theme.spacing(2) },
-  div: { display: 'flex' },
-  labelIcon: { marginRight: theme.spacing(1) },
-  labelRoot: {
-    alignItems: 'center',
+  button: { margin: theme.spacing(1), minWidth: 25, padding: 0 },
+  buttonsDiv: {
+    marginRight: theme.spacing(1),
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: 0,
+  },
+  itemDiv: { display: 'flex' },
+  labelDiv: {
     display: 'flex',
     padding: theme.spacing(1, 0),
   },
-  labelText: { flexGrow: 1 },
+  labelIcon: { marginRight: theme.spacing(1) },
+  labelText: {
+    flexGrow: 1,
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: 0,
+  },
+  rootDiv: { display: 'flex' },
+  rootText: {
+    fontSize: 20,
+    flexGrow: 1,
+    padding: theme.spacing(1, 0),
+  },
+  treeItem: { flexGrow: 1 },
 }));
 
 const RecursiveTreeView = ({
   addNewDashboard,
   addNewFolder,
-  directory,
   getDashboardInfo,
+  getDirectoryDepth,
+  localState,
   updateDirectoryObj,
 }) => {
-  const { button, buttonsDiv, div, labelIcon, labelRoot, labelText, root, rootEmpty, rootText } = useStyles();
+  const { directory, directoryDepth } = localState;
+  const {
+    button,
+    buttonsDiv,
+    itemDiv,
+    labelDiv,
+    labelIcon,
+    labelText,
+    rootDiv,
+    rootText,
+    treeItem,
+  } = useStyles();
   const rootLabel = (
-    <div className={div}>
+    <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
-      <Button className={button} onClick={() => addNewDashboard('root')}>
-        <AddBoxIcon />
-      </Button>
-      <Button className={button} onClick={() => addNewFolder('root')}>
-        <CreateNewFolderIcon />
-      </Button>
+      <div className={buttonsDiv}>
+        <Button className={button} onClick={() => addNewDashboard('root')}>
+          <AddBoxIcon />
+        </Button>
+        <Button className={button} onClick={() => addNewFolder('root')}>
+          <CreateNewFolderIcon />
+        </Button>
+      </div>
     </div>
   );
 
   const renderTree = ({ children, id, name, favorite }) => {
     const isFolder = Boolean(children);
     const label = (
-      <div className={labelRoot}>
+      <div className={labelDiv}>
         {isFolder ? (
           <FolderIcon color='inherit' className={labelIcon} />
         ) : (
           <DashboardIcon color='inherit' className={labelIcon} />
         )}
         <Typography className={labelText}>{name}</Typography>
+      </div>
+    );
+
+    return (
+      <div key={id} className={itemDiv}>
+        <TreeItem
+          className={treeItem}
+          nodeId={String(id)}
+          label={label}
+          onClick={!isFolder ? () => getDashboardInfo(id) : null}
+        >
+          {isFolder ? children.map(node => renderTree(node)) : null}
+        </TreeItem>
         <div className={buttonsDiv}>
           {isFolder ? (
             <Fragment>
@@ -70,37 +107,22 @@ const RecursiveTreeView = ({
                 <CreateNewFolderIcon />
               </Button>
             </Fragment>
-          ) : favorite ? (
-            <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>
-              <FavoriteIcon />
-            </Button>
           ) : (
-            <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', true)}>
-              <FavoriteBorderIcon />
+            <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}>
+              {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </Button>
           )}
         </div>
       </div>
     );
-
-    return (
-      <TreeItem
-        key={id}
-        nodeId={String(id)}
-        label={label}
-        onClick={!isFolder ? () => getDashboardInfo(id) : null}
-      >
-        {isFolder ? children.map(node => renderTree(node)) : null}
-      </TreeItem>
-    );
   };
 
   return (
     <TreeView
-      className={classNames(root, { [rootEmpty]: directory.length === 0 })}
       defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
+      expanded={directoryDepth || []}
+      onNodeToggle={(event, nodeArr) => getDirectoryDepth(nodeArr)}
     >
       <TreeItem nodeId='root' label={rootLabel}>
         {directory.map(directoryObj => renderTree(directoryObj))}

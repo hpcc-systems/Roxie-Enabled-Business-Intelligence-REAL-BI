@@ -14,7 +14,7 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { updateLastDashboard } from '../../features/auth/actions';
+import { updateDirectoryDepth, updateLastDashboard } from '../../features/auth/actions';
 import { getDashboard } from '../../features/dashboard/actions';
 import { getCharts } from '../../features/chart/actions';
 
@@ -28,7 +28,7 @@ import {
 } from '../../utils/directory';
 import { useEffect } from 'react';
 
-const initState = { clusterID: '', directory: [], name: '', parentID: 0 };
+const initState = { clusterID: '', directoryDepth: ['root'], directory: [], name: '', parentID: 0 };
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -39,7 +39,9 @@ const useStyles = makeStyles(theme => ({
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
-  const { directory: storeDirectory } = useSelector(state => state.auth.user);
+  const { directory: storeDirectory, directoryDepth: storeDirectoryDepth } = useSelector(
+    state => state.auth.user,
+  );
   const { showDialog: showDashboardDialog, toggleDialog: toggleDashboardDialog } = useDialog(false);
   const { showDialog: showFolderDialog, toggleDialog: toggleFolderDialog } = useDialog(false);
   const dispatch = useDispatch();
@@ -48,7 +50,14 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   // Add redux store directory to component local state
   useEffect(() => {
     handleChange(null, { name: 'directory', value: storeDirectory });
-  }, [handleChange, storeDirectory]);
+    handleChange(null, { name: 'directoryDepth', value: storeDirectoryDepth });
+  }, [handleChange, storeDirectory, storeDirectoryDepth]);
+
+  // Update directory depth localState
+  const getDirectoryDepth = nodesArr => {
+    updateDirectoryDepth(nodesArr);
+    handleChange(null, { name: 'directoryDepth', value: nodesArr });
+  };
 
   // Get information about specific dashboard and hide drawer
   const getDashboardInfo = dashboardID => {
@@ -67,7 +76,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   };
 
   const createDashboard = async () => {
-    const { directory, parentID } = localState;
+    const { directory, directoryDepth, parentID } = localState;
     let dashboard;
 
     try {
@@ -82,16 +91,23 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
     // Add dashboard to directory in local state and update DB
     const newDirectory = addObjectToDirectory(directory, parentID, newDashboardObj);
+    const newDepthArr = [parentID, ...directoryDepth];
+
     updateDirectoryInDB(newDirectory);
+    updateDirectoryDepth(newDepthArr);
+    handleChange(null, { name: 'directoryDepth', value: newDepthArr });
   };
 
   const createFolder = () => {
-    const { directory, name, parentID } = localState;
+    const { directory, directoryDepth, name, parentID } = localState;
     const newFolderObj = { id: name.trim(), name: name.trim(), children: [] };
+    const newDepthArr = [parentID, ...directoryDepth];
 
     // Add folder to directory in local state and update DB
     const newDirectory = addObjectToDirectory(directory, parentID, newFolderObj);
     updateDirectoryInDB(newDirectory);
+    updateDirectoryDepth(newDepthArr);
+    handleChange(null, { name: 'directoryDepth', value: newDepthArr });
   };
 
   const updateDirectoryInDB = async newDirectory => {
@@ -118,6 +134,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     // Update dashboard object in local state and update DB
     const newDirectory = updateDashboardObj(directory, objID, key, value);
     updateDirectoryInDB(newDirectory);
+    handleChange(null, { name: 'directory', value: newDirectory });
   };
 
   const addNewDashboard = parentID => {
@@ -131,8 +148,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   };
 
   // Directory references
-  const { directory } = localState;
-  const dashboards = getDashboardsFromDirectory(directory, []);
+  const dashboards = getDashboardsFromDirectory(localState.directory, []);
   const favorites = getFavoriteDashboards(dashboards);
 
   return (
@@ -149,8 +165,9 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
         <DirectoryTree
           addNewDashboard={addNewDashboard}
           addNewFolder={addNewFolder}
-          directory={directory}
           getDashboardInfo={getDashboardInfo}
+          getDirectoryDepth={getDirectoryDepth}
+          localState={localState}
           updateDirectoryObj={updateDirectoryObj}
         />
       </div>
