@@ -8,31 +8,37 @@ import {
   Favorite as FavoriteIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
-  root: { flexGrow: 1, marginBottom: theme.spacing(3) },
-  rootEmpty: { marginLeft: theme.spacing(1) },
-  rootText: { fontSize: 20 },
   button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
-  buttonsDiv: { marginRight: theme.spacing(2) },
+  buttonsDiv: { padding: theme.spacing(1, 0) },
+  itemDiv: { display: 'flex' },
+  labelDiv: { display: 'flex', padding: theme.spacing(1, 0) },
   labelIcon: { marginRight: theme.spacing(1) },
-  labelRoot: {
-    alignItems: 'center',
-    display: 'flex',
-    padding: theme.spacing(1, 0),
-  },
   labelText: { flexGrow: 1 },
+  root: { marginBottom: theme.spacing(3) },
+  rootText: { fontSize: 20 },
+  treeItem: { flexGrow: 1 },
 }));
 
 const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
-  const { button, buttonsDiv, labelIcon, labelRoot, labelText, root, rootEmpty, rootText } = useStyles();
+  const {
+    button,
+    buttonsDiv,
+    itemDiv,
+    labelDiv,
+    labelIcon,
+    labelText,
+    root,
+    rootText,
+    treeItem,
+  } = useStyles();
 
   const rootLabel = <Typography className={rootText}>Favorites</Typography>;
 
   return (
     <TreeView
-      className={classNames(root, { [rootEmpty]: favorites.length === 0 })}
+      className={root}
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpanded={['root']}
       defaultExpandIcon={<ChevronRightIcon />}
@@ -40,9 +46,20 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
       <TreeItem nodeId='root' label={rootLabel}>
         {favorites.map(({ id, name }) => {
           const label = (
-            <div className={labelRoot}>
+            <div className={labelDiv}>
               <DashboardIcon color='inherit' className={labelIcon} />
               <Typography className={labelText}>{name}</Typography>
+            </div>
+          );
+
+          return (
+            <div key={id} className={itemDiv}>
+              <TreeItem
+                className={treeItem}
+                nodeId={String(id)}
+                label={label}
+                onClick={() => getDashboardInfo(id)}
+              />
               <div className={buttonsDiv}>
                 <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>
                   <FavoriteIcon />
@@ -50,8 +67,6 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
               </div>
             </div>
           );
-
-          return <TreeItem key={id} nodeId={String(id)} label={label} onClick={() => getDashboardInfo(id)} />;
         })}
       </TreeItem>
     </TreeView>

@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 // Utils
 const { getUserByID } = require('../../utils/auth');
-const { updateLastDashboard, updateUserDirectory } = require('../../utils/user');
+const { updateDirectoryDepth, updateLastDashboard, updateUserDirectory } = require('../../utils/user');
 
 router.get('/getdata', async (req, res) => {
   const { id: userID } = req.user;
@@ -42,6 +42,22 @@ router.put('/updatelastdashboard', async (req, res) => {
 
   try {
     await updateLastDashboard(dashboardID, userID);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  return res.status(202).end();
+});
+
+router.put('/updatedirectorydepth', async (req, res) => {
+  const {
+    body: { directoryDepth },
+    user: { id: userID },
+  } = req;
+
+  try {
+    await updateDirectoryDepth(directoryDepth, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });

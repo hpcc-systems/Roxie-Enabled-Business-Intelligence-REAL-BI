@@ -21,4 +21,13 @@ const updateLastDashboard = async (lastDashboard, userID) => {
   return;
 };
 
-module.exports = { updateLastDashboard, updateUserDirectory };
+const updateDirectoryDepth = async (directoryDepth, userID) => {
+  let [err] = await awaitHandler(userModel.update({ directoryDepth }, { where: { id: userID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
+module.exports = { updateDirectoryDepth, updateLastDashboard, updateUserDirectory };
