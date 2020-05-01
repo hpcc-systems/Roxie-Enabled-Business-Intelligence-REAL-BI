@@ -15,10 +15,11 @@ import {
 // Constants
 import { hasStackedOption } from '../../../constants';
 
-const useStyles = makeStyles(() => ({
-  formControl: { marginTop: 25 },
-  formControl2: { marginTop: 20 },
+const useStyles = makeStyles(theme => ({
+  checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
+  formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
+  topFormControl: { marginTop: theme.spacing(3) },
   typography: { marginTop: 20 },
 }));
 
@@ -31,10 +32,10 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
     selectedDataset,
   } = localState;
   const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
-  const { formControl, formControl2, progress, typography } = useStyles();
+  const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
   return dataset ? (
-    <Grid container direction='row' alignContent='space-between'>
+    <Grid container direction='row' alignContent='space-between' className={topFormControl}>
       <Grid item md={hasStackedOption(chartType) ? 10 : 12}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Group Field</InputLabel>
@@ -57,7 +58,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
       {hasStackedOption(chartType) && (
         <Grid item md={2}>
           <FormControlLabel
-            className={formControl2}
+            className={checkbox}
             control={
               <Checkbox
                 name='options:stacked'

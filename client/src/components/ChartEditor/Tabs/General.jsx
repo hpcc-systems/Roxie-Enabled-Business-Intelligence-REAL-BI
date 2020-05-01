@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
@@ -16,9 +16,11 @@ import {
   PieChart as PieChartIcon,
   TableChart as TableChartIcon,
 } from '@material-ui/icons';
+import classnames from 'classnames';
 
 // React Components
-import GeneralChartParams from './GeneralChartParams';
+import GeneralParams from './GeneralParams';
+import PieParams from './PieParams';
 import TableParams from './TableParams';
 
 // Constants
@@ -31,9 +33,11 @@ const charts = [
   { name: 'Table', value: 'table' },
 ];
 
-const useStyles = makeStyles(() => ({
-  formControl: { marginTop: 25 },
+const useStyles = makeStyles(theme => ({
+  checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
+  formControl: { marginTop: theme.spacing(1) },
   menuIcon: { marginRight: 10 },
+  topFormControl: { marginTop: theme.spacing(3) },
 }));
 
 const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState }) => {
@@ -41,31 +45,28 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
     chartType,
     options: { horizontal, title, xAxis, yAxis },
   } = localState;
-  const { formControl, menuIcon } = useStyles();
+  const { checkbox, formControl, menuIcon, topFormControl } = useStyles();
 
-  const checkboxUpdated = useCallback(
-    event => {
-      const { name } = event.target;
+  const checkboxUpdated = event => {
+    const { name } = event.target;
 
-      // Update local state
-      handleCheckbox(event);
+    // Update local state
+    handleCheckbox(event);
 
-      // Switch X and Y axis if they are already defined in local state
-      if (name === 'options:horizontal' && xAxis && yAxis) {
-        const xVal = xAxis;
-        const yVal = yAxis;
+    // Switch X and Y axis if they are already defined in local state
+    if (name === 'options:horizontal' && xAxis && yAxis) {
+      const xVal = xAxis;
+      const yVal = yAxis;
 
-        handleChangeObj(null, { name: 'options:xAxis', value: yVal });
-        handleChangeObj(null, { name: 'options:yAxis', value: xVal });
-      }
-    },
-    [handleChangeObj, handleCheckbox, xAxis, yAxis],
-  );
+      handleChangeObj(null, { name: 'options:xAxis', value: yVal });
+      handleChangeObj(null, { name: 'options:yAxis', value: xVal });
+    }
+  };
 
   return (
     <Grid container direction='row' alignContent='space-between'>
-      <Grid item md={hasHorizontalOption(chartType) ? 10 : 12}>
-        <FormControl className={formControl} fullWidth>
+      <Grid item md={hasHorizontalOption(chartType) ? 10 : 12} className={topFormControl}>
+        <FormControl className={classnames('', { [formControl]: !hasHorizontalOption(chartType) })} fullWidth>
           <InputLabel>Chart Type</InputLabel>
           <Select name='chartType' value={chartType} onChange={handleChange}>
             {charts.map(({ name, value }, index) => {
@@ -93,9 +94,9 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         </FormControl>
       </Grid>
       {hasHorizontalOption(chartType) && (
-        <Grid item md={2}>
+        <Grid item md={2} className={topFormControl}>
           <FormControlLabel
-            className={formControl}
+            className={checkbox}
             control={
               <Checkbox
                 name='options:horizontal'
@@ -109,7 +110,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           />
         </Grid>
       )}
-      <Grid item md={12}>
+      <Grid item md={12} className={classnames('', { [formControl]: !hasHorizontalOption(chartType) })}>
         <TextField
           fullWidth
           label='Chart Title'
@@ -120,10 +121,12 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         />
       </Grid>
       <Grid item md={12}>
-        {chartType === 'table' ? (
+        {chartType === 'pie' ? (
+          <PieParams handleChangeObj={handleChangeObj} localState={localState} />
+        ) : chartType === 'table' ? (
           <TableParams handleChangeObj={handleChangeObj} localState={localState} />
         ) : (
-          <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
+          <GeneralParams handleChangeObj={handleChangeObj} localState={localState} />
         )}
       </Grid>
     </Grid>
