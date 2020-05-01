@@ -21,9 +21,9 @@ const useStyles = makeStyles({
 });
 
 const TableComp = ({ data, options }) => {
-  const { fields } = options;
+  const { fields, uniqueField } = options;
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(fields[0]);
+  const [orderBy, setOrderBy] = useState(uniqueField);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [selected, setSelected] = React.useState([]);
@@ -47,10 +47,9 @@ const TableComp = ({ data, options }) => {
 
   const handleCheckbox = event => {
     const { name } = event.target;
-    const selectedIndex = selected.indexOf(name);
     let newSelected = [];
 
-    if (selectedIndex === -1) {
+    if (selected.indexOf(name) === -1) {
       newSelected = [...selected, name];
     } else {
       newSelected = selected.filter(val => val !== name);
@@ -61,7 +60,7 @@ const TableComp = ({ data, options }) => {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelected = data.map(row => row.location);
+      const newSelected = data.map(row => row[uniqueField]);
       return setSelected(newSelected);
     }
 
@@ -125,17 +124,19 @@ const TableComp = ({ data, options }) => {
           </TableHead>
           <TableBody>
             {data.slice(sliceStart, sliceLength).map((row, index) => {
-              const isSelected = selected.indexOf(row.location) > -1;
+              const isSelected = selected.indexOf(row[uniqueField]) > -1;
 
               return (
                 <TableRow key={index}>
                   <TableCell padding='checkbox'>
-                    <Checkbox name={row.location} checked={isSelected} onClick={handleCheckbox} />
+                    <Checkbox name={row[uniqueField]} checked={isSelected} onClick={handleCheckbox} />
                   </TableCell>
                   {fields.map((field, index) => {
                     return (
                       <TableCell key={index} component='th' scope='row'>
-                        {!isNaN(Number(row[field])) ? thousandsSeparator(Number(row[field])) : row[field]}
+                        {!isNaN(Number(row[field])) && !field.includes('date')
+                          ? thousandsSeparator(Number(row[field]))
+                          : row[field]}
                       </TableCell>
                     );
                   })}
