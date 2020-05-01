@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Paper,
@@ -7,6 +7,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TableSortLabel,
 } from '@material-ui/core';
@@ -22,6 +23,8 @@ const TableComp = ({ data, options }) => {
   const { fields } = options;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(fields[0]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const { columnHeader } = useStyles();
 
   const updateOrderByField = property => {
@@ -29,6 +32,15 @@ const TableComp = ({ data, options }) => {
 
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const sortArr = (a, b, field) => {
@@ -51,43 +63,64 @@ const TableComp = ({ data, options }) => {
   // Sort data
   data.sort((a, b) => (order === 'desc' ? -sortArr(a, b, orderBy) : sortArr(a, b, orderBy)));
 
+  // Reference values
+  const sliceStart = page * rowsPerPage;
+  const sliceLength = page * rowsPerPage + rowsPerPage;
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
+
   return (
-    <TableContainer component={Paper}>
-      <Table size='small'>
-        <TableHead>
-          <TableRow>
-            {fields.map((field, index) => {
+    <Fragment>
+      <TableContainer component={Paper}>
+        <Table size='small'>
+          <TableHead>
+            <TableRow>
+              {fields.map((field, index) => {
+                return (
+                  <TableCell key={index} className={columnHeader}>
+                    <TableSortLabel
+                      active={orderBy === field}
+                      direction={orderBy === field ? order : 'asc'}
+                      onClick={() => updateOrderByField(field)}
+                    >
+                      {field}
+                    </TableSortLabel>
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.slice(sliceStart, sliceLength).map((row, index) => {
               return (
-                <TableCell key={index} className={columnHeader}>
-                  <TableSortLabel
-                    active={orderBy === field}
-                    direction={orderBy === field ? order : 'asc'}
-                    onClick={() => updateOrderByField(field)}
-                  >
-                    {field}
-                  </TableSortLabel>
-                </TableCell>
+                <TableRow key={index}>
+                  {fields.map((field, index) => {
+                    return (
+                      <TableCell key={index} component='th' scope='row'>
+                        {!isNaN(Number(row[field])) ? thousandsSeparator(Number(row[field])) : row[field]}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
               );
             })}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row, index) => {
-            return (
-              <TableRow key={index}>
-                {fields.map((field, index) => {
-                  return (
-                    <TableCell key={index} component='th' scope='row'>
-                      {!isNaN(Number(row[field])) ? thousandsSeparator(Number(row[field])) : row[field]}
-                    </TableCell>
-                  );
-                })}
+            {emptyRows > 0 && (
+              <TableRow style={{ height: 33 * emptyRows }}>
+                <TableCell colSpan={6} />
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component='div'
+        count={data.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </Fragment>
   );
 };
 
