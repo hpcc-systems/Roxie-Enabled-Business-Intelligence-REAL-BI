@@ -2,38 +2,20 @@ import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
-const getXAxisLabel = chartType => {
-  switch (chartType) {
-    case 'pie':
-      return 'Name';
-    default:
-      return 'X Axis';
-  }
-};
-
-const getYAxisLabel = chartType => {
-  switch (chartType) {
-    case 'pie':
-      return 'Value';
-    default:
-      return 'Y Axis';
-  }
-};
-
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0` },
+  formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
 }));
 
 const GeneralChartParams = ({ handleChangeObj, localState }) => {
-  const { chartID, chartType, options, selectedDataset } = localState;
+  const { chartID, options, selectedDataset } = localState;
   const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
   return (
     <Fragment>
       <FormControl className={formControl} fullWidth>
-        <InputLabel>{getXAxisLabel(chartType)}</InputLabel>
+        <InputLabel>X Axis</InputLabel>
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
@@ -49,7 +31,7 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
         )}
       </FormControl>
       <FormControl className={formControl} fullWidth>
-        <InputLabel>{getYAxisLabel(chartType)}</InputLabel>
+        <InputLabel>Y Axis</InputLabel>
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (

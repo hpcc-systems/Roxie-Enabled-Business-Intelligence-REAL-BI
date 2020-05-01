@@ -10,12 +10,12 @@ const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed
 const reducer = (acc, currentVal) => Number(acc) + Number(currentVal); // Sum function for array.reduce()
 
 const PieChart = ({ data, options }) => {
-  const { xAxis, yAxis } = options;
-  const total = data.map(obj => obj[yAxis]).reduce(reducer); // Gets total of yAxis values
+  const { name, value } = options;
+  const total = data.map(obj => obj[value]).reduce(reducer); // Gets total of yAxis values
 
   const config = {
-    angleField: yAxis,
-    colorField: xAxis,
+    angleField: value,
+    colorField: name,
     data,
     forceFit: true,
     label: {
@@ -24,7 +24,7 @@ const PieChart = ({ data, options }) => {
       visible: true,
     },
     meta: {
-      [yAxis]: {
+      [value]: {
         formatter: v => thousandsSeparator(v),
       },
     },

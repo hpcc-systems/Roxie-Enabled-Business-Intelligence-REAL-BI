@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0` },
+  formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   typography: { marginTop: 20 },
 }));
