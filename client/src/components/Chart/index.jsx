@@ -7,6 +7,7 @@ import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
 import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
 import LineChart from './Line';
 import PieChart from './Pie';
+import Table from './Table';
 import NoData from './NoData';
 
 // Create styles
@@ -59,6 +60,8 @@ const ChartComp = ({ chart: { dataset, options, type }, dataObj: { data = {}, lo
           return <LineChart data={chartData} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
+        case 'table':
+          return <Table data={chartData} options={options} />;
         default:
           return 'Unknown chart type';
       }

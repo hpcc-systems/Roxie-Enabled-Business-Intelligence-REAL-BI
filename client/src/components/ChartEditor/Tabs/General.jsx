@@ -14,10 +14,12 @@ import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
+  TableChart as TableChartIcon,
 } from '@material-ui/icons';
 
 // React Components
 import GeneralChartParams from './GeneralChartParams';
+import TableParams from './TableParams';
 
 // Constants
 import { hasHorizontalOption } from '../../../constants';
@@ -26,6 +28,7 @@ const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
+  { name: 'Table', value: 'table' },
 ];
 
 const useStyles = makeStyles(() => ({
@@ -76,6 +79,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
                         return <LineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
+                      case 'table':
+                        return <TableChartIcon className={menuIcon} />;
                       default:
                         return null;
                     }
@@ -115,7 +120,11 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         />
       </Grid>
       <Grid item md={12}>
-        <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
+        {chartType === 'table' ? (
+          <TableParams handleChangeObj={handleChangeObj} localState={localState} />
+        ) : (
+          <GeneralChartParams handleChangeObj={handleChangeObj} localState={localState} />
+        )}
       </Grid>
     </Grid>
   );
