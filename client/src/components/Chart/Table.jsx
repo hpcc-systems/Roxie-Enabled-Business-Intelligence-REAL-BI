@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
@@ -13,6 +13,9 @@ import {
   TableSortLabel,
 } from '@material-ui/core';
 
+// Redux Actions
+import { updateDashboardParam } from '../../features/dashboard/actions';
+
 // Constants
 import { thousandsSeparator } from '../../constants';
 
@@ -20,7 +23,7 @@ const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },
 });
 
-const TableComp = ({ data, options }) => {
+const TableComp = ({ data, dispatch, params, options }) => {
   const { fields, uniqueField } = options;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(uniqueField);
@@ -28,6 +31,24 @@ const TableComp = ({ data, options }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [selected, setSelected] = React.useState([]);
   const { columnHeader } = useStyles();
+
+  // Determine if the uniqueField matches any dashboard params
+  const matchedParam = params.some(({ field }) => field === uniqueField);
+  const paramObj = matchedParam ? params.find(({ field }) => field === uniqueField) : {};
+
+  // Update table with already selected values
+  useEffect(() => {
+    if (matchedParam) {
+      let { value = '' } = paramObj;
+
+      // Convert null to empty string
+      value = value === null ? '' : value;
+
+      if (selected.join(',') !== value) {
+        setSelected(value.split(','));
+      }
+    }
+  }, [matchedParam, paramObj, selected]);
 
   const updateOrderByField = property => {
     const isAsc = orderBy === property && order === 'asc';
@@ -45,6 +66,13 @@ const TableComp = ({ data, options }) => {
     setPage(0);
   };
 
+  const updateParams = value => {
+    // Join array together as string
+    value = value.sort().join(',');
+
+    updateDashboardParam({ ...paramObj, value }).then(action => dispatch(action));
+  };
+
   const handleCheckbox = event => {
     const { name } = event.target;
     let newSelected = [];
@@ -56,15 +84,24 @@ const TableComp = ({ data, options }) => {
     }
 
     setSelected(newSelected);
+
+    if (matchedParam) {
+      updateParams(newSelected);
+    }
   };
 
   const handleSelectAllClick = event => {
+    let newSelected = [];
+
     if (event.target.checked) {
-      const newSelected = data.map(row => row[uniqueField]);
-      return setSelected(newSelected);
+      newSelected = data.map(row => row[uniqueField]);
     }
 
-    return setSelected([]);
+    if (matchedParam) {
+      updateParams(newSelected);
+    }
+
+    return setSelected(newSelected);
   };
 
   const sortArr = (a, b, field) => {

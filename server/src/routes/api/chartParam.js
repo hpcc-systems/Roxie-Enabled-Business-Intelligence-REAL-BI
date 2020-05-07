@@ -1,13 +1,13 @@
 const router = require('express').Router();
 
-const { findAllQueryParams, updateQueryParam } = require('../../utils/queryParam');
+const { findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
 router.get('/all', async (req, res) => {
-  const { chartID, dashboardID } = req.query;
+  const { chartID } = req.query;
   let params;
 
   try {
-    params = await findAllQueryParams(dashboardID, chartID);
+    params = await findAllChartParams(chartID);
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Internal Error' });
@@ -17,12 +17,12 @@ router.get('/all', async (req, res) => {
 });
 
 router.put('/update', async (req, res) => {
-  const { chartID, dashboardID, paramID, value } = req.body;
+  const { chartID, paramID, value } = req.body;
   let params;
 
   try {
-    await updateQueryParam(paramID, value);
-    params = await findAllQueryParams(dashboardID, chartID);
+    await updateChartParam(paramID, value);
+    params = await findAllChartParams(chartID);
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Internal Error' });

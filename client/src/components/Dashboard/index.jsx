@@ -3,7 +3,7 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
 // Redux Actions
-import { getDashboard } from '../../features/dashboard/actions';
+import { getDashboard, getDashboardParams } from '../../features/dashboard/actions';
 import { deleteChart, getCharts } from '../../features/chart/actions';
 
 // React Components
@@ -37,11 +37,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (lastDashboard) {
-      Promise.all([getDashboard(lastDashboard), getCharts(lastDashboard)]).then(actions => {
+      Promise.all([
+        getDashboard(lastDashboard),
+        getCharts(lastDashboard),
+        getDashboardParams(lastDashboard),
+      ]).then(actions => {
         // Batch dispatch each action to only have React re-render once
         batch(() => {
           dispatch(actions[0]);
           dispatch(actions[1]);
+          dispatch(actions[2]);
         });
       });
     }
@@ -57,8 +62,8 @@ const Dashboard = () => {
   };
 
   const dataCall = useCallback(() => {
-    const { clusterID, id: dashboardID } = dashboard;
-    const dashboardParamsExist = dashboard.params.some(({ value }) => value !== null);
+    const { clusterID, id: dashboardID, params = [] } = dashboard;
+    const dashboardParamsExist = params.some(({ value }) => value !== null);
     const chartParamsExist = checkForChartParams(charts);
 
     if (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist)) {
@@ -72,7 +77,7 @@ const Dashboard = () => {
         });
 
         // Set data in local state object with query name as key
-        setQueryData(prevState => ({ ...prevState, ...newDataObj }));
+        setQueryData(newDataObj);
       });
     } else {
       // Set initial object keys and loading
@@ -122,18 +127,20 @@ const Dashboard = () => {
                       removeChart={removeChart}
                       toggleDialog={editChart}
                     />
-                    <Chart chart={chart} dataObj={dataObj} />
+                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
                   </Paper>
                 </Grid>
               );
             })}
           </Grid>
-          <FilterDrawer
-            dashboard={dashboard}
-            showDrawer={showDrawer}
-            toggleDrawer={toggleDrawer}
-            queryData={queryData}
-          />
+          {showDrawer && (
+            <FilterDrawer
+              dashboard={dashboard}
+              showDrawer={showDrawer}
+              toggleDrawer={toggleDrawer}
+              queryData={queryData}
+            />
+          )}
           {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
           {editChartShow && (
             <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />

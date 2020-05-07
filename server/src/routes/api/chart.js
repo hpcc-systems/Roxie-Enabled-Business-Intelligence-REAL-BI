@@ -9,12 +9,7 @@ const {
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
 const { deleteQueryByID } = require('../../utils/query');
-const {
-  createQueryParams,
-  deleteQueryParams,
-  findAllQueryParams,
-  updateQueryParam,
-} = require('../../utils/queryParam');
+const { createChartParams, findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
@@ -33,7 +28,7 @@ router.get('/all', async (req, res) => {
       let chartParams;
 
       try {
-        chartParams = await findAllQueryParams(null, chart.id);
+        chartParams = await findAllChartParams(chart.id);
       } catch (err) {
         return console.error(err);
       }
@@ -63,9 +58,9 @@ router.post('/create', async (req, res) => {
   try {
     newChart = await createChart(chart, dashboardID, queryID, userID);
 
-    await createQueryParams(queryID, chart, null, newChart.id);
+    await createChartParams(queryID, chart, newChart.id);
 
-    chartParams = await findAllQueryParams(null, newChart.id);
+    chartParams = await findAllChartParams(newChart.id);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -92,7 +87,7 @@ router.put('/update', async (req, res) => {
       await updateChartByID(chart);
 
       promises = chart.params.map(async ({ id, value }) => {
-        return await updateQueryParam(id, value);
+        return await updateChartParam(id, value);
       });
 
       await Promise.all(promises);
@@ -107,7 +102,7 @@ router.put('/update', async (req, res) => {
     let chartParams;
 
     try {
-      chartParams = await findAllQueryParams(null, chart.id);
+      chartParams = await findAllChartParams(chart.id);
     } catch (err) {
       return console.error(err);
     }
@@ -154,7 +149,6 @@ router.delete('/delete', async (req, res) => {
         if (numOfCharts === 0) {
           // Delete dashboard Source and 'Dashboard Level' params
           await deleteDashboardSource(dashboardID, queryID);
-          await deleteQueryParams(null, null, dashboardID, queryID);
         }
       }
     }

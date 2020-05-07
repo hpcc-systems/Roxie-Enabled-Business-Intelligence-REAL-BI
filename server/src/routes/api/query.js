@@ -11,7 +11,8 @@ const {
 const { getChartByID } = require('../../utils/chart');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
 const { createQuery, getQueriesByDashboardID, getQueryByHpccID } = require('../../utils/query');
-const { createQueryParams, findAllQueryParams } = require('../../utils/queryParam');
+const { getDashboardParams } = require('../../utils/dashboardParam');
+const { findAllChartParams } = require('../../utils/chartParam');
 
 router.get('/search', async (req, res) => {
   const {
@@ -81,7 +82,6 @@ router.post('/create', async (req, res) => {
     // Query not found
     if (Object.keys(dbQuery).length === 0) {
       dbQuery = await createQuery(query);
-      await createQueryParams(dbQuery.id, query, dashboardID, null);
     } else {
       // Look for existing dashboard source in DB
       dashboardSource = await getDashboardSource(dashboardID, dbQuery.id);
@@ -110,7 +110,7 @@ router.get('/data/single', async (req, res) => {
   try {
     cluster = await getClusterByID(clusterID);
     queries = await getQueriesByDashboardID(dashboardID);
-    params = await findAllQueryParams(dashboardID, null);
+    params = await getDashboardParams(dashboardID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -122,10 +122,20 @@ router.get('/data/single', async (req, res) => {
 
   // Create nested data objects with the name of the query as the key
   for (let query of queries) {
-    const { name } = query;
+    const { id, name } = query;
+    let newParam = [];
+
+    // Determine if the current query has a mapped parameter
+    params.map(({ mappedParams, value }) => {
+      const obj = mappedParams.find(({ queryID }) => queryID === id);
+
+      if (obj && Object.keys(obj).length > 0) {
+        newParam = [{ name: obj.parameter, value }];
+      }
+    });
 
     try {
-      query = await getDataFromCluster(cluster, { params, query }, userID);
+      query = await getDataFromCluster(cluster, { params: newParam, query }, userID);
     } catch (err) {
       return console.error(err);
     }
@@ -146,7 +156,7 @@ router.get('/data/multiple', async (req, res) => {
   try {
     cluster = await getClusterByID(clusterID);
     chart = await getChartByID(chartID);
-    params = await findAllQueryParams(null, chartID);
+    params = await findAllChartParams(chartID);
     data = await getDataFromCluster(cluster, { params, query: chart.query }, userID);
   } catch (err) {
     console.error(err);
