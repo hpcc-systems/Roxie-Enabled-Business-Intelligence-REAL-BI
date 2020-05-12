@@ -57,8 +57,16 @@ const Dashboard = () => {
     editChartToggle();
   };
 
-  const removeChart = (chartID, queryID) => {
-    deleteChart(chartID, dashboard.id, queryID).then(action => dispatch(action));
+  const removeChart = async (chartID, queryID) => {
+    let actions = [];
+
+    actions[0] = await deleteChart(chartID, dashboard.id, queryID);
+    actions[1] = await getDashboardParams(dashboard.id);
+
+    batch(() => {
+      dispatch(actions[0]);
+      dispatch(actions[1]);
+    });
   };
 
   const dataCall = useCallback(() => {

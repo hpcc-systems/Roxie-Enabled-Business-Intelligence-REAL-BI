@@ -28,6 +28,21 @@ const getDashboardParams = async dashboardID => {
   return params;
 };
 
+const getDashboardParamsByDashboardAndQueryID = async (dashboardID, queryID) => {
+  let err, params;
+
+  if (!dashboardID) {
+    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { queryID } }));
+  } else {
+    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { dashboardID, queryID } }));
+  }
+
+  // Return error
+  if (err) throw err;
+
+  return params.length;
+};
+
 const updateDashboardParam = async dashboardParamObj => {
   const { id } = dashboardParamObj;
   let { value } = dashboardParamObj;
@@ -47,4 +62,9 @@ const updateDashboardParam = async dashboardParamObj => {
   return;
 };
 
-module.exports = { createDashboardParam, getDashboardParams, updateDashboardParam };
+module.exports = {
+  createDashboardParam,
+  getDashboardParams,
+  getDashboardParamsByDashboardAndQueryID,
+  updateDashboardParam,
+};
