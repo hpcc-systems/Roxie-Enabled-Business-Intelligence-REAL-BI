@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },
 });
 
-const TableComp = ({ data, dispatch, params, options }) => {
+const TableComp = ({ data, dispatch, params = [], options }) => {
   const { fields, uniqueField } = options;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(uniqueField);
@@ -39,13 +39,18 @@ const TableComp = ({ data, dispatch, params, options }) => {
   // Update table with already selected values
   useEffect(() => {
     if (matchedParam) {
+      const selectedString = selected.join(',');
       let { value = '' } = paramObj;
 
       // Convert null to empty string
       value = value === null ? '' : value;
 
-      if (selected.join(',') !== value) {
-        setSelected(value.split(','));
+      if (selectedString !== value) {
+        if (value === '') {
+          setSelected([]);
+        } else {
+          setSelected(value.split(','));
+        }
       }
     }
   }, [matchedParam, paramObj, selected]);
