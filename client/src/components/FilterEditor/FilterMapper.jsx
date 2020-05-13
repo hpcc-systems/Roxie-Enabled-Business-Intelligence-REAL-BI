@@ -16,14 +16,16 @@ const useStyles = makeStyles(theme => ({
 
 // React Components
 const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
-const chartDropdown = (charts, field, index, updateArr) => (
+
+// Dropdown component to choose from a list of charts on the dashboard
+const chartDropdown = (arr, field, index, updateArr) => (
   <FormControl fullWidth>
     <InputLabel>Chart</InputLabel>
-    <Select name='queryID' value={field || ''} onChange={event => updateArr(event, index)}>
+    <Select name='chartID' value={field || ''} onChange={event => updateArr(event, index)}>
       {field !== '' ? clearSelection() : null}
-      {charts.map(({ queryID, title }, index) => {
+      {arr.map(({ chartID, title }, index) => {
         return (
-          <MenuItem key={index} value={queryID}>
+          <MenuItem key={index} value={chartID}>
             {title}
           </MenuItem>
         );
@@ -31,11 +33,14 @@ const chartDropdown = (charts, field, index, updateArr) => (
     </Select>
   </FormControl>
 );
-const paramDropdown = (charts, queryID, field, index, updateArr) => {
-  let params = [{ name: 'Choose a chart', value: '' }];
 
-  if (queryID) {
-    params = charts.filter(({ queryID: localID }) => localID === queryID)[0].params;
+// Dropdown component to select query parameter for a particular chart
+const paramDropdown = (arr, chartID, field, index, updateArr) => {
+  let arrParams = [{ name: 'Choose a chart', value: '' }];
+
+  // Confirm chart was chosen, array exists, and params exist in first object
+  if (chartID && arr.length > 0 && arr[0].params) {
+    arrParams = arr.filter(({ chartID: localID }) => localID === chartID)[0].params;
   }
 
   return (
@@ -43,7 +48,7 @@ const paramDropdown = (charts, queryID, field, index, updateArr) => {
       <InputLabel>Parameter</InputLabel>
       <Select name='parameter' value={field || ''} onChange={event => updateArr(event, index)}>
         {field !== '' ? clearSelection() : null}
-        {params.map(({ name, value }, index) => {
+        {arrParams.map(({ name, value }, index) => {
           if (value !== '') {
             value = name;
           }
@@ -62,18 +67,17 @@ const paramDropdown = (charts, queryID, field, index, updateArr) => {
 const FilterMapper = ({ charts, handleChangeArr, localState }) => {
   const { mappedParams, query } = localState;
   const { button } = useStyles();
-  let dashboardCharts = charts.map(({ options: { title }, params, queryID, queryName }) => ({
-    title,
-    params,
-    queryID,
-    queryName,
-  }));
+  let dashboardCharts = charts.map(chart => {
+    const { id: chartID, options, params, queryID, queryName } = chart;
+
+    return { chartID, title: options.title, params, queryID, queryName };
+  });
 
   // Remove query selected as table query
   dashboardCharts = dashboardCharts.filter(({ queryName }) => queryName !== query.name);
 
   const addField = () => {
-    handleChangeArr('mappedParams', [...mappedParams, { queryID: '', parameter: '' }]);
+    handleChangeArr('mappedParams', [...mappedParams, { chartID: '', parameter: '', queryID: '' }]);
   };
 
   const removeField = index => {
@@ -85,11 +89,21 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
     handleChangeArr('mappedParams', newArr);
   };
 
-  const updateArr = ({ target }, index) => {
-    const { name, value } = target;
+  const updateChartDropdown = ({ target }, index) => {
+    const { value: chartID } = target;
+    const newArr = mappedParams;
+    const { queryID } = dashboardCharts[index]; // Add queryID to new array object
+
+    newArr[index] = { chartID, parameter: '', queryID };
+
+    handleChangeArr('mappedParams', newArr);
+  };
+
+  const updateParamDropdown = ({ target }, index) => {
+    const { value: parameter } = target;
     const newArr = mappedParams;
 
-    newArr[index] = { ...newArr[index], [name]: value };
+    newArr[index] = { ...newArr[index], parameter };
 
     handleChangeArr('mappedParams', newArr);
   };
@@ -99,7 +113,7 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
       {mappedParams.length === 1
         ? (() => {
             const index = 0;
-            const { parameter, queryID } = mappedParams[index];
+            const { chartID, parameter } = mappedParams[index];
 
             return (
               <Fragment>
@@ -109,16 +123,16 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
-                  {chartDropdown(dashboardCharts, queryID, index, updateArr)}
+                  {chartDropdown(dashboardCharts, chartID, index, updateChartDropdown)}
                 </Grid>
                 <Grid item xs={4}>
-                  {paramDropdown(dashboardCharts, queryID, parameter, index, updateArr)}
+                  {paramDropdown(dashboardCharts, chartID, parameter, index, updateParamDropdown)}
                 </Grid>
               </Fragment>
             );
           })()
         : mappedParams.map((obj, index) => {
-            const { parameter, queryID } = obj;
+            const { chartID, parameter } = obj;
 
             return (
               <Fragment key={index}>
@@ -128,10 +142,10 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
-                  {chartDropdown(dashboardCharts, queryID, index, updateArr)}
+                  {chartDropdown(dashboardCharts, chartID, index, updateChartDropdown)}
                 </Grid>
                 <Grid item xs={4}>
-                  {paramDropdown(dashboardCharts, queryID, parameter, index, updateArr)}
+                  {paramDropdown(dashboardCharts, chartID, parameter, index, updateParamDropdown)}
                 </Grid>
               </Fragment>
             );

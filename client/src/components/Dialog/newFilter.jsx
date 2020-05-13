@@ -22,7 +22,7 @@ const initState = {
   field: '',
   keyword: '',
   name: '',
-  mappedParams: [{ queryID: '', parameter: '' }],
+  mappedParams: [{ chartID: '', parameter: '', queryID: '' }],
   queries: [],
   query: '',
 };
