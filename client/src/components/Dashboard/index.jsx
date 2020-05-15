@@ -23,6 +23,7 @@ import useDrawer from '../../hooks/useDrawer';
 // Utils
 import { checkForChartParams, getChartData } from '../../utils/chart';
 import { getDashboardData } from '../../utils/dashboard';
+import { sortArr } from '../../utils/misc';
 
 const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
@@ -124,26 +125,28 @@ const Dashboard = () => {
         />
         <Container maxWidth='xl'>
           <Grid container direction='row' spacing={3}>
-            {charts.map((chart, index) => {
-              const { id: chartID, options, queryID, queryName } = chart;
-              const dataObj = queryData[chartID] || queryData[queryName] || {};
+            {charts
+              .sort((a, b) => sortArr(a, b, 'id'))
+              .map((chart, index) => {
+                const { id: chartID, options, queryID, queryName } = chart;
+                const dataObj = queryData[chartID] || queryData[queryName] || {};
 
-              return (
-                // Change grid column layout based on numver of charts
-                <Grid key={index} item md={12}>
-                  <Paper variant='outlined'>
-                    <ChartToolbar
-                      chartID={chartID}
-                      options={options}
-                      queryID={queryID}
-                      removeChart={removeChart}
-                      toggleDialog={editChart}
-                    />
-                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
-                  </Paper>
-                </Grid>
-              );
-            })}
+                return (
+                  // Change grid column layout based on numver of charts
+                  <Grid key={index} item md={12}>
+                    <Paper variant='outlined'>
+                      <ChartToolbar
+                        chartID={chartID}
+                        options={options}
+                        queryID={queryID}
+                        removeChart={removeChart}
+                        toggleDialog={editChart}
+                      />
+                      <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
+                    </Paper>
+                  </Grid>
+                );
+              })}
           </Grid>
           {showDrawer && (
             <FilterDrawer

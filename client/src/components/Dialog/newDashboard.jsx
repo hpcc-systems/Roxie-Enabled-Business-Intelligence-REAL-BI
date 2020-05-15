@@ -17,6 +17,9 @@ import {
 // Redux Actions
 import { getClusters } from '../../features/cluster/actions';
 
+// Utils
+import { sortArr } from '../../utils/misc';
+
 // Create styles
 const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
@@ -46,13 +49,15 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={handleChange}>
-            {clusters.map(({ host, id, infoPort, name }) => {
-              return (
-                <MenuItem key={id} value={id}>
-                  {`${name} (${host}:${infoPort})`}
-                </MenuItem>
-              );
-            })}
+            {clusters
+              .sort((a, b) => sortArr(a, b, 'id'))
+              .map(({ host, id, infoPort, name }) => {
+                return (
+                  <MenuItem key={id} value={id}>
+                    {`${name} (${host}:${infoPort})`}
+                  </MenuItem>
+                );
+              })}
           </Select>
         </FormControl>
         <TextField
