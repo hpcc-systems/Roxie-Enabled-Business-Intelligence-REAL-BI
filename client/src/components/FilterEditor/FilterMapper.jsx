@@ -40,7 +40,7 @@ const paramDropdown = (arr, chartID, field, index, updateArr) => {
 
   // Confirm chart was chosen, array exists, and params exist in first object
   if (chartID && arr.length > 0 && arr[0].params) {
-    arrParams = arr.filter(({ chartID: localID }) => localID === chartID)[0].params;
+    arrParams = arr.find(({ chartID: localID }) => localID === chartID).params;
   }
 
   return (
@@ -65,7 +65,7 @@ const paramDropdown = (arr, chartID, field, index, updateArr) => {
 };
 
 const FilterMapper = ({ charts, handleChangeArr, localState }) => {
-  const { mappedParams, query } = localState;
+  const { mappedParams = [], query } = localState;
   const { button } = useStyles();
   let dashboardCharts = charts.map(chart => {
     const { id: chartID, options, params, queryID, queryName } = chart;
@@ -90,9 +90,8 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
   };
 
   const updateChartDropdown = ({ target }, index) => {
-    const { value: chartID } = target;
     const newArr = mappedParams;
-    const { queryID } = dashboardCharts[index]; // Add queryID to new array object
+    const { chartID, queryID } = dashboardCharts.find(({ chartID }) => chartID === target.value); // Add query info to new array
 
     newArr[index] = { chartID, parameter: '', queryID };
 

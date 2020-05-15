@@ -26,7 +26,7 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
         handleChange(null, { name: 'queries', value: data });
 
         if (chartID) {
-          const selectedQuery = data.filter(({ name }) => name === keyword)[0];
+          const selectedQuery = data.find(({ name }) => name === keyword);
           handleChange(null, { name: 'selectedQuery', value: selectedQuery });
         }
         setLoading(false);

@@ -13,12 +13,12 @@ const useStyles = makeStyles(theme => ({
 const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
 
 const FilterInfo = ({ dashboard, handleChange, localState }) => {
-  const { datasets, dataset, field, name } = localState;
+  const { datasets, dataset, field, filterID, name } = localState;
   const { formControl } = useStyles();
   let fields = [{ name: 'Select Dataset', value: '' }];
 
-  if (dataset) {
-    fields = datasets.filter(({ name }) => name === dataset)[0].fields;
+  if (datasets.length > 0 && dataset) {
+    fields = datasets.find(({ name }) => name === dataset).fields;
   }
 
   return (
@@ -33,19 +33,21 @@ const FilterInfo = ({ dashboard, handleChange, localState }) => {
       />
       <QuerySearch dashboard={dashboard} handleChange={handleChange} localState={localState} />
       <SelectDataset dashboard={dashboard} handleChange={handleChange} localState={localState} />
-      <FormControl fullWidth className={formControl}>
-        <InputLabel>Field</InputLabel>
-        <Select name='field' value={field || ''} onChange={handleChange}>
-          {field !== '' ? clearSelection() : null}
-          {fields.map(({ name, value = name }, index) => {
-            return (
-              <MenuItem key={index} value={value}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      {!filterID && (
+        <FormControl fullWidth className={formControl}>
+          <InputLabel>Field</InputLabel>
+          <Select name='field' value={field || ''} onChange={handleChange}>
+            {field !== '' ? clearSelection() : null}
+            {fields.map(({ name, value = name }, index) => {
+              return (
+                <MenuItem key={index} value={value}>
+                  {name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      )}
     </Fragment>
   );
 };

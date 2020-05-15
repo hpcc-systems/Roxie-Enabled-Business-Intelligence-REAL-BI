@@ -3,7 +3,7 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
 // Redux Actions
-import { getDashboard, getDashboardParams } from '../../features/dashboard/actions';
+import { deleteDashboardParam, getDashboard, getDashboardParams } from '../../features/dashboard/actions';
 import { deleteChart, getCharts } from '../../features/chart/actions';
 
 // React Components
@@ -67,6 +67,10 @@ const Dashboard = () => {
       dispatch(actions[0]);
       dispatch(actions[1]);
     });
+  };
+
+  const deleteFilter = filterID => {
+    deleteDashboardParam(dashboard.params, filterID).then(action => dispatch(action));
   };
 
   const dataCall = useCallback(() => {
@@ -144,6 +148,7 @@ const Dashboard = () => {
           {showDrawer && (
             <FilterDrawer
               dashboard={dashboard}
+              deleteFilter={deleteFilter}
               showDrawer={showDrawer}
               toggleDrawer={toggleDrawer}
               queryData={queryData}

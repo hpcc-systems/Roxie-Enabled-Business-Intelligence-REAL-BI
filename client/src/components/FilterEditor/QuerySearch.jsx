@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const QuerySearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { keyword, queries } = localState;
+  const { filterID, keyword, queries } = localState;
   const { clusterID } = dashboard;
   const { autocomplete } = useStyles();
 
@@ -43,36 +43,38 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
   };
 
   return (
-    <Autocomplete
-      className={autocomplete}
-      onChange={(event, newValue) => {
-        // Only attempt to update state if a value is present
-        if (newValue) {
-          handleChange(null, { name: 'query', value: newValue });
-        }
-      }}
-      getOptionLabel={option => (option.name ? option.name : '')}
-      options={queries}
-      renderInput={params => (
-        <TextField
-          {...params}
-          name='keyword'
-          value={keyword}
-          onChange={updateKeyword}
-          label='Query'
-          fullWidth
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <Fragment>
-                {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </Fragment>
-            ),
-          }}
-        />
-      )}
-    />
+    !filterID && (
+      <Autocomplete
+        className={autocomplete}
+        onChange={(event, newValue) => {
+          // Only attempt to update state if a value is present
+          if (newValue) {
+            handleChange(null, { name: 'query', value: newValue });
+          }
+        }}
+        getOptionLabel={option => (option.name ? option.name : '')}
+        options={queries}
+        renderInput={params => (
+          <TextField
+            {...params}
+            name='keyword'
+            value={keyword}
+            onChange={updateKeyword}
+            label='Query'
+            fullWidth
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
+          />
+        )}
+      />
+    )
   );
 };
 

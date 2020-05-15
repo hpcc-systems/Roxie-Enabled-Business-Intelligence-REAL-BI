@@ -4,4 +4,21 @@ const createParamObj = (localState, dashboardID) => {
   return { dataset, field, mappedParams, name, dashboardID };
 };
 
-export { createParamObj };
+const setEditorState = (filters, filterID) => {
+  // Get desired filter
+  const { id, queryName, ...filterVals } = filters.find(({ id }) => id === filterID);
+
+  // Create initial state object
+  let initState = {
+    filterID: id,
+    datasets: [],
+    keyword: queryName,
+    queries: [],
+    query: '',
+    ...filterVals,
+  };
+
+  return initState;
+};
+
+export { createParamObj, setEditorState };

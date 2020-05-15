@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { dataset, datasets = [], query } = localState;
+  const { dataset, datasets = [], filterID, query } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
@@ -22,34 +22,32 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     if (Object.keys(query).length > 0) {
       setLoading(true);
 
-      getQueryInfo(clusterID, query).then(({ datasets, params }) => {
+      getQueryInfo(clusterID, query).then(({ datasets }) => {
         handleChange(null, { name: 'datasets', value: datasets });
-
-        // Populate paramArr with each param provided by the query
-        const paramArr = params.map(param => ({ ...param, dataset: '', value: '' }));
-
-        handleChange(null, { name: 'params', value: paramArr });
 
         setLoading(false);
       });
     }
   }, [clusterID, handleChange, query]);
 
-  return loading ? (
-    <CircularProgress className={progress} />
-  ) : (
-    <FormControl className={formControl} fullWidth>
-      <InputLabel>Dataset</InputLabel>
-      <Select name='dataset' value={dataset} onChange={handleChange}>
-        {datasets.map(({ name }, index) => {
-          return (
-            <MenuItem key={index} value={name}>
-              {name}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
+  return (
+    !filterID &&
+    (loading ? (
+      <CircularProgress className={progress} />
+    ) : (
+      <FormControl className={formControl} fullWidth>
+        <InputLabel>Dataset</InputLabel>
+        <Select name='dataset' value={dataset} onChange={handleChange}>
+          {datasets.map(({ name }, index) => {
+            return (
+              <MenuItem key={index} value={name}>
+                {name}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    ))
   );
 };
 

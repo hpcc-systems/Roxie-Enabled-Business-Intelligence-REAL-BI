@@ -44,8 +44,8 @@ const getDashboardParamsByDashboardAndQueryID = async (dashboardID, queryID) => 
 };
 
 const updateDashboardParam = async dashboardParamObj => {
-  const { id } = dashboardParamObj;
-  let { value } = dashboardParamObj;
+  const { filterID } = dashboardParamObj;
+  let { id = filterID, value } = dashboardParamObj; // id is named filterID when editing the filter. Set id default to filterID
 
   // Don't save empty string
   if (value === '') {
@@ -62,8 +62,18 @@ const updateDashboardParam = async dashboardParamObj => {
   return;
 };
 
+const deleteDashboardParam = async id => {
+  let [err] = await awaitHandler(dashboardParamModel.destroy({ where: { id } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
 module.exports = {
   createDashboardParam,
+  deleteDashboardParam,
   getDashboardParams,
   getDashboardParamsByDashboardAndQueryID,
   updateDashboardParam,

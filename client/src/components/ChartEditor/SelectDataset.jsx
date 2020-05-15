@@ -29,7 +29,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
         if (!chartID) {
           // Get array of params from an existing chart that's using the same query
-          const preFill = charts.filter(({ queryName }) => queryName === selectedQuery.name)[0];
+          const preFill = charts.find(({ queryName }) => queryName === selectedQuery.name);
           let paramArr;
 
           if (preFill) {
@@ -50,7 +50,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
   useEffect(() => {
     if (datasets.length > 0 && dataset) {
-      let selectedDataset = datasets.filter(({ name }) => name === dataset)[0];
+      let selectedDataset = datasets.find(({ name }) => name === dataset);
 
       handleChange(null, { name: 'selectedDataset', value: selectedDataset });
     }
