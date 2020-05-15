@@ -1,9 +1,11 @@
 'use strict';
 
+const { v4: uuidv4 } = require('uuid');
+
 module.exports = {
   async up(queryInterface) {
     return await queryInterface.bulkInsert('users', [
-      { firstName: 'Chris', lastName: 'Human', directory: '[]', directoryDepth: '[]' },
+      { id: uuidv4(), firstName: 'Chris', lastName: 'Human', directory: '[]', directoryDepth: '[]' },
     ]);
   },
   async down(queryInterface) {

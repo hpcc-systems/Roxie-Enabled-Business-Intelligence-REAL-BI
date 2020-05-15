@@ -9,7 +9,7 @@ const loginUser = async () => {
   let response;
 
   try {
-    response = await axios.post('/api/auth/login', { userID: 1 });
+    response = await axios.post('/api/auth/login', { userID: '0fd73431-62b9-4bdf-9275-2c5c785a3a05' });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
