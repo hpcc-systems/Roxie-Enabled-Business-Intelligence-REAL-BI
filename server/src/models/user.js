@@ -1,7 +1,14 @@
+const { v4: uuidv4 } = require('uuid');
+
 module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define(
     'user',
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: () => uuidv4(),
+        primaryKey: true,
+      },
       firstName: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -12,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       directory: DataTypes.JSON,
       directoryDepth: DataTypes.JSON,
-      lastDashboard: DataTypes.INTEGER,
+      lastDashboard: DataTypes.UUID,
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );

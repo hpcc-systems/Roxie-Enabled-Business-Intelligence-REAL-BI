@@ -1,3 +1,6 @@
+// Utils
+import { sortArr } from './misc';
+
 const getDashboardsFromDirectory = (directory, dashboards) => {
   directory.forEach(obj => {
     const { children = false } = obj;
@@ -12,8 +15,8 @@ const getDashboardsFromDirectory = (directory, dashboards) => {
     return dashboards.push(obj);
   });
 
-  // Sort by ID
-  dashboards = dashboards.sort((a, b) => a.id - b.id);
+  // Sort by Name
+  dashboards = dashboards.sort((a, b) => sortArr(a, b, 'name'));
 
   return dashboards;
 };
@@ -22,8 +25,8 @@ const getFavoriteDashboards = dashboards => {
   // Filter to dashboard objects where favorite is true
   dashboards = dashboards.filter(({ favorite }) => favorite === true);
 
-  // Sort by ID
-  dashboards = dashboards.sort((a, b) => a.id - b.id);
+  // Sort by Name
+  dashboards = dashboards.sort((a, b) => sortArr(a, b, 'name'));
 
   return dashboards;
 };

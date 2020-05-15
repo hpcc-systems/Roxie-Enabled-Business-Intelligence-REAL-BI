@@ -1,7 +1,14 @@
+const { v4: uuidv4 } = require('uuid');
+
 module.exports = (sequelize, DataTypes) => {
   const chartParam = sequelize.define(
     'chartParam',
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: () => uuidv4(),
+        primaryKey: true,
+      },
       dataset: DataTypes.STRING(50),
       name: {
         type: DataTypes.STRING(50),
