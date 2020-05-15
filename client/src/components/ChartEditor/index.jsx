@@ -40,8 +40,14 @@ const ChartEditor = props => {
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map(({ name, disabled }, index) => {
-              // Do not show the 'group by' tab if the chart selected is a pie chart
-              if (chartType === 'pie' && name === 'Group By') {
+              /*
+                Do not show the 'group by' tab if the chart selected is a pie chart
+                Do not show any table other than General if the table chart type is selected
+              */
+              if (
+                (chartType === 'pie' && name === 'Group By') ||
+                (chartType === 'table' && name !== 'General')
+              ) {
                 return null;
               }
 

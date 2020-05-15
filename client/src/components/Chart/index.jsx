@@ -15,7 +15,12 @@ const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
 });
 
-const ChartComp = ({ chart: { dataset, options, type }, dataObj: { data = {}, loading = true } }) => {
+const ChartComp = ({
+  chart: { dataset, options, type },
+  dashboard = { params: [] },
+  dataObj: { data = {}, loading = true },
+  dispatch,
+}) => {
   const { groupBy, horizontal, stacked } = options;
   const { progress } = useStyles();
   let chartData = [];
@@ -61,7 +66,7 @@ const ChartComp = ({ chart: { dataset, options, type }, dataObj: { data = {}, lo
         case 'pie':
           return <PieChart data={chartData} options={options} />;
         case 'table':
-          return <Table data={chartData} options={options} />;
+          return <Table data={chartData} dispatch={dispatch} options={options} params={dashboard.params} />;
         default:
           return 'Unknown chart type';
       }

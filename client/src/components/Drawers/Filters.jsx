@@ -1,23 +1,66 @@
-import React from 'react';
+import React, { Fragment, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Drawer, FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import {
+  Button,
+  Drawer,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@material-ui/core';
+import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { updateDashboardParam } from '../../features/dashboard/actions';
 
+// React Components
+import NewFilter from '../Dialog/newFilter';
+import EditFilter from '../Dialog/editFilter';
+
+// React Hooks
+import useDialog from '../../hooks/useDialog';
+
 // Create styles
 const useStyles = makeStyles(theme => ({
-  div: { margin: theme.spacing(1), marginTop: 0 },
-  drawer: { width: 'auto', minWidth: 250 },
-  formControl: { margin: `${theme.spacing(1)}px 0` },
-  typography: { margin: theme.spacing(1), marginBottom: 0 },
+  button: { margin: 0, minWidth: 30 },
+  deleteBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0, paddingRight: theme.spacing(2) },
+  drawer: { width: 250 },
+  editBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0 },
+  formControl: { margin: theme.spacing(1) },
+  typography: { flexGrow: 1, margin: theme.spacing(1), marginTop: theme.spacing(1.5) },
 }));
 
-const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
-  const { id: dashboardID, params = [] } = dashboard;
+const sortArray = (arr, key) => {
+  arr.sort((a, b) => {
+    let aField = a[key];
+    let bField = b[key];
+
+    // Format value
+    aField = isNaN(Number(aField)) ? aField.trim().toLowerCase() : Number(aField);
+    bField = isNaN(Number(bField)) ? bField.trim().toLowerCase() : Number(bField);
+
+    if (aField < bField) {
+      return -1;
+    } else if (aField > bField) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return arr;
+};
+
+const FilterDrawer = ({ dashboard, deleteFilter, showDrawer, toggleDrawer, queryData }) => {
+  const { params = [] } = dashboard;
+  const [filterID, setFilterID] = useState(null);
+  const { showDialog: showNewDialog, toggleDialog: toggleNewDialog } = useDialog(false);
+  const { showDialog: showEditDialog, toggleDialog: toggleEditDialog } = useDialog(false);
   const dispatch = useDispatch();
-  const { div, drawer, formControl, typography } = useStyles();
+  const { button, deleteBtn, drawer, editBtn, formControl, typography } = useStyles();
   let datasets = {};
 
   // Un-nest query datasets for filter dropdowns
@@ -35,52 +78,83 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer, queryData }) => {
       value = value.sort().join(',');
     }
 
-    updateDashboardParam(dashboardID, paramID, value).then(action => dispatch(action));
+    // Get altered param
+    const param = params.find(({ id }) => id === paramID);
+
+    updateDashboardParam({ ...param, value }).then(action => dispatch(action));
+  };
+
+  const editFilter = id => {
+    setFilterID(id);
+    toggleEditDialog();
   };
 
   return (
     <Drawer open={showDrawer} onClose={toggleDrawer} anchor='right'>
       <div className={drawer} role='presentation'>
-        <Typography variant='h6' align='center' color='inherit' className={typography}>
-          Dashboard Filters
-        </Typography>
-      </div>
-      <div className={div}>
-        {params.length > 0 &&
-          params.map(({ dataset, id, name, value }, index) => {
-            if (value) {
-              if (value.indexOf(',') > -1) {
-                value = value.split(',').sort();
-              } else {
-                value = [value];
+        <div style={{ display: 'flex' }}>
+          <Typography variant='h6' align='left' color='inherit' className={typography}>
+            Dashboard Filters
+          </Typography>
+          <Button className={button} onClick={toggleNewDialog}>
+            <AddCircleIcon />
+          </Button>
+        </div>
+        <Grid container direction='row' justify='space-between'>
+          {params.length > 0 &&
+            params.map(({ dataset, id, name, value }, index) => {
+              if (value) {
+                if (value.indexOf(',') > -1) {
+                  value = value.split(',').sort();
+                } else {
+                  value = [value];
+                }
               }
-            }
 
-            return (
-              <FormControl key={index} className={formControl} fullWidth>
-                <InputLabel>{name}</InputLabel>
-                <Select multiple value={value || []} onChange={event => setParam(event, id)}>
-                  {(() => {
-                    if (datasets[dataset]) {
-                      // Get the first key from the first object from reference dataset
-                      const key = Object.keys(datasets[dataset].Row[0])[0];
+              return (
+                <Fragment key={index}>
+                  <Grid item xs={8}>
+                    <FormControl className={formControl} fullWidth>
+                      <InputLabel>{name}</InputLabel>
+                      <Select multiple value={value || []} onChange={event => setParam(event, id)}>
+                        {(() => {
+                          if (datasets[dataset]) {
+                            // Get the first key from the first object from reference dataset
+                            const key = Object.keys(datasets[dataset].Row[0])[0];
 
-                      return datasets[dataset].Row.map((object, index) => {
-                        const value = object[key];
+                            return sortArray(datasets[dataset].Row, key).map((object, index) => {
+                              const value = object[key];
 
-                        return (
-                          <MenuItem key={index} value={value}>
-                            {value}
-                          </MenuItem>
-                        );
-                      });
-                    }
-                  })()}
-                </Select>
-              </FormControl>
-            );
-          })}
+                              return (
+                                <MenuItem key={index} value={value}>
+                                  {value}
+                                </MenuItem>
+                              );
+                            });
+                          }
+                        })()}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button className={editBtn} onClick={() => editFilter(id)}>
+                      <EditIcon />
+                    </Button>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Button className={deleteBtn} onClick={() => deleteFilter(id)}>
+                      <DeleteIcon />
+                    </Button>
+                  </Grid>
+                </Fragment>
+              );
+            })}
+        </Grid>
       </div>
+      {showNewDialog && <NewFilter show={showNewDialog} toggleDialog={toggleNewDialog} />}
+      {showEditDialog && (
+        <EditFilter filterID={filterID} show={showEditDialog} toggleDialog={toggleEditDialog} />
+      )}
     </Drawer>
   );
 };

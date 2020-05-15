@@ -42,12 +42,9 @@ const getQueryInfo = async (clusterID, query) => {
 };
 
 const createQueryObj = localState => {
-  const {
-    params,
-    selectedQuery: { target, hpccID, name },
-  } = localState;
+  const { target, hpccID, name } = localState.selectedQuery;
 
-  return { hpccID, name, params, target };
+  return { hpccID, name, target };
 };
 
 const getUniqueQueries = charts => {

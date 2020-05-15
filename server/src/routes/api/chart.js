@@ -9,12 +9,8 @@ const {
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
 const { deleteQueryByID } = require('../../utils/query');
-const {
-  createQueryParams,
-  deleteQueryParams,
-  findAllQueryParams,
-  updateQueryParam,
-} = require('../../utils/queryParam');
+const { getDashboardParamsByDashboardAndQueryID } = require('../../utils/dashboardParam');
+const { createChartParams, findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
@@ -33,7 +29,7 @@ router.get('/all', async (req, res) => {
       let chartParams;
 
       try {
-        chartParams = await findAllQueryParams(null, chart.id);
+        chartParams = await findAllChartParams(chart.id);
       } catch (err) {
         return console.error(err);
       }
@@ -63,9 +59,9 @@ router.post('/create', async (req, res) => {
   try {
     newChart = await createChart(chart, dashboardID, queryID, userID);
 
-    await createQueryParams(queryID, chart, null, newChart.id);
+    await createChartParams(queryID, chart, newChart.id);
 
-    chartParams = await findAllQueryParams(null, newChart.id);
+    chartParams = await findAllChartParams(newChart.id);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -92,7 +88,7 @@ router.put('/update', async (req, res) => {
       await updateChartByID(chart);
 
       promises = chart.params.map(async ({ id, value }) => {
-        return await updateQueryParam(id, value);
+        return await updateChartParam(id, value);
       });
 
       await Promise.all(promises);
@@ -107,7 +103,7 @@ router.put('/update', async (req, res) => {
     let chartParams;
 
     try {
-      chartParams = await findAllQueryParams(null, chart.id);
+      chartParams = await findAllChartParams(chart.id);
     } catch (err) {
       return console.error(err);
     }
@@ -131,7 +127,7 @@ router.delete('/delete', async (req, res) => {
     query: { chartID, dashboardID, queryID },
     user: { id: userID },
   } = req;
-  let chart, charts, numOfCharts;
+  let chart, charts, numOfCharts, paramsArr;
 
   try {
     chart = await getChartOwnerByID(chartID, userID);
@@ -140,21 +136,22 @@ router.delete('/delete', async (req, res) => {
     if (Object.keys(chart).length > 0) {
       await deleteChartByID(chartID);
 
-      // Determine if any other charts in the application are using the same query
+      // Determine if any other charts or filters in the application are using the same query
       numOfCharts = await getChartsByDashboardAndQueryID(null, queryID);
+      paramsArr = await getDashboardParamsByDashboardAndQueryID(null, queryID);
 
-      // No other charts in the application are using the same query
-      if (numOfCharts === 0) {
+      // No other charts or dashboard filters in the application are using the same query
+      if (numOfCharts === 0 && paramsArr === 0) {
         await deleteQueryByID(queryID);
       } else {
-        // Determine if any other charts on the same dashboard are using the same query
+        // Determine if any other charts or filters on the same dashboard are using the same query
         numOfCharts = await getChartsByDashboardAndQueryID(dashboardID, queryID);
+        paramsArr = await getDashboardParamsByDashboardAndQueryID(dashboardID, queryID);
 
-        // No other charts on the dashboard are using the same query
-        if (numOfCharts === 0) {
+        // No other charts or filters on the dashboard are using the same query
+        if (numOfCharts === 0 && paramsArr === 0) {
           // Delete dashboard Source and 'Dashboard Level' params
           await deleteDashboardSource(dashboardID, queryID);
-          await deleteQueryParams(null, null, dashboardID, queryID);
         }
       }
     }

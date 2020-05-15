@@ -8,12 +8,12 @@ import { getQueries } from '../../utils/query';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  autocomplete: { margin: `${theme.spacing(1)}px 0`, marginTop: 0 },
+  autocomplete: { margin: 0, marginTop: theme.spacing(1) },
 }));
 
 const QuerySearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, keyword, queries } = localState;
+  const { filterID, keyword, queries } = localState;
   const { clusterID } = dashboard;
   const { autocomplete } = useStyles();
 
@@ -25,14 +25,10 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
       getQueries(clusterID, keyword).then(data => {
         handleChange(null, { name: 'queries', value: data });
 
-        if (chartID) {
-          const selectedQuery = data.find(({ name }) => name === keyword);
-          handleChange(null, { name: 'selectedQuery', value: selectedQuery });
-        }
         setLoading(false);
       });
     }
-  }, [chartID, clusterID, handleChange, keyword]);
+  }, [clusterID, handleChange, keyword]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {
@@ -46,16 +42,14 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
     }
   };
 
-  // Do not show if in edit mode (chart ID populated)
-  // Continue to mount component to get useEffect to run
   return (
-    !chartID && (
+    !filterID && (
       <Autocomplete
         className={autocomplete}
         onChange={(event, newValue) => {
           // Only attempt to update state if a value is present
           if (newValue) {
-            handleChange(null, { name: 'selectedQuery', value: newValue });
+            handleChange(null, { name: 'query', value: newValue });
           }
         }}
         getOptionLabel={option => (option.name ? option.name : '')}

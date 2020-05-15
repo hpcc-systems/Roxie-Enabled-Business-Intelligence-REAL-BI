@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 // Utils
 const { createDashboard, getDashboardByID } = require('../../utils/dashboard');
-const { findAllQueryParams } = require('../../utils/queryParam');
+// const { findAllQueryParams } = require('../../utils/queryParam');
 
 router.post('/create', async (req, res) => {
   const {
@@ -27,7 +27,7 @@ router.get('/info', async (req, res) => {
 
   try {
     dashboard = await getDashboardByID(dashboardID);
-    params = await findAllQueryParams(dashboardID, null);
+    // params = await findAllQueryParams(dashboardID, null);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });

@@ -1,11 +1,10 @@
 import React from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { getDashboardParams } from '../../features/dashboard/actions';
 import { addChart } from '../../features/chart/actions';
 
 // React Components
@@ -62,21 +61,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
     try {
       const { queryID, queryName } = await addQuery(dashboardID, queryObj);
-      const action1 = await addChart(newChartObj, dashboardID, queryID, queryName);
-      const action2 = await getDashboardParams(dashboardID);
 
-      // Close dialog
-      /*
-        Closing the dialog happens here because React will attempt to update the component
-        after the actions update the Redux store, causing a memory leak error because the component
-        will already be un-mounted.
-      */
-      toggleDialog();
-
-      // Batch dispatch each action to only have React re-render once
-      return batch(() => {
-        dispatch(action1);
-        dispatch(action2);
+      addChart(newChartObj, dashboardID, queryID, queryName).then(action => {
+        dispatch(action);
       });
     } catch (err) {
       console.error(err);
