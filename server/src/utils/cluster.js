@@ -132,7 +132,19 @@ const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { na
   return params;
 };
 
+const createCluster = async clusterObj => {
+  let [err, newCluster] = await awaitHandler(clusterModel.create({ ...clusterObj }));
+
+  // Return error
+  if (err) throw err;
+
+  newCluster = unNestSequelizeObj(newCluster);
+
+  return newCluster;
+};
+
 module.exports = {
+  createCluster,
   getClusterByID,
   getClusters,
   getDataFromCluster,
