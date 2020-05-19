@@ -1,32 +1,29 @@
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
 import { SET_AUTH_ERRORS, SET_AUTH_USER, SET_DIRECTORY_DEPTH, SET_LAST_DASHBOARD } from './';
 
 //Constants
 import { initUserObj } from '../../constants';
 
-const loginUser = async () => {
+const loginUser = async ({ username, password }) => {
   let response;
 
   try {
-    response = await axios.post('/api/auth/login', { userID: '0fd73431-62b9-4bdf-9275-2c5c785a3a05' });
+    response = await axios.post('/api/auth/login', { username, password });
   } catch (err) {
-    console.error(err);
-    return { type: SET_AUTH_ERRORS, payload: err };
+    return { action: { type: SET_AUTH_ERRORS, payload: { msg: err.response.data } } };
   }
 
-  const { jwt } = response.data;
-  const user = jwt_decode(jwt);
-  localStorage.setItem('realBIToken', jwt);
+  const { token, ...user } = response.data;
+  localStorage.setItem('realBIToken', token);
 
-  return { action: { type: SET_AUTH_USER, payload: user }, token: jwt };
+  return { action: { type: SET_AUTH_USER, payload: user }, token };
 };
 
 const getLatestUserData = async () => {
   let response;
 
   try {
-    response = await axios.get('/api/user/getdata');
+    response = await axios.get('/api/usersettings/getdata');
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -37,7 +34,7 @@ const getLatestUserData = async () => {
 
 const updateLastDashboard = async dashboardID => {
   try {
-    await axios.put('/api/user/updatelastdashboard', { dashboardID });
+    await axios.put('/api/usersettings/updatelastdashboard', { dashboardID });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -48,7 +45,7 @@ const updateLastDashboard = async dashboardID => {
 
 const updateDirectoryDepth = async directoryDepth => {
   try {
-    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
+    await axios.put('/api/usersettings/updatedirectorydepth', { directoryDepth });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };

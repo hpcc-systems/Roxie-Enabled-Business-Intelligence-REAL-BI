@@ -45,8 +45,14 @@ const Login = () => {
 
     handleChange(null, { name: 'loading', value: true });
 
-    loginUser().then(({ action, token }) => {
-      setAuthHeader(token);
+    loginUser(localState).then(({ action, token }) => {
+      if (token) {
+        setAuthHeader(token);
+      } else {
+        // No token means an error occured
+        handleChange(null, { name: 'loading', value: false });
+      }
+
       dispatch(action);
     });
   };

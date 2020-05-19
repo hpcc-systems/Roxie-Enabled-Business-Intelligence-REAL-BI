@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { user: userModel } = require('../models');
+const { userSettings: userSettingsModel } = require('../models');
 
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
@@ -8,7 +8,7 @@ const { awaitHandler, unNestSequelizeObj } = require('./misc');
 const algorithm = process.env.ALGORITHM;
 
 const getUserByID = async userID => {
-  let [err, user] = await awaitHandler(userModel.findOne({ where: { id: userID } }));
+  let [err, user] = await awaitHandler(userSettingsModel.findOne({ where: { id: userID } }));
 
   // Return error
   if (err) throw err;

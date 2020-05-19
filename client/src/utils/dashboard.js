@@ -28,7 +28,7 @@ const addDashboardToDB = async dashboard => {
 
 const updateDirectory = async directory => {
   try {
-    await axios.put('/api/user/updatedirectory', { directory });
+    await axios.put('/api/usersettings/updatedirectory', { directory });
   } catch (err) {
     console.error(err);
   }
