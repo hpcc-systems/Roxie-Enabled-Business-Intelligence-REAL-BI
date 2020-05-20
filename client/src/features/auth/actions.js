@@ -18,10 +18,10 @@ export const loginUser = async ({ username, password }) => {
     return { action: { type: SET_AUTH_ERRORS, payload: { msg: err.response.data } } };
   }
 
+  // Destructure response
   const { token, ...user } = response.data;
-  localStorage.setItem('realBIToken', token);
 
-  return { action: { type: SET_AUTH_USER, payload: user }, token };
+  return { action: { type: SET_AUTH_USER, payload: user }, lastDashboard: user.lastDashboard, token };
 };
 
 export const getLatestUserData = async () => {
@@ -34,7 +34,10 @@ export const getLatestUserData = async () => {
     return { type: SET_AUTH_ERRORS, payload: err };
   }
 
-  return { type: SET_AUTH_USER, payload: response.data };
+  // Get last dashboard id from response
+  const { lastDashboard } = response.data;
+
+  return { action: { type: SET_AUTH_USER, payload: response.data }, lastDashboard };
 };
 
 export const updateLastDashboard = async dashboardID => {

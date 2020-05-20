@@ -1,5 +1,6 @@
 import React from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Toolbar, Typography } from '@material-ui/core';
 
@@ -15,8 +16,6 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { updateDirectoryDepth, updateLastDashboard } from '../../features/auth/actions';
-import { getDashboard } from '../../features/dashboard/actions';
-import { getCharts } from '../../features/chart/actions';
 
 // Utils
 import { addDashboardToDB, updateDirectory } from '../../utils/dashboard';
@@ -39,6 +38,7 @@ const useStyles = makeStyles(theme => ({
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
+  const history = useHistory();
   const { directory: storeDirectory, directoryDepth: storeDirectoryDepth } = useSelector(
     state => state.auth.user,
   );
@@ -59,20 +59,14 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     handleChange(null, { name: 'directoryDepth', value: nodesArr });
   };
 
-  // Get information about specific dashboard and hide drawer
+  // Update last viewed dashboard and navigate to new url
   const getDashboardInfo = dashboardID => {
-    Promise.all([getDashboard(dashboardID), getCharts(dashboardID), updateLastDashboard(dashboardID)]).then(
-      actions => {
-        // Batch dispatch each action to only have React re-render once
-        batch(() => {
-          dispatch(actions[0]);
-          dispatch(actions[1]);
-          dispatch(actions[2]);
-        });
-      },
-    );
-
+    history.push(`/dashboard/${dashboardID}`);
     toggleDrawer();
+
+    updateLastDashboard(dashboardID).then(action => {
+      dispatch(action);
+    });
   };
 
   const createDashboard = async () => {

@@ -49,15 +49,13 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={handleChange}>
-            {clusters
-              .sort((a, b) => sortArr(a, b, 'id'))
-              .map(({ host, id, infoPort, name }) => {
-                return (
-                  <MenuItem key={id} value={id}>
-                    {`${name} (${host}:${infoPort})`}
-                  </MenuItem>
-                );
-              })}
+            {sortArr(clusters, 'id').map(({ host, id, infoPort, name }) => {
+              return (
+                <MenuItem key={id} value={id}>
+                  {`${name} (${host}:${infoPort})`}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
         <TextField

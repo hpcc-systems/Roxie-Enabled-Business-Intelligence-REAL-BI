@@ -10,25 +10,32 @@ const authenticateToken = () => {
     let token = req.headers.authorization;
     let response, user;
 
-    // Create auth service url
-    const url = `${AUTH_URL}:${AUTH_PORT}/auth/verify`;
+    // No token provided
+    if (!token) {
+      return res.status(401).send('Auth Token Required');
+    }
 
     // Create auth service request instance
-    const requestInstance = axios.create({ url, headers: { authorization: token } });
+    const requestInstance = axios.create({
+      url: `${AUTH_URL}:${AUTH_PORT}/auth/verify`,
+      method: 'POST',
+      headers: { authorization: token },
+    });
 
     try {
-      response = await requestInstance.post();
+      response = await requestInstance();
     } catch (err) {
       const { data = 'Unknown Error', status } = err.response;
       return res.status(status).send(data);
     }
 
+    // Destructure response to get user data
     const { id, role } = response.data.verified;
-    const hasPermission = role.some(({ ApplicationId }) => ApplicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
+    const hasPermission = role.some(({ ApplicationId }) => ApplicationId == AUTH_APP_ID); // Used == instead of === for flexibility and type coercion.
 
     // User doesn't have permission to use this app
     if (!hasPermission) {
-      return res.status(401).send('User not authorized for this app');
+      return res.status(401).send('Unauthorized Request');
     }
 
     // Get user details

@@ -23,6 +23,9 @@ import EditFilter from '../Dialog/editFilter';
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
+// Utils
+import { sortArr } from '../../utils/misc';
+
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
@@ -32,27 +35,6 @@ const useStyles = makeStyles(theme => ({
   formControl: { margin: theme.spacing(1) },
   typography: { flexGrow: 1, margin: theme.spacing(1), marginTop: theme.spacing(1.5) },
 }));
-
-const sortArray = (arr, key) => {
-  arr.sort((a, b) => {
-    let aField = a[key];
-    let bField = b[key];
-
-    // Format value
-    aField = isNaN(Number(aField)) ? aField.trim().toLowerCase() : Number(aField);
-    bField = isNaN(Number(bField)) ? bField.trim().toLowerCase() : Number(bField);
-
-    if (aField < bField) {
-      return -1;
-    } else if (aField > bField) {
-      return 1;
-    }
-
-    return 0;
-  });
-
-  return arr;
-};
 
 const FilterDrawer = ({ dashboard, deleteFilter, showDrawer, toggleDrawer, queryData }) => {
   const { params = [] } = dashboard;
@@ -122,7 +104,7 @@ const FilterDrawer = ({ dashboard, deleteFilter, showDrawer, toggleDrawer, query
                             // Get the first key from the first object from reference dataset
                             const key = Object.keys(datasets[dataset].Row[0])[0];
 
-                            return sortArray(datasets[dataset].Row, key).map((object, index) => {
+                            return sortArr(datasets[dataset].Row, key).map((object, index) => {
                               const value = object[key];
 
                               return (

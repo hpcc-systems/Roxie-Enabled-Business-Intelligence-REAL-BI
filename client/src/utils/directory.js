@@ -16,7 +16,7 @@ const getDashboardsFromDirectory = (directory, dashboards) => {
   });
 
   // Sort by Name
-  dashboards = dashboards.sort((a, b) => sortArr(a, b, 'name'));
+  dashboards = sortArr(dashboards, 'name');
 
   return dashboards;
 };
@@ -26,7 +26,7 @@ const getFavoriteDashboards = dashboards => {
   dashboards = dashboards.filter(({ favorite }) => favorite === true);
 
   // Sort by Name
-  dashboards = dashboards.sort((a, b) => sortArr(a, b, 'name'));
+  dashboards = sortArr(dashboards, 'name');
 
   return dashboards;
 };

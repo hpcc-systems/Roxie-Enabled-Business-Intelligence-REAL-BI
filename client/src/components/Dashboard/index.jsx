@@ -1,4 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 
@@ -7,7 +8,6 @@ import { deleteDashboardParam, getDashboard, getDashboardParams } from '../../fe
 import { deleteChart, getCharts } from '../../features/chart/actions';
 
 // React Components
-import Login from './Login';
 import NoCharts from './NoCharts';
 import Toolbar from './Toolbar';
 import ChartToolbar from './ChartToolbar';
@@ -28,20 +28,20 @@ import { sortArr } from '../../utils/misc';
 const Dashboard = () => {
   const [queryData, setQueryData] = useState({});
   const [chartID, setChartID] = useState(null);
-  const { id: userID, lastDashboard } = useSelector(state => state.auth.user);
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
+  const { dashboardID: urlDashboardID } = useParams();
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (lastDashboard) {
+    if (urlDashboardID) {
       Promise.all([
-        getDashboard(lastDashboard),
-        getCharts(lastDashboard),
-        getDashboardParams(lastDashboard),
+        getDashboard(urlDashboardID),
+        getCharts(urlDashboardID),
+        getDashboardParams(urlDashboardID),
       ]).then(actions => {
         // Batch dispatch each action to only have React re-render once
         batch(() => {
@@ -51,7 +51,7 @@ const Dashboard = () => {
         });
       });
     }
-  }, [dispatch, lastDashboard]);
+  }, [dispatch, urlDashboardID]);
 
   const editChart = chartID => {
     setChartID(chartID);
@@ -114,60 +114,54 @@ const Dashboard = () => {
     }
   }, [charts, dashboard, dataCall]);
 
-  return userID ? (
-    Object.keys(dashboard).length > 0 ? (
-      <Fragment>
-        <Toolbar
-          name={dashboard.name}
-          refreshChart={dataCall}
-          toggleDialog={newChartToggle}
-          toggleDrawer={toggleDrawer}
-        />
-        <Container maxWidth='xl'>
-          <Grid container direction='row' spacing={3}>
-            {charts
-              .sort((a, b) => sortArr(a, b, 'id'))
-              .map((chart, index) => {
-                const { id: chartID, options, queryID, queryName } = chart;
-                const dataObj = queryData[chartID] || queryData[queryName] || {};
+  return Object.keys(dashboard).length > 0 ? (
+    <Fragment>
+      <Toolbar
+        name={dashboard.name}
+        refreshChart={dataCall}
+        toggleDialog={newChartToggle}
+        toggleDrawer={toggleDrawer}
+      />
+      <Container maxWidth='xl'>
+        <Grid container direction='row' spacing={3}>
+          {sortArr(charts, 'id').map((chart, index) => {
+            const { id: chartID, options, queryID, queryName } = chart;
+            const dataObj = queryData[chartID] || queryData[queryName] || {};
 
-                return (
-                  // Change grid column layout based on numver of charts
-                  <Grid key={index} item md={12}>
-                    <Paper variant='outlined'>
-                      <ChartToolbar
-                        chartID={chartID}
-                        options={options}
-                        queryID={queryID}
-                        removeChart={removeChart}
-                        toggleDialog={editChart}
-                      />
-                      <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
-                    </Paper>
-                  </Grid>
-                );
-              })}
-          </Grid>
-          {showDrawer && (
-            <FilterDrawer
-              dashboard={dashboard}
-              deleteFilter={deleteFilter}
-              showDrawer={showDrawer}
-              toggleDrawer={toggleDrawer}
-              queryData={queryData}
-            />
-          )}
-          {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
-          {editChartShow && (
-            <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
-          )}
-        </Container>
-      </Fragment>
-    ) : (
-      <NoCharts />
-    )
+            return (
+              // Change grid column layout based on numver of charts
+              <Grid key={index} item md={12}>
+                <Paper variant='outlined'>
+                  <ChartToolbar
+                    chartID={chartID}
+                    options={options}
+                    queryID={queryID}
+                    removeChart={removeChart}
+                    toggleDialog={editChart}
+                  />
+                  <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
+                </Paper>
+              </Grid>
+            );
+          })}
+        </Grid>
+        {showDrawer && (
+          <FilterDrawer
+            dashboard={dashboard}
+            deleteFilter={deleteFilter}
+            showDrawer={showDrawer}
+            toggleDrawer={toggleDrawer}
+            queryData={queryData}
+          />
+        )}
+        {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+        {editChartShow && (
+          <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
+        )}
+      </Container>
+    </Fragment>
   ) : (
-    <Login />
+    <NoCharts />
   );
 };
 

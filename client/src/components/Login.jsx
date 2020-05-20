@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -14,13 +15,16 @@ import {
 } from '@material-ui/core';
 
 // Redux Actions
-import { loginUser } from '../../features/auth/actions';
-
-// Utils
-import setAuthHeader from '../../utils/axiosConfig';
+import { loginUser } from '../features/auth/actions';
 
 // React Hooks
-import useForm from '../../hooks/useForm';
+import useForm from '../hooks/useForm';
+
+// Utils
+import setAuthHeader from '../utils/axiosConfig';
+
+// Constants
+import { tokenName } from '../constants';
 
 const useStyles = makeStyles(theme => ({
   grid: { minHeight: '50vh' },
@@ -38,23 +42,32 @@ const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
   const dispatch = useDispatch();
+  const history = useHistory();
   const { grid, progress, textfield } = useStyles();
 
-  const loginUserFn = event => {
+  const loginUserFn = async event => {
     event.preventDefault();
 
+    // Enable loading animation
     handleChange(null, { name: 'loading', value: true });
 
-    loginUser(localState).then(({ action, token }) => {
-      if (token) {
-        setAuthHeader(token);
-      } else {
-        // No token means an error occured
-        handleChange(null, { name: 'loading', value: false });
-      }
+    // Attempt to login user
+    const { action, lastDashboard, token } = await loginUser(localState);
 
-      dispatch(action);
-    });
+    // Send data to redux store
+    dispatch(action);
+
+    if (token) {
+      // Set local storage and auth header
+      localStorage.setItem(tokenName, token);
+      setAuthHeader(token);
+
+      // Generate new url and navigate there
+      const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashbaord';
+      history.push(location);
+    } else {
+      handleChange(null, { name: 'loading', value: false });
+    }
   };
 
   return (
