@@ -1,10 +1,15 @@
 import axios from 'axios';
-import { SET_AUTH_ERRORS, SET_AUTH_USER, SET_DIRECTORY_DEPTH, SET_LAST_DASHBOARD } from './';
 
 //Constants
 import { initUserObj } from '../../constants';
 
-const loginUser = async ({ username, password }) => {
+// Action Types
+export const SET_AUTH_ERRORS = 'SET_AUTH_ERRORS';
+export const SET_AUTH_USER = 'SET_AUTH_USER';
+export const SET_DIRECTORY_DEPTH = 'SET_DIRECTORY_DEPTH';
+export const SET_LAST_DASHBOARD = 'SET_LAST_DASHBOARD';
+
+export const loginUser = async ({ username, password }) => {
   let response;
 
   try {
@@ -19,7 +24,7 @@ const loginUser = async ({ username, password }) => {
   return { action: { type: SET_AUTH_USER, payload: user }, token };
 };
 
-const getLatestUserData = async () => {
+export const getLatestUserData = async () => {
   let response;
 
   try {
@@ -32,7 +37,7 @@ const getLatestUserData = async () => {
   return { type: SET_AUTH_USER, payload: response.data };
 };
 
-const updateLastDashboard = async dashboardID => {
+export const updateLastDashboard = async dashboardID => {
   try {
     await axios.put('/api/usersettings/updatelastdashboard', { dashboardID });
   } catch (err) {
@@ -43,7 +48,7 @@ const updateLastDashboard = async dashboardID => {
   return { type: SET_LAST_DASHBOARD, payload: dashboardID };
 };
 
-const updateDirectoryDepth = async directoryDepth => {
+export const updateDirectoryDepth = async directoryDepth => {
   try {
     await axios.put('/api/usersettings/updatedirectorydepth', { directoryDepth });
   } catch (err) {
@@ -54,8 +59,6 @@ const updateDirectoryDepth = async directoryDepth => {
   return { type: SET_DIRECTORY_DEPTH, payload: directoryDepth };
 };
 
-const logoutUser = () => {
+export const logoutUser = () => {
   return { type: SET_AUTH_USER, payload: initUserObj };
 };
-
-export { getLatestUserData, loginUser, logoutUser, updateDirectoryDepth, updateLastDashboard };

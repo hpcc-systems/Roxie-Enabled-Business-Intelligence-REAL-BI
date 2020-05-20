@@ -4,7 +4,7 @@ import {
   GET_DASHBOARD_PARAMS,
   SET_DASHBOARD_ERRORS,
   UPDATE_DASHBOARD_PARAM,
-} from './';
+} from './actions';
 const initState = { dashboard: {}, errors: {} };
 
 export default (state = initState, { type, payload }) => {

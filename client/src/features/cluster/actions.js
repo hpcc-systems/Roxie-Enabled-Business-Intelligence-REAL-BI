@@ -1,7 +1,10 @@
 import axios from 'axios';
-import { GET_CLUSTERS, SET_CLUSTER_ERRORS } from '.';
 
-const getClusters = async () => {
+// Action Types
+export const GET_CLUSTERS = 'GET_CLUSTERS';
+export const SET_CLUSTER_ERRORS = 'SET_CLUSTER_ERRORS';
+
+export const getClusters = async () => {
   let response;
 
   try {
@@ -13,5 +16,3 @@ const getClusters = async () => {
 
   return { type: GET_CLUSTERS, payload: response.data };
 };
-
-export { getClusters };

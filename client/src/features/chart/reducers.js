@@ -1,4 +1,4 @@
-import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS, UPDATE_CHART } from './';
+import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS, UPDATE_CHART } from './actions';
 const initState = { charts: [], errors: {} };
 
 export default (state = initState, { type, payload }) => {

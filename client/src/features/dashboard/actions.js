@@ -1,13 +1,13 @@
 import axios from 'axios';
-import {
-  CREATE_DASHBOARD_PARAM,
-  GET_DASHBOARD,
-  GET_DASHBOARD_PARAMS,
-  SET_DASHBOARD_ERRORS,
-  UPDATE_DASHBOARD_PARAM,
-} from './';
 
-const getDashboard = async dashboardID => {
+// Action Types
+export const CREATE_DASHBOARD_PARAM = 'CREATE_DASHBOARD_PARAM';
+export const GET_DASHBOARD = 'GET_DASHBOARD';
+export const GET_DASHBOARD_PARAMS = 'GET_DASHBOARD_PARAMS';
+export const SET_DASHBOARD_ERRORS = 'SET_DASHBOARD_ERRORS';
+export const UPDATE_DASHBOARD_PARAM = 'UPDATE_DASHBOARD_PARAM';
+
+export const getDashboard = async dashboardID => {
   let response;
 
   try {
@@ -20,7 +20,7 @@ const getDashboard = async dashboardID => {
   return { type: GET_DASHBOARD, payload: response.data };
 };
 
-const getDashboardParams = async dashboardID => {
+export const getDashboardParams = async dashboardID => {
   let response;
 
   try {
@@ -33,7 +33,7 @@ const getDashboardParams = async dashboardID => {
   return { type: GET_DASHBOARD_PARAMS, payload: response.data };
 };
 
-const createDashboardParam = async paramObj => {
+export const createDashboardParam = async paramObj => {
   let response;
 
   try {
@@ -46,7 +46,7 @@ const createDashboardParam = async paramObj => {
   return { type: CREATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-const updateDashboardParam = async paramObj => {
+export const updateDashboardParam = async paramObj => {
   let response;
 
   try {
@@ -59,7 +59,7 @@ const updateDashboardParam = async paramObj => {
   return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-const deleteDashboardParam = async (filtersArr, filterID) => {
+export const deleteDashboardParam = async (filtersArr, filterID) => {
   try {
     await axios.delete('/api/dashboardparam/delete', { params: { filterID } });
   } catch (err) {
@@ -72,5 +72,3 @@ const deleteDashboardParam = async (filtersArr, filterID) => {
 
   return { type: UPDATE_DASHBOARD_PARAM, payload: filtersArr };
 };
-
-export { createDashboardParam, deleteDashboardParam, getDashboard, getDashboardParams, updateDashboardParam };
