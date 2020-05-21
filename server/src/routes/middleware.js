@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+// Constants
 const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
 // Utils

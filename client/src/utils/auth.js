@@ -11,6 +11,6 @@ export const isTokenValid = token => {
   // Token is expired
   if (exp && exp < currentTime) return false;
 
-  // Token is present and not expired
+  // Token is not expired or no expiration value is set (unexpiring token)
   return true;
 };

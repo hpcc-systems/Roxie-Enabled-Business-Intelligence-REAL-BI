@@ -46,6 +46,7 @@ const Login = () => {
   const { grid, progress, textfield } = useStyles();
 
   const loginUserFn = async event => {
+    // Prevent page from reloading
     event.preventDefault();
 
     // Enable loading animation
@@ -63,9 +64,10 @@ const Login = () => {
       setAuthHeader(token);
 
       // Generate new url and navigate there
-      const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashbaord';
+      const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashboard';
       history.push(location);
     } else {
+      // No token means an error occured
       handleChange(null, { name: 'loading', value: false });
     }
   };

@@ -30,19 +30,15 @@ const Dashboard = () => {
   const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
-  const { dashboardID: urlDashboardID } = useParams();
+  const { dashboardID: urlID } = useParams();
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (urlDashboardID) {
-      Promise.all([
-        getDashboard(urlDashboardID),
-        getCharts(urlDashboardID),
-        getDashboardParams(urlDashboardID),
-      ]).then(actions => {
+    if (urlID) {
+      Promise.all([getDashboard(urlID), getCharts(urlID), getDashboardParams(urlID)]).then(actions => {
         // Batch dispatch each action to only have React re-render once
         batch(() => {
           dispatch(actions[0]);
@@ -51,7 +47,7 @@ const Dashboard = () => {
         });
       });
     }
-  }, [dispatch, urlDashboardID]);
+  }, [dispatch, urlID]);
 
   const editChart = chartID => {
     setChartID(chartID);

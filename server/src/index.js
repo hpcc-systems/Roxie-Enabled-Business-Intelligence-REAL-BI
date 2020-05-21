@@ -1,8 +1,3 @@
-const path = require('path');
-
-// Load .env file
-require('dotenv').config({ path: path.join(process.cwd(), '.env') });
-
 const express = require('express');
 const { sequelize } = require('./models');
 const {
