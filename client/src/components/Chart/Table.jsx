@@ -113,7 +113,7 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
   };
 
   // Sort data
-  data.sort((a, b) => (order === 'desc' ? -sortArr(a, b, orderBy) : sortArr(a, b, orderBy)));
+  data = sortArr(data, orderBy, order);
 
   // Reference values
   const rowCount = data.length;

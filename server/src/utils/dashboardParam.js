@@ -4,8 +4,8 @@ const { dashboardParam: dashboardParamModel } = require('../models');
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
-const createDashboardParam = async dashboardParamObj => {
-  let [err, param] = await awaitHandler(dashboardParamModel.create({ ...dashboardParamObj }));
+const createDashboardParam = async (dashboardParamObj, userID) => {
+  let [err, param] = await awaitHandler(dashboardParamModel.create({ ...dashboardParamObj, userID }));
 
   // Return error
   if (err) throw err;
@@ -16,8 +16,8 @@ const createDashboardParam = async dashboardParamObj => {
   return param;
 };
 
-const getDashboardParams = async dashboardID => {
-  let [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { dashboardID } }));
+const getDashboardParams = async (dashboardID, userID) => {
+  let [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { dashboardID, userID } }));
 
   // Return error
   if (err) throw err;

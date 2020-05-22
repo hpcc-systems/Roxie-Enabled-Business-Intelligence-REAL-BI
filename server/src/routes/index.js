@@ -1,11 +1,11 @@
-const auth = require('./api/auth');
-const chart = require('./api/chart');
-const chartParam = require('./api/chartParam');
-const cluster = require('./api/cluster');
-const clusterAuth = require('./api/clusterAuth');
-const dashboard = require('./api/dashboard');
-const dashboardParam = require('./api/dashboardParam');
-const query = require('./api/query');
-const user = require('./api/user');
-
-module.exports = { auth, chart, chartParam, cluster, clusterAuth, dashboard, dashboardParam, query, user };
+module.exports = {
+  auth: require('./api/auth'),
+  chart: require('./api/chart'),
+  chartParam: require('./api/chartParam'),
+  cluster: require('./api/cluster'),
+  clusterAuth: require('./api/clusterAuth'),
+  dashboard: require('./api/dashboard'),
+  dashboardParam: require('./api/dashboardParam'),
+  query: require('./api/query'),
+  user: require('./api/user'),
+};

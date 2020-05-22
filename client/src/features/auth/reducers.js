@@ -1,4 +1,4 @@
-import { SET_AUTH_ERRORS, SET_AUTH_USER, SET_DIRECTORY_DEPTH, SET_LAST_DASHBOARD } from './';
+import { SET_AUTH_ERRORS, SET_AUTH_USER, SET_DIRECTORY_DEPTH, SET_LAST_DASHBOARD } from './actions';
 
 // Constants
 import { initUserObj } from '../../constants';

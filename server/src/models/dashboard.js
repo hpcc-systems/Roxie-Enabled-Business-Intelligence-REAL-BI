@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  dashboard.associate = ({ cluster, dashboardSource, query, user }) => {
+  dashboard.associate = ({ cluster, dashboardPermission, dashboardSource, query, user }) => {
     // One-to-One relation between dashboards and clusters
     // Creates 'clusterID' foreign key on dashboard model
     dashboard.belongsTo(cluster, {
@@ -25,10 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'cascade',
     });
 
-    // One-to-One relation between dashboards and users
-    // Creates 'userID' foreign key on dashboard model
-    dashboard.belongsTo(user, {
-      foreignKey: { name: 'userID', allowNull: false },
+    // Many-to-Many relation between dashboards and users
+    // Creates 'dashboardID' foreign key on dashboardPermissions model
+    dashboard.belongsToMany(user, {
+      through: dashboardPermission,
+      foreignKey: { name: 'dashboardID', allowNull: false },
       onDelete: 'cascade',
     });
 

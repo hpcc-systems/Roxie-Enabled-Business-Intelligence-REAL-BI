@@ -1,7 +1,13 @@
 const { user: userModel } = require('../models');
 
 //Utils
-const { awaitHandler } = require('../utils/misc');
+const { awaitHandler } = require('./misc');
+
+const createUser = async userID => {
+  await userModel.create({ id: userID, directory: [], directoryDepth: [] });
+
+  return;
+};
 
 const updateUserDirectory = async (directory, userID) => {
   let [err] = await awaitHandler(userModel.update({ directory }, { where: { id: userID } }));
@@ -30,4 +36,4 @@ const updateDirectoryDepth = async (directoryDepth, userID) => {
   return;
 };
 
-module.exports = { updateDirectoryDepth, updateLastDashboard, updateUserDirectory };
+module.exports = { createUser, updateDirectoryDepth, updateLastDashboard, updateUserDirectory };

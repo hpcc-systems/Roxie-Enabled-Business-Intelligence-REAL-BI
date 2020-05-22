@@ -1,20 +1,24 @@
 import React, { Fragment } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Button, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { Menu as MenuIcon } from '@material-ui/icons';
 
+// Redux Axtions
+import { logoutUser } from '../../features/auth/actions';
+
 // React Components
 import DashboardDrawer from '../Drawers/Dashboards';
-
-// Redux Actions
-import { getLatestUserData, logoutUser } from '../../features/auth/actions';
 
 // React Hooks
 import useDrawer from '../../hooks/useDrawer';
 
 // Utils
 import setAuthHeader from '../../utils/axiosConfig';
+
+// Constants
+import { tokenName } from '../../constants';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -25,22 +29,16 @@ const useStyles = makeStyles(() => ({
 const Header = () => {
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const { id: userID } = useSelector(state => state.auth.user);
-  const token = localStorage.getItem('realBIToken');
   const dispatch = useDispatch();
+  const history = useHistory();
   const { appBar, typography } = useStyles();
 
-  // Check for existing token to log in user
-  if (token && !userID) {
-    setAuthHeader(token);
-    getLatestUserData().then(action => dispatch(action));
-  } else if (!token && userID) {
+  const logout = async () => {
+    localStorage.removeItem(tokenName);
     setAuthHeader();
-    logoutUser().then(action => dispatch(action));
-  }
+    dispatch(logoutUser());
 
-  const logout = () => {
-    localStorage.removeItem('realBIToken');
-    window.location.reload(false); // Temporary method to reload page after token is removed from browser storage
+    history.push('/login');
   };
 
   return (
@@ -58,7 +56,7 @@ const Header = () => {
           {userID && (
             <Fragment>
               <Button color='inherit'>Settings</Button>
-              <Button color='inherit' onClick={logout}>
+              <Button color='inherit' onClick={() => logout()}>
                 Logout
               </Button>
             </Fragment>

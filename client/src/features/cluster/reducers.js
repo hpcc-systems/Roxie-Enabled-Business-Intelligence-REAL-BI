@@ -1,4 +1,4 @@
-import { GET_CLUSTERS, SET_CLUSTER_ERRORS } from '.';
+import { GET_CLUSTERS, SET_CLUSTER_ERRORS } from './actions';
 const initState = { clusters: [], errors: {} };
 
 export default (state = initState, { type, payload }) => {

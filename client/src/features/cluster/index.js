@@ -1,2 +1,0 @@
-export const GET_CLUSTERS = 'GET_CLUSTERS';
-export const SET_CLUSTER_ERRORS = 'SET_CLUSTER_ERRORS';

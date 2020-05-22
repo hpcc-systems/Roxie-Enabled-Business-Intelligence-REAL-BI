@@ -9,7 +9,6 @@
    - **NOTE:** The database schema name must match the value provided in the _root_ **_.env_** file for the **_DB_NAME_** field.
 5. Navigate to the _root_, _server_, and _client_ directories and run `npm install`
 6. Navigate to the _root_ directory and run `npm run start`
-7. Navigate to _server_ directory and run `npm run seed`
 
 ## Notes
 

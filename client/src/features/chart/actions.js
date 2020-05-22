@@ -1,7 +1,13 @@
 import axios from 'axios';
-import { ADD_CHART, DELETE_CHART, GET_CHARTS, SET_CHART_ERRORS, UPDATE_CHART } from './';
 
-const getCharts = async dashboardID => {
+// Action Types
+export const ADD_CHART = 'ADD_CHART';
+export const DELETE_CHART = 'DELETE_CHART';
+export const GET_CHARTS = 'GET_CHARTS';
+export const SET_CHART_ERRORS = 'SET_CHART_ERRORS';
+export const UPDATE_CHART = 'UPDATE_CHART';
+
+export const getCharts = async dashboardID => {
   let response;
 
   try {
@@ -14,7 +20,7 @@ const getCharts = async dashboardID => {
   return { type: GET_CHARTS, payload: response.data };
 };
 
-const addChart = async (chart, dashboardID, queryID, queryName) => {
+export const addChart = async (chart, dashboardID, queryID, queryName) => {
   let response;
 
   try {
@@ -27,7 +33,7 @@ const addChart = async (chart, dashboardID, queryID, queryName) => {
   return { type: ADD_CHART, payload: { ...response.data, queryName } };
 };
 
-const deleteChart = async (chartID, dashboardID, queryID) => {
+export const deleteChart = async (chartID, dashboardID, queryID) => {
   let response;
 
   try {
@@ -40,7 +46,7 @@ const deleteChart = async (chartID, dashboardID, queryID) => {
   return { type: DELETE_CHART, payload: response.data };
 };
 
-const updateChart = async (chart, dashboardID, queryID) => {
+export const updateChart = async (chart, dashboardID, queryID) => {
   let response;
 
   try {
@@ -52,5 +58,3 @@ const updateChart = async (chart, dashboardID, queryID) => {
 
   return { type: UPDATE_CHART, payload: response.data };
 };
-
-export { addChart, deleteChart, getCharts, updateChart };

@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  dashboardParam.associate = ({ dashboard, query }) => {
+  dashboardParam.associate = ({ dashboard, query, user }) => {
     // One-to-One relation between dashboardParams and queries
     // Creates 'queryID' foreign key on dashboardParam model
     dashboardParam.belongsTo(query, {
@@ -39,6 +39,13 @@ module.exports = (sequelize, DataTypes) => {
     // Creates 'queryID' foreign key on dashboardParam model
     dashboardParam.belongsTo(dashboard, {
       foreignKey: { name: 'dashboardID', allowNull: false },
+      onDelete: 'cascade',
+    });
+
+    // One-to-One relation between dashboardParams and users
+    // Creates 'userID' foreign key on dashboardParam model
+    dashboardParam.belongsTo(user, {
+      foreignKey: { name: 'userID', allowNull: false },
       onDelete: 'cascade',
     });
   };

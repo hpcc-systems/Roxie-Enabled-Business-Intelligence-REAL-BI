@@ -13,6 +13,9 @@ import {
 // React Hooks
 import useShare from '../../hooks/useShare';
 
+// Constants
+import { canAddCharts } from '../../constants';
+
 // Create styles
 const useStyles = makeStyles({
   button: { margin: 'auto 10px', padding: '0 auto' },
@@ -20,7 +23,8 @@ const useStyles = makeStyles({
   typography: { flex: 1, fontSize: 24 },
 });
 
-const ToolbarComp = ({ name, refreshChart, toggleDialog, toggleDrawer }) => {
+const ToolbarComp = ({ dashboard, refreshChart, toggleDialog, toggleDrawer }) => {
+  const { name, role } = dashboard;
   const { menuAnchor, showMenu, hideMenu } = useShare(null);
   const { button, icon, typography } = useStyles();
 
@@ -32,9 +36,11 @@ const ToolbarComp = ({ name, refreshChart, toggleDialog, toggleDrawer }) => {
       <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
         <RefreshIcon />
       </Button>
-      <Button className={button} variant='contained' color='primary' onClick={toggleDialog}>
-        <AddCircleIcon />
-      </Button>
+      {canAddCharts(role) ? (
+        <Button className={button} variant='contained' color='primary' onClick={toggleDialog}>
+          <AddCircleIcon />
+        </Button>
+      ) : null}
       <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
         <FilterListIcon />
       </Button>
