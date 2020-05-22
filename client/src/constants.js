@@ -22,8 +22,29 @@ export const hasStackedOption = chartType => {
 };
 
 export const hasGroupByOption = chartType => {
-  const chartTypes = ['bar, line'];
+  const chartTypes = ['bar', 'line'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
+};
+
+export const canAddCharts = role => {
+  const roles = ['Owner'];
+
+  // Return boolean
+  return roles.indexOf(role) > -1;
+};
+
+export const canEditCharts = role => {
+  const roles = ['Owner'];
+
+  // Return boolean
+  return roles.indexOf(role) > -1;
+};
+
+export const canDeleteCharts = role => {
+  const roles = ['Owner'];
+
+  // Return boolean
+  return roles.indexOf(role) > -1;
 };

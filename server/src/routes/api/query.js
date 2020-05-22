@@ -110,7 +110,7 @@ router.get('/data/single', async (req, res) => {
   try {
     cluster = await getClusterByID(clusterID);
     queries = await getQueriesByDashboardID(dashboardID);
-    params = await getDashboardParams(dashboardID);
+    params = await getDashboardParams(dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });

@@ -8,6 +8,9 @@ import SelectDataset from './SelectDataset';
 import { General, GroupBy, Parameters } from './Tabs';
 import Chart from '../Chart';
 
+// Constants
+import { hasGroupByOption } from '../../constants';
+
 const tabOptions = [
   { name: 'General', disabled: false },
   { name: 'Parameters', disabled: false },
@@ -41,11 +44,11 @@ const ChartEditor = props => {
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map(({ name, disabled }, index) => {
               /*
-                Do not show the 'group by' tab if the chart selected is a pie chart
+                Do not show the 'group by' tab if the chart selected doesn't support group by
                 Do not show any table other than General if the table chart type is selected
               */
               if (
-                (chartType === 'pie' && name === 'Group By') ||
+                (!hasGroupByOption(chartType) && name === 'Group By') ||
                 (chartType === 'table' && name !== 'General')
               ) {
                 return null;

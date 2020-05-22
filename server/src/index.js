@@ -1,15 +1,6 @@
 const express = require('express');
 const { sequelize } = require('./models');
-const {
-  auth,
-  chart,
-  cluster,
-  clusterAuth,
-  dashboard,
-  dashboardParam,
-  query,
-  userSettings,
-} = require('./routes');
+const { auth, chart, cluster, clusterAuth, dashboard, dashboardParam, query, user } = require('./routes');
 const { authenticateToken } = require('./routes/middleware');
 
 const { PORT, NODE_PORT } = process.env;
@@ -29,7 +20,7 @@ app.use('/api/clusterauth', authenticateToken(), clusterAuth);
 app.use('/api/dashboard', authenticateToken(), dashboard);
 app.use('/api/dashboardparam', authenticateToken(), dashboardParam);
 app.use('/api/query', authenticateToken(), query);
-app.use('/api/usersettings', authenticateToken(), userSettings);
+app.use('/api/user', authenticateToken(), user);
 
 sequelize
   .sync()

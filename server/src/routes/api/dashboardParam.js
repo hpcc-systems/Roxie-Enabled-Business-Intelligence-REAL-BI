@@ -9,11 +9,14 @@ const {
 } = require('../../utils/dashboardParam');
 
 router.get('/all', async (req, res) => {
-  const { dashboardID } = req.query;
+  const {
+    query: { dashboardID },
+    user: { id: userID },
+  } = req;
   let params;
 
   try {
-    params = await getDashboardParams(dashboardID);
+    params = await getDashboardParams(dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -23,12 +26,15 @@ router.get('/all', async (req, res) => {
 });
 
 router.post('/create', async (req, res) => {
-  const { paramObj } = req.body;
+  const {
+    body: { paramObj },
+    user: { id: userID },
+  } = req;
   let params;
 
   try {
-    await createDashboardParam(paramObj);
-    params = await getDashboardParams(paramObj.dashboardID);
+    await createDashboardParam(paramObj, userID);
+    params = await getDashboardParams(paramObj.dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -38,12 +44,15 @@ router.post('/create', async (req, res) => {
 });
 
 router.put('/update', async (req, res) => {
-  const { paramObj } = req.body;
+  const {
+    body: { paramObj },
+    user: { id: userID },
+  } = req;
   let params;
 
   try {
     await updateDashboardParam(paramObj);
-    params = await getDashboardParams(paramObj.dashboardID);
+    params = await getDashboardParams(paramObj.dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
@@ -53,16 +62,21 @@ router.put('/update', async (req, res) => {
 });
 
 router.delete('/delete', async (req, res) => {
-  const { filterID } = req.query;
+  const {
+    query: { dashboardID, filterID },
+    user: { id: userID },
+  } = req;
+  let params;
 
   try {
     await deleteDashboardParam(filterID);
+    params = await getDashboardParams(dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(202).end();
+  return res.status(202).json(params);
 });
 
 module.exports = router;

@@ -6,7 +6,7 @@ const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
 // Utils
 const { getUserByID } = require('../../utils/auth');
-const { createUserSettings } = require('../../utils/userSettings');
+const { createUser } = require('../../utils/user');
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
 
   // No user found, add to DB
   if (!user) {
-    await createUserSettings(id);
+    await createUser(id);
     user = { directory: [], directoryDepth: [], lastDashboard: null };
   }
 

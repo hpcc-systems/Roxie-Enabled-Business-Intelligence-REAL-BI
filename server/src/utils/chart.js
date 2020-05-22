@@ -39,10 +39,8 @@ const getChartsByDashboardID = async dashboardID => {
   return charts;
 };
 
-const createChart = async (chart, dashboardID, queryID, userID) => {
-  let [err, newChart] = await awaitHandler(
-    chartModel.create({ ...chart, dashboardID, queryID, ownerID: userID }),
-  );
+const createChart = async (chart, dashboardID, queryID) => {
+  let [err, newChart] = await awaitHandler(chartModel.create({ ...chart, dashboardID, queryID }));
 
   // Return error
   if (err) throw err;
@@ -69,18 +67,6 @@ const getChartByID = async chartID => {
   let query = unNestSequelizeObj(chart.query);
 
   return { ...chart, query };
-};
-
-const getChartOwnerByID = async (chartID, ownerID) => {
-  let [err, chart] = await awaitHandler(chartModel.findOne({ where: { id: chartID, ownerID } }));
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested objects
-  chart = unNestSequelizeObj(chart);
-
-  return chart;
 };
 
 const getChartsByDashboardAndQueryID = async (dashboardID, queryID) => {
@@ -123,7 +109,6 @@ module.exports = {
   deleteChartByID,
   getChartsByDashboardAndQueryID,
   getChartByID,
-  getChartOwnerByID,
   getChartsByDashboardID,
   updateChartByID,
 };

@@ -48,7 +48,10 @@ const authenticateToken = () => {
     }
 
     // Update request object
-    req.user = { ...user };
+    req.user = {
+      ...user,
+      role: role.filter(({ ApplicationId }) => ApplicationId == AUTH_APP_ID), // Used == instead of === for flexibility and type coercion.
+    };
 
     // Move to next method
     next();

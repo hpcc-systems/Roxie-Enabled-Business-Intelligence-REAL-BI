@@ -29,10 +29,10 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  cluster.associate = ({ clusterAuth, userSettings }) => {
+  cluster.associate = ({ clusterAuth, user }) => {
     // Many-to-Many relation between clusters and users
     // Creates 'clusterID' foreign key on clusterAuth model
-    cluster.belongsToMany(userSettings, {
+    cluster.belongsToMany(user, {
       through: clusterAuth,
       foreignKey: { name: 'clusterID', allowNull: false },
       onDelete: 'cascade',

@@ -59,16 +59,15 @@ export const updateDashboardParam = async paramObj => {
   return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-export const deleteDashboardParam = async (filtersArr, filterID) => {
+export const deleteDashboardParam = async (dashboardID, filterID) => {
+  let response;
+
   try {
-    await axios.delete('/api/dashboardparam/delete', { params: { filterID } });
+    response = await axios.delete('/api/dashboardparam/delete', { params: { dashboardID, filterID } });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
   }
 
-  // Remove selected filter
-  filtersArr = filtersArr.filter(({ id }) => id !== filterID);
-
-  return { type: UPDATE_DASHBOARD_PARAM, payload: filtersArr };
+  return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
 };

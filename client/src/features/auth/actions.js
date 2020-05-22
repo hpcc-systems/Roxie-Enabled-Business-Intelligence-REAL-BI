@@ -28,7 +28,7 @@ export const getLatestUserData = async () => {
   let response;
 
   try {
-    response = await axios.get('/api/usersettings/getdata');
+    response = await axios.get('/api/user/getdata');
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -42,7 +42,7 @@ export const getLatestUserData = async () => {
 
 export const updateLastDashboard = async dashboardID => {
   try {
-    await axios.put('/api/usersettings/updatelastdashboard', { dashboardID });
+    await axios.put('/api/user/updatelastdashboard', { dashboardID });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -53,7 +53,7 @@ export const updateLastDashboard = async dashboardID => {
 
 export const updateDirectoryDepth = async directoryDepth => {
   try {
-    await axios.put('/api/usersettings/updatedirectorydepth', { directoryDepth });
+    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };

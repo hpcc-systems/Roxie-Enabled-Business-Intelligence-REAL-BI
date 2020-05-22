@@ -2,7 +2,6 @@ const router = require('express').Router();
 const {
   createChart,
   deleteChartByID,
-  getChartOwnerByID,
   getChartsByDashboardAndQueryID,
   getChartsByDashboardID,
   updateChartByID,
@@ -10,6 +9,7 @@ const {
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
 const { deleteQueryByID } = require('../../utils/query');
 const { getDashboardParamsByDashboardAndQueryID } = require('../../utils/dashboardParam');
+const { getDashboardPermission } = require('../../utils/dashboardPermission');
 const { createChartParams, findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
 router.get('/all', async (req, res) => {
@@ -78,13 +78,13 @@ router.put('/update', async (req, res) => {
     body: { chart, dashboardID },
     user: { id: userID },
   } = req;
-  let dbChart, charts, promises;
+  let charts, promises, permissionObj;
 
   try {
-    dbChart = await getChartOwnerByID(chart.id, userID);
+    permissionObj = await getDashboardPermission(dashboardID, userID);
 
     // User is the owner of the chart
-    if (Object.keys(dbChart).length > 0) {
+    if (permissionObj.role === 'Owner') {
       await updateChartByID(chart);
 
       promises = chart.params.map(async ({ id, value }) => {
@@ -127,13 +127,13 @@ router.delete('/delete', async (req, res) => {
     query: { chartID, dashboardID, queryID },
     user: { id: userID },
   } = req;
-  let chart, charts, numOfCharts, paramsArr;
+  let charts, numOfCharts, paramsArr, permissionObj;
 
   try {
-    chart = await getChartOwnerByID(chartID, userID);
+    permissionObj = await getDashboardPermission(dashboardID, userID);
 
     // User is the owner of the chart
-    if (Object.keys(chart).length > 0) {
+    if (permissionObj.role === 'Owner') {
       await deleteChartByID(chartID);
 
       // Determine if any other charts or filters in the application are using the same query
