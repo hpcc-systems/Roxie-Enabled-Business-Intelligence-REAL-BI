@@ -66,3 +66,4 @@ yarn-error.log*
 
 # Temporary Files
 tmp/
+.idea/codeStyles/Project.xml
