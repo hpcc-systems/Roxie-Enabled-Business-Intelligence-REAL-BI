@@ -51,7 +51,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     selectedQuery,
   } = localState;
   const queryKeys = Object.keys(selectedQuery).length;
-  const datasetKeys = Object.keys(selectedDataset).length;
+  //const datasetKeys = Object.keys(selectedDataset).length;
+  const datasetKeys = selectedDataset ? Object.keys(selectedDataset).length : 0;
 
   // Add components to DB
   const newChart = async () => {
