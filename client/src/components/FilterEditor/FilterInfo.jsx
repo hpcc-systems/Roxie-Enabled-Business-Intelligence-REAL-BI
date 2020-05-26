@@ -18,7 +18,8 @@ const FilterInfo = ({ dashboard, handleChange, localState }) => {
   let fields = [{ name: 'Select Dataset', value: '' }];
 
   if (datasets.length > 0 && dataset) {
-    fields = datasets.find(({ name }) => name === dataset).fields;
+    var nameList = datasets.find(({ name }) => name === dataset);
+    if (nameList) fields = nameList.fields;
   }
 
   return (

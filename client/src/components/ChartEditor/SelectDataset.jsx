@@ -26,6 +26,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
       getQueryInfo(clusterID, selectedQuery).then(({ datasets, params }) => {
         handleChange(null, { name: 'datasets', value: datasets });
+        handleChange(null, { name: 'dataset', value: '' });
 
         if (!chartID) {
           // Get array of params from an existing chart that's using the same query
@@ -52,7 +53,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     if (datasets.length > 0 && dataset) {
       let selectedDataset = datasets.find(({ name }) => name === dataset);
 
-      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
+      handleChange(null, { name: 'selectedDataset', value: selectedDataset ? selectedDataset : '' });
     }
   }, [dataset, datasets, handleChange]);
 
