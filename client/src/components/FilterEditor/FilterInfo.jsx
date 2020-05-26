@@ -18,8 +18,13 @@ const FilterInfo = ({ dashboard, handleChange, localState }) => {
   let fields = [{ name: 'Select Dataset', value: '' }];
 
   if (datasets.length > 0 && dataset) {
-    var nameList = datasets.find(({ name }) => name === dataset);
-    if (nameList) fields = nameList.fields;
+    // Get dataset object from array of datasets
+    const nameList = datasets.find(({ name }) => name === dataset);
+
+    // Check for the dataset and, if it exists, update fields variable
+    if (nameList) {
+      fields = nameList.fields;
+    }
   }
 
   return (

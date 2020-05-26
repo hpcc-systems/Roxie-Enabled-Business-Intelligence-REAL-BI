@@ -52,8 +52,9 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
   useEffect(() => {
     if (datasets.length > 0 && dataset) {
       let selectedDataset = datasets.find(({ name }) => name === dataset);
+      selectedDataset = selectedDataset ? selectedDataset : '';
 
-      handleChange(null, { name: 'selectedDataset', value: selectedDataset ? selectedDataset : '' });
+      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
     }
   }, [dataset, datasets, handleChange]);
 
