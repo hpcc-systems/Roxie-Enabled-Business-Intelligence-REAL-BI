@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Toolbar,
+  Typography,
+} from '@material-ui/core';
 
 // Redux Actions
 import { createDashboardParam } from '../../features/dashboard/actions';
@@ -31,18 +39,22 @@ const initState = {
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, marginTop: theme.spacing(3.25), minWidth: 30, padding: 0 },
   formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
+  progress: { marginRight: 15 },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
 }));
 
 const NewFilter = ({ show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeArr } = useForm(initState);
+  const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { toolbar, typography } = useStyles();
+  const { progress, toolbar, typography } = useStyles();
 
   const saveFilter = async () => {
+    setLoading(true);
+
     try {
       const { queryID } = await addQuery(dashboard.id, localState.query);
       const filterObj = await createParamObj(localState, dashboard.id);
@@ -75,7 +87,8 @@ const NewFilter = ({ show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' onClick={saveFilter}>
+        <Button variant='contained' color='primary' disabled={loading} onClick={saveFilter}>
+          {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Save
         </Button>
       </DialogActions>

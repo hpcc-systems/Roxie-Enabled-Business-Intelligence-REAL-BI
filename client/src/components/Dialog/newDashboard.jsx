@@ -31,16 +31,14 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
   const dispatch = useDispatch();
   const { formControl } = useStyles();
 
-  // Get list of clusters from database
   useEffect(() => {
-    getClusters().then(action => dispatch(action));
-  }, [dispatch]);
-
-  // Clear name
-  useEffect(() => {
+    // Clear name and cluster ID
     handleChange(null, { name: 'name', value: '' });
     handleChange(null, { name: 'clusterID', value: '' });
-  }, [handleChange]);
+
+    // Get list of clusters
+    getClusters().then(action => dispatch(action));
+  }, [dispatch, handleChange]);
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>

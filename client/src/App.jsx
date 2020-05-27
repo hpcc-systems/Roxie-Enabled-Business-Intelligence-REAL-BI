@@ -14,7 +14,7 @@ import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard';
 
 // Utils
-import { isTokenValid } from './utils/auth';
+import { checkForToken } from './utils/auth';
 import setAuthHeader from './utils/axiosConfig';
 
 // Constants
@@ -28,8 +28,7 @@ const theme = createMuiTheme({
   },
 });
 
-const token = localStorage.getItem(tokenName);
-const valid = isTokenValid(token);
+const { token, valid } = checkForToken();
 
 if (token) {
   if (valid) {

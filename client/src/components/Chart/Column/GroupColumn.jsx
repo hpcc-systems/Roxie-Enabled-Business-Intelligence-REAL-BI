@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { GroupedColumn } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparator } from '../../../constants';
+import { thousandsSeparator } from '../../../utils/misc';
 
 const GroupColumnChart = ({ data, options }) => {
   const { groupBy, xAxis, yAxis } = options;

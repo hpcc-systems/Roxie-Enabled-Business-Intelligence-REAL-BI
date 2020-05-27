@@ -14,7 +14,7 @@ import {
 import useShare from '../../hooks/useShare';
 
 // Constants
-import { canAddCharts } from '../../constants';
+import { canAddCharts } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles({

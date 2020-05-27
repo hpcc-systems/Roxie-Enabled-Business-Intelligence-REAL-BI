@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { Column } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparator } from '../../../constants';
+import { thousandsSeparator } from '../../../utils/misc';
 
 const ColumnChart = ({ data, options }) => {
   const { xAxis, yAxis } = options;

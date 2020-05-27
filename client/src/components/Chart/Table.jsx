@@ -20,7 +20,7 @@ import { updateDashboardParam } from '../../features/dashboard/actions';
 import { sortArr } from '../../utils/misc';
 
 // Constants
-import { thousandsSeparator } from '../../constants';
+import { thousandsSeparator } from '../../utils/misc';
 
 const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },

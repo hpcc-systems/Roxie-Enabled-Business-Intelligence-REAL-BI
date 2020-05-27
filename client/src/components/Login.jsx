@@ -15,16 +15,18 @@ import {
 } from '@material-ui/core';
 
 // Redux Actions
-import { loginUser } from '../features/auth/actions';
+import { getLatestUserData, loginUser } from '../features/auth/actions';
 
 // React Hooks
 import useForm from '../hooks/useForm';
 
 // Utils
+import { checkForToken } from '../utils/auth';
 import setAuthHeader from '../utils/axiosConfig';
 
 // Constants
 import { tokenName } from '../constants';
+import { useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
   grid: { minHeight: '50vh' },
@@ -44,6 +46,32 @@ const Login = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { grid, progress, textfield } = useStyles();
+
+  useEffect(() => {
+    const { token, valid } = checkForToken();
+
+    if (token) {
+      if (valid) {
+        // There is a valid token in storage
+        setAuthHeader(token);
+
+        (async () => {
+          const { action, lastDashboard } = await getLatestUserData();
+
+          // Send data to redux store
+          dispatch(action);
+
+          // Generate new url and navigate there
+          const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashboard';
+          history.push(location);
+        })();
+      } else {
+        // There is an invalid token in storage
+        localStorage.removeItem(tokenName);
+        setAuthHeader();
+      }
+    }
+  });
 
   const loginUserFn = async event => {
     // Prevent page from reloading

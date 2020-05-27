@@ -4,7 +4,7 @@ import { Button, Toolbar, Typography } from '@material-ui/core';
 import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
 
 // Constants
-import { canDeleteCharts, canEditCharts } from '../../constants';
+import { canDeleteCharts, canEditCharts } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles({
