@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -48,6 +48,7 @@ const useStyles = makeStyles(theme => ({
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
+  const [loading, setLoading] = useState(false);
   const history = useHistory();
   const { directory: storeDirectory, directoryDepth: storeDirectoryDepth } = useSelector(
     state => state.auth.user,
@@ -83,6 +84,9 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     const { clusterID, directory, directoryDepth, hasClusterAuth, parentID, password, username } = localState;
     let dashboard;
 
+    // Enable loading animation
+    setLoading(true);
+
     try {
       dashboard = await addDashboardToDB(localState);
 
@@ -105,6 +109,9 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     updateDirectoryInDB(newDirectory);
     updateDirectoryDepth(newDepthArr);
     handleChange(null, { name: 'directoryDepth', value: newDepthArr });
+
+    // Disable loading animation
+    setLoading(false);
   };
 
   const createFolder = () => {
@@ -185,6 +192,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
           createDashboard={createDashboard}
           handleChange={handleChange}
           localState={localState}
+          loading={loading}
           show={showDashboardDialog}
           toggleDialog={toggleDashboardDialog}
         />

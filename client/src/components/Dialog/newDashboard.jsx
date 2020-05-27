@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -24,13 +25,14 @@ import { checkForClusterAuth } from '../../utils/clusterAuth';
 // Create styles
 const useStyles = makeStyles(() => ({
   formControl: { marginBottom: 24 },
+  progress: { marginRight: 15 },
 }));
 
-const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, toggleDialog }) => {
+const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState, show, toggleDialog }) => {
   const { clusterID, password, username, hasClusterAuth, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
-  const { formControl } = useStyles();
+  const { formControl, progress } = useStyles();
 
   useEffect(() => {
     // Clear name and cluster ID
@@ -107,7 +109,8 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color='primary' variant='contained' onClick={createDashboard}>
+        <Button color='primary' variant='contained' disabled={loading} onClick={createDashboard}>
+          {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Create
         </Button>
       </DialogActions>
