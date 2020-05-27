@@ -3,13 +3,10 @@ const axios = require('axios');
 // Constants
 const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
-// Utils
-const { getUserByID } = require('../utils/auth');
-
 const authenticateToken = () => {
   return async (req, res, next) => {
     let token = req.headers.authorization;
-    let response, user;
+    let response;
 
     // No token provided
     if (!token) {
@@ -39,17 +36,9 @@ const authenticateToken = () => {
       return res.status(401).send('Unauthorized Request');
     }
 
-    // Get user details
-    try {
-      user = await getUserByID(id);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).send('Internal Server Error');
-    }
-
     // Update request object
     req.user = {
-      ...user,
+      id,
       role: role.filter(({ ApplicationId }) => ApplicationId == AUTH_APP_ID), // Used == instead of === for flexibility and type coercion.
     };
 

@@ -1,5 +1,8 @@
 import jwtDecode from 'jwt-decode';
 
+// Constants
+import { tokenName } from '../constants';
+
 export const isTokenValid = token => {
   // No token provided
   if (!token) return false;
@@ -13,4 +16,11 @@ export const isTokenValid = token => {
 
   // Token is not expired or no expiration value is set (unexpiring token)
   return true;
+};
+
+export const checkForToken = () => {
+  const token = localStorage.getItem(tokenName);
+  const valid = isTokenValid(token);
+
+  return { token, valid };
 };

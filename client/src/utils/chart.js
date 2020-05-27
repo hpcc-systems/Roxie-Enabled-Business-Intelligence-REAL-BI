@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Constants
-import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../constants';
+import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
 
 const getChartData = async (chartID, clusterID) => {
   let response;

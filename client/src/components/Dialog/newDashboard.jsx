@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -19,6 +19,7 @@ import { getClusters } from '../../features/cluster/actions';
 
 // Utils
 import { sortArr } from '../../utils/misc';
+import { checkForClusterAuth } from '../../utils/clusterAuth';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -26,21 +27,33 @@ const useStyles = makeStyles(() => ({
 }));
 
 const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, toggleDialog }) => {
-  const { clusterID, name } = localState;
+  const { clusterID, password, username, hasClusterAuth, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
   const { formControl } = useStyles();
 
-  // Get list of clusters from database
   useEffect(() => {
-    getClusters().then(action => dispatch(action));
-  }, [dispatch]);
-
-  // Clear name
-  useEffect(() => {
+    // Clear name and cluster ID
     handleChange(null, { name: 'name', value: '' });
     handleChange(null, { name: 'clusterID', value: '' });
-  }, [handleChange]);
+    handleChange(null, { name: 'hasClusterAuth', value: null });
+    handleChange(null, { name: 'username', value: '' });
+    handleChange(null, { name: 'password', value: '' });
+
+    // Get list of clusters
+    getClusters().then(action => dispatch(action));
+  }, [dispatch, handleChange]);
+
+  const checkForAuth = async event => {
+    // Update cluster ID in local state
+    handleChange(event);
+
+    // Check for cluster auth already in database
+    let hasAuth = await checkForClusterAuth(event.target.value);
+
+    // Update local state
+    handleChange(null, { name: 'hasClusterAuth', value: hasAuth });
+  };
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
@@ -48,7 +61,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
       <DialogContent>
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
-          <Select name='clusterID' value={clusterID} onChange={handleChange}>
+          <Select name='clusterID' value={clusterID} onChange={checkForAuth}>
             {sortArr(clusters, 'id').map(({ host, id, infoPort, name }) => {
               return (
                 <MenuItem key={id} value={id}>
@@ -67,6 +80,28 @@ const NewDashboardDialog = ({ createDashboard, handleChange, localState, show, t
           onChange={handleChange}
           autoComplete='off'
         />
+        {hasClusterAuth !== null && !hasClusterAuth && (
+          <Fragment>
+            <TextField
+              className={formControl}
+              fullWidth
+              label='Cluster Username'
+              name='username'
+              value={username}
+              onChange={handleChange}
+              autoComplete='off'
+            />
+            <TextField
+              className={formControl}
+              fullWidth
+              label='Cluster Password'
+              name='password'
+              value={password}
+              onChange={handleChange}
+              autoComplete='off'
+            />
+          </Fragment>
+        )}
       </DialogContent>
       <DialogActions>
         <Button color='secondary' variant='contained' onClick={toggleDialog}>

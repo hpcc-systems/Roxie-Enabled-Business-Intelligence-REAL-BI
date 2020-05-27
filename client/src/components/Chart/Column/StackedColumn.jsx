@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { StackedColumn } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparator } from '../../../constants';
+import { thousandsSeparator } from '../../../utils/misc';
 
 const StackedColumnChart = ({ data, options }) => {
   const { groupBy, xAxis, yAxis } = options;
