@@ -25,9 +25,19 @@ import {
   getFavoriteDashboards,
   updateDashboardObj,
 } from '../../utils/directory';
+import { createClusterAuth } from '../../utils/clusterAuth';
 import { useEffect } from 'react';
 
-const initState = { clusterID: '', directoryDepth: ['root'], directory: [], name: '', parentID: 0 };
+const initState = {
+  clusterID: '',
+  password: '',
+  username: '',
+  directoryDepth: ['root'],
+  directory: [],
+  hasClusterAuth: null,
+  name: '',
+  parentID: 0,
+};
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -70,11 +80,16 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   };
 
   const createDashboard = async () => {
-    const { directory, directoryDepth, parentID } = localState;
+    const { clusterID, directory, directoryDepth, hasClusterAuth, parentID, password, username } = localState;
     let dashboard;
 
     try {
       dashboard = await addDashboardToDB(localState);
+
+      // Add cluster credentials to DB
+      if (hasClusterAuth !== null && !hasClusterAuth) {
+        await createClusterAuth({ clusterID, password, username });
+      }
     } catch (err) {
       return console.error(err);
     }
