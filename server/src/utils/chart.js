@@ -1,6 +1,9 @@
 // DB Models
 const { chart: chartModel, query: queryModel } = require('../models');
 
+//Node mailer for emails
+var nodemailer = require('nodemailer');
+
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
@@ -49,6 +52,41 @@ const createChart = async (chart, dashboardID, queryID) => {
   newChart = unNestSequelizeObj(newChart);
 
   return newChart;
+};
+
+const shareChart = async (email, dashboardID, url) => {
+  let fromMail = 'realbi@lexisnexis.com'; //Lohith.JR@lexisnexisrisk.com
+  let toMail = email;
+  let subject = 'Dashboard Chart Share';
+  let text = 'Please click on the link to add the chart to your dashboard. ' + url;
+
+  const transporter = nodemailer.createTransport({
+    host: 'appmail.choicepoint.net',
+    port: 25,
+    secure: false,
+    auth: {},
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  // email options
+  let mailOptions = {
+    from: fromMail,
+    to: toMail,
+    subject: subject,
+    text: text,
+  };
+
+  // send email
+  transporter.sendMail(mailOptions, (error, response) => {
+    console.log('Email Trigered');
+    if (error) {
+      return error.message;
+    }
+    console.log(response);
+  });
+  return 'Chart shared successfully';
 };
 
 const getChartByID = async chartID => {
@@ -111,4 +149,5 @@ module.exports = {
   getChartByID,
   getChartsByDashboardID,
   updateChartByID,
+  shareChart,
 };

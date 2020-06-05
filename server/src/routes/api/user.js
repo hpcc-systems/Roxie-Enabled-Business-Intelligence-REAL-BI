@@ -66,4 +66,8 @@ router.put('/updatedirectorydepth', async (req, res) => {
   return res.status(202).end();
 });
 
+router.get('/all', async (req, res) => {
+  console.log('Get all users empty method', req, res);
+});
+
 module.exports = router;

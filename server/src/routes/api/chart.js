@@ -5,6 +5,7 @@ const {
   getChartsByDashboardAndQueryID,
   getChartsByDashboardID,
   updateChartByID,
+  shareChart,
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
 const { deleteQueryByID } = require('../../utils/query');
@@ -71,6 +72,20 @@ router.post('/create', async (req, res) => {
   newChart = { ...newChart, params: chartParams };
 
   return res.status(201).json(newChart);
+});
+
+router.post('/share', async (req, res) => {
+  const {
+    body: { email, dashboardID, url },
+  } = req;
+  let shareStatus;
+  try {
+    shareStatus = await shareChart(email, dashboardID, url);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+  return res.status(200).json(shareStatus);
 });
 
 router.put('/update', async (req, res) => {

@@ -13,6 +13,7 @@ import Toolbar from './Toolbar';
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 import NewChartDialog from '../Dialog/newChart';
+import ShareLinkDialog from '../Dialog/shareLink';
 import EditChartDialog from '../Dialog/editChart';
 import FilterDrawer from '../Drawers/Filters';
 
@@ -33,6 +34,7 @@ const Dashboard = () => {
   const { charts } = useSelector(state => state.chart);
   const { dashboardID: urlID } = useParams();
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
+  const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
@@ -117,6 +119,7 @@ const Dashboard = () => {
         refreshChart={dataCall}
         toggleDialog={newChartToggle}
         toggleDrawer={toggleDrawer}
+        toggleShare={shareLinkToggle}
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
@@ -151,6 +154,7 @@ const Dashboard = () => {
           />
         )}
         {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+        {shareLinkShow && <ShareLinkDialog show={shareLinkShow} toggleShare={shareLinkToggle} />}
         {editChartShow && (
           <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
         )}
