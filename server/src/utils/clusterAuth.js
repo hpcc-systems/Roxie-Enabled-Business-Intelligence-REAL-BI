@@ -7,6 +7,9 @@ const { awaitHandler, unNestSequelizeObj } = require('./misc');
 const createClusterAuth = async (clusterID, password, userID, username) => {
   let hash = null;
 
+  // Don't save empty string value
+  username = username === '' ? null : username;
+
   if (username && password) {
     hash = encryptPassword(password);
   }
@@ -22,6 +25,20 @@ const createClusterAuth = async (clusterID, password, userID, username) => {
   newClusterAuth = unNestSequelizeObj(newClusterAuth);
 
   return newClusterAuth;
+};
+
+const checkForClusterAuth = async (clusterID, userID) => {
+  let [err, clusterAuth] = await awaitHandler(
+    clusterAuthModel.findOne({ attributes: ['userID'], where: { clusterID, userID } }),
+  );
+
+  // Return error
+  if (err) throw err;
+
+  // Get nested object
+  clusterAuth = unNestSequelizeObj(clusterAuth);
+
+  return clusterAuth;
 };
 
 const getClusterAuth = async (clusterID, userID) => {
@@ -45,4 +62,25 @@ const getClusterAuth = async (clusterID, userID) => {
   return clusterAuth;
 };
 
-module.exports = { createClusterAuth, getClusterAuth };
+const updateClusterAuth = async (clusterID, password, userID, username) => {
+  let hash = null;
+
+  // Don't save empty string value
+  username = username === '' ? null : username;
+
+  if (username && password) {
+    hash = encryptPassword(password);
+  }
+
+  let [err, clusterAuth] = await awaitHandler(clusterAuthModel.update({ clusterID, hash, userID, username }));
+
+  // Return error
+  if (err) throw err;
+
+  // Get nested object
+  clusterAuth = unNestSequelizeObj(clusterAuth);
+
+  return clusterAuth;
+};
+
+module.exports = { checkForClusterAuth, createClusterAuth, getClusterAuth, updateClusterAuth };

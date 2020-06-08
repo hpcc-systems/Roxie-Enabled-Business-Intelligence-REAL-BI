@@ -9,7 +9,7 @@ import { General, GroupBy, Parameters } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
-import { hasGroupByOption } from '../../constants';
+import { hasGroupByOption } from '../../utils/misc';
 
 const tabOptions = [
   { name: 'General', disabled: false },

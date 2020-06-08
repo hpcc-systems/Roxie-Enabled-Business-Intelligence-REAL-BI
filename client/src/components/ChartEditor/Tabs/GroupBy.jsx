@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 
 // Constants
-import { hasStackedOption } from '../../../constants';
+import { hasStackedOption } from '../../../utils/misc';
 
 const useStyles = makeStyles(theme => ({
   checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },

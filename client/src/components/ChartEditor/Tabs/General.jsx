@@ -24,7 +24,7 @@ import PieParams from './PieParams';
 import TableParams from './TableParams';
 
 // Constants
-import { hasHorizontalOption } from '../../../constants';
+import { hasHorizontalOption } from '../../../utils/misc';
 
 const charts = [
   { name: 'Bar', value: 'bar' },

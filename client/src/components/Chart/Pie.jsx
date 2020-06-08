@@ -3,7 +3,7 @@ import ReactG2Plot from 'react-g2plot';
 import { Pie } from '@antv/g2plot';
 
 // Constants
-import { thousandsSeparator } from '../../constants';
+import { thousandsSeparator } from '../../utils/misc';
 
 // Helper Functions
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
