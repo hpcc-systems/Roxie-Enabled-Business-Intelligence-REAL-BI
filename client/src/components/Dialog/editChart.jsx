@@ -100,7 +100,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' onClick={toggleDialog}>
+        <Button variant='contained' color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
         <Button variant='contained' color='primary' onClick={editChart}>

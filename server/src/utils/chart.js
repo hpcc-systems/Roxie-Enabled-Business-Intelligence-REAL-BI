@@ -1,8 +1,13 @@
 // DB Models
 const { chart: chartModel, query: queryModel } = require('../models');
 
+//Node mailer for emails
+const nodemailer = require('nodemailer');
+
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
+
+const { SHARE_EMAIL, SHARE_URL } = process.env;
 
 const getChartsByDashboardID = async dashboardID => {
   let [err, charts] = await awaitHandler(
@@ -49,6 +54,40 @@ const createChart = async (chart, dashboardID, queryID) => {
   newChart = unNestSequelizeObj(newChart);
 
   return newChart;
+};
+
+const shareChart = async (email, dashboardID) => {
+  const url = `${SHARE_URL}/dashboard/${dashboardID}`;
+  const subject = 'Dashboard Chart Share';
+  const text = `Please click on the link to add the chart to your dashboard. ${url}`;
+
+  const transporter = nodemailer.createTransport({
+    host: 'appmail.choicepoint.net',
+    port: 25,
+    secure: false,
+    auth: {},
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  // email options
+  let mailOptions = {
+    from: SHARE_EMAIL,
+    to: email,
+    subject: subject,
+    text: text,
+  };
+
+  // send email
+  transporter.sendMail(mailOptions, (error, response) => {
+    console.log('Email Trigered');
+    if (error) {
+      return error.message;
+    }
+    console.log(response);
+  });
+  return 'Chart shared successfully';
 };
 
 const getChartByID = async chartID => {
@@ -111,4 +150,5 @@ module.exports = {
   getChartByID,
   getChartsByDashboardID,
   updateChartByID,
+  shareChart,
 };

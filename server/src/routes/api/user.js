@@ -2,7 +2,13 @@ const router = require('express').Router();
 
 // Utils
 const { getUserByID } = require('../../utils/auth');
-const { updateDirectoryDepth, updateLastDashboard, updateUserDirectory } = require('../../utils/user');
+const {
+  getAllUsers,
+  getSuperUserToken,
+  updateDirectoryDepth,
+  updateLastDashboard,
+  updateUserDirectory,
+} = require('../../utils/user');
 
 router.get('/getdata', async (req, res) => {
   const { id: userID } = req.user;
@@ -64,6 +70,21 @@ router.put('/updatedirectorydepth', async (req, res) => {
   }
 
   return res.status(202).end();
+});
+
+router.get('/all', async (req, res) => {
+  const { id: userID } = req.user;
+  let token, users;
+
+  try {
+    token = await getSuperUserToken();
+    users = await getAllUsers(token, userID);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json([]);
+  }
+
+  return res.status(200).json(users);
 });
 
 module.exports = router;
