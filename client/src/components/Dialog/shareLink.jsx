@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 //material module
 import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
@@ -6,73 +6,99 @@ import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } 
 import { useSelector } from 'react-redux';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
+// React Hooks
+import useForm from '../../hooks/useForm';
+
 // Utils
-import { shareChart } from '../../utils/share';
+import { getUsers, shareChart } from '../../utils/share';
+
+const initState = {
+  error: '',
+  user: '',
+  users: [],
+};
+
+const validEmailRegex = RegExp(/^[\w.=-]+@[\w-]+\.[\w]{2,3}$/i);
 
 const ShareLinkDialog = ({ show, toggleShare }) => {
-  const { dashboard } = useSelector(state => state.dashboard);
-  const { id: dashboardID } = dashboard;
-  const [email, setEmail] = React.useState('');
-  const [error, setError] = React.useState('');
+  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { values: localState, handleChange } = useForm(initState);
 
-  let userSuggestions = [];
+  // Get list of available users
+  useEffect(() => {
+    getUsers().then(data => handleChange(null, { name: 'users', value: data }));
+  }, [handleChange]);
 
-  const shareDashboard = async () => {
+  const shareDashboard = async email => {
     try {
       shareChart(email, dashboardID);
     } catch (err) {
       console.error(err);
     }
+
     return toggleShare();
   };
 
-  // const handleInputChange = (event,value) => {
-  //   getUsers().then((res) => {
-  //     for (const result of res.data){
-  //         if(!userSuggestions.includes(result.login))
-  //         {
-  //           userSuggestions.push(result.login);
-  //         }
-  //     }
-  //   });
-  // }
-  const validEmailRegex = RegExp(/^[\w=-]+@[\w-]+\.[\w]{2,3}$/i);
-
-  const handleEmailChange = event => {
-    event.preventDefault();
-    const { value } = event.target;
-    setError(validEmailRegex.test(value) ? '' : 'Email is not valid!');
-    setEmail(value);
+  const handleInputChange = value => {
+    // Only attempt to update state if a value is present
+    if (value) {
+      handleChange(null, { name: 'user', value });
+    }
   };
 
   const handleSubmit = event => {
+    const { user } = localState;
     event.preventDefault();
-    if (error || email.length === 0) {
-      setError('Email is not valid!');
-    } else {
-      shareDashboard();
+
+    // Get beginning and end position of email address
+    const emailStart = user.indexOf('(') > -1 ? user.indexOf('(') + 1 : 0;
+    const emailEnd = user.indexOf(')') > -1 ? user.indexOf(')') : user.length;
+
+    // Get email address
+    const email = user
+      .substring(emailStart, emailEnd)
+      .trim()
+      .toLowerCase();
+
+    if (!validEmailRegex.test(email) || user.length === 0) {
+      return handleChange(null, { name: 'error', value: 'Email is not valid!' });
     }
+
+    shareDashboard(email);
   };
+
+  const formatDropdownOption = option => {
+    const { email, firstName, lastName } = option;
+
+    if (lastName.length === 0) {
+      return `${firstName} (${email})`;
+    }
+
+    return `${firstName} ${lastName} (${email})`;
+  };
+
+  // Destructure localState to get variable references
+  const { error, user, users } = localState;
 
   return (
     <div>
       <form noValidate>
         <Dialog fullWidth open={show}>
-          <DialogTitle id=''>Share Link</DialogTitle>
+          <DialogTitle>Share Link</DialogTitle>
           <DialogContent>
             <Autocomplete
-              //onInputChange={handleInputChange}
-              options={userSuggestions}
+              onInputChange={(event, newValue) => handleInputChange(newValue)}
+              options={users}
               freeSolo
-              getOptionLabel={option => option}
+              getOptionLabel={option => formatDropdownOption(option)}
               renderInput={params => (
                 <TextField
                   required={true}
                   validators={['required', 'isEmail']}
                   {...params}
-                  onChange={handleEmailChange}
+                  onChange={event => handleInputChange(event.target.value)}
                   autoFocus
-                  value={email}
+                  value={user}
                   label='Email Address'
                   type='email'
                   fullWidth

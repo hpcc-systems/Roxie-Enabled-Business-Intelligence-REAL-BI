@@ -75,17 +75,16 @@ router.post('/create', async (req, res) => {
 });
 
 router.post('/share', async (req, res) => {
-  const {
-    body: { email, dashboardID, url },
-  } = req;
-  let shareStatus;
+  const { email, dashboardID } = req.body;
+
   try {
-    shareStatus = await shareChart(email, dashboardID, url);
+    await shareChart(email, dashboardID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
-  return res.status(200).json(shareStatus);
+
+  return res.status(200).end();
 });
 
 router.put('/update', async (req, res) => {

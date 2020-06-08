@@ -2,10 +2,12 @@
 const { chart: chartModel, query: queryModel } = require('../models');
 
 //Node mailer for emails
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
+
+const { SHARE_EMAIL, SHARE_URL } = process.env;
 
 const getChartsByDashboardID = async dashboardID => {
   let [err, charts] = await awaitHandler(
@@ -54,11 +56,10 @@ const createChart = async (chart, dashboardID, queryID) => {
   return newChart;
 };
 
-const shareChart = async (email, dashboardID, url) => {
-  let fromMail = 'realbi@lexisnexis.com'; //Lohith.JR@lexisnexisrisk.com
-  let toMail = email;
-  let subject = 'Dashboard Chart Share';
-  let text = 'Please click on the link to add the chart to your dashboard. ' + url;
+const shareChart = async (email, dashboardID) => {
+  const url = `${SHARE_URL}/dashboard/${dashboardID}`;
+  const subject = 'Dashboard Chart Share';
+  const text = `Please click on the link to add the chart to your dashboard. ${url}`;
 
   const transporter = nodemailer.createTransport({
     host: 'appmail.choicepoint.net',
@@ -72,8 +73,8 @@ const shareChart = async (email, dashboardID, url) => {
 
   // email options
   let mailOptions = {
-    from: fromMail,
-    to: toMail,
+    from: SHARE_EMAIL,
+    to: email,
     subject: subject,
     text: text,
   };
