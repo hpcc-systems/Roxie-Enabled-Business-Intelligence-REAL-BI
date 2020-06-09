@@ -1,15 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  CircularProgress,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@material-ui/core';
+import { FormControl, Grid, TextField, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -18,11 +9,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ParametersTab = ({ handleChangeArr, localState }) => {
-  const { chartID, dataset, datasets = [], params = [] } = localState;
-  const { formControl, progress, typography } = useStyles();
-
-  // Remove the dataset used for chart data from the list of options
-  const datasetOptions = datasets.filter(({ name }) => name !== dataset);
+  const { dataset, params = [] } = localState;
+  const { formControl, typography } = useStyles();
 
   // Updates param array in state
   const setParamObj = (event, field, index) => {
@@ -45,41 +33,17 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
         <Grid container direction='row' justify='space-between' spacing={2}>
           {params.map(({ name, type }, index) => {
             return (
-              <Fragment key={index}>
-                <Grid item xs={6}>
-                  <TextField
-                    label={`${name}: ${type}`}
-                    name='params'
-                    value={params[index].value || ''}
-                    onChange={event => setParamObj(event, 'value', index)}
-                    autoComplete='off'
-                    className={formControl}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <FormControl className={formControl} fullWidth>
-                    <InputLabel>Values Dataset</InputLabel>
-                    {chartID && datasetOptions.length === 0 ? (
-                      <CircularProgress className={progress} size={20} />
-                    ) : (
-                      <Select
-                        name='params'
-                        value={params[index].dataset || ''}
-                        onChange={event => setParamObj(event, 'dataset', index)}
-                      >
-                        {datasetOptions.map(({ name }, index) => {
-                          return (
-                            <MenuItem key={index} value={name}>
-                              {name}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    )}
-                  </FormControl>
-                </Grid>
-              </Fragment>
+              <Grid key={index} item xs={12}>
+                <TextField
+                  label={`${name}: ${type}`}
+                  name='params'
+                  value={params[index].value || ''}
+                  onChange={event => setParamObj(event, 'value', index)}
+                  autoComplete='off'
+                  className={formControl}
+                  fullWidth
+                />
+              </Grid>
             );
           })}
         </Grid>

@@ -26,20 +26,10 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
       getQueryInfo(clusterID, selectedQuery).then(({ datasets, params }) => {
         handleChange(null, { name: 'datasets', value: datasets });
-        handleChange(null, { name: 'dataset', value: '' });
 
         if (!chartID) {
-          // Get array of params from an existing chart that's using the same query
-          const preFill = charts.find(({ queryName }) => queryName === selectedQuery.name);
-          let paramArr;
-
-          if (preFill) {
-            // Populate paramArr with existing chart's params
-            paramArr = preFill.params.map(({ dataset, name, type }) => ({ name, type, dataset, value: '' }));
-          } else {
-            // Populate paramArr with each param provided by the query
-            paramArr = params.map(param => ({ ...param, dataset: '', value: '' }));
-          }
+          // Populate paramArr with each param provided by the query
+          const paramArr = params.map(param => ({ ...param, value: '' }));
 
           handleChange(null, { name: 'params', value: paramArr });
         }
@@ -58,26 +48,21 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     }
   }, [dataset, datasets, handleChange]);
 
-  // Do not show if in edit mode (chart ID populated)
-  // Continue to mount component to get useEffect to run
-  return (
-    !chartID &&
-    (loading ? (
-      <CircularProgress className={progress} />
-    ) : (
-      <FormControl className={formControl} fullWidth>
-        <InputLabel>Dataset</InputLabel>
-        <Select name='dataset' value={dataset} onChange={handleChange}>
-          {datasets.map(({ name }, index) => {
-            return (
-              <MenuItem key={index} value={name}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-    ))
+  return loading ? (
+    <CircularProgress className={progress} />
+  ) : (
+    <FormControl className={formControl} fullWidth>
+      <InputLabel>Dataset</InputLabel>
+      <Select name='dataset' value={dataset} onChange={handleChange}>
+        {datasets.map(({ name }, index) => {
+          return (
+            <MenuItem key={index} value={name}>
+              {name}
+            </MenuItem>
+          );
+        })}
+      </Select>
+    </FormControl>
   );
 };
 

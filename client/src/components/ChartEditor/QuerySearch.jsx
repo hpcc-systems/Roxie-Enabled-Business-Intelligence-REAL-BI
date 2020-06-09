@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const QuerySearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, keyword, queries } = localState;
+  const { chartID, keyword, queries, selectedQuery = {} } = localState;
   const { clusterID } = dashboard;
   const { autocomplete } = useStyles();
 
@@ -29,6 +29,7 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
           const selectedQuery = data.find(({ name }) => name === keyword);
           handleChange(null, { name: 'selectedQuery', value: selectedQuery });
         }
+
         setLoading(false);
       });
     }
@@ -46,41 +47,46 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
     }
   };
 
-  // Do not show if in edit mode (chart ID populated)
-  // Continue to mount component to get useEffect to run
-  return (
-    !chartID && (
-      <Autocomplete
-        className={autocomplete}
-        onChange={(event, newValue) => {
-          // Only attempt to update state if a value is present
-          if (newValue) {
-            handleChange(null, { name: 'selectedQuery', value: newValue });
-          }
-        }}
-        getOptionLabel={option => (option.name ? option.name : '')}
-        options={queries}
-        renderInput={params => (
-          <TextField
-            {...params}
-            name='keyword'
-            value={keyword}
-            onChange={updateKeyword}
-            label='Query'
-            fullWidth
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <Fragment>
-                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </Fragment>
-              ),
-            }}
-          />
-        )}
-      />
-    )
+  return chartID ? (
+    // If chartID is present then component is being edited and this text box is just displaying the datasource name
+    <TextField
+      className={autocomplete}
+      disabled={true}
+      value={selectedQuery.name || ' '}
+      label='Source'
+      fullWidth
+    />
+  ) : (
+    <Autocomplete
+      className={autocomplete}
+      onChange={(event, newValue) => {
+        // Only attempt to update state if a value is present
+        if (newValue) {
+          handleChange(null, { name: 'selectedQuery', value: newValue });
+        }
+      }}
+      getOptionLabel={option => (option.name ? option.name : '')}
+      options={queries}
+      renderInput={params => (
+        <TextField
+          {...params}
+          name='keyword'
+          value={keyword}
+          onChange={updateKeyword}
+          label='Query'
+          fullWidth
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <Fragment>
+                {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </Fragment>
+            ),
+          }}
+        />
+      )}
+    />
   );
 };
 
