@@ -4,7 +4,7 @@ const getDashboardData = async (clusterID, dashboardID) => {
   let response;
 
   try {
-    response = await axios.get('/api/query/data/single', { params: { clusterID, dashboardID } });
+    response = await axios.get('/api/source/data/single', { params: { clusterID, dashboardID } });
   } catch (err) {
     console.error(err);
     return {};

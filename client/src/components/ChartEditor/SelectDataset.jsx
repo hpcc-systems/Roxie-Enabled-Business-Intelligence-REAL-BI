@@ -4,27 +4,27 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 // Utils
-import { getQueryInfo } from '../../utils/query';
+import { getSourceInfo } from '../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: `${theme.spacing(1)}px 0 ${theme.spacing(4)}px 0` },
+  formControl: { marginBottom: theme.spacing(2), marginTop: theme.spacing(1) },
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
-  const { chartID, dataset, datasets = [], selectedQuery } = localState;
+  const { chartID, dataset, datasets = [], selectedSource, sourceType } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
   // Get list of query datasets from hpcc
   useEffect(() => {
-    if (Object.keys(selectedQuery).length > 0) {
+    if (Object.keys(selectedSource).length > 0) {
       setLoading(true);
 
-      getQueryInfo(clusterID, selectedQuery).then(({ datasets, params }) => {
+      getSourceInfo(clusterID, selectedSource, sourceType).then(({ datasets, params }) => {
         handleChange(null, { name: 'datasets', value: datasets });
 
         if (!chartID) {
@@ -37,12 +37,12 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
         setLoading(false);
       });
     }
-  }, [chartID, charts, clusterID, handleChange, selectedQuery]);
+  }, [chartID, charts, clusterID, handleChange, selectedSource, sourceType]);
 
   useEffect(() => {
     if (datasets.length > 0 && dataset) {
       let selectedDataset = datasets.find(({ name }) => name === dataset);
-      selectedDataset = selectedDataset ? selectedDataset : '';
+      selectedDataset = selectedDataset ? selectedDataset : {};
 
       handleChange(null, { name: 'selectedDataset', value: selectedDataset });
     }

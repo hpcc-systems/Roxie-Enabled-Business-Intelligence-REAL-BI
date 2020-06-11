@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -22,7 +22,7 @@ import useForm from '../../hooks/useForm';
 
 // Utils
 import { createParamObj } from '../../utils/dashboardParam';
-import { addQuery } from '../../utils/query';
+import { addSource } from '../../utils/source';
 
 const initState = {
   dataset: '',
@@ -30,9 +30,11 @@ const initState = {
   field: '',
   keyword: '',
   name: '',
-  mappedParams: [{ chartID: '', parameter: '', queryID: '' }],
-  queries: [],
-  query: '',
+  mappedParams: [],
+  sources: [],
+  sourceType: 'query',
+  selectedDataset: {},
+  selectedSource: {},
 };
 
 // Create styles
@@ -52,14 +54,21 @@ const NewFilter = ({ show, toggleDialog }) => {
   const dispatch = useDispatch();
   const { progress, toolbar, typography } = useStyles();
 
+  // Add first object to mappedParams array
+  useEffect(() => {
+    if (localState.mappedParams.length === 0) {
+      handleChange(null, { name: 'mappedParams', value: [{ chartID: '', parameter: '', sourceID: '' }] });
+    }
+  });
+
   const saveFilter = async () => {
     setLoading(true);
 
     try {
-      const { queryID } = await addQuery(dashboard.id, localState.query);
+      const { sourceID } = await addSource(dashboard.id, localState.selectedSource);
       const filterObj = await createParamObj(localState, dashboard.id);
 
-      createDashboardParam({ ...filterObj, queryID }).then(action => dispatch(action));
+      createDashboardParam({ ...filterObj, sourceID }).then(action => dispatch(action));
     } catch (err) {
       console.error(err);
     }

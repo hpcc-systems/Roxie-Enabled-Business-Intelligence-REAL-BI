@@ -27,7 +27,7 @@ import { getDashboardData } from '../../utils/dashboard';
 import { sortArr } from '../../utils/misc';
 
 const Dashboard = () => {
-  const [queryData, setQueryData] = useState({});
+  const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
   const { clusterID, id: dashboardID, params = [] } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
@@ -88,19 +88,19 @@ const Dashboard = () => {
         });
 
         // Set data in local state object with query name as key
-        setQueryData(newDataObj);
+        setCompData(newDataObj);
       });
     } else {
       // Set initial object keys and loading
       charts.forEach(({ id: chartID }) => {
-        setQueryData(prevState => ({ ...prevState, [chartID]: {} }));
+        setCompData(prevState => ({ ...prevState, [chartID]: {} }));
       });
 
       // Fetch data for each chart
       charts.forEach(({ id: chartID }) => {
         getChartData(chartID, clusterID).then(data => {
           // Set data in local state object with chartID as key
-          setQueryData(prevState => ({ ...prevState, [chartID]: { data, loading: false } }));
+          setCompData(prevState => ({ ...prevState, [chartID]: { data, loading: false } }));
         });
       });
     }
@@ -124,8 +124,8 @@ const Dashboard = () => {
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'id').map((chart, index) => {
-            const { id: chartID, options, queryID, queryName } = chart;
-            const dataObj = queryData[chartID] || queryData[queryName] || {};
+            const { id: chartID, options, sourceID, sourceName } = chart;
+            const dataObj = compData[chartID] || compData[sourceName] || {};
 
             return (
               <Grid key={index} item md={12}>
@@ -134,7 +134,7 @@ const Dashboard = () => {
                     chartID={chartID}
                     dashboard={dashboard}
                     options={options}
-                    queryID={queryID}
+                    sourceID={sourceID}
                     removeChart={removeChart}
                     toggleDialog={editChart}
                   />
@@ -150,7 +150,7 @@ const Dashboard = () => {
             deleteFilter={deleteFilter}
             showDrawer={showDrawer}
             toggleDrawer={toggleDrawer}
-            queryData={queryData}
+            compData={compData}
           />
         )}
         {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}

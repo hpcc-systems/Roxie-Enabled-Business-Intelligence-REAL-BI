@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flexGrow: 1, margin: theme.spacing(1), marginTop: theme.spacing(1.5) },
 }));
 
-const FilterDrawer = ({ dashboard, deleteFilter, showDrawer, toggleDrawer, queryData }) => {
+const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDrawer }) => {
   const { params = [] } = dashboard;
   const [filterID, setFilterID] = useState(null);
   const { showDialog: showNewDialog, toggleDialog: toggleNewDialog } = useDialog(false);
@@ -46,9 +46,9 @@ const FilterDrawer = ({ dashboard, deleteFilter, showDrawer, toggleDrawer, query
   let datasets = {};
 
   // Un-nest query datasets for filter dropdowns
-  if (Object.keys(queryData).length > 0) {
-    Object.keys(queryData)
-      .map(key => queryData[key].data)
+  if (Object.keys(compData).length > 0) {
+    Object.keys(compData)
+      .map(key => compData[key].data)
       .forEach(nestedObj => (datasets = { ...datasets, ...nestedObj }));
   }
 

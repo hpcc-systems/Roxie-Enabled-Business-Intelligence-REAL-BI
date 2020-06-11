@@ -7,7 +7,7 @@ const getChartData = async (chartID, clusterID) => {
   let response;
 
   try {
-    response = await axios.get('/api/query/data/multiple', { params: { chartID, clusterID } });
+    response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
   } catch (err) {
     console.error(err);
     return [];
@@ -16,11 +16,11 @@ const getChartData = async (chartID, clusterID) => {
   return response.data;
 };
 
-const getPreviewData = async (clusterID, dataOptions) => {
+const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   let response;
 
   try {
-    response = await axios.get('/api/query/editordata', { params: { clusterID, dataOptions } });
+    response = await axios.get('/api/source/editordata', { params: { clusterID, dataOptions, sourceType } });
   } catch (err) {
     console.error(err);
     return [];
@@ -55,7 +55,7 @@ const createChartObj = localState => {
 const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { id, queryName, type, ...chartKeys } = charts[chartIndex];
+  const { id, sourceName, type, ...chartKeys } = charts[chartIndex];
 
   // Create initial state object
   let initState = {
@@ -63,10 +63,10 @@ const setEditorState = (charts, chartID) => {
     chartType: type,
     dataObj: { loading: false },
     datasets: [],
-    keyword: queryName,
-    queries: [],
+    keyword: sourceName,
+    sources: [],
     selectedDataset: {},
-    selectedQuery: {},
+    selectedSource: {},
     ...chartKeys,
   };
 

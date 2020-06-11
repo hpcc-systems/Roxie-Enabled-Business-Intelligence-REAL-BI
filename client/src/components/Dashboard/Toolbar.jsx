@@ -13,7 +13,7 @@ import { canAddCharts } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles({
-  button: { margin: 'auto 10px', padding: '0 auto' },
+  button: { margin: 'auto 10px' },
   typography: { flex: 1, fontSize: 24 },
 });
 

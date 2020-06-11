@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 // Utils
-import { getQueryInfo } from '../../utils/query';
+import { getSourceInfo } from '../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -13,22 +13,31 @@ const useStyles = makeStyles(theme => ({
 
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { dataset, datasets = [], filterID, query } = localState;
+  const { dataset, datasets = [], filterID, selectedSource, sourceType } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
-  // Get list of query datasets from hpcc
+  // Get list of source datasets from hpcc
   useEffect(() => {
-    if (Object.keys(query).length > 0) {
+    if (Object.keys(selectedSource).length > 0) {
       setLoading(true);
 
-      getQueryInfo(clusterID, query).then(({ datasets }) => {
+      getSourceInfo(clusterID, selectedSource, sourceType).then(({ datasets }) => {
         handleChange(null, { name: 'datasets', value: datasets });
 
         setLoading(false);
       });
     }
-  }, [clusterID, handleChange, query]);
+  }, [clusterID, handleChange, selectedSource, sourceType]);
+
+  useEffect(() => {
+    if (datasets.length > 0 && dataset) {
+      let selectedDataset = datasets.find(({ name }) => name === dataset);
+      selectedDataset = selectedDataset ? selectedDataset : {};
+
+      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
+    }
+  }, [dataset, datasets, handleChange]);
 
   return (
     !filterID &&

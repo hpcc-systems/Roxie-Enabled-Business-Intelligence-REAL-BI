@@ -3,29 +3,32 @@ import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 
 // React Components
-import QuerySearch from './QuerySearch';
+import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
 
+// Constants
+import { sourceOptions } from '../../constants';
+
 const useStyles = makeStyles(theme => ({
-  formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
+  formControl: { margin: 0, marginTop: theme.spacing(1) },
 }));
+
+// Changes error message for dropdown
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Error retrieving file metadata' : 'Choose a dataset';
+};
 
 const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
 
 const FilterInfo = ({ dashboard, handleChange, localState }) => {
-  const { datasets, dataset, field, filterID, name } = localState;
+  const { field, filterID, name, selectedDataset, sourceType } = localState;
+  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl } = useStyles();
-  let fields = [{ name: 'Select Dataset', value: '' }];
 
-  if (datasets.length > 0 && dataset) {
-    // Get dataset object from array of datasets
-    const nameList = datasets.find(({ name }) => name === dataset);
-
-    // Check for the dataset and, if it exists, update fields variable
-    if (nameList) {
-      fields = nameList.fields;
-    }
-  }
+  const changeSourceType = event => {
+    handleChange(null, { name: 'selectedSource', value: {} });
+    handleChange(event);
+  };
 
   return (
     <Fragment>
@@ -37,8 +40,31 @@ const FilterInfo = ({ dashboard, handleChange, localState }) => {
         onChange={handleChange}
         autoComplete='off'
       />
-      <QuerySearch dashboard={dashboard} handleChange={handleChange} localState={localState} />
-      <SelectDataset dashboard={dashboard} handleChange={handleChange} localState={localState} />
+      {!filterID && (
+        <FormControl fullWidth className={formControl}>
+          <InputLabel>Source Type</InputLabel>
+          <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
+            {sourceOptions.map((option, index) => {
+              return (
+                <MenuItem key={index} value={option}>
+                  {option}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      )}
+      <SourceSearch dashboard={dashboard} handleChange={handleChange} localState={localState} />
+      {(() => {
+        switch (sourceType) {
+          case 'file':
+            return null;
+          default:
+            return (
+              <SelectDataset dashboard={dashboard} handleChange={handleChange} localState={localState} />
+            );
+        }
+      })()}
       {!filterID && (
         <FormControl fullWidth className={formControl}>
           <InputLabel>Field</InputLabel>
