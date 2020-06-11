@@ -28,7 +28,7 @@ const createParamString = (params = []) => {
 
   let urlString = '';
 
-  // Query has no defined params
+  // Source has no defined params
   if (params.length === 0) return urlString;
 
   params.forEach(({ name, value }) => {

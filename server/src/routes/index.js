@@ -6,6 +6,6 @@ module.exports = {
   clusterAuth: require('./api/clusterAuth'),
   dashboard: require('./api/dashboard'),
   dashboardParam: require('./api/dashboardParam'),
-  query: require('./api/query'),
+  source: require('./api/source'),
   user: require('./api/user'),
 };

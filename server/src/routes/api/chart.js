@@ -2,14 +2,14 @@ const router = require('express').Router();
 const {
   createChart,
   deleteChartByID,
-  getChartsByDashboardAndQueryID,
+  getChartsByDashboardAndSourceID,
   getChartsByDashboardID,
   updateChartByID,
   shareChart,
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
-const { deleteQueryByID } = require('../../utils/query');
-const { getDashboardParamsByDashboardAndQueryID } = require('../../utils/dashboardParam');
+const { deleteSourceByID } = require('../../utils/source');
+const { getDashboardParamsByDashboardAndSourceID } = require('../../utils/dashboardParam');
 const { getDashboardPermission } = require('../../utils/dashboardPermission');
 const { createChartParams, findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
@@ -52,15 +52,15 @@ router.get('/all', async (req, res) => {
 
 router.post('/create', async (req, res) => {
   const {
-    body: { chart, dashboardID, queryID },
+    body: { chart, dashboardID, sourceID },
     user: { id: userID },
   } = req;
   let newChart, chartParams;
 
   try {
-    newChart = await createChart(chart, dashboardID, queryID, userID);
+    newChart = await createChart(chart, dashboardID, sourceID, userID);
 
-    await createChartParams(queryID, chart, newChart.id);
+    await createChartParams(sourceID, chart, newChart.id);
 
     chartParams = await findAllChartParams(newChart.id);
   } catch (err) {
@@ -138,7 +138,7 @@ router.put('/update', async (req, res) => {
 
 router.delete('/delete', async (req, res) => {
   const {
-    query: { chartID, dashboardID, queryID },
+    query: { chartID, dashboardID, sourceID },
     user: { id: userID },
   } = req;
   let charts, numOfCharts, paramsArr, permissionObj;
@@ -150,22 +150,22 @@ router.delete('/delete', async (req, res) => {
     if (permissionObj.role === 'Owner') {
       await deleteChartByID(chartID);
 
-      // Determine if any other charts or filters in the application are using the same query
-      numOfCharts = await getChartsByDashboardAndQueryID(null, queryID);
-      paramsArr = await getDashboardParamsByDashboardAndQueryID(null, queryID);
+      // Determine if any other charts or filters in the application are using the same source
+      numOfCharts = await getChartsByDashboardAndSourceID(null, sourceID);
+      paramsArr = await getDashboardParamsByDashboardAndSourceID(null, sourceID);
 
-      // No other charts or dashboard filters in the application are using the same query
+      // No other charts or dashboard filters in the application are using the same source
       if (numOfCharts === 0 && paramsArr === 0) {
-        await deleteQueryByID(queryID);
+        await deleteSourceByID(sourceID);
       } else {
-        // Determine if any other charts or filters on the same dashboard are using the same query
-        numOfCharts = await getChartsByDashboardAndQueryID(dashboardID, queryID);
-        paramsArr = await getDashboardParamsByDashboardAndQueryID(dashboardID, queryID);
+        // Determine if any other charts or filters on the same dashboard are using the same source
+        numOfCharts = await getChartsByDashboardAndSourceID(dashboardID, sourceID);
+        paramsArr = await getDashboardParamsByDashboardAndSourceID(dashboardID, sourceID);
 
-        // No other charts or filters on the dashboard are using the same query
+        // No other charts or filters on the dashboard are using the same source
         if (numOfCharts === 0 && paramsArr === 0) {
           // Delete dashboard Source and 'Dashboard Level' params
-          await deleteDashboardSource(dashboardID, queryID);
+          await deleteDashboardSource(dashboardID, sourceID);
         }
       }
     }

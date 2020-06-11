@@ -4,7 +4,7 @@ const { chartParam: chartParamModel } = require('../models');
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
 
-const createChartParams = async (queryID, { params }, chartID) => {
+const createChartParams = async (sourceID, { params }, chartID) => {
   // Create array of promises
   const promises = params.map(({ dataset, value, ...otherKeys }) => {
     // Don't save the param value if the value is an empty string
@@ -17,7 +17,7 @@ const createChartParams = async (queryID, { params }, chartID) => {
       dataset = null;
     }
 
-    return chartParamModel.create({ ...otherKeys, dataset, chartID, queryID, value });
+    return chartParamModel.create({ ...otherKeys, dataset, chartID, sourceID, value });
   });
 
   // Loop through and execute promises, throw any errors

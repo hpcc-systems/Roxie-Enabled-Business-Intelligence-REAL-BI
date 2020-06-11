@@ -9,13 +9,13 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: () => uuidv4(),
         primaryKey: true,
       },
-      dataset: DataTypes.STRING(50),
+      dataset: DataTypes.STRING,
       name: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       type: {
-        type: DataTypes.STRING(15),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       value: DataTypes.STRING,
@@ -23,16 +23,16 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  chartParam.associate = ({ chart, query }) => {
-    // One-to-One relation between chartParams and queries
-    // Creates 'queryID' foreign key on chartParam model
-    chartParam.belongsTo(query, {
-      foreignKey: { name: 'queryID', allowNull: false },
+  chartParam.associate = ({ chart, source }) => {
+    // One-to-One relation between chartParams and sources
+    // Creates 'sourceID' foreign key on chartParam model
+    chartParam.belongsTo(source, {
+      foreignKey: { name: 'sourceID', allowNull: false },
       onDelete: 'cascade',
     });
 
     // One-to-One relation between chartParams and charts
-    // Creates 'queryID' foreign key on chartParam model
+    // Creates 'chartID' foreign key on chartParam model
     chartParam.belongsTo(chart, {
       foreignKey: { name: 'chartID', allowNull: true },
       onDelete: 'cascade',
