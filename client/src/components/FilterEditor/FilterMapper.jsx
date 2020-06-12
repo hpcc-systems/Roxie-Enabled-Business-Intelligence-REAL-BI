@@ -34,7 +34,7 @@ const chartDropdown = (arr, field, index, updateArr) => (
   </FormControl>
 );
 
-// Dropdown component to select query parameter for a particular chart
+// Dropdown component to select source parameter for a particular chart
 const paramDropdown = (arr, chartID, field, index, updateArr) => {
   let arrParams = [{ name: 'Choose a chart', value: '' }];
 
@@ -73,7 +73,7 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
     return { chartID, title: options.title, params, sourceID, sourceName };
   });
 
-  // Remove query selected as table query
+  // Remove source that was selected as table source
   dashboardCharts = dashboardCharts.filter(({ sourceName }) => sourceName !== selectedSource.name);
 
   const addField = () => {
@@ -91,7 +91,7 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
 
   const updateChartDropdown = ({ target }, index) => {
     const newArr = mappedParams;
-    const { chartID, sourceID } = dashboardCharts.find(({ chartID }) => chartID === target.value); // Add query info to new array
+    const { chartID, sourceID } = dashboardCharts.find(({ chartID }) => chartID === target.value); // Add source info to new array
 
     newArr[index] = { chartID, parameter: '', sourceID };
 

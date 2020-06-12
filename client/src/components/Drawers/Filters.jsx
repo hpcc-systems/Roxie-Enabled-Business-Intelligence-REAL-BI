@@ -45,7 +45,7 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
   const { button, deleteBtn, drawer, editBtn, formControl, typography } = useStyles();
   let datasets = {};
 
-  // Un-nest query datasets for filter dropdowns
+  // Un-nest source datasets for filter dropdowns
   if (Object.keys(compData).length > 0) {
     Object.keys(compData)
       .map(key => compData[key].data)

@@ -145,7 +145,7 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
   const clusterAuth = await getClusterAuth(clusterID, userID);
   let fields;
 
-  // Build URL from cluster and query details
+  // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsDfu/DFUGetFileMetaData.json`;
 
   let [err, response] = await awaitHandler(
@@ -173,7 +173,7 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
 const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { name: filename }, userID) => {
   const clusterAuth = await getClusterAuth(clusterID, userID);
 
-  // Build URL from cluster and query details
+  // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
 
   let [err, response] = await awaitHandler(

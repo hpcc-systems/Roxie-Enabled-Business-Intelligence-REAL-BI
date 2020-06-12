@@ -19,7 +19,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
-  // Get list of query datasets from hpcc
+  // Get list of sources datasets from hpcc
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
       setLoading(true);
@@ -28,7 +28,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
         handleChange(null, { name: 'datasets', value: datasets });
 
         if (!chartID) {
-          // Populate paramArr with each param provided by the query
+          // Populate paramArr with each param provided by the source
           const paramArr = params.map(param => ({ ...param, value: '' }));
 
           handleChange(null, { name: 'params', value: paramArr });

@@ -57,10 +57,10 @@ const Dashboard = () => {
     editChartToggle();
   };
 
-  const removeChart = async (chartID, queryID) => {
+  const removeChart = async (chartID, sourceID) => {
     let actions = [];
 
-    actions[0] = await deleteChart(chartID, dashboardID, queryID);
+    actions[0] = await deleteChart(chartID, dashboardID, sourceID);
     actions[1] = await getDashboardParams(dashboardID);
 
     batch(() => {
@@ -87,7 +87,7 @@ const Dashboard = () => {
           return (newDataObj[key] = { data: { ...data[key] }, loading: false });
         });
 
-        // Set data in local state object with query name as key
+        // Set data in local state object with source name as key
         setCompData(newDataObj);
       });
     } else {

@@ -81,9 +81,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       // Set loading
       handleChange(null, { name: 'dataObj', value: { loading: true } });
 
-      // Fetch data for selectedQuery
+      // Fetch data for selectedSource
       getPreviewData(dashboard.clusterID, { params, source: selectedSource }, sourceType).then(data => {
-        // Set data in local state object with query name as key
+        // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
     }
