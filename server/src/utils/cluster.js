@@ -104,6 +104,9 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
   // Get array of columns from file
   files = response['DFULogicalFiles']['DFULogicalFile'];
 
+  // Filter down to thor files
+  files = files.filter(({ ClusterName }) => ClusterName === 'mythor');
+
   // Change JSON key labels
   files = files.map(({ Name }) => ({ hpccID: Name, name: Name, target: 'file' }));
 

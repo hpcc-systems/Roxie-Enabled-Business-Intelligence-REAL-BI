@@ -157,7 +157,7 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
               return (
                 <TableRow key={index}>
                   <TableCell padding='checkbox'>
-                    <Checkbox name={row[uniqueField]} checked={isSelected} onClick={handleCheckbox} />
+                    <Checkbox name={String(row[uniqueField])} checked={isSelected} onClick={handleCheckbox} />
                   </TableCell>
                   {fields.map((field, index) => {
                     return (
