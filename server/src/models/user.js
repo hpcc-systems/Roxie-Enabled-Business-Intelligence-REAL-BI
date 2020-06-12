@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       directoryDepth: DataTypes.JSON,
       lastDashboard: DataTypes.UUID,
     },
-    { charset: 'utf8', collate: 'utf8_general_ci', tableName: 'user', timestamps: false },
+    { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
   user.associate = ({ cluster, clusterAuth, dashboard, dashboardPermission }) => {
