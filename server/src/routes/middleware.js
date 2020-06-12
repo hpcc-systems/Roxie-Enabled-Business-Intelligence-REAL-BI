@@ -23,8 +23,8 @@ const authenticateToken = () => {
     try {
       response = await requestInstance();
     } catch (err) {
-      const { data = 'Unknown Error', status } = err.response;
-      return res.status(status).send(data);
+      const { data = 'Unknown Error' } = err.response;
+      return res.status(401).send(data);
     }
 
     // Destructure response to get user data

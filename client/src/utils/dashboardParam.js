@@ -6,15 +6,16 @@ const createParamObj = (localState, dashboardID) => {
 
 const setEditorState = (filters, filterID) => {
   // Get desired filter
-  const { id, queryName, ...filterVals } = filters.find(({ id }) => id === filterID);
+  const { id, sourceName, ...filterVals } = filters.find(({ id }) => id === filterID);
 
   // Create initial state object
   let initState = {
     filterID: id,
     datasets: [],
-    keyword: queryName,
-    queries: [],
-    query: '',
+    keyword: sourceName,
+    sources: [],
+    selectedDataset: {},
+    selectedSource: {},
     ...filterVals,
   };
 

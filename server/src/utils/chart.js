@@ -1,5 +1,5 @@
 // DB Models
-const { chart: chartModel, query: queryModel } = require('../models');
+const { chart: chartModel, source: sourceModel } = require('../models');
 
 //Node mailer for emails
 const nodemailer = require('nodemailer');
@@ -16,8 +16,11 @@ const getChartsByDashboardID = async dashboardID => {
       where: { dashboardID },
       include: [
         {
-          model: queryModel,
-          attributes: [['name', 'queryName']],
+          model: sourceModel,
+          attributes: [
+            ['name', 'sourceName'],
+            ['type', 'sourceType'],
+          ],
         },
       ],
     }),
@@ -30,13 +33,13 @@ const getChartsByDashboardID = async dashboardID => {
   charts = charts.map(chart => {
     // Get nested objects
     chart = unNestSequelizeObj(chart);
-    let { queryName } = unNestSequelizeObj(chart.query); // Equivalent of chart.query.dataValues.queryName
+    const { sourceName, sourceType } = unNestSequelizeObj(chart.source); // Equivalent of chart.source.dataValues.sourceName
 
     // Create new chart object
-    const newObj = { ...chart, queryName };
+    const newObj = { ...chart, sourceName, sourceType };
 
     // Remove original nested object
-    delete newObj.query;
+    delete newObj.source;
 
     return newObj;
   });
@@ -44,8 +47,8 @@ const getChartsByDashboardID = async dashboardID => {
   return charts;
 };
 
-const createChart = async (chart, dashboardID, queryID) => {
-  let [err, newChart] = await awaitHandler(chartModel.create({ ...chart, dashboardID, queryID }));
+const createChart = async (chart, dashboardID, sourceID) => {
+  let [err, newChart] = await awaitHandler(chartModel.create({ ...chart, dashboardID, sourceID }));
 
   // Return error
   if (err) throw err;
@@ -94,7 +97,7 @@ const getChartByID = async chartID => {
   let [err, chart] = await awaitHandler(
     chartModel.findOne({
       where: { id: chartID },
-      include: { model: queryModel },
+      include: { model: sourceModel },
     }),
   );
 
@@ -103,18 +106,18 @@ const getChartByID = async chartID => {
 
   // Get nested objects
   chart = unNestSequelizeObj(chart);
-  let query = unNestSequelizeObj(chart.query);
+  let source = unNestSequelizeObj(chart.source);
 
-  return { ...chart, query };
+  return { ...chart, source };
 };
 
-const getChartsByDashboardAndQueryID = async (dashboardID, queryID) => {
+const getChartsByDashboardAndSourceID = async (dashboardID, sourceID) => {
   let err, charts;
 
   if (!dashboardID) {
-    [err, charts] = await awaitHandler(chartModel.findAll({ where: { queryID } }));
+    [err, charts] = await awaitHandler(chartModel.findAll({ where: { sourceID } }));
   } else {
-    [err, charts] = await awaitHandler(chartModel.findAll({ where: { dashboardID, queryID } }));
+    [err, charts] = await awaitHandler(chartModel.findAll({ where: { dashboardID, sourceID } }));
   }
 
   // Return error
@@ -146,7 +149,7 @@ const deleteChartByID = async chartID => {
 module.exports = {
   createChart,
   deleteChartByID,
-  getChartsByDashboardAndQueryID,
+  getChartsByDashboardAndSourceID,
   getChartByID,
   getChartsByDashboardID,
   updateChartByID,

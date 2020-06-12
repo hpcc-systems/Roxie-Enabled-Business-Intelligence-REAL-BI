@@ -23,8 +23,9 @@ import GeneralParams from './GeneralParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
 
-// Constants
+// Utils
 import { hasHorizontalOption } from '../../../utils/misc';
+import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
@@ -63,12 +64,20 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
     }
   };
 
+  const handleTypeChange = event => {
+    const { chartType, options } = localState;
+    const newOptions = changeChartType(chartType, event.target.value, options);
+
+    handleChange(null, { name: 'options', value: newOptions });
+    handleChange(event);
+  };
+
   return (
     <Grid container direction='row' alignContent='space-between'>
       <Grid item md={hasHorizontalOption(chartType) ? 10 : 12} className={topFormControl}>
         <FormControl className={classnames('', { [formControl]: !hasHorizontalOption(chartType) })} fullWidth>
           <InputLabel>Chart Type</InputLabel>
-          <Select name='chartType' value={chartType} onChange={handleChange}>
+          <Select name='chartType' value={chartType} onChange={handleTypeChange}>
             {charts.map(({ name, value }, index) => {
               return (
                 <MenuItem key={index} value={value}>

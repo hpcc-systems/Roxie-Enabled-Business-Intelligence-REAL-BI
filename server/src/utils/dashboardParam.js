@@ -28,13 +28,13 @@ const getDashboardParams = async (dashboardID, userID) => {
   return params;
 };
 
-const getDashboardParamsByDashboardAndQueryID = async (dashboardID, queryID) => {
+const getDashboardParamsByDashboardAndSourceID = async (dashboardID, sourceID) => {
   let err, params;
 
   if (!dashboardID) {
-    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { queryID } }));
+    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { sourceID } }));
   } else {
-    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { dashboardID, queryID } }));
+    [err, params] = await awaitHandler(dashboardParamModel.findAll({ where: { dashboardID, sourceID } }));
   }
 
   // Return error
@@ -75,6 +75,6 @@ module.exports = {
   createDashboardParam,
   deleteDashboardParam,
   getDashboardParams,
-  getDashboardParamsByDashboardAndQueryID,
+  getDashboardParamsByDashboardAndSourceID,
   updateDashboardParam,
 };

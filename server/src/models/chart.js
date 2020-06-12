@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       type: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       dataset: DataTypes.STRING,
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  chart.associate = ({ dashboard, query }) => {
+  chart.associate = ({ dashboard, source }) => {
     // One-to-One relation between charts and dashboards
     // Creates 'dashboardID' foreign key on chart model
     chart.belongsTo(dashboard, {
@@ -30,10 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'cascade',
     });
 
-    // One-to-One relation between charts and queries
-    // Creates 'queryID' foreign key on chart model
-    chart.belongsTo(query, {
-      foreignKey: { name: 'queryID', allowNull: false },
+    // One-to-One relation between charts and sources
+    // Creates 'sourceID' foreign key on chart model
+    chart.belongsTo(source, {
+      foreignKey: { name: 'sourceID', allowNull: false },
       onDelete: 'cascade',
     });
   };

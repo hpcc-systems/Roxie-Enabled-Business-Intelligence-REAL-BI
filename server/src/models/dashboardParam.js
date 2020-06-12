@@ -10,12 +10,12 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       name: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       value: DataTypes.TEXT,
       dataset: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       field: {
@@ -27,16 +27,16 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  dashboardParam.associate = ({ dashboard, query, user }) => {
-    // One-to-One relation between dashboardParams and queries
-    // Creates 'queryID' foreign key on dashboardParam model
-    dashboardParam.belongsTo(query, {
-      foreignKey: { name: 'queryID', allowNull: false },
+  dashboardParam.associate = ({ dashboard, source, user }) => {
+    // One-to-One relation between dashboardParams and sources
+    // Creates 'sourceID' foreign key on dashboardParam model
+    dashboardParam.belongsTo(source, {
+      foreignKey: { name: 'sourceID', allowNull: false },
       onDelete: 'cascade',
     });
 
     // One-to-One relation between dashboardParams and charts
-    // Creates 'queryID' foreign key on dashboardParam model
+    // Creates 'dashboardID' foreign key on dashboardParam model
     dashboardParam.belongsTo(dashboard, {
       foreignKey: { name: 'dashboardID', allowNull: false },
       onDelete: 'cascade',

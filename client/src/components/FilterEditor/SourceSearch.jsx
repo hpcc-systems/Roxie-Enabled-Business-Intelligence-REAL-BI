@@ -4,16 +4,16 @@ import { CircularProgress, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 
 // Utils
-import { getQueries } from '../../utils/query';
+import { getSourceInfo, getSources } from '../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   autocomplete: { margin: 0, marginTop: theme.spacing(1) },
 }));
 
-const QuerySearch = ({ dashboard, handleChange, localState }) => {
+const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { filterID, keyword, queries } = localState;
+  const { filterID, keyword, sources, sourceType } = localState;
   const { clusterID } = dashboard;
   const { autocomplete } = useStyles();
 
@@ -22,13 +22,25 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
     if (keyword) {
       setLoading(true);
 
-      getQueries(clusterID, keyword).then(data => {
-        handleChange(null, { name: 'queries', value: data });
+      getSources(clusterID, keyword, sourceType).then(data => {
+        handleChange(null, { name: 'sources', value: data });
+
+        if (filterID) {
+          const selectedSource = data.find(({ name }) => name === keyword);
+          handleChange(null, { name: 'selectedSource', value: selectedSource });
+
+          if (sourceType === 'file') {
+            getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
+              handleChange(null, { name: 'selectedDataset', value: data });
+              handleChange(null, { name: 'dataset', value: data.name });
+            });
+          }
+        }
 
         setLoading(false);
       });
     }
-  }, [clusterID, handleChange, keyword]);
+  }, [clusterID, filterID, handleChange, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {
@@ -42,25 +54,39 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
     }
   };
 
+  const handleOnChange = (event, newValue) => {
+    // Confirm variable has a value
+    newValue = newValue ? newValue : {};
+
+    handleChange(null, { name: 'selectedSource', value: newValue });
+
+    if (sourceType === 'file') {
+      if (Object.keys(newValue).length > 0) {
+        getSourceInfo(clusterID, newValue, sourceType).then(data => {
+          handleChange(null, { name: 'selectedDataset', value: data });
+          handleChange(null, { name: 'dataset', value: data.name });
+        });
+      } else {
+        handleChange(null, { name: 'selectedDataset', value: {} });
+        handleChange(null, { name: 'dataset', value: '' });
+      }
+    }
+  };
+
   return (
     !filterID && (
       <Autocomplete
         className={autocomplete}
-        onChange={(event, newValue) => {
-          // Only attempt to update state if a value is present
-          if (newValue) {
-            handleChange(null, { name: 'query', value: newValue });
-          }
-        }}
+        onChange={handleOnChange}
         getOptionLabel={option => (option.name ? option.name : '')}
-        options={queries}
+        options={sources}
         renderInput={params => (
           <TextField
             {...params}
             name='keyword'
             value={keyword}
             onChange={updateKeyword}
-            label='Query'
+            label={sourceType === 'file' ? 'File Name' : 'Query Name'}
             fullWidth
             InputProps={{
               ...params.InputProps,
@@ -78,4 +104,4 @@ const QuerySearch = ({ dashboard, handleChange, localState }) => {
   );
 };
 
-export default QuerySearch;
+export default SourceSearch;

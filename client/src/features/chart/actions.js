@@ -20,24 +20,24 @@ export const getCharts = async dashboardID => {
   return { type: GET_CHARTS, payload: response.data };
 };
 
-export const addChart = async (chart, dashboardID, queryID, queryName) => {
+export const addChart = async (chart, dashboardID, sourceID, sourceName) => {
   let response;
 
   try {
-    response = await axios.post('/api/chart/create', { chart, dashboardID, queryID });
+    response = await axios.post('/api/chart/create', { chart, dashboardID, sourceID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  return { type: ADD_CHART, payload: { ...response.data, queryName } };
+  return { type: ADD_CHART, payload: { ...response.data, sourceName } };
 };
 
-export const deleteChart = async (chartID, dashboardID, queryID) => {
+export const deleteChart = async (chartID, dashboardID, sourceID) => {
   let response;
 
   try {
-    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID, queryID } });
+    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID, sourceID } });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
@@ -46,11 +46,11 @@ export const deleteChart = async (chartID, dashboardID, queryID) => {
   return { type: DELETE_CHART, payload: response.data };
 };
 
-export const updateChart = async (chart, dashboardID, queryID) => {
+export const updateChart = async (chart, dashboardID, sourceID) => {
   let response;
 
   try {
-    response = await axios.put('/api/chart/update', { chart, dashboardID, queryID });
+    response = await axios.put('/api/chart/update', { chart, dashboardID, sourceID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };

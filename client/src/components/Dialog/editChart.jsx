@@ -40,18 +40,18 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const {
     dataObj: { loading: previewLoading },
     selectedDataset,
-    selectedQuery,
+    selectedSource,
   } = localState;
-  const queryKeys = Object.keys(selectedQuery).length;
+  const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
   const editChart = () => {
-    const { chartID, queryID } = localState;
+    const { chartID, sourceID } = localState;
     const chartObj = createChartObj(localState);
 
     // Update chart and global params in DB
-    updateChart({ id: chartID, ...chartObj }, dashboard.id, queryID).then(action => {
+    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID).then(action => {
       // Close dialog
       /*
         Closing the dialog happens here because React will attempt to update the component
@@ -65,15 +65,15 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { params, selectedQuery } = localState;
+    const { params, selectedSource, sourceType } = localState;
 
-    if (queryKeys > 0 && datasetKeys > 0) {
+    if (sourceKeys > 0 && datasetKeys > 0) {
       // Set loading
       handleChange(null, { name: 'dataObj', value: { loading: true } });
 
-      // Fetch data for selectedQuery
-      getPreviewData(dashboard.clusterID, { params, query: selectedQuery }).then(data => {
-        // Set data in local state object with query name as key
+      // Fetch data for selectedSource
+      getPreviewData(dashboard.clusterID, { params, source: selectedSource }, sourceType).then(data => {
+        // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
     }
@@ -85,7 +85,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         <Typography variant='h6' color='inherit' className={typography}>
           Edit Chart
         </Typography>
-        <Button disabled={!queryKeys > 0 || !datasetKeys > 0 || previewLoading} onClick={updateChartPreview}>
+        <Button disabled={!sourceKeys > 0 || !datasetKeys > 0 || previewLoading} onClick={updateChartPreview}>
           <RefreshIcon />
         </Button>
       </Toolbar>

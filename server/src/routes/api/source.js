@@ -3,58 +3,75 @@ const router = require('express').Router();
 // Utils
 const {
   getClusterByID,
-  getDataFromCluster,
+  getFileDataFromCluster,
+  getFileMetaDataFromCluster,
+  getQueryDataFromCluster,
   getQueryDatasetsFromCluster,
+  getLogicalFilesFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
 } = require('../../utils/cluster');
 const { getChartByID } = require('../../utils/chart');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
-const { createQuery, getQueriesByDashboardID, getQueryByHpccID } = require('../../utils/query');
+const { createSource, getSourcesByDashboardID, getSourceByHpccID } = require('../../utils/source');
 const { getDashboardParams } = require('../../utils/dashboardParam');
 const { findAllChartParams } = require('../../utils/chartParam');
 
 router.get('/search', async (req, res) => {
   const {
-    query: { clusterID, keyword = '*' },
+    query: { clusterID, keyword = '*', sourceType = 'query' },
     user: { id: userID },
   } = req;
-  let cluster, queryList;
+  let cluster, list;
 
   try {
     cluster = await getClusterByID(clusterID);
-    queryList = await getQueryListFromCluster(cluster, keyword, userID);
+
+    switch (sourceType) {
+      case 'file':
+        list = await getLogicalFilesFromCluster(cluster, keyword, userID);
+        break;
+      default:
+        list = await getQueryListFromCluster(cluster, keyword, userID);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(200).json(queryList);
+  return res.status(200).send(list);
 });
 
 router.get('/info', async (req, res) => {
   const {
-    query: { clusterID, query },
+    query: { clusterID, source, sourceType = 'query' },
     user: { id: userID },
   } = req;
-  const queryInfo = {};
+  let sourceInfo = {};
   let cluster;
 
   try {
     cluster = await getClusterByID(clusterID);
-    queryInfo.params = await getQueryParamsFromCluster(cluster, JSON.parse(query), userID);
-    queryInfo.datasets = await getQueryDatasetsFromCluster(cluster, JSON.parse(query), userID);
+
+    switch (sourceType) {
+      case 'file':
+        sourceInfo = await getFileMetaDataFromCluster(cluster, JSON.parse(source), userID);
+        break;
+      default:
+        sourceInfo.params = await getQueryParamsFromCluster(cluster, JSON.parse(source), userID);
+        sourceInfo.datasets = await getQueryDatasetsFromCluster(cluster, JSON.parse(source), userID);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(200).json(queryInfo);
+  return res.status(200).json(sourceInfo);
 });
 
 router.get('/editordata', async (req, res) => {
   const {
-    query: { dataOptions, clusterID },
+    query: { dataOptions, clusterID, sourceType },
     user: { id: userID },
   } = req;
   let data = [];
@@ -62,7 +79,14 @@ router.get('/editordata', async (req, res) => {
 
   try {
     cluster = await getClusterByID(clusterID);
-    data = await getDataFromCluster(cluster, JSON.parse(dataOptions), userID);
+
+    switch (sourceType) {
+      case 'file':
+        data = await getFileDataFromCluster(cluster, JSON.parse(dataOptions).source, userID);
+        break;
+      default:
+        data = await getQueryDataFromCluster(cluster, JSON.parse(dataOptions), userID);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).end();
@@ -72,31 +96,31 @@ router.get('/editordata', async (req, res) => {
 });
 
 router.post('/create', async (req, res) => {
-  const { dashboardID, query } = req.body;
-  let dashboardSource, dbQuery;
+  const { dashboardID, source } = req.body;
+  let dashboardSource, dbSource;
 
   try {
-    // Look for existing query in DB
-    dbQuery = await getQueryByHpccID(query);
+    // Look for existing source in DB
+    dbSource = await getSourceByHpccID(source);
 
-    // Query not found
-    if (Object.keys(dbQuery).length === 0) {
-      dbQuery = await createQuery(query);
+    // Source not found
+    if (Object.keys(dbSource).length === 0) {
+      dbSource = await createSource(source);
     } else {
       // Look for existing dashboard source in DB
-      dashboardSource = await getDashboardSource(dashboardID, dbQuery.id);
+      dashboardSource = await getDashboardSource(dashboardID, dbSource.id);
     }
 
     // Dashboard Source not already in DB
     if (!dashboardSource || Object.keys(dashboardSource).length === 0) {
-      await createDashboardSource(dashboardID, dbQuery.id);
+      await createDashboardSource(dashboardID, dbSource.id);
     }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  return res.status(201).json(dbQuery);
+  return res.status(201).json(dbSource);
 });
 
 router.get('/data/single', async (req, res) => {
@@ -104,30 +128,30 @@ router.get('/data/single', async (req, res) => {
     query: { clusterID, dashboardID },
     user: { id: userID },
   } = req;
-  let cluster, params, queries;
+  let cluster, params, sources;
   let data = {};
 
   try {
     cluster = await getClusterByID(clusterID);
-    queries = await getQueriesByDashboardID(dashboardID);
+    sources = await getSourcesByDashboardID(dashboardID);
     params = await getDashboardParams(dashboardID, userID);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  if (!queries) {
+  if (!sources) {
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
-  // Create nested data objects with the name of the query as the key
-  for (let query of queries) {
-    const { id, name } = query;
+  // Create nested data objects with the name of the source as the key
+  for (let source of sources) {
+    const { id, name, type } = source;
     let newParam = [];
 
-    // Determine if the current query has a mapped parameter
+    // Determine if the current source has a mapped parameter
     params.map(({ mappedParams, value }) => {
-      const obj = mappedParams.find(({ queryID }) => queryID === id);
+      const obj = mappedParams.find(({ sourceID }) => sourceID === id);
 
       if (obj && Object.keys(obj).length > 0) {
         newParam = [{ name: obj.parameter, value }];
@@ -135,12 +159,18 @@ router.get('/data/single', async (req, res) => {
     });
 
     try {
-      query = await getDataFromCluster(cluster, { params: newParam, query }, userID);
+      switch (type) {
+        case 'file':
+          source = await getFileDataFromCluster(cluster, source, userID);
+          break;
+        default:
+          source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
+      }
     } catch (err) {
       return console.error(err);
     }
 
-    data[name] = query;
+    data[name] = source;
   }
 
   return res.status(200).json(data);
@@ -151,13 +181,20 @@ router.get('/data/multiple', async (req, res) => {
     query: { chartID, clusterID },
     user: { id: userID },
   } = req;
-  let chart, cluster, data, params;
+  let cluster, data, params;
 
   try {
     cluster = await getClusterByID(clusterID);
-    chart = await getChartByID(chartID);
+    const { source } = await getChartByID(chartID);
     params = await findAllChartParams(chartID);
-    data = await getDataFromCluster(cluster, { params, query: chart.query }, userID);
+
+    switch (source.type) {
+      case 'file':
+        data = await getFileDataFromCluster(cluster, source, userID);
+        break;
+      default:
+        data = await getQueryDataFromCluster(cluster, { params, source }, userID);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Internal Error' });

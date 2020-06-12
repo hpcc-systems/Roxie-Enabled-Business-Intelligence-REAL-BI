@@ -101,6 +101,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
               value={password}
               onChange={handleChange}
               autoComplete='off'
+              type='password'
             />
           </Fragment>
         )}

@@ -15,7 +15,7 @@ import useForm from '../../hooks/useForm';
 
 // Utils
 import { createChartObj, getPreviewData } from '../../utils/chart';
-import { addQuery, createQueryObj } from '../../utils/query';
+import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
   chartType: 'bar',
@@ -25,9 +25,10 @@ const initState = {
   keyword: '',
   options: {},
   params: [],
-  queries: [],
+  sources: [],
   selectedDataset: {},
-  selectedQuery: {},
+  selectedSource: {},
+  sourceType: 'query',
 };
 
 // Create styles
@@ -48,21 +49,21 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const {
     dataObj: { loading },
     selectedDataset,
-    selectedQuery,
+    selectedSource,
   } = localState;
-  const queryKeys = Object.keys(selectedQuery).length;
+  const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = selectedDataset ? Object.keys(selectedDataset).length : 0;
 
   // Add components to DB
   const newChart = async () => {
     const { id: dashboardID } = dashboard;
-    const queryObj = createQueryObj(localState);
+    const sourceObj = createSourceObj(localState);
     const newChartObj = createChartObj(localState);
 
     try {
-      const { queryID, queryName } = await addQuery(dashboardID, queryObj);
+      const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
 
-      addChart(newChartObj, dashboardID, queryID, queryName).then(action => {
+      addChart(newChartObj, dashboardID, sourceID, sourceName).then(action => {
         dispatch(action);
       });
     } catch (err) {
@@ -74,15 +75,15 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { params, selectedQuery } = localState;
+    const { params, selectedSource, sourceType } = localState;
 
-    if (queryKeys > 0 && datasetKeys > 0) {
+    if (sourceKeys > 0 && datasetKeys > 0) {
       // Set loading
       handleChange(null, { name: 'dataObj', value: { loading: true } });
 
-      // Fetch data for selectedQuery
-      getPreviewData(dashboard.clusterID, { params, query: selectedQuery }).then(data => {
-        // Set data in local state object with query name as key
+      // Fetch data for selectedSource
+      getPreviewData(dashboard.clusterID, { params, source: selectedSource }, sourceType).then(data => {
+        // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
     }
@@ -94,7 +95,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         <Typography variant='h6' color='inherit' className={typography}>
           New Chart
         </Typography>
-        <Button disabled={!queryKeys > 0 || !datasetKeys > 0 || loading} onClick={updateChartPreview}>
+        <Button disabled={!sourceKeys > 0 || !datasetKeys > 0 || loading} onClick={updateChartPreview}>
           <RefreshIcon />
         </Button>
       </Toolbar>

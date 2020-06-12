@@ -7,9 +7,14 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
+// Changes error message for dropdown
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Error retrieving file metadata' : 'Choose a dataset';
+};
+
 const GeneralChartParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
+  const { chartID, options, selectedDataset, sourceType } = localState;
+  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
   return (

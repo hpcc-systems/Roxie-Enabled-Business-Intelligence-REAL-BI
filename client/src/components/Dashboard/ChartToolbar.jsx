@@ -13,7 +13,7 @@ const useStyles = makeStyles({
   typography: { flexGrow: 1, textAlign: 'center' },
 });
 
-const ChartToolbar = ({ chartID, dashboard, options, queryID, removeChart, toggleDialog }) => {
+const ChartToolbar = ({ chartID, dashboard, options, sourceID, removeChart, toggleDialog }) => {
   const { role } = dashboard;
   const { title } = options;
   const { button, toolbar, typography } = useStyles();
@@ -21,7 +21,7 @@ const ChartToolbar = ({ chartID, dashboard, options, queryID, removeChart, toggl
   return (
     <Toolbar className={toolbar}>
       {canDeleteCharts(role) ? (
-        <Button className={button} onClick={() => removeChart(chartID, queryID)}>
+        <Button className={button} onClick={() => removeChart(chartID, sourceID)}>
           <CloseIcon />
         </Button>
       ) : null}
