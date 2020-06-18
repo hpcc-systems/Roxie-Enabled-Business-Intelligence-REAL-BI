@@ -7,9 +7,9 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
-// Changes error message for dropdown
+// Changes message based on source type
 const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Error retrieving file metadata' : 'Choose a dataset';
+  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
 };
 
 const GeneralChartParams = ({ handleChangeObj, localState }) => {

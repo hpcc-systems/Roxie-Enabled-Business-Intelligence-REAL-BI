@@ -7,9 +7,14 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
-const GeneralChartParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
+// Changes message based on source type
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+};
+
+const PieParams = ({ handleChangeObj, localState }) => {
+  const { chartID, options, selectedDataset, sourceType } = localState;
+  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
   return (
@@ -50,4 +55,4 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
   );
 };
 
-export default GeneralChartParams;
+export default PieParams;
