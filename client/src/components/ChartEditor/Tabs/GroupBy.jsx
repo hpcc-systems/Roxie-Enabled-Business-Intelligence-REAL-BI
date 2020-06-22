@@ -15,6 +15,11 @@ import {
 // Constants
 import { hasStackedOption } from '../../../utils/misc';
 
+// Changes message based on source type
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+};
+
 const useStyles = makeStyles(theme => ({
   checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
   formControl: { marginTop: theme.spacing(1) },
@@ -30,8 +35,9 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
     dataset,
     options: { groupBy, stacked },
     selectedDataset,
+    sourceType,
   } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
+  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
   return dataset ? (
@@ -75,7 +81,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
     </Grid>
   ) : (
     <Typography variant='h6' color='inherit' align='center' className={typography}>
-      Choose a dataset
+      {getMsg(sourceType)}
     </Typography>
   );
 };

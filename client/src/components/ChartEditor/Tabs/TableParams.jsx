@@ -7,9 +7,14 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
+// Changes message based on source type
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+};
+
 const TableParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset } = localState;
-  const { fields = [{ name: 'Choose a dataset', value: '' }] } = selectedDataset;
+  const { chartID, options, selectedDataset, sourceType } = localState;
+  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { fields: optionsFields = [], uniqueField = '' } = options;
   const { formControl, progress } = useStyles();
 

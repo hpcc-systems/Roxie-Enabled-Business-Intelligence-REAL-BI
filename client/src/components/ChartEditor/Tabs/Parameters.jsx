@@ -8,8 +8,13 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 20 },
 }));
 
+// Changes message based on source type
+const getMsg = sourceType => {
+  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+};
+
 const ParametersTab = ({ handleChangeArr, localState }) => {
-  const { dataset, params = [] } = localState;
+  const { dataset, params = [], sourceType } = localState;
   const { formControl, typography } = useStyles();
 
   // Updates param array in state
@@ -55,7 +60,7 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
     </FormControl>
   ) : (
     <Typography variant='h6' color='inherit' align='center' className={typography}>
-      Choose a dataset
+      {getMsg(sourceType)}
     </Typography>
   );
 };
