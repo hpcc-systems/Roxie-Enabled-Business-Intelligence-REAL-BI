@@ -104,11 +104,13 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
   // Get array of columns from file
   files = response['DFULogicalFiles']['DFULogicalFile'];
 
-  // Filter down to thor files
-  files = files.filter(({ ClusterName }) => ClusterName === 'mythor');
-
   // Change JSON key labels
-  files = files.map(({ Name }) => ({ hpccID: Name, name: Name, target: 'file' }));
+  files = files.map(({ ClusterName, Name }) => ({
+    cluster: ClusterName,
+    hpccID: Name,
+    name: Name,
+    target: 'file',
+  }));
 
   return files;
 };
@@ -137,8 +139,11 @@ const getQueryListFromCluster = async ({ id: clusterID, host, infoPort }, keywor
   });
 
   // Reduce objects to only desired keys
-  queries = queries.map(({ Id, Name, QuerySetId }) => {
-    return { hpccID: Id, name: Name, target: QuerySetId };
+  queries = queries.map(({ Clusters, Id, Name, QuerySetId }) => {
+    // Get cluster name
+    const cluster = Clusters.ClusterQueryState[0].Cluster;
+
+    return { cluster, hpccID: Id, name: Name, target: QuerySetId };
   });
 
   return queries;

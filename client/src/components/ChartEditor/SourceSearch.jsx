@@ -88,7 +88,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     <Autocomplete
       className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
       onChange={handleOnChange}
-      getOptionLabel={option => (option.name ? option.name : '')}
+      getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
       options={sources}
       renderInput={params => (
         <TextField
