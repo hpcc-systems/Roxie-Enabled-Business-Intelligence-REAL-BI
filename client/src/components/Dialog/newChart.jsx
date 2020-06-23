@@ -48,11 +48,11 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   // Reference values
   const {
     dataObj: { loading },
-    selectedDataset,
-    selectedSource,
+    selectedDataset = {},
+    selectedSource = {},
   } = localState;
   const sourceKeys = Object.keys(selectedSource).length;
-  const datasetKeys = selectedDataset ? Object.keys(selectedDataset).length : 0;
+  const datasetKeys = Object.keys(selectedDataset).length;
 
   // Add components to DB
   const newChart = async () => {

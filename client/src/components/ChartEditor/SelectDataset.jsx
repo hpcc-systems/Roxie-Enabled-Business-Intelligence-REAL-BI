@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
-  const { chartID, dataset, datasets = [], selectedSource, sourceType } = localState;
+  const { chartID, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 

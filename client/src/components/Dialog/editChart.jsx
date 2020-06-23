@@ -39,8 +39,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   // Reference values
   const {
     dataObj: { loading: previewLoading },
-    selectedDataset,
-    selectedSource,
+    selectedDataset = {},
+    selectedSource = {},
   } = localState;
   const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;

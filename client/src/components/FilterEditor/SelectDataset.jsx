@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { dataset, datasets = [], filterID, selectedSource, sourceType } = localState;
+  const { dataset, datasets = [], filterID, selectedSource = {}, sourceType } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
