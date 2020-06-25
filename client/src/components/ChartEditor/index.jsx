@@ -59,25 +59,14 @@ const ChartEditor = props => {
           </FormControl>
         )}
         <SourceSearch {...props} />
-        {(() => {
-          switch (sourceType) {
-            case 'file':
-              return null;
-            default:
-              return <SelectDataset {...props} />;
-          }
-        })()}
+        <SelectDataset {...props} />
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map((option, index) => {
               /*
                 Do not show the 'group by' tab if the chart selected doesn't support group by
-                Do not show any table other than General if the table chart type is selected
               */
-              if (
-                (!hasGroupByOption(chartType) && option === 'Group By') ||
-                (chartType === 'table' && option !== 'General')
-              ) {
+              if (!hasGroupByOption(chartType) && option === 'Group By') {
                 return null;
               }
 

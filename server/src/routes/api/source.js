@@ -82,7 +82,7 @@ router.get('/editordata', async (req, res) => {
 
     switch (sourceType) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, JSON.parse(dataOptions).source, userID);
+        data = await getFileDataFromCluster(cluster, JSON.parse(dataOptions), userID);
         break;
       default:
         data = await getQueryDataFromCluster(cluster, JSON.parse(dataOptions), userID);
@@ -161,7 +161,7 @@ router.get('/data/single', async (req, res) => {
     try {
       switch (type) {
         case 'file':
-          source = await getFileDataFromCluster(cluster, source, userID);
+          source = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
           break;
         default:
           source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
@@ -190,7 +190,7 @@ router.get('/data/multiple', async (req, res) => {
 
     switch (source.type) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, source, userID);
+        data = await getFileDataFromCluster(cluster, { params, source }, userID);
         break;
       default:
         data = await getQueryDataFromCluster(cluster, { params, source }, userID);

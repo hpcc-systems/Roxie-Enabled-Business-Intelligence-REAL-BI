@@ -5,7 +5,7 @@ import { Autocomplete } from '@material-ui/lab';
 import classnames from 'classnames';
 
 // Utils
-import { getSourceInfo, getSources } from '../../utils/source';
+import { getSources } from '../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -30,13 +30,6 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
         if (chartID) {
           const selectedSource = data.find(({ name }) => name === keyword);
           handleChange(null, { name: 'selectedSource', value: selectedSource });
-
-          if (sourceType === 'file') {
-            getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
-              handleChange(null, { name: 'selectedDataset', value: data });
-              handleChange(null, { name: 'dataset', value: data.name });
-            });
-          }
         }
 
         setLoading(false);
@@ -61,18 +54,6 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     newValue = newValue ? newValue : {};
 
     handleChange(null, { name: 'selectedSource', value: newValue });
-
-    if (sourceType === 'file') {
-      if (Object.keys(newValue).length > 0) {
-        getSourceInfo(clusterID, newValue, sourceType).then(data => {
-          handleChange(null, { name: 'selectedDataset', value: data });
-          handleChange(null, { name: 'dataset', value: data.name });
-        });
-      } else {
-        handleChange(null, { name: 'selectedDataset', value: {} });
-        handleChange(null, { name: 'dataset', value: '' });
-      }
-    }
   };
 
   return chartID ? (
