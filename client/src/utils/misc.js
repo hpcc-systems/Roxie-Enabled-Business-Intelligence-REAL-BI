@@ -30,8 +30,28 @@ export const sortArr = (arr, field = '', order = 'asc') => {
   return arr;
 };
 
+export const checkForNumber = value => {
+  // Convert value to NaN or convert to number
+  const num = value == null && value !== 0 ? NaN : Number(value);
+
+  // Value is not a number, return the original value
+  if (isNaN(num)) {
+    return value;
+  }
+
+  // Return the converted number
+  return num;
+};
+
 // Convert a number to a string with a thousands place separator
-export const thousandsSeparator = num => `${num}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`);
+export const thousandsSeparator = num => {
+  // Number contains a decimal
+  if (num % 1 > 0) {
+    return `${num}`;
+  }
+
+  return `${num}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`);
+};
 
 // Determines if the chart type has a horizontal option
 export const hasHorizontalOption = chartType => {

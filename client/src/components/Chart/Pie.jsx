@@ -2,15 +2,23 @@ import React from 'react';
 import ReactG2Plot from 'react-g2plot';
 import { Pie } from '@antv/g2plot';
 
-// Constants
-import { thousandsSeparator } from '../../utils/misc';
+// Utils
+import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 
 // Helper Functions
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
-const reducer = (acc, currentVal) => Number(acc) + Number(currentVal); // Sum function for array.reduce()
+const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
 const PieChart = ({ data, options }) => {
   const { name, value } = options;
+
+  // Convert necessary values to numbers
+  data = data.map(row => ({
+    ...row,
+    [name]: checkForNumber(row[name]),
+    [value]: checkForNumber(row[value]),
+  }));
+
   const total = data.map(obj => obj[value]).reduce(reducer); // Gets total of yAxis values
 
   const config = {
