@@ -72,7 +72,9 @@ const updateClusterAuth = async (clusterID, password, userID, username) => {
     hash = encryptPassword(password);
   }
 
-  let [err, clusterAuth] = await awaitHandler(clusterAuthModel.update({ clusterID, hash, userID, username }));
+  let [err, clusterAuth] = await awaitHandler(
+    clusterAuthModel.update({ hash, username }, { where: { clusterID, userID } }),
+  );
 
   // Return error
   if (err) throw err;
