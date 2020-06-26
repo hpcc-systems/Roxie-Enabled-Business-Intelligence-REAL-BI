@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
 
 const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, keyword, sources, selectedSource, sourceType } = localState;
+  const { chartID, keyword, sources, selectedSource = {}, sourceType } = localState;
   const { clusterID } = dashboard;
   const { autocomplete, autocomplete2 } = useStyles();
 
