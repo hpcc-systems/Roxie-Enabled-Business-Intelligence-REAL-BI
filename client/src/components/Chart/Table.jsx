@@ -17,10 +17,7 @@ import {
 import { updateDashboardParam } from '../../features/dashboard/actions';
 
 // Utils
-import { sortArr } from '../../utils/misc';
-
-// Constants
-import { thousandsSeparator } from '../../utils/misc';
+import { sortArr, thousandsSeparator } from '../../utils/misc';
 
 const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },

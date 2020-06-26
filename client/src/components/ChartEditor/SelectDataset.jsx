@@ -24,14 +24,18 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     if (Object.keys(selectedSource).length > 0) {
       setLoading(true);
 
-      getSourceInfo(clusterID, selectedSource, sourceType).then(({ datasets, params }) => {
-        handleChange(null, { name: 'datasets', value: datasets });
+      getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
+        const { datasets, fields, name, params } = data;
+
+        if (sourceType === 'file') {
+          handleChange(null, { name: 'selectedDataset', value: { name, fields } });
+          handleChange(null, { name: 'dataset', value: name });
+        } else {
+          handleChange(null, { name: 'datasets', value: datasets });
+        }
 
         if (!chartID) {
-          // Populate paramArr with each param provided by the source
-          const paramArr = params.map(param => ({ ...param, value: '' }));
-
-          handleChange(null, { name: 'params', value: paramArr });
+          handleChange(null, { name: 'params', value: params });
         }
 
         setLoading(false);
@@ -48,21 +52,24 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     }
   }, [dataset, datasets, handleChange]);
 
-  return loading ? (
-    <CircularProgress className={progress} />
-  ) : (
-    <FormControl className={formControl} fullWidth>
-      <InputLabel>Dataset</InputLabel>
-      <Select name='dataset' value={dataset} onChange={handleChange}>
-        {datasets.map(({ name }, index) => {
-          return (
-            <MenuItem key={index} value={name}>
-              {name}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
+  return (
+    sourceType !== 'file' &&
+    (loading ? (
+      <CircularProgress className={progress} />
+    ) : (
+      <FormControl className={formControl} fullWidth>
+        <InputLabel>Dataset</InputLabel>
+        <Select name='dataset' value={dataset} onChange={handleChange}>
+          {datasets.map(({ name }, index) => {
+            return (
+              <MenuItem key={index} value={name}>
+                {name}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    ))
   );
 };
 

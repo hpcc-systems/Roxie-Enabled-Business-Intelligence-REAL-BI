@@ -2,11 +2,18 @@ import React from 'react';
 import ReactG2Plot from 'react-g2plot';
 import { Column } from '@antv/g2plot';
 
-// Constants
-import { thousandsSeparator } from '../../../utils/misc';
+// Utils
+import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 const ColumnChart = ({ data, options }) => {
   const { xAxis, yAxis } = options;
+
+  // Convert necessary values to numbers
+  data = data.map(row => ({
+    ...row,
+    [xAxis]: checkForNumber(row[xAxis]),
+    [yAxis]: checkForNumber(row[yAxis]),
+  }));
 
   const config = {
     data,

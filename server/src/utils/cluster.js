@@ -151,7 +151,7 @@ const getQueryListFromCluster = async ({ id: clusterID, host, infoPort }, keywor
 
 const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { name: filename }, userID) => {
   const clusterAuth = await getClusterAuth(clusterID, userID);
-  let fields;
+  let fields, params;
 
   // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsDfu/DFUGetFileMetaData.json`;
@@ -173,19 +173,36 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
   response = response.data['DFUGetFileMetaDataResponse']['DataColumns']['DFUDataColumn'];
 
   // Get necessary object key and rename it
-  fields = response.map(({ ColumnLabel }) => ({ name: ColumnLabel }));
+  fields = response.map(({ ColumnLabel, ColumnType }) => ({ name: ColumnLabel, type: getType(ColumnType) }));
 
-  return { name: filename, fields };
+  // Set params default array
+  params = [
+    { name: 'Start', type: 'number', value: '' },
+    { name: 'Count', type: 'number', value: '' },
+  ];
+
+  // Add fields to params array for dynamic params
+  fields.forEach(field => params.push({ ...field, value: '' }));
+
+  return { name: filename, fields, params };
 };
 
-const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { name: filename }, userID) => {
+const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { source, params }, userID) => {
+  const { name: filename } = source;
+  const requestBody = { LogicalName: filename };
   const clusterAuth = await getClusterAuth(clusterID, userID);
 
   // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
 
+  // Add params to request
+  params.forEach(({ name, value }) => (requestBody[name] = value));
+
+  // Convert start value back to 0 index
+  requestBody['Start'] = requestBody['Start'] ? requestBody['Start'] - 1 : 0;
+
   let [err, response] = await awaitHandler(
-    axios.post(url, { WUResultRequest: { LogicalName: filename } }, { auth: clusterAuth }),
+    axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
   );
 
   // Return error
@@ -219,7 +236,7 @@ const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { na
   params = Object.keys(response.data[name]).map(key => {
     const value = response.data[name][key];
 
-    return { name: key, type: getType(value) };
+    return { name: key, type: getType(value), value: '' };
   });
 
   return params;

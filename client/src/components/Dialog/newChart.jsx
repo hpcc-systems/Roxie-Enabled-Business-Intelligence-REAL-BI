@@ -75,14 +75,17 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { params, selectedSource, sourceType } = localState;
+    const { params, selectedSource: source, sourceType } = localState;
+
+    // Only pass back params that contain a value
+    const usedParams = params.filter(({ value }) => value !== '' && value !== 0 && value !== null);
 
     if (sourceKeys > 0 && datasetKeys > 0) {
       // Set loading
       handleChange(null, { name: 'dataObj', value: { loading: true } });
 
       // Fetch data for selectedSource
-      getPreviewData(dashboard.clusterID, { params, source: selectedSource }, sourceType).then(data => {
+      getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
         // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
