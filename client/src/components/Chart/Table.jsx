@@ -24,17 +24,17 @@ const useStyles = makeStyles({
 });
 
 const TableComp = ({ data, dispatch, params = [], options }) => {
-  const { fields, uniqueField } = options;
+  const { fields, checkboxValueField } = options;
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(uniqueField);
+  const [orderBy, setOrderBy] = useState(checkboxValueField);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [selected, setSelected] = React.useState([]);
   const { columnHeader } = useStyles();
 
-  // Determine if the uniqueField matches any dashboard params
-  const matchedParam = params.some(({ field }) => field === uniqueField);
-  const paramObj = matchedParam ? params.find(({ field }) => field === uniqueField) : {};
+  // Determine if the checkboxValueField matches any dashboard params
+  const matchedParam = params.some(({ field }) => field === checkboxValueField);
+  const paramObj = matchedParam ? params.find(({ field }) => field === checkboxValueField) : {};
 
   // Update table with already selected values
   useEffect(() => {
@@ -99,7 +99,7 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
     let newSelected = [];
 
     if (event.target.checked) {
-      newSelected = data.map(row => row[uniqueField]);
+      newSelected = data.map(row => row[checkboxValueField]);
     }
 
     if (matchedParam) {
@@ -149,12 +149,16 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
           </TableHead>
           <TableBody>
             {data.slice(sliceStart, sliceLength).map((row, index) => {
-              const isSelected = selected.indexOf(row[uniqueField]) > -1;
+              const isSelected = selected.indexOf(row[checkboxValueField]) > -1;
 
               return (
                 <TableRow key={index}>
                   <TableCell padding='checkbox'>
-                    <Checkbox name={String(row[uniqueField])} checked={isSelected} onClick={handleCheckbox} />
+                    <Checkbox
+                      name={String(row[checkboxValueField])}
+                      checked={isSelected}
+                      onClick={handleCheckbox}
+                    />
                   </TableCell>
                   {fields.map((field, index) => {
                     return (

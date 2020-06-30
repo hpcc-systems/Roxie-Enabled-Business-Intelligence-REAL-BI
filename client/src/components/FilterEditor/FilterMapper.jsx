@@ -23,7 +23,7 @@ const chartDropdown = (arr, field, index, updateArr) => (
     <InputLabel>Chart</InputLabel>
     <Select name='chartID' value={field || ''} onChange={event => updateArr(event, index)}>
       {field !== '' ? clearSelection() : null}
-      {arr.map(({ chartID, title }, index) => {
+      {arr.map(({ chartID, title = 'No Chart Title' }, index) => {
         return (
           <MenuItem key={index} value={chartID}>
             {title}
