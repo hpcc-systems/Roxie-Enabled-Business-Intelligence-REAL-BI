@@ -25,7 +25,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
       setLoading(true);
 
       getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
-        const { datasets, fields, name, params } = data;
+        const { datasets, fields, name, params = [] } = data;
 
         if (sourceType === 'file') {
           handleChange(null, { name: 'selectedDataset', value: { name, fields } });

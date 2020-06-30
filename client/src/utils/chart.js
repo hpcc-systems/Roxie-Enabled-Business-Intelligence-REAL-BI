@@ -73,7 +73,7 @@ const createChartObj = localState => {
 const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { id, params, sourceName, type, ...chartKeys } = charts[chartIndex];
+  const { id, params = [], sourceName, type, ...chartKeys } = charts[chartIndex];
 
   // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
