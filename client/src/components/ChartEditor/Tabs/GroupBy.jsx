@@ -34,7 +34,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
     chartType,
     dataset,
     options: { groupBy, stacked },
-    selectedDataset,
+    selectedDataset = {},
     sourceType,
   } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
