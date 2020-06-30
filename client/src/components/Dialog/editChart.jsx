@@ -14,7 +14,7 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, getPreviewData, setEditorState } from '../../utils/chart';
+import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
 
 // Create styles
 const useStyles = makeStyles(() => ({
@@ -65,10 +65,10 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { params, selectedSource: source, sourceType } = localState;
+    const { mappedParams, params = [], selectedSource: source, sourceType } = localState;
 
-    // Only pass back params that contain a value
-    const usedParams = params.filter(({ value }) => value !== '' && value !== 0 && value !== null);
+    // Merge param arrays to send to server
+    const usedParams = mergeArrays(params, mappedParams);
 
     if (sourceKeys > 0 && datasetKeys > 0) {
       // Set loading

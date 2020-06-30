@@ -35,7 +35,6 @@ const encryptPassword = password => {
   return `${iv.toString('hex')}:${key.toString('hex')}=${encrypted.toString('hex')}`;
 };
 
-// Create decrypt method on clusterAuth model
 const decryptHash = hash => {
   let hashParts = hash.split(':');
   hashParts = [hashParts[0], ...hashParts[1].split('=')];

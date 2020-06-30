@@ -13,9 +13,9 @@ const getMsg = sourceType => {
 };
 
 const TableParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset, sourceType } = localState;
+  const { chartID, options, selectedDataset = {}, sourceType } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
-  const { fields: optionsFields = [], uniqueField = '' } = options;
+  const { fields: optionsFields = [], checkboxValueField = '' } = options;
   const { formControl, progress } = useStyles();
 
   const getNewArray = (uniqueVal, newVals) => {
@@ -35,15 +35,15 @@ const TableParams = ({ handleChangeObj, localState }) => {
 
   const updateArr = ({ target }) => {
     const { name, value } = target;
-    const arr = getNewArray(uniqueField, value);
+    const arr = getNewArray(checkboxValueField, value);
 
     handleChangeObj(null, { name, value: arr });
   };
 
-  const handleUniqueField = ({ target }) => {
+  const handlecheckboxValueField = ({ target }) => {
     const { name, value } = target;
 
-    // Update options:uniqueField
+    // Update options:checkboxValueField
     handleChangeObj(null, { name, value: value });
 
     // Build new fields list array
@@ -53,17 +53,21 @@ const TableParams = ({ handleChangeObj, localState }) => {
     handleChangeObj(null, { name: 'options:fields', value: arr });
   };
 
-  const alteredFieldsArr = fields.filter(({ name }) => name !== uniqueField);
-  const alteredSelectedFieldsArr = optionsFields.filter(field => field !== uniqueField);
+  const alteredFieldsArr = fields.filter(({ name }) => name !== checkboxValueField);
+  const alteredSelectedFieldsArr = optionsFields.filter(field => field !== checkboxValueField);
 
   return (
     <Fragment>
       <FormControl className={formControl} fullWidth>
-        <InputLabel>Unique Field</InputLabel>
+        <InputLabel>Checkbox Value Field</InputLabel>
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name='options:uniqueField' value={options.uniqueField || ''} onChange={handleUniqueField}>
+          <Select
+            name='options:checkboxValueField'
+            value={options.checkboxValueField || ''}
+            onChange={handlecheckboxValueField}
+          >
             {fields.map(({ name, value = name }, index) => {
               return (
                 <MenuItem key={index} value={value}>

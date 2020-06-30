@@ -13,7 +13,7 @@ const getMsg = sourceType => {
 };
 
 const PieParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset, sourceType } = localState;
+  const { chartID, options, selectedDataset = {}, sourceType } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 

@@ -7,6 +7,7 @@ const { cluster: clusterModel } = require('../models');
 const { getClusterAuth } = require('./clusterAuth');
 const {
   awaitHandler,
+  createFileParams,
   createParamString,
   findQueryDatasets,
   getDatasetFields,
@@ -189,17 +190,13 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
 
 const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { source, params }, userID) => {
   const { name: filename } = source;
-  const requestBody = { LogicalName: filename };
   const clusterAuth = await getClusterAuth(clusterID, userID);
 
   // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
+  const { Count, formattedParams, Start } = createFileParams(params);
 
-  // Add params to request
-  params.forEach(({ name, value }) => (requestBody[name] = value));
-
-  // Convert start value back to 0 index
-  requestBody['Start'] = requestBody['Start'] ? requestBody['Start'] - 1 : 0;
+  let requestBody = { LogicalName: filename, FilterBy: { NamedValue: formattedParams }, Start, Count };
 
   let [err, response] = await awaitHandler(
     axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),

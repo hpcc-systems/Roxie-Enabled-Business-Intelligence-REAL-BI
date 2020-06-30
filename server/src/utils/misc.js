@@ -40,6 +40,25 @@ const createParamString = (params = []) => {
   return `?${urlString}`;
 };
 
+const createFileParams = (params = []) => {
+  // Necessary ternary because default parameter value above is not applied to "null"
+  params = params || [];
+
+  // Get static params
+  let Count = params.find(({ name }) => name === 'Count');
+  let Start = params.find(({ name }) => name === 'Start');
+
+  Count = Count ? Count.value : null;
+  Start = Start ? Start.value - 1 : 0; // Convert start value back to 0 index
+
+  // Remove Start and Count params
+  params = params.filter(({ name, value }) => name !== 'Start' && name !== 'Count' && value !== null);
+
+  const formattedParams = params.map(({ name, value }) => ({ Name: name, Value: value }));
+
+  return { Count, formattedParams, Start };
+};
+
 const findQueryDatasets = (responseObj = {}) => {
   // Necessary ternary because default parameter value above is not applied to "null"
   responseObj = responseObj || {};
@@ -92,6 +111,7 @@ const awaitHandler = promise => {
 
 module.exports = {
   awaitHandler,
+  createFileParams,
   createParamString,
   findQueryDatasets,
   getDatasetFields,
