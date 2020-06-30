@@ -1,32 +1,23 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  // CircularProgress,
-  // FormControl,
-  Grid,
-  // InputLabel,
-  // MenuItem,
-  // Select,
-  TextField,
-} from '@material-ui/core';
+import { Grid, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
-  progress: { margin: 0, marginTop: 50 },
 }));
 
 const StaticFileParams = ({ localState, setParamObj }) => {
   const { params = [] } = localState;
-  const { formControl /*progress*/ } = useStyles();
+  const { formControl } = useStyles();
 
   // Show only certain params
   const partialParamsArr = params.filter(({ name }) => name === 'Start' || name === 'Count');
 
   return (
-    <Grid container direction='row' justify='space-between' spacing={2}>
+    <Fragment>
       {partialParamsArr.map(({ name, type, value }, index) => {
         return (
-          <Grid key={index} item xs={12}>
+          <Grid key={index} item xs={6}>
             <TextField
               label={`${name}: ${type}`}
               name='params'
@@ -39,7 +30,7 @@ const StaticFileParams = ({ localState, setParamObj }) => {
           </Grid>
         );
       })}
-    </Grid>
+    </Fragment>
   );
 };
 

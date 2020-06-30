@@ -29,10 +29,28 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   return response.data;
 };
 
+// Updates value field of objects in old array with ones updated in new array
+export const mergeArrays = (oldArr, newArr) => {
+  oldArr.forEach((obj, index) => {
+    const matchedParam = newArr.find(({ name }) => name === obj.name);
+    const newArrVal = matchedParam ? matchedParam.value : null;
+
+    if (obj.name !== 'Start' && obj.name !== 'Count') {
+      // Update value
+      oldArr[index].value = newArrVal;
+    }
+  });
+
+  return oldArr;
+};
+
 const createChartObj = localState => {
-  const { chartType, dataset, params } = localState;
+  const { chartType, dataset, mappedParams, params: orginalParams } = localState;
   let { options } = localState;
   const { groupBy, horizontal, stacked } = options;
+
+  // Merge arrays to get a complete list of changes
+  const params = mergeArrays(orginalParams, mappedParams);
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
   if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in options)) {
@@ -55,7 +73,19 @@ const createChartObj = localState => {
 const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { id, sourceName, type, ...chartKeys } = charts[chartIndex];
+  const { id, params, sourceName, type, ...chartKeys } = charts[chartIndex];
+
+  // Show only certain params
+  const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
+  const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
+
+  let mappedParams;
+
+  if (paramWithValueArr.length > 0) {
+    mappedParams = paramWithValueArr;
+  } else {
+    mappedParams = [{ name: '', value: '' }];
+  }
 
   // Create initial state object
   let initState = {
@@ -64,6 +94,8 @@ const setEditorState = (charts, chartID) => {
     dataObj: { loading: false },
     datasets: [],
     keyword: sourceName,
+    mappedParams,
+    params,
     sources: [],
     selectedDataset: {},
     selectedSource: {},
@@ -100,7 +132,7 @@ const changeChartType = (oldType, newType, options) => {
         newOptions.xAxis = newOptions.name;
         newOptions.yAxis = newOptions.value;
       } else if (newType === 'table') {
-        newOptions.uniqueField = newOptions.name;
+        newOptions.checkboxValueField = newOptions.name;
         newOptions.fields = [newOptions.name, newOptions.value];
       }
 
@@ -110,14 +142,14 @@ const changeChartType = (oldType, newType, options) => {
       break;
     case 'table':
       if (newType === 'bar' || newType === 'line') {
-        newOptions.xAxis = newOptions.uniqueField;
+        newOptions.xAxis = newOptions.checkboxValueField;
         newOptions.yAxis = newOptions.fields[1] || '';
       } else if (newType === 'pie') {
-        newOptions.name = newOptions.uniqueField;
+        newOptions.name = newOptions.checkboxValueField;
         newOptions.value = newOptions.fields[1] || '';
       }
 
-      delete newOptions.uniqueField;
+      delete newOptions.checkboxValueField;
       delete newOptions.fields;
 
       break;
@@ -129,7 +161,7 @@ const changeChartType = (oldType, newType, options) => {
         delete newOptions.xAxis;
         delete newOptions.yAxis;
       } else if (newType === 'table') {
-        newOptions.uniqueField = newOptions.xAxis;
+        newOptions.checkboxValueField = newOptions.xAxis;
         newOptions.fields = [newOptions.xAxis, newOptions.yAxis];
 
         delete newOptions.xAxis;

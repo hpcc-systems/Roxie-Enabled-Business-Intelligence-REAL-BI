@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, Grid, TextField, Typography } from '@material-ui/core';
 
@@ -38,10 +38,10 @@ const ParametersTab = ({ handleChangeArr, localState }) => {
 
   return dataset ? (
     sourceType === 'file' ? (
-      <Fragment>
+      <Grid container direction='row' justify='space-between' spacing={2}>
         <StaticFileParams localState={localState} setParamObj={setParamObj} />
-        <DynamicFileParams />
-      </Fragment>
+        <DynamicFileParams handleChangeArr={handleChangeArr} localState={localState} />
+      </Grid>
     ) : (
       <FormControl className={formControl} fullWidth>
         {params.length > 0 ? (
