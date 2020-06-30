@@ -8,8 +8,6 @@ import { CssBaseline } from '@material-ui/core';
 import store from './store';
 
 // React Components
-import PrivateRoute from './components/PrivateRoute';
-import Login from './components/Login';
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard';
 
@@ -44,7 +42,7 @@ if (token) {
   setAuthHeader();
 }
 
-const App = () => {
+const App = providedValues => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -52,9 +50,12 @@ const App = () => {
           <Router>
             <Header />
             <Switch>
-              <Route exact path='/' component={Login} />
-              <Route path='/login' component={Login} />
-              <PrivateRoute path='/dashboard/:dashboardID?' component={Dashboard} />
+              <Route
+                path='/'
+                render={props => {
+                  return <Dashboard {...props} {...providedValues} />;
+                }}
+              />
             </Switch>
           </Router>
         </CssBaseline>

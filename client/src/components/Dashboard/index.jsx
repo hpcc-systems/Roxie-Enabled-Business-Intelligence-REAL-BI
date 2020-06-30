@@ -26,7 +26,13 @@ import { checkForChartParams, getChartData } from '../../utils/chart';
 import { getDashboardData } from '../../utils/dashboard';
 import { sortArr } from '../../utils/misc';
 
-const Dashboard = () => {
+const Dashboard = providedValues => {
+  const dispatch = useDispatch();
+  const passedID = providedValues.passedDashboardID;
+  const action = providedValues.action;
+  if (action) {
+    dispatch(action);
+  }
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
@@ -37,18 +43,20 @@ const Dashboard = () => {
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (urlID) {
-      Promise.all([getDashboard(urlID), getCharts(urlID), getDashboardParams(urlID)]).then(actions => {
-        // Batch dispatch each action to only have React re-render once
-        batch(() => {
-          dispatch(actions[0]);
-          dispatch(actions[1]);
-          dispatch(actions[2]);
-        });
-      });
+    const providedID = passedID ? passedID : urlID;
+    if (providedID) {
+      Promise.all([getDashboard(providedID), getCharts(providedID), getDashboardParams(providedID)]).then(
+        actions => {
+          // Batch dispatch each action to only have React re-render once
+          batch(() => {
+            dispatch(actions[0]);
+            dispatch(actions[1]);
+            dispatch(actions[2]);
+          });
+        },
+      );
     }
   }, [dispatch, urlID]);
 

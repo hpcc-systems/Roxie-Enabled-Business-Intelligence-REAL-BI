@@ -3,11 +3,14 @@ import axios from 'axios';
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
 
+//.env prop
+const { PROXY_URL } = process.env;
+
 const getChartData = async (chartID, clusterID) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
+    response = await axios.get(`${PROXY_URL}/api/source/data/multiple`, { params: { chartID, clusterID } });
   } catch (err) {
     console.error(err);
     return [];
@@ -20,7 +23,9 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/editordata', { params: { clusterID, dataOptions, sourceType } });
+    response = await axios.get(`${PROXY_URL}/api/source/editordata`, {
+      params: { clusterID, dataOptions, sourceType },
+    });
   } catch (err) {
     console.error(err);
     return [];

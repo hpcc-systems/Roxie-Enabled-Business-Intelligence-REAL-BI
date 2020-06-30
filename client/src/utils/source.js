@@ -1,10 +1,15 @@
 import axios from 'axios';
 
+//.env prop
+const { PROXY_URL } = process.env;
+
 const getSources = async (clusterID, keyword, sourceType) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/search', { params: { clusterID, keyword, sourceType } });
+    response = await axios.get(`${PROXY_URL}/api/source/search`, {
+      params: { clusterID, keyword, sourceType },
+    });
   } catch (err) {
     console.error(err);
     return [];
@@ -17,7 +22,7 @@ const addSource = async (dashboardID, source) => {
   let response;
 
   try {
-    response = await axios.post('/api/source/create', { dashboardID, source });
+    response = await axios.post(`${PROXY_URL}/api/source/create`, { dashboardID, source });
   } catch (err) {
     console.error(err);
     return;
@@ -32,7 +37,7 @@ const getSourceInfo = async (clusterID, source, sourceType) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/info', { params: { clusterID, source, sourceType } });
+    response = await axios.get(`${PROXY_URL}/api/source/info`, { params: { clusterID, source, sourceType } });
   } catch (err) {
     console.error(err);
     return {};

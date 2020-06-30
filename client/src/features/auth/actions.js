@@ -9,11 +9,14 @@ export const SET_AUTH_USER = 'SET_AUTH_USER';
 export const SET_DIRECTORY_DEPTH = 'SET_DIRECTORY_DEPTH';
 export const SET_LAST_DASHBOARD = 'SET_LAST_DASHBOARD';
 
+//.env prop
+const { PROXY_URL } = process.env;
+
 export const loginUser = async ({ username, password }) => {
   let response;
 
   try {
-    response = await axios.post('/api/auth/login', { username, password });
+    response = await axios.post(`${PROXY_URL}/api/auth/login`, { username, password });
   } catch (err) {
     return { action: { type: SET_AUTH_ERRORS, payload: { msg: err.response.data } } };
   }
@@ -28,7 +31,7 @@ export const getLatestUserData = async () => {
   let response;
 
   try {
-    response = await axios.get('/api/user/getdata');
+    response = await axios.get(`${PROXY_URL}/api/user/getdata`);
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -42,7 +45,7 @@ export const getLatestUserData = async () => {
 
 export const updateLastDashboard = async dashboardID => {
   try {
-    await axios.put('/api/user/updatelastdashboard', { dashboardID });
+    await axios.put(`${PROXY_URL}/api/user/updatelastdashboard`, { dashboardID });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -53,7 +56,7 @@ export const updateLastDashboard = async dashboardID => {
 
 export const updateDirectoryDepth = async directoryDepth => {
   try {
-    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
+    await axios.put(`${PROXY_URL}/api/user/updatedirectorydepth`, { directoryDepth });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };

@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+//.env prop
+const { PROXY_URL } = process.env;
+
 // Action Types
 export const CREATE_DASHBOARD_PARAM = 'CREATE_DASHBOARD_PARAM';
 export const GET_DASHBOARD = 'GET_DASHBOARD';
@@ -11,7 +14,7 @@ export const getDashboard = async dashboardID => {
   let response;
 
   try {
-    response = await axios.get('/api/dashboard/info', { params: { dashboardID } });
+    response = await axios.get(`${PROXY_URL}/api/dashboard/info`, { params: { dashboardID } });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -24,7 +27,7 @@ export const getDashboardParams = async dashboardID => {
   let response;
 
   try {
-    response = await axios.get('/api/dashboardparam/all', { params: { dashboardID } });
+    response = await axios.get(`${PROXY_URL}/api/dashboardparam/all`, { params: { dashboardID } });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -37,7 +40,7 @@ export const createDashboardParam = async paramObj => {
   let response;
 
   try {
-    response = await axios.post('/api/dashboardparam/create', { paramObj });
+    response = await axios.post(`${PROXY_URL}/api/dashboardparam/create`, { paramObj });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -50,7 +53,7 @@ export const updateDashboardParam = async paramObj => {
   let response;
 
   try {
-    response = await axios.put('/api/dashboardparam/update', { paramObj });
+    response = await axios.put(`${PROXY_URL}/api/dashboardparam/update`, { paramObj });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -63,7 +66,9 @@ export const deleteDashboardParam = async (dashboardID, filterID) => {
   let response;
 
   try {
-    response = await axios.delete('/api/dashboardparam/delete', { params: { dashboardID, filterID } });
+    response = await axios.delete(`${PROXY_URL}/api/dashboardparam/delete`, {
+      params: { dashboardID, filterID },
+    });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };

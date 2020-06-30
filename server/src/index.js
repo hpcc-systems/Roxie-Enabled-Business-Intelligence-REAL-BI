@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const { sequelize } = require('./models');
 const { auth, chart, cluster, clusterAuth, dashboard, dashboardParam, source, user } = require('./routes');
 const { authenticateToken } = require('./routes/middleware');
@@ -11,6 +12,8 @@ const app = express();
 // Enable middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.options('*', cors());
 
 // Routes
 app.use('/api/auth', auth);
