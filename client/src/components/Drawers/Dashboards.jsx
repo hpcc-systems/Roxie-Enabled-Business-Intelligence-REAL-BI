@@ -8,6 +8,7 @@ import { Drawer, Toolbar, Typography } from '@material-ui/core';
 import DirectoryTree from './DirectoryTree';
 import FavoritesTree from './FavoritesTree';
 import NewDashboardDialog from '../Dialog/newDashboard';
+import EditDashboardDialog from '../Dialog/editDashboard';
 import NewFolderDialog from '../Dialog/newFolder';
 
 // React Hooks
@@ -16,12 +17,13 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { updateLastDashboard } from '../../features/auth/actions';
-import { GET_DASHBOARD } from '../../features/dashboard/actions';
+import { GET_DASHBOARD, getDashboard } from '../../features/dashboard/actions';
 
 // Utils
 import {
   addDashboardToDB,
   deleteDashboardInDB,
+  updateDashboardInDB,
   updateDirectory,
   updateDirectoryDepth,
 } from '../../utils/dashboard';
@@ -31,11 +33,14 @@ import {
   getFavoriteDashboards,
   removeObjFromDirectory,
   updateDashboardObj,
+  updateObjectInDirectory,
 } from '../../utils/directory';
 import { createClusterAuth } from '../../utils/clusterAuth';
 
 const initState = {
   clusterID: '',
+  dashboardID: '',
+  directoryObj: {},
   password: '',
   username: '',
   directoryDepth: ['root'],
@@ -43,6 +48,7 @@ const initState = {
   hasClusterAuth: null,
   name: '',
   parentID: 0,
+  updateCreds: false,
 };
 
 // Create styles
@@ -59,7 +65,8 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { directory: storeDirectory, directoryDepth: storeDirectoryDepth, lastDashboard } = useSelector(
     state => state.auth.user,
   );
-  const { showDialog: showDashboardDialog, toggleDialog: toggleDashboardDialog } = useDialog(false);
+  const { showDialog: showNewDashboardDialog, toggleDialog: toggleNewDashboardDialog } = useDialog(false);
+  const { showDialog: showEditDashboardDialog, toggleDialog: toggleEditDashboardDialog } = useDialog(false);
   const { showDialog: showFolderDialog, toggleDialog: toggleFolderDialog } = useDialog(false);
   const dispatch = useDispatch();
   const { drawer, toolbar, typography } = useStyles();
@@ -87,7 +94,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   };
 
   const createDashboard = async () => {
-    const { clusterID, directory, directoryDepth, hasClusterAuth, parentID, password, username } = localState;
+    const { clusterID, directory, directoryDepth, parentID, password, username } = localState;
     let dashboard;
 
     // Enable loading animation
@@ -95,11 +102,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
     try {
       dashboard = await addDashboardToDB(localState);
-
-      // Add cluster credentials to DB
-      if (hasClusterAuth !== null && !hasClusterAuth) {
-        await createClusterAuth({ clusterID, password, username });
-      }
+      createClusterAuth({ clusterID, password, username });
     } catch (err) {
       return console.error(err);
     }
@@ -115,6 +118,44 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     updateDirectoryInDB(newDirectory);
     updateDirectoryDepth(newDepthArr);
     handleChange(null, { name: 'directoryDepth', value: newDepthArr });
+
+    // Disable loading animation
+    setLoading(false);
+  };
+
+  const updateDashboard = async () => {
+    const {
+      clusterID,
+      dashboardID,
+      directory,
+      directoryObj,
+      name,
+      password,
+      updateCreds,
+      username,
+    } = localState;
+
+    // Enable loading animation
+    setLoading(true);
+
+    try {
+      updateDashboardInDB(localState);
+
+      if (updateCreds || (username && password)) {
+        createClusterAuth({ clusterID, password, username });
+      }
+    } catch (err) {
+      return console.error(err);
+    }
+
+    // Update directoryObj
+    const newDirectoryObj = { ...directoryObj, name, clusterID };
+
+    // Update dashboard in directory for local state and update DB
+    const newDirectory = updateObjectInDirectory(directory, dashboardID, newDirectoryObj);
+
+    updateDirectoryInDB(newDirectory);
+    handleChange(null, { name: 'directory', value: newDirectory });
 
     // Disable loading animation
     setLoading(false);
@@ -141,8 +182,12 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     }
 
     // Close any open dialogs
-    if (showDashboardDialog) {
-      return toggleDashboardDialog();
+    if (showNewDashboardDialog) {
+      return toggleNewDashboardDialog();
+    }
+
+    if (showEditDashboardDialog) {
+      return toggleEditDashboardDialog();
     }
 
     if (showFolderDialog) {
@@ -161,12 +206,29 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
   const addNewDashboard = parentID => {
     handleChange(null, { name: 'parentID', value: parentID });
-    toggleDashboardDialog();
+    toggleNewDashboardDialog();
   };
 
   const addNewFolder = parentID => {
     handleChange(null, { name: 'parentID', value: parentID });
     toggleFolderDialog();
+  };
+
+  const editDashboard = directoryObj => {
+    const { id: dashboardID } = directoryObj;
+
+    getDashboard(dashboardID).then(action => {
+      const { clusterID, name, id: dashboardID } = action.payload;
+
+      // Update local state
+      handleChange(null, { name: 'clusterID', value: clusterID });
+      handleChange(null, { name: 'dashboardID', value: dashboardID });
+      handleChange(null, { name: 'name', value: name });
+      handleChange(null, { name: 'directoryObj', value: directoryObj });
+
+      // Open edit dashboard dialog
+      toggleEditDashboardDialog();
+    });
   };
 
   const deleteDashboard = dashboardID => {
@@ -211,20 +273,31 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
           addNewDashboard={addNewDashboard}
           addNewFolder={addNewFolder}
           deleteDashboard={deleteDashboard}
+          editDashboard={editDashboard}
           getDashboardInfo={getDashboardInfo}
           getDirectoryDepth={getDirectoryDepth}
           localState={localState}
           updateDirectoryObj={updateDirectoryObj}
         />
       </div>
-      {showDashboardDialog && (
+      {showNewDashboardDialog && (
         <NewDashboardDialog
           createDashboard={createDashboard}
           handleChange={handleChange}
           localState={localState}
           loading={loading}
-          show={showDashboardDialog}
-          toggleDialog={toggleDashboardDialog}
+          show={showNewDashboardDialog}
+          toggleDialog={toggleNewDashboardDialog}
+        />
+      )}
+      {showEditDashboardDialog && (
+        <EditDashboardDialog
+          handleChange={handleChange}
+          localState={localState}
+          loading={loading}
+          show={showEditDashboardDialog}
+          toggleDialog={toggleEditDashboardDialog}
+          updateDashboard={updateDashboard}
         />
       )}
       {showFolderDialog && (

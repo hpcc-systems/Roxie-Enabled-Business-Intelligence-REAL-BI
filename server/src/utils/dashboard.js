@@ -37,6 +37,17 @@ const createDashboard = async (clusterID, name, userID) => {
   return dashboard;
 };
 
+const updateDashboardByID = async dataObj => {
+  const { clusterID, dashboardID, name } = dataObj;
+
+  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name }, { where: { id: dashboardID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
 const deleteDashboardByID = async dashboardID => {
   let [err] = await awaitHandler(dashboardModel.destroy({ where: { id: dashboardID } }));
 
@@ -46,4 +57,10 @@ const deleteDashboardByID = async dashboardID => {
   return;
 };
 
-module.exports = { createDashboard, deleteDashboardByID, getDashboardByID, getDashboardsByUserID };
+module.exports = {
+  createDashboard,
+  deleteDashboardByID,
+  getDashboardByID,
+  getDashboardsByUserID,
+  updateDashboardByID,
+};

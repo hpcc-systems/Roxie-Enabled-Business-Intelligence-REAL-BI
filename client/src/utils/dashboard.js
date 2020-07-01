@@ -46,6 +46,16 @@ export const updateDirectoryDepth = async directoryDepth => {
   return;
 };
 
+export const updateDashboardInDB = async stateObj => {
+  try {
+    await axios.put('/api/dashboard', { ...stateObj });
+  } catch (err) {
+    console.error(err);
+  }
+
+  return;
+};
+
 export const deleteDashboardInDB = async dashboardID => {
   try {
     await axios.delete('/api/dashboard', { params: { dashboardID } });

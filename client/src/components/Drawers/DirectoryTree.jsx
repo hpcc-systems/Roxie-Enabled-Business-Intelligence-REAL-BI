@@ -7,7 +7,7 @@ import {
   Close as CloseIcon,
   CreateNewFolder as CreateNewFolderIcon,
   Dashboard as DashboardIcon,
-  // Edit as EditIcon,
+  Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
   Favorite as FavoriteIcon,
   FavoriteBorder as FavoriteBorderIcon,
@@ -59,6 +59,7 @@ const RecursiveTreeView = ({
   addNewDashboard,
   addNewFolder,
   deleteDashboard,
+  editDashboard,
   getDashboardInfo,
   getDirectoryDepth,
   localState,
@@ -92,7 +93,8 @@ const RecursiveTreeView = ({
     </div>
   );
 
-  const renderTree = ({ children, id, name, favorite }) => {
+  const renderTree = directoryObj => {
+    const { children, id, name, favorite } = directoryObj;
     const isFolder = Boolean(children);
     const label = (
       <div className={labelDiv}>
@@ -133,14 +135,14 @@ const RecursiveTreeView = ({
               >
                 {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
               </Button>
+              <Button className={button} onClick={() => editDashboard(directoryObj)}>
+                <EditIcon />
+              </Button>
               <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
                 <CloseIcon />
               </Button>
             </Fragment>
           )}
-          {/* <Button className={button} onClick={() => console.log('editID', id)}>
-            <EditIcon />
-          </Button> */}
         </div>
       </div>
     );
