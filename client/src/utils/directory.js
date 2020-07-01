@@ -35,9 +35,6 @@ const updateDashboardObj = (directory, searchID, key, value) => {
   // Get new reference to directory []
   const newDirectory = directory;
 
-  // Convert to a number, if possible
-  searchID = isNaN(searchID) ? searchID : Number(searchID);
-
   // Loop through the array for each index
   // Used over a forEach() to allow for break;
   for (const obj of newDirectory) {
@@ -80,9 +77,6 @@ const addObjectToDirectory = (directory, searchID, newObj) => {
     return newDirectory;
   }
 
-  // Convert to a number, if possible
-  searchID = isNaN(searchID) ? searchID : Number(searchID);
-
   // Loop through the array for each index
   // Used over a forEach() to allow for break;
   for (const obj of directory) {
@@ -107,4 +101,36 @@ const addObjectToDirectory = (directory, searchID, newObj) => {
   return newDirectory;
 };
 
-export { addObjectToDirectory, getDashboardsFromDirectory, getFavoriteDashboards, updateDashboardObj };
+const removeObjFromDirectory = (directory, searchID) => {
+  // Set new array variable
+  const newDirectory = new Array(...directory);
+
+  // Iterate through objs in array
+  for (const [index, obj] of newDirectory.entries()) {
+    const { children = false, id: objID } = obj;
+    const foundID = objID === searchID;
+
+    // Found desired entry
+    if (foundID) {
+      // Remove object from array and exit loop
+      newDirectory.splice(index, 1);
+      break;
+    }
+
+    // Obj has children array, recurse through the nested array
+    if (children) {
+      obj.children = removeObjFromDirectory(children, searchID);
+    }
+  }
+
+  // Return the new updated directory
+  return newDirectory;
+};
+
+export {
+  addObjectToDirectory,
+  getDashboardsFromDirectory,
+  getFavoriteDashboards,
+  removeObjFromDirectory,
+  updateDashboardObj,
+};

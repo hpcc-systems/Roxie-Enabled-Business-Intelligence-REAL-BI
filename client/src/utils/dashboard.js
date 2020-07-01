@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const getDashboardData = async (clusterID, dashboardID) => {
+export const getDashboardData = async (clusterID, dashboardID) => {
   let response;
 
   try {
@@ -13,7 +13,7 @@ const getDashboardData = async (clusterID, dashboardID) => {
   return response.data;
 };
 
-const addDashboardToDB = async dashboard => {
+export const addDashboardToDB = async dashboard => {
   let response;
 
   try {
@@ -26,7 +26,7 @@ const addDashboardToDB = async dashboard => {
   return response.data;
 };
 
-const updateDirectory = async directory => {
+export const updateDirectory = async directory => {
   try {
     await axios.put('/api/user/updatedirectory', { directory });
   } catch (err) {
@@ -36,4 +36,22 @@ const updateDirectory = async directory => {
   return;
 };
 
-export { addDashboardToDB, getDashboardData, updateDirectory };
+export const updateDirectoryDepth = async directoryDepth => {
+  try {
+    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
+  } catch (err) {
+    console.error(err);
+  }
+
+  return;
+};
+
+export const deleteDashboardInDB = async dashboardID => {
+  try {
+    await axios.delete('/api/dashboard', { params: { dashboardID } });
+  } catch (err) {
+    console.error(err);
+  }
+
+  return;
+};

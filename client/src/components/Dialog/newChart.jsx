@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
@@ -55,6 +55,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;
 
+  useEffect(() => {
+    handleChange(null, { name: 'mappedParams', value: [{ name: '', value: '' }] });
+  }, [handleChange]);
+
   // Add components to DB
   const newChart = async () => {
     const { id: dashboardID } = dashboard;
@@ -62,9 +66,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const newChartObj = createChartObj(localState);
 
     try {
-      const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
+      const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
 
-      addChart(newChartObj, dashboardID, sourceID, sourceName).then(action => {
+      addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
         dispatch(action);
       });
     } catch (err) {

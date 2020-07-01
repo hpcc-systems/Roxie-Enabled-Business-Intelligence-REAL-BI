@@ -37,4 +37,13 @@ const createDashboard = async (clusterID, name, userID) => {
   return dashboard;
 };
 
-module.exports = { createDashboard, getDashboardByID, getDashboardsByUserID };
+const deleteDashboardByID = async dashboardID => {
+  let [err] = await awaitHandler(dashboardModel.destroy({ where: { id: dashboardID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
+module.exports = { createDashboard, deleteDashboardByID, getDashboardByID, getDashboardsByUserID };

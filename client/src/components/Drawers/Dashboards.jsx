@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Toolbar, Typography } from '@material-ui/core';
 
@@ -15,18 +15,24 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { updateDirectoryDepth, updateLastDashboard } from '../../features/auth/actions';
+import { updateLastDashboard } from '../../features/auth/actions';
+import { GET_DASHBOARD } from '../../features/dashboard/actions';
 
 // Utils
-import { addDashboardToDB, updateDirectory } from '../../utils/dashboard';
+import {
+  addDashboardToDB,
+  deleteDashboardInDB,
+  updateDirectory,
+  updateDirectoryDepth,
+} from '../../utils/dashboard';
 import {
   addObjectToDirectory,
   getDashboardsFromDirectory,
   getFavoriteDashboards,
+  removeObjFromDirectory,
   updateDashboardObj,
 } from '../../utils/directory';
 import { createClusterAuth } from '../../utils/clusterAuth';
-import { useEffect } from 'react';
 
 const initState = {
   clusterID: '',
@@ -50,7 +56,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const history = useHistory();
-  const { directory: storeDirectory, directoryDepth: storeDirectoryDepth } = useSelector(
+  const { directory: storeDirectory, directoryDepth: storeDirectoryDepth, lastDashboard } = useSelector(
     state => state.auth.user,
   );
   const { showDialog: showDashboardDialog, toggleDialog: toggleDashboardDialog } = useDialog(false);
@@ -163,6 +169,29 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
     toggleFolderDialog();
   };
 
+  const deleteDashboard = dashboardID => {
+    const { directory } = localState;
+
+    const newDirectory = removeObjFromDirectory(directory, dashboardID);
+    deleteDashboardInDB(dashboardID);
+    updateDirectoryInDB(newDirectory);
+    handleChange(null, { name: 'directory', value: newDirectory });
+
+    // Dashboard being deleted is the last dashboard viewed
+    if (lastDashboard === dashboardID) {
+      // Clear dashboard data to prevent errors
+      updateLastDashboard(null).then(action => {
+        batch(() => {
+          dispatch(action);
+          dispatch({ type: GET_DASHBOARD, payload: {} });
+        });
+
+        // Update URL
+        history.push('/dashboard');
+      });
+    }
+  };
+
   // Directory references
   const dashboards = getDashboardsFromDirectory(localState.directory, []);
   const favorites = getFavoriteDashboards(dashboards);
@@ -181,6 +210,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
         <DirectoryTree
           addNewDashboard={addNewDashboard}
           addNewFolder={addNewFolder}
+          deleteDashboard={deleteDashboard}
           getDashboardInfo={getDashboardInfo}
           getDirectoryDepth={getDirectoryDepth}
           localState={localState}

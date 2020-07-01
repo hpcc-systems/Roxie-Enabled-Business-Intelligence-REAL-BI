@@ -4,21 +4,36 @@ import { Button, Typography } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import {
   AddBox as AddBoxIcon,
+  Close as CloseIcon,
   CreateNewFolder as CreateNewFolderIcon,
   Dashboard as DashboardIcon,
+  // Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
   Favorite as FavoriteIcon,
   FavoriteBorder as FavoriteBorderIcon,
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
+import classnames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
-  button: { margin: theme.spacing(1), minWidth: 25, padding: 0 },
+  button: {
+    margin: theme.spacing(1),
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    minWidth: 25,
+    padding: 0,
+  },
   buttonsDiv: {
     marginRight: theme.spacing(1),
     paddingTop: theme.spacing(0.5),
     paddingBottom: 0,
+  },
+  deleteBtn: {
+    marginBottom: theme.spacing(0.5),
+  },
+  favoriteBtn: {
+    marginLeft: theme.spacing(1),
   },
   itemDiv: { display: 'flex' },
   labelDiv: {
@@ -43,6 +58,7 @@ const useStyles = makeStyles(theme => ({
 const RecursiveTreeView = ({
   addNewDashboard,
   addNewFolder,
+  deleteDashboard,
   getDashboardInfo,
   getDirectoryDepth,
   localState,
@@ -52,6 +68,8 @@ const RecursiveTreeView = ({
   const {
     button,
     buttonsDiv,
+    deleteBtn,
+    favoriteBtn,
     itemDiv,
     labelDiv,
     labelIcon,
@@ -108,10 +126,21 @@ const RecursiveTreeView = ({
               </Button>
             </Fragment>
           ) : (
-            <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}>
-              {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-            </Button>
+            <Fragment>
+              <Button
+                className={classnames(button, favoriteBtn)}
+                onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
+              >
+                {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+              </Button>
+              <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
+                <CloseIcon />
+              </Button>
+            </Fragment>
           )}
+          {/* <Button className={button} onClick={() => console.log('editID', id)}>
+            <EditIcon />
+          </Button> */}
         </div>
       </div>
     );

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 // Utils
-const { createDashboard, getDashboardByID } = require('../../utils/dashboard');
+const { createDashboard, deleteDashboardByID, getDashboardByID } = require('../../utils/dashboard');
 const { createDashboardPermission, getDashboardPermission } = require('../../utils/dashboardPermission');
 
 router.post('/create', async (req, res) => {
@@ -38,6 +38,31 @@ router.get('/info', async (req, res) => {
   }
 
   return res.status(200).json({ ...dashboard, role: permissionObj.role });
+});
+
+router.delete('/', async (req, res) => {
+  const {
+    query: { dashboardID },
+    user: { id: userID },
+  } = req;
+  let permissionObj;
+
+  try {
+    permissionObj = await getDashboardPermission(dashboardID, userID);
+
+    // User is the owner of the dashboard
+    if (permissionObj.role === 'Owner') {
+      await deleteDashboardByID(dashboardID);
+    } else {
+      // User did not have sufficient permissions
+      return res.status(401).json({ msg: 'Permission Denied' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: 'Internal Error' });
+  }
+
+  return res.status(202).end();
 });
 
 module.exports = router;
