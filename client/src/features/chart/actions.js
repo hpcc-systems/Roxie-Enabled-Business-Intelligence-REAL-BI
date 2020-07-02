@@ -20,7 +20,7 @@ export const getCharts = async dashboardID => {
   return { type: GET_CHARTS, payload: response.data };
 };
 
-export const addChart = async (chart, dashboardID, sourceID, sourceName) => {
+export const addChart = async (chart, dashboardID, sourceID, sourceName, sourceType) => {
   let response;
 
   try {
@@ -30,7 +30,7 @@ export const addChart = async (chart, dashboardID, sourceID, sourceName) => {
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  return { type: ADD_CHART, payload: { ...response.data, sourceName } };
+  return { type: ADD_CHART, payload: { ...response.data, sourceName, sourceType } };
 };
 
 export const deleteChart = async (chartID, dashboardID, sourceID) => {

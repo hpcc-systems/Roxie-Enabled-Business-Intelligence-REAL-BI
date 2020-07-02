@@ -51,17 +51,6 @@ export const updateLastDashboard = async dashboardID => {
   return { type: SET_LAST_DASHBOARD, payload: dashboardID };
 };
 
-export const updateDirectoryDepth = async directoryDepth => {
-  try {
-    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
-  } catch (err) {
-    console.error(err);
-    return { type: SET_AUTH_ERRORS, payload: err };
-  }
-
-  return { type: SET_DIRECTORY_DEPTH, payload: directoryDepth };
-};
-
 export const logoutUser = () => {
   return { type: SET_AUTH_USER, payload: initUserObj };
 };
