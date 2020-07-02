@@ -38,9 +38,13 @@ const createDashboard = async (clusterID, name, userID) => {
 };
 
 const updateDashboardByID = async dataObj => {
-  const { clusterID, dashboardID, name } = dataObj;
+  const {
+    clusterID,
+    directoryObj: { id },
+    name,
+  } = dataObj;
 
-  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name }, { where: { id: dashboardID } }));
+  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name }, { where: { id } }));
 
   // Return error
   if (err) throw err;

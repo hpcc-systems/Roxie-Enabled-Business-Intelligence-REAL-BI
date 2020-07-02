@@ -53,7 +53,7 @@ router.put('/', async (req, res) => {
   let permissionObj;
 
   try {
-    permissionObj = await getDashboardPermission(body.dashboardID, userID);
+    permissionObj = await getDashboardPermission(body.directoryObj.id, userID);
 
     // User is the owner of the dashboard
     if (permissionObj.role === 'Owner') {

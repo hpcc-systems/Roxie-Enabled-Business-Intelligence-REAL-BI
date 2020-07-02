@@ -59,7 +59,9 @@ const RecursiveTreeView = ({
   addNewDashboard,
   addNewFolder,
   deleteDashboard,
+  deleteFolder,
   editDashboard,
+  editFolder,
   getDashboardInfo,
   getDirectoryDepth,
   localState,
@@ -125,6 +127,12 @@ const RecursiveTreeView = ({
               </Button>
               <Button className={button} onClick={() => addNewFolder(id)}>
                 <CreateNewFolderIcon />
+              </Button>
+              <Button className={button} onClick={() => editFolder(directoryObj)}>
+                <EditIcon />
+              </Button>
+              <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
+                <CloseIcon />
               </Button>
             </Fragment>
           ) : (
