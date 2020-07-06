@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 const ColumnChart = ({ data, options }) => {
   const { xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
-  console.log(options);
+
   let customXLabel = xAxis_Label ? xAxis_Label : xAxis;
   let customYLabel = yAxis_Label ? yAxis_Label : yAxis;
 

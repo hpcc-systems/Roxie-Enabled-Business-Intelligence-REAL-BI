@@ -2,20 +2,19 @@ import React from 'react';
 import ReactG2Plot from 'react-g2plot';
 import { Heatmap } from '@antv/g2plot';
 
-// Utils
-import { checkForNumber } from '../../utils/misc';
-
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
 const HeatMap = ({ data, options }) => {
-  const { colorField, xAxis, yAxis } = options;
+  const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
 
-  // Convert necessary values to numbers
-  data = data.map(row => ({
-    ...row,
-    [xAxis]: checkForNumber(row[xAxis]),
-    [yAxis]: checkForNumber(row[yAxis]),
-  }));
+  let customXLabel = xAxis_Label ? xAxis_Label : xAxis;
+  let customYLabel = yAxis_Label ? yAxis_Label : yAxis;
+
+  // Convert necessary values to String
+  data.forEach(row => {
+    row[xAxis] = String(row[xAxis]);
+    row[yAxis] = String(row[yAxis]);
+  });
 
   const config = {
     data,
@@ -29,6 +28,20 @@ const HeatMap = ({ data, options }) => {
     meta: {
       [xAxis]: {
         type: 'cat',
+      },
+    },
+    xAxis: {
+      min: 0,
+      title: {
+        visible: true,
+        text: customXLabel,
+      },
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        visible: true,
+        text: customYLabel,
       },
     },
   };
