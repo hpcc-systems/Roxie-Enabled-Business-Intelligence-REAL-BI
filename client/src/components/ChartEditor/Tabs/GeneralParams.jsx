@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -36,6 +36,16 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
         )}
       </FormControl>
       <FormControl className={formControl} fullWidth>
+        <TextField
+          fullWidth
+          label='xAxis Label'
+          name='options:xAxis_Label'
+          value={options.xAxis_Label || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
+      </FormControl>
+      <FormControl className={formControl} fullWidth>
         <InputLabel>Y Axis</InputLabel>
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
@@ -50,6 +60,16 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
             })}
           </Select>
         )}
+      </FormControl>
+      <FormControl className={formControl} fullWidth>
+        <TextField
+          fullWidth
+          label='yAxis Label'
+          name='options:yAxis_Label'
+          value={options.yAxis_Label || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
       </FormControl>
     </Fragment>
   );

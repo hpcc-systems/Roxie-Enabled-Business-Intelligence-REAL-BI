@@ -1,6 +1,14 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
+import {
+  CircularProgress,
+  FormControl,
+  Input,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0` },
@@ -79,6 +87,16 @@ const TableParams = ({ handleChangeObj, localState }) => {
         )}
       </FormControl>
       <FormControl className={formControl} fullWidth>
+        <TextField
+          fullWidth
+          label='Rename Checkbox Value'
+          name='options:xAxis_Label'
+          value={options.xAxis_Label || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
+      </FormControl>
+      <FormControl className={formControl} fullWidth>
         <InputLabel>Other Fields</InputLabel>
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
@@ -99,6 +117,16 @@ const TableParams = ({ handleChangeObj, localState }) => {
             })}
           </Select>
         )}
+      </FormControl>
+      <FormControl className={formControl} fullWidth>
+        <TextField
+          fullWidth
+          label='Rename Other Fields'
+          name='options:yAxis_Label'
+          value={options.yAxis_Label || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
       </FormControl>
     </Fragment>
   );
