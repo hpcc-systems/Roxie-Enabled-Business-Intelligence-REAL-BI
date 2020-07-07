@@ -7,41 +7,41 @@ const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 const HeatMap = ({ data, options }) => {
   const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
 
-  let customXLabel = xAxis_Label ? xAxis_Label : xAxis;
-  let customYLabel = yAxis_Label ? yAxis_Label : yAxis;
+  let customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
+  let customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
   // Convert necessary values to String
-  data.forEach(row => {
-    row[xAxis] = String(row[xAxis]);
-    row[yAxis] = String(row[yAxis]);
-  });
+  data = data.map(row => ({
+    ...row,
+    [xAxis]: String(row[xAxis]),
+    [yAxis]: String(row[yAxis]),
+  }));
 
   const config = {
     data,
     forceFit: false,
-    width: 600,
-    xField: xAxis,
-    yField: yAxis,
-    colorField: colorField,
     shapeType: 'rect',
     color: colorList,
-    meta: {
-      [xAxis]: {
-        type: 'cat',
-      },
-    },
     xAxis: {
-      min: 0,
+      min: 2,
       title: {
         visible: true,
         text: customXLabel,
       },
     },
     yAxis: {
-      min: 0,
+      min: 2,
       title: {
         visible: true,
         text: customYLabel,
+      },
+    },
+    xField: xAxis,
+    yField: yAxis,
+    colorField: colorField,
+    meta: {
+      [xAxis]: {
+        type: 'cat',
       },
     },
   };
