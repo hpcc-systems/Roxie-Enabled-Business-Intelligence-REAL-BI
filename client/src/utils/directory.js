@@ -1,7 +1,7 @@
 // Utils
 import { sortArr } from './misc';
 
-const getDashboardsFromDirectory = (directory, dashboards) => {
+export const getDashboardsFromDirectory = (directory, dashboards) => {
   directory.forEach(obj => {
     const { children = false } = obj;
 
@@ -21,7 +21,7 @@ const getDashboardsFromDirectory = (directory, dashboards) => {
   return dashboards;
 };
 
-const getFavoriteDashboards = dashboards => {
+export const getFavoriteDashboards = dashboards => {
   // Filter to dashboard objects where favorite is true
   dashboards = dashboards.filter(({ favorite }) => favorite === true);
 
@@ -31,12 +31,9 @@ const getFavoriteDashboards = dashboards => {
   return dashboards;
 };
 
-const updateDashboardObj = (directory, searchID, key, value) => {
+export const updateDashboardObj = (directory, searchID, key, value) => {
   // Get new reference to directory []
   const newDirectory = directory;
-
-  // Convert to a number, if possible
-  searchID = isNaN(searchID) ? searchID : Number(searchID);
 
   // Loop through the array for each index
   // Used over a forEach() to allow for break;
@@ -68,7 +65,33 @@ const updateDashboardObj = (directory, searchID, key, value) => {
   return newDirectory;
 };
 
-const addObjectToDirectory = (directory, searchID, newObj) => {
+export const updateObjectInDirectory = (directory, searchID, directoryObj) => {
+  // Set new array variable
+  const newDirectory = new Array(...directory);
+
+  // Iterate through objects in array
+  for (const [index, obj] of newDirectory.entries()) {
+    const { children = false, id: objID } = obj;
+    const foundID = objID === searchID;
+
+    // Found desired entry
+    if (foundID) {
+      // Update object from array and exit loop
+      newDirectory[index] = directoryObj;
+      break;
+    }
+
+    // Obj has children array, recurse through the nested array
+    if (children) {
+      obj.children = updateObjectInDirectory(children, searchID, directoryObj);
+    }
+  }
+
+  // Return the new updated directory
+  return newDirectory;
+};
+
+export const addObjectToDirectory = (directory, searchID, newObj) => {
   // Get new reference to directory []
   const newDirectory = directory;
 
@@ -79,9 +102,6 @@ const addObjectToDirectory = (directory, searchID, newObj) => {
     // Return the new updated directory
     return newDirectory;
   }
-
-  // Convert to a number, if possible
-  searchID = isNaN(searchID) ? searchID : Number(searchID);
 
   // Loop through the array for each index
   // Used over a forEach() to allow for break;
@@ -107,4 +127,28 @@ const addObjectToDirectory = (directory, searchID, newObj) => {
   return newDirectory;
 };
 
-export { addObjectToDirectory, getDashboardsFromDirectory, getFavoriteDashboards, updateDashboardObj };
+export const removeObjFromDirectory = (directory, searchID) => {
+  // Set new array variable
+  const newDirectory = new Array(...directory);
+
+  // Iterate through objs in array
+  for (const [index, obj] of newDirectory.entries()) {
+    const { children = false, id: objID } = obj;
+    const foundID = objID === searchID;
+
+    // Found desired entry
+    if (foundID) {
+      // Remove object from array and exit loop
+      newDirectory.splice(index, 1);
+      break;
+    }
+
+    // Obj has children array, recurse through the nested array
+    if (children) {
+      obj.children = removeObjFromDirectory(children, searchID);
+    }
+  }
+
+  // Return the new updated directory
+  return newDirectory;
+};
