@@ -6,7 +6,10 @@ import { Column } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 const ColumnChart = ({ data, options }) => {
-  const { xAxis, yAxis } = options;
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+
+  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
+  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -31,9 +34,21 @@ const ColumnChart = ({ data, options }) => {
     meta: {
       [yAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    xAxis: { min: 0 },
+    xAxis: {
+      min: 0,
+      title: {
+        visible: true,
+        text: customXLabel,
+      },
+    },
     xField: xAxis,
-    yAxis: { min: 0 },
+    yAxis: {
+      min: 0,
+      title: {
+        visible: true,
+        text: customYLabel,
+      },
+    },
     yField: yAxis,
   };
 
