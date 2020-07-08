@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { CircularProgress, FormControl, Grid, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0` },
@@ -57,7 +57,7 @@ const TableParams = ({ handleChangeObj, localState }) => {
   const alteredSelectedFieldsArr = optionsFields.filter(field => field !== checkboxValueField);
 
   return (
-    <Fragment>
+    <Grid item md={12}>
       <FormControl className={formControl} fullWidth>
         <InputLabel>Checkbox Value Field</InputLabel>
         {chartID && fields.length <= 1 ? (
@@ -100,7 +100,7 @@ const TableParams = ({ handleChangeObj, localState }) => {
           </Select>
         )}
       </FormControl>
-    </Fragment>
+    </Grid>
   );
 };
 
