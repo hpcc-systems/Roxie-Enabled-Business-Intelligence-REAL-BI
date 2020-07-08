@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Typography } from '@material-ui/core';
+import { Button, Tooltip, Typography, Zoom } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import {
   Close as CloseIcon,
@@ -16,7 +16,15 @@ import {
 } from '@material-ui/icons';
 import { blue } from '@material-ui/core/colors';
 import classnames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
+
+// Wrap provided component with a tooltip
+const tooltipFn = (title, child) => {
+  return (
+    <Tooltip placement={'top'} title={title} arrow TransitionComponent={Zoom}>
+      {child}
+    </Tooltip>
+  );
+};
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -89,16 +97,18 @@ const RecursiveTreeView = ({
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
       <div className={buttonsDiv}>
-        <Tooltip title='New Dashboard'>
+        {tooltipFn(
+          'Create Dashboard',
           <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
             <InsertChartTwoToneIcon />
-          </Button>
-        </Tooltip>
-        <Tooltip title='New Folder'>
+          </Button>,
+        )}
+        {tooltipFn(
+          'Create Folder',
           <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
             <CreateNewFolderTwoToneIcon />
-          </Button>
-        </Tooltip>
+          </Button>,
+        )}
       </div>
     </div>
   );
@@ -130,41 +140,55 @@ const RecursiveTreeView = ({
         <div className={buttonsDiv}>
           {isFolder ? (
             <Fragment>
-              <Tooltip title='New Dashboard'>
+              {tooltipFn(
+                'Create Dashboard',
                 <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
                   <InsertChartTwoToneIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title='New Folder'>
+                </Button>,
+              )}
+              {tooltipFn(
+                'Create Folder',
                 <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
                   <CreateNewFolderTwoToneIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Edit Folder'>
+                </Button>,
+              )}
+              {tooltipFn(
+                'Edit Folder',
                 <Button className={button} onClick={() => editFolder(directoryObj)}>
                   <EditIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Delete Folder'>
+                </Button>,
+              )}
+              {tooltipFn(
+                'Delete Folder',
                 <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
                   <CloseIcon />
-                </Button>
-              </Tooltip>
+                </Button>,
+              )}
             </Fragment>
           ) : (
             <Fragment>
-              <Button
-                className={classnames(button, favoriteBtn)}
-                onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
-              >
-                {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              </Button>
-              <Button className={button} onClick={() => editDashboard(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
-                <CloseIcon />
-              </Button>
+              {tooltipFn(
+                favorite ? 'Unpin Dashboard' : 'Pin Dashboard',
+                <Button
+                  className={classnames(button, favoriteBtn)}
+                  onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
+                >
+                  {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                </Button>,
+              )}
+
+              {tooltipFn(
+                'Edit Dashboard',
+                <Button className={button} onClick={() => editDashboard(directoryObj)}>
+                  <EditIcon />
+                </Button>,
+              )}
+              {tooltipFn(
+                'Delete Dashboard',
+                <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
+                  <CloseIcon />
+                </Button>,
+              )}
             </Fragment>
           )}
         </div>
