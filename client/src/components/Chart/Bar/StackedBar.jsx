@@ -6,7 +6,10 @@ import { StackedBar } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 const StackedBarChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+
+  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
+  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -32,11 +35,21 @@ const StackedBarChart = ({ data, options }) => {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
     stackField: groupBy,
-    xAxis: { min: 0 },
+    xAxis: {
+      min: 0,
+      title: {
+        visible: true,
+        text: customXLabel,
+      },
+    },
     xField: xAxis,
     yAxis: {
       line: { visible: true },
       min: 0,
+      title: {
+        visible: true,
+        text: customYLabel,
+      },
     },
     yField: yAxis,
   };

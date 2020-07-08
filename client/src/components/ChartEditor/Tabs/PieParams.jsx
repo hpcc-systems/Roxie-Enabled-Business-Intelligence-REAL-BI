@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -18,7 +18,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
   const { formControl, progress } = useStyles();
 
   return (
-    <Fragment>
+    <Grid item md={12}>
       <FormControl className={formControl} fullWidth>
         <InputLabel>Name</InputLabel>
         {chartID && fields.length <= 1 ? (
@@ -51,7 +51,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
           </Select>
         )}
       </FormControl>
-    </Fragment>
+    </Grid>
   );
 };
 

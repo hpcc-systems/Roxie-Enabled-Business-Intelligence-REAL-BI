@@ -134,17 +134,15 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           autoComplete='off'
         />
       </Grid>
-      <Grid item md={12}>
-        {chartType === 'pie' ? (
-          <PieParams handleChangeObj={handleChangeObj} localState={localState} />
-        ) : chartType === 'table' ? (
-          <TableParams handleChangeObj={handleChangeObj} localState={localState} />
-        ) : chartType === 'heatmap' ? (
-          <HeatMapParams handleChangeObj={handleChangeObj} localState={localState} />
-        ) : (
-          <GeneralParams handleChangeObj={handleChangeObj} localState={localState} />
-        )}
-      </Grid>
+      {chartType === 'pie' ? (
+        <PieParams handleChangeObj={handleChangeObj} localState={localState} />
+      ) : chartType === 'table' ? (
+        <TableParams handleChangeObj={handleChangeObj} localState={localState} />
+      ) : chartType === 'heatmap' ? (
+        <HeatMapParams handleChangeObj={handleChangeObj} localState={localState} />
+      ) : (
+        <GeneralParams handleChangeObj={handleChangeObj} localState={localState} />
+      )}
     </Grid>
   );
 };
