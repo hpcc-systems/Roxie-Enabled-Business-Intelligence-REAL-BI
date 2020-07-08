@@ -1,11 +1,9 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Typography } from '@material-ui/core';
+import { Button, Tooltip, Typography, Zoom } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import {
-  AddBox as AddBoxIcon,
   Close as CloseIcon,
-  CreateNewFolder as CreateNewFolderIcon,
   Dashboard as DashboardIcon,
   Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
@@ -13,8 +11,20 @@ import {
   FavoriteBorder as FavoriteBorderIcon,
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
+  CreateNewFolderTwoTone as CreateNewFolderTwoToneIcon,
+  InsertChartTwoTone as InsertChartTwoToneIcon,
 } from '@material-ui/icons';
+import { blue } from '@material-ui/core/colors';
 import classnames from 'classnames';
+
+// Wrap provided component with a tooltip
+const tooltipFn = (title, child) => {
+  return (
+    <Tooltip placement={'top'} title={title} arrow TransitionComponent={Zoom}>
+      {child}
+    </Tooltip>
+  );
+};
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -24,6 +34,7 @@ const useStyles = makeStyles(theme => ({
     minWidth: 25,
     padding: 0,
   },
+  blueColor: { color: blue[500] },
   buttonsDiv: {
     marginRight: theme.spacing(1),
     paddingTop: theme.spacing(0.5),
@@ -71,6 +82,7 @@ const RecursiveTreeView = ({
   const {
     button,
     buttonsDiv,
+    blueColor,
     deleteBtn,
     favoriteBtn,
     itemDiv,
@@ -85,12 +97,18 @@ const RecursiveTreeView = ({
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
       <div className={buttonsDiv}>
-        <Button className={button} onClick={() => addNewDashboard('root')}>
-          <AddBoxIcon />
-        </Button>
-        <Button className={button} onClick={() => addNewFolder('root')}>
-          <CreateNewFolderIcon />
-        </Button>
+        {tooltipFn(
+          'Create Dashboard',
+          <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
+            <InsertChartTwoToneIcon />
+          </Button>,
+        )}
+        {tooltipFn(
+          'Create Folder',
+          <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
+            <CreateNewFolderTwoToneIcon />
+          </Button>,
+        )}
       </div>
     </div>
   );
@@ -122,33 +140,55 @@ const RecursiveTreeView = ({
         <div className={buttonsDiv}>
           {isFolder ? (
             <Fragment>
-              <Button className={button} onClick={() => addNewDashboard(id)}>
-                <AddBoxIcon />
-              </Button>
-              <Button className={button} onClick={() => addNewFolder(id)}>
-                <CreateNewFolderIcon />
-              </Button>
-              <Button className={button} onClick={() => editFolder(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
-                <CloseIcon />
-              </Button>
+              {tooltipFn(
+                'Create Dashboard',
+                <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
+                  <InsertChartTwoToneIcon />
+                </Button>,
+              )}
+              {tooltipFn(
+                'Create Folder',
+                <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
+                  <CreateNewFolderTwoToneIcon />
+                </Button>,
+              )}
+              {tooltipFn(
+                'Edit Folder',
+                <Button className={button} onClick={() => editFolder(directoryObj)}>
+                  <EditIcon />
+                </Button>,
+              )}
+              {tooltipFn(
+                'Delete Folder',
+                <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
+                  <CloseIcon />
+                </Button>,
+              )}
             </Fragment>
           ) : (
             <Fragment>
-              <Button
-                className={classnames(button, favoriteBtn)}
-                onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
-              >
-                {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              </Button>
-              <Button className={button} onClick={() => editDashboard(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
-                <CloseIcon />
-              </Button>
+              {tooltipFn(
+                favorite ? 'Unpin Dashboard' : 'Pin Dashboard',
+                <Button
+                  className={classnames(button, favoriteBtn)}
+                  onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
+                >
+                  {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                </Button>,
+              )}
+
+              {tooltipFn(
+                'Edit Dashboard',
+                <Button className={button} onClick={() => editDashboard(directoryObj)}>
+                  <EditIcon />
+                </Button>,
+              )}
+              {tooltipFn(
+                'Delete Dashboard',
+                <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
+                  <CloseIcon />
+                </Button>,
+              )}
             </Fragment>
           )}
         </div>
