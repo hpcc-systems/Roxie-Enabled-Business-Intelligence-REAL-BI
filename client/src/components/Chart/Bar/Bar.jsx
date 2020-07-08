@@ -6,7 +6,10 @@ import { Bar } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 const BarChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+
+  let customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
+  let customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -36,11 +39,19 @@ const BarChart = ({ data, options }) => {
       grid: { visible: true },
       label: { visible: true },
       min: 0,
+      title: {
+        visible: true,
+        text: customXLabel,
+      },
     },
     xField: xAxis,
     yAxis: {
       line: { visible: true },
       min: 0,
+      title: {
+        visible: true,
+        text: customYLabel,
+      },
     },
     yField: yAxis,
   };
