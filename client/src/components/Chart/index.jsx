@@ -9,6 +9,7 @@ import LineChart from './Line';
 import PieChart from './Pie';
 import Table from './Table';
 import NoData from './NoData';
+import HeatMap from './HeatMap';
 
 // Create styles
 const useStyles = makeStyles({
@@ -65,6 +66,8 @@ const ChartComp = ({
           return <LineChart data={chartData} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
+        case 'heatmap':
+          return <HeatMap data={chartData} options={options} />;
         case 'table':
           return <Table data={chartData} dispatch={dispatch} options={options} params={dashboard.params} />;
         default:
