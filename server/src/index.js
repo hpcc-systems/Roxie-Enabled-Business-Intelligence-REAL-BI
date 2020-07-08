@@ -2,6 +2,7 @@ const express = require('express');
 const { sequelize } = require('./models');
 const { auth, chart, cluster, clusterAuth, dashboard, dashboardParam, source, user } = require('./routes');
 const { authenticateToken } = require('./routes/middleware');
+const logger = require('./config/logger');
 
 const { PORT, NODE_PORT } = process.env;
 const port = PORT || NODE_PORT;
@@ -25,6 +26,6 @@ app.use('/api/user', authenticateToken(), user);
 sequelize
   .sync()
   .then(() => {
-    app.listen(port, () => console.log(`Server listening on port ${port}.`));
+    app.listen(port, () => logger.info(`Server listening on port ${port}.`));
   })
-  .catch(err => console.error(err));
+  .catch(err => logger.error(`Error connecting to DB -> ${err}.`));

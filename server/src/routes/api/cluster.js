@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { createCluster, getClusters } = require('../../utils/cluster');
+const errHandler = require('../../utils/errHandler');
 
 router.get('/all', async (req, res) => {
   let clusters;
@@ -7,8 +8,8 @@ router.get('/all', async (req, res) => {
   try {
     clusters = await getClusters();
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   res.status(200).json(clusters);
@@ -20,8 +21,8 @@ router.post('/create', async (req, res) => {
   try {
     newCluster = await createCluster(req.body);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   res.status(200).json(newCluster);

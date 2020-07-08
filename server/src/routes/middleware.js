@@ -1,15 +1,22 @@
 const axios = require('axios');
+const logger = require('../config/logger');
+const errHandler = require('../utils/errHandler');
 
 // Constants
 const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
 const authenticateToken = () => {
   return async (req, res, next) => {
+    const { baseUrl, method, url } = req;
     let token = req.headers.authorization;
     let response;
 
+    // Log request
+    logger.info(`${method} request made to ${baseUrl}${url}`);
+
     // No token provided
     if (!token) {
+      logger.error('No token provided in request header.');
       return res.status(401).send('Auth Token Required');
     }
 
@@ -23,8 +30,8 @@ const authenticateToken = () => {
     try {
       response = await requestInstance();
     } catch (err) {
-      const { data = 'Unknown Error' } = err.response;
-      return res.status(401).send(data);
+      const { errMsg, status } = errHandler(err);
+      return res.status(status).send(errMsg);
     }
 
     // Destructure response to get user data
@@ -33,6 +40,7 @@ const authenticateToken = () => {
 
     // User doesn't have permission to use this app
     if (!hasPermission) {
+      logger.error('User not authorized to use Real BI.');
       return res.status(401).send('Unauthorized Request');
     }
 
