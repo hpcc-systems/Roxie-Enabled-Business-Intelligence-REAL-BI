@@ -8,8 +8,8 @@ import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 const LineChart = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
 
-  let customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
-  let customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
+  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -45,7 +45,6 @@ const LineChart = ({ data, options }) => {
     smooth: true,
     xField: xAxis,
     xAxis: {
-      min: 0,
       title: {
         visible: true,
         text: customXLabel,
@@ -53,7 +52,6 @@ const LineChart = ({ data, options }) => {
     },
     yField: yAxis,
     yAxis: {
-      min: 0,
       title: {
         visible: true,
         text: customYLabel,
