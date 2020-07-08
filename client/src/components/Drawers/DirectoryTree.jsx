@@ -3,9 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Typography } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import {
-  AddBox as AddBoxIcon,
   Close as CloseIcon,
-  CreateNewFolder as CreateNewFolderIcon,
   Dashboard as DashboardIcon,
   Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
@@ -13,8 +11,12 @@ import {
   FavoriteBorder as FavoriteBorderIcon,
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
+  CreateNewFolderTwoTone as CreateNewFolderTwoToneIcon,
+  InsertChartTwoTone as InsertChartTwoToneIcon,
 } from '@material-ui/icons';
+import { blue } from '@material-ui/core/colors';
 import classnames from 'classnames';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -24,6 +26,7 @@ const useStyles = makeStyles(theme => ({
     minWidth: 25,
     padding: 0,
   },
+  blueColor: { color: blue[500] },
   buttonsDiv: {
     marginRight: theme.spacing(1),
     paddingTop: theme.spacing(0.5),
@@ -71,6 +74,7 @@ const RecursiveTreeView = ({
   const {
     button,
     buttonsDiv,
+    blueColor,
     deleteBtn,
     favoriteBtn,
     itemDiv,
@@ -85,12 +89,16 @@ const RecursiveTreeView = ({
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
       <div className={buttonsDiv}>
-        <Button className={button} onClick={() => addNewDashboard('root')}>
-          <AddBoxIcon />
-        </Button>
-        <Button className={button} onClick={() => addNewFolder('root')}>
-          <CreateNewFolderIcon />
-        </Button>
+        <Tooltip title='New Dashboard'>
+          <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
+            <InsertChartTwoToneIcon />
+          </Button>
+        </Tooltip>
+        <Tooltip title='New Folder'>
+          <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
+            <CreateNewFolderTwoToneIcon />
+          </Button>
+        </Tooltip>
       </div>
     </div>
   );
@@ -122,18 +130,26 @@ const RecursiveTreeView = ({
         <div className={buttonsDiv}>
           {isFolder ? (
             <Fragment>
-              <Button className={button} onClick={() => addNewDashboard(id)}>
-                <AddBoxIcon />
-              </Button>
-              <Button className={button} onClick={() => addNewFolder(id)}>
-                <CreateNewFolderIcon />
-              </Button>
-              <Button className={button} onClick={() => editFolder(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
-                <CloseIcon />
-              </Button>
+              <Tooltip title='New Dashboard'>
+                <Button className={classnames(button, blueColor)} onClick={() => addNewDashboard('root')}>
+                  <InsertChartTwoToneIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip title='New Folder'>
+                <Button className={classnames(button, blueColor)} onClick={() => addNewFolder('root')}>
+                  <CreateNewFolderTwoToneIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip title='Edit Folder'>
+                <Button className={button} onClick={() => editFolder(directoryObj)}>
+                  <EditIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip title='Delete Folder'>
+                <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
+                  <CloseIcon />
+                </Button>
+              </Tooltip>
             </Fragment>
           ) : (
             <Fragment>
