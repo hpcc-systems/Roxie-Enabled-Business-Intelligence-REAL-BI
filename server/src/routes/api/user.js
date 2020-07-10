@@ -9,6 +9,7 @@ const {
   updateLastDashboard,
   updateUserDirectory,
 } = require('../../utils/user');
+const errHandler = require('../../utils/errHandler');
 
 router.get('/getdata', async (req, res) => {
   const { id: userID } = req.user;
@@ -17,8 +18,8 @@ router.get('/getdata', async (req, res) => {
   try {
     user = await getUserByID(userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(200).json(user);
@@ -33,8 +34,8 @@ router.put('/updatedirectory', async (req, res) => {
   try {
     await updateUserDirectory(directory, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).end();
@@ -49,8 +50,8 @@ router.put('/updatelastdashboard', async (req, res) => {
   try {
     await updateLastDashboard(dashboardID, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).end();
@@ -65,8 +66,8 @@ router.put('/updatedirectorydepth', async (req, res) => {
   try {
     await updateDirectoryDepth(directoryDepth, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).end();
@@ -80,8 +81,8 @@ router.get('/all', async (req, res) => {
     token = await getSuperUserToken();
     users = await getAllUsers(token, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json([]);
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(200).json(users);

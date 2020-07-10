@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const errHandler = require('../../utils/errHandler');
 
 const { findAllChartParams, updateChartParam } = require('../../utils/chartParam');
 
@@ -9,8 +10,8 @@ router.get('/all', async (req, res) => {
   try {
     params = await findAllChartParams(chartID);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   res.status(202).json(params);
@@ -24,8 +25,8 @@ router.put('/update', async (req, res) => {
     await updateChartParam(paramID, value);
     params = await findAllChartParams(chartID);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   res.status(202).json(params);

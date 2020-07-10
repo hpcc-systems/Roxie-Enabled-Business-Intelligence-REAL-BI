@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const axios = require('axios');
 const jwtDecode = require('jwt-decode');
+const logger = require('../../config/logger');
+const errHandler = require('../../utils/errHandler');
 
 const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
@@ -18,8 +20,8 @@ router.post('/login', async (req, res) => {
   try {
     response = await axios.post(url, { username, password });
   } catch (err) {
-    const { data = 'Unknown Error', status } = err.response;
-    return res.status(status).send(data);
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   // Decode and destructure jwt token
@@ -29,15 +31,16 @@ router.post('/login', async (req, res) => {
 
   // User doesn't have permission to use this app
   if (!hasPermission) {
-    return res.status(401).send('User not authorized for this app');
+    logger.error('User not authorized to use Real BI.');
+    return res.status(401).send('Unauthorized Request');
   }
 
   // Is user already in DB
   try {
     user = await getUserByID(id);
   } catch (err) {
-    console.error(err);
-    return res.status(500).send('Internal Server Error');
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   // No user found, add to DB

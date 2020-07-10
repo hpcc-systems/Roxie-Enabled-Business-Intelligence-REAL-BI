@@ -27,6 +27,7 @@ import { addSource } from '../../utils/source';
 const initState = {
   dataset: '',
   datasets: [],
+  error: '',
   field: '',
   keyword: '',
   name: '',

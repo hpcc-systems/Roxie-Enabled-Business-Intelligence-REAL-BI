@@ -1,4 +1,5 @@
 import axios from 'axios';
+import errHandler from './errHandler';
 
 const shareChart = async (email, dashboardID) => {
   console.log('API ', email);
@@ -18,8 +19,9 @@ const getUsers = async () => {
   try {
     response = await axios.get('/api/user/all');
   } catch (err) {
-    console.error(err);
-    return [];
+    const { errMsg } = errHandler(err);
+
+    return errMsg;
   }
 
   return response.data;

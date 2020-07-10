@@ -39,6 +39,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   // Reference values
   const {
     dataObj: { loading: previewLoading },
+    error,
     selectedDataset = {},
     selectedSource = {},
   } = localState;
@@ -76,6 +77,12 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
       // Fetch data for selectedSource
       getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
+        if (typeof data !== 'object') {
+          return handleChange(null, { name: 'error', value: data });
+        } else if (error !== '') {
+          handleChange(null, { name: 'error', value: '' });
+        }
+
         // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });

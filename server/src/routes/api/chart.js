@@ -12,6 +12,8 @@ const { deleteSourceByID } = require('../../utils/source');
 const { getDashboardParamsByDashboardAndSourceID } = require('../../utils/dashboardParam');
 const { getDashboardPermission } = require('../../utils/dashboardPermission');
 const { createChartParams, findAllChartParams, updateChartParam } = require('../../utils/chartParam');
+const logger = require('../../config/logger');
+const errHandler = require('../../utils/errHandler');
 
 router.get('/all', async (req, res) => {
   const { dashboardID } = req.query;
@@ -20,8 +22,8 @@ router.get('/all', async (req, res) => {
   try {
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   // Loop through and add params to each chart
@@ -32,7 +34,7 @@ router.get('/all', async (req, res) => {
       try {
         chartParams = await findAllChartParams(chart.id);
       } catch (err) {
-        return console.error(err);
+        return logger.error(err);
       }
 
       return { ...chart, params: chartParams };
@@ -42,8 +44,8 @@ router.get('/all', async (req, res) => {
     try {
       charts = await Promise.all(promises);
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ msg: 'Internal Error' });
+      const { errMsg, status } = errHandler(err);
+      return res.status(status).send(errMsg);
     }
   }
 
@@ -64,8 +66,8 @@ router.post('/create', async (req, res) => {
 
     chartParams = await findAllChartParams(newChart.id);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   // Add params array to new chart object
@@ -80,8 +82,8 @@ router.post('/share', async (req, res) => {
   try {
     await shareChart(email, dashboardID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(200).end();
@@ -110,7 +112,8 @@ router.put('/update', async (req, res) => {
 
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   promises = charts.map(async chart => {
@@ -129,8 +132,8 @@ router.put('/update', async (req, res) => {
   try {
     charts = await Promise.all(promises);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).json(charts);
@@ -172,7 +175,8 @@ router.delete('/delete', async (req, res) => {
 
     charts = await getChartsByDashboardID(dashboardID);
   } catch (err) {
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).json(charts);

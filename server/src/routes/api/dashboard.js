@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const logger = require('../../config/logger');
 
 // Utils
 const {
@@ -8,6 +9,7 @@ const {
   updateDashboardByID,
 } = require('../../utils/dashboard');
 const { createDashboardPermission, getDashboardPermission } = require('../../utils/dashboardPermission');
+const errHandler = require('../../utils/errHandler');
 
 router.post('/create', async (req, res) => {
   const {
@@ -20,8 +22,8 @@ router.post('/create', async (req, res) => {
     dashboard = await createDashboard(clusterID, name, userID);
     await createDashboardPermission(dashboard.id, userID, 'Owner');
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(201).json(dashboard);
@@ -38,8 +40,8 @@ router.get('/info', async (req, res) => {
     dashboard = await getDashboardByID(dashboardID);
     permissionObj = await getDashboardPermission(dashboardID, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(200).json({ ...dashboard, role: permissionObj.role });
@@ -60,11 +62,12 @@ router.put('/', async (req, res) => {
       await updateDashboardByID(body);
     } else {
       // User did not have sufficient permissions
-      return res.status(401).json({ msg: 'Permission Denied' });
+      logger.error('Permission Denied');
+      return res.status(401).send('Permission Denied');
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).end();
@@ -85,11 +88,12 @@ router.delete('/', async (req, res) => {
       await deleteDashboardByID(dashboardID);
     } else {
       // User did not have sufficient permissions
-      return res.status(401).json({ msg: 'Permission Denied' });
+      logger.error('Permission Denied');
+      return res.status(401).send('Permission Denied');
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(202).end();
