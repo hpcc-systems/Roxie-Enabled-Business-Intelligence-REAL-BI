@@ -17,7 +17,7 @@ const NoData = ({ err }) => {
         {err ? 'Error received from HPCC cluster' : 'No Data Received'}
       </Typography>
       <Typography variant='h3' align='center' color='inherit' className={subheader}>
-        {err ? `${err.slice(0, 35)}...` : 'Check chart options and refresh...'}
+        {err ? err : 'Check chart options and refresh...'}
       </Typography>
     </Fragment>
   );

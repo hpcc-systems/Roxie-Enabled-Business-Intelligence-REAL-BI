@@ -1,4 +1,5 @@
 import axios from 'axios';
+import errHandler from './errHandler';
 
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
@@ -9,8 +10,13 @@ const getChartData = async (chartID, clusterID) => {
   try {
     response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
   } catch (err) {
-    console.error(err);
-    return [];
+    const { errMsg, status } = errHandler(err);
+
+    if (status === 401) {
+      return errMsg;
+    }
+
+    return {};
   }
 
   return response.data;
@@ -22,8 +28,13 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   try {
     response = await axios.get('/api/source/editordata', { params: { clusterID, dataOptions, sourceType } });
   } catch (err) {
-    console.error(err);
-    return [];
+    const { errMsg, status } = errHandler(err);
+
+    if (status === 401) {
+      return errMsg;
+    }
+
+    return {};
   }
 
   return response.data;
@@ -93,6 +104,7 @@ const setEditorState = (charts, chartID) => {
     chartType: type,
     dataObj: { loading: false },
     datasets: [],
+    error: '',
     keyword: sourceName,
     mappedParams,
     params,

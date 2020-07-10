@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 const ChartComp = ({
   chart: { dataset, options, type },
   dashboard = { params: [] },
-  dataObj: { data = {}, loading = true },
+  dataObj: { data = {}, error, loading = true },
   dispatch,
 }) => {
   const { groupBy, horizontal, stacked } = options;
@@ -42,6 +42,8 @@ const ChartComp = ({
         }
       }
     }
+  } else if (error !== '') {
+    err = error;
   }
 
   return loading ? (

@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { filterID, keyword, sources, sourceType } = localState;
+  const { error, filterID, keyword, sources, sourceType } = localState;
   const { clusterID } = dashboard;
   const { autocomplete } = useStyles();
 
@@ -23,6 +23,14 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
       setLoading(true);
 
       getSources(clusterID, keyword, sourceType).then(data => {
+        // Error received from server
+        if (!Array.isArray(data)) {
+          setLoading(false);
+          return handleChange(null, { name: 'error', value: data });
+        } else if (error !== '') {
+          handleChange(null, { name: 'error', value: '' });
+        }
+
         handleChange(null, { name: 'sources', value: data });
 
         if (filterID) {
@@ -40,7 +48,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
         setLoading(false);
       });
     }
-  }, [clusterID, filterID, handleChange, keyword, sourceType]);
+  }, [clusterID, error, filterID, handleChange, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {

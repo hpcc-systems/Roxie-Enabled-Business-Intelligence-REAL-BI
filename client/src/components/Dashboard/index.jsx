@@ -110,8 +110,15 @@ const Dashboard = () => {
       // Fetch data for each chart
       charts.forEach(({ id: chartID }) => {
         getChartData(chartID, clusterID).then(data => {
+          if (typeof data !== 'object') {
+            return setCompData(prevState => ({
+              ...prevState,
+              [chartID]: { data: [], error: data, loading: false },
+            }));
+          }
+
           // Set data in local state object with chartID as key
-          setCompData(prevState => ({ ...prevState, [chartID]: { data, loading: false } }));
+          setCompData(prevState => ({ ...prevState, [chartID]: { data, error: '', loading: false } }));
         });
       });
     }
