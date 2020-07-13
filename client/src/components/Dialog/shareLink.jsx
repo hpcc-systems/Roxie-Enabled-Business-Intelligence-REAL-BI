@@ -14,9 +14,8 @@ import useForm from '../../hooks/useForm';
 import { getUsers, shareChart } from '../../utils/share';
 
 const useStyles = makeStyles(theme => ({
-  errorMsg: {
-    color: theme.palette.error.main,
-  },
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
+  errorMsg: { color: theme.palette.error.main },
 }));
 
 const initState = {
@@ -30,7 +29,7 @@ const validEmailRegex = RegExp(/^[\w.=-]+@[\w-]+\.[\w]{2,3}$/i);
 const ShareLinkDialog = ({ show, toggleShare }) => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { values: localState, handleChange } = useForm(initState);
-  const { errorMsg } = useStyles();
+  const { button, errorMsg } = useStyles();
 
   // Get list of available users
   useEffect(() => {
@@ -127,7 +126,7 @@ const ShareLinkDialog = ({ show, toggleShare }) => {
             <Button color='secondary' onClick={toggleShare}>
               Cancel
             </Button>
-            <Button variant='contained' color='primary' onClick={handleSubmit}>
+            <Button variant='contained' className={button} onClick={handleSubmit}>
               Share
             </Button>
           </DialogActions>

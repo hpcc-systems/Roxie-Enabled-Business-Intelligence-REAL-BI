@@ -23,7 +23,8 @@ import { sortArr } from '../../utils/misc';
 import { checkForClusterAuth } from '../../utils/clusterAuth';
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   formControl: { marginBottom: 24 },
   progress: { marginRight: 15 },
 }));
@@ -32,7 +33,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
   const { clusterID, password, username, hasClusterAuth, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
-  const { formControl, progress } = useStyles();
+  const { button, formControl, progress } = useStyles();
 
   useEffect(() => {
     // Clear name and cluster ID
@@ -110,7 +111,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color='primary' variant='contained' disabled={loading} onClick={createDashboard}>
+        <Button className={button} variant='contained' disabled={loading} onClick={createDashboard}>
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Create
         </Button>

@@ -3,13 +3,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   formControl: { marginBottom: 24 },
 }));
 
 const NewFolderDialog = ({ createFolder, handleChange, localState, show, toggleDialog }) => {
   const { name } = localState;
-  const { formControl } = useStyles();
+  const { button, formControl } = useStyles();
 
   // Clear name
   useEffect(() => {
@@ -35,7 +36,7 @@ const NewFolderDialog = ({ createFolder, handleChange, localState, show, toggleD
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color='primary' variant='contained' onClick={createFolder}>
+        <Button className={button} variant='contained' onClick={createFolder}>
           Create
         </Button>
       </DialogActions>

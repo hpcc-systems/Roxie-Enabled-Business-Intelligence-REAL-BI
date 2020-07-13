@@ -7,10 +7,9 @@ import {
   CreateNewFolderTwoTone as CreateNewFolderTwoToneIcon,
   InsertChartTwoTone as InsertChartTwoToneIcon,
 } from '@material-ui/icons';
-import { blue } from '@material-ui/core/colors';
 
-const useStyles = makeStyles(() => ({
-  blueIcon: { color: blue[500] },
+const useStyles = makeStyles(theme => ({
+  blueIcon: { color: theme.palette.info.main },
 }));
 
 const FolderSubMenu = ({

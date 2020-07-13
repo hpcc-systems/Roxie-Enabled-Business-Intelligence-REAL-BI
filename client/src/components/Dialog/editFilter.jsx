@@ -17,7 +17,7 @@ import { setEditorState } from '../../utils/dashboardParam';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { margin: 0, marginTop: theme.spacing(3.25), minWidth: 30, padding: 0 },
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
@@ -32,7 +32,7 @@ const EditFilterDialog = ({ filterID, show, toggleDialog }) => {
   const { charts } = useSelector(state => state.chart);
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { toolbar, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   const editFilter = async () => {
     try {
@@ -64,7 +64,7 @@ const EditFilterDialog = ({ filterID, show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' onClick={editFilter}>
+        <Button variant='contained' className={button} onClick={editFilter}>
           Save
         </Button>
       </DialogActions>
