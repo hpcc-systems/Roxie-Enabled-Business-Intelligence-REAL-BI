@@ -32,7 +32,7 @@ const FolderSubMenu = ({
   };
 
   return (
-    <Menu id='folderSubMenu' anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
       <MenuItem
         onClick={() => {
           addNewDashboard(root ? 'root' : directoryObj.name);

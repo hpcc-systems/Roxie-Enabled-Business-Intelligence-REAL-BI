@@ -31,7 +31,7 @@ const DashboardSubMenu = ({
   };
 
   return (
-    <Menu id='dashboardSubMenu' anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
       <MenuItem
         onClick={() => {
           updateDirectoryObj(id, 'favorite', !favorite);

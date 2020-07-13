@@ -45,7 +45,7 @@ const RecursiveTreeView = props => {
   const rootLabel = (
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
-      <div id='menu'>
+      <div>
         <IconButton onClick={event => showMenu(event, { name: 'root' })}>
           <MoreHorizIcon />
         </IconButton>
@@ -92,7 +92,7 @@ const RecursiveTreeView = props => {
         >
           {isFolder ? children.map(node => renderTree(node)) : null}
         </TreeItem>
-        <div id='menu'>
+        <div>
           {isFolder ? (
             <Fragment>
               <IconButton onClick={event => showMenu(event, directoryObj)}>
