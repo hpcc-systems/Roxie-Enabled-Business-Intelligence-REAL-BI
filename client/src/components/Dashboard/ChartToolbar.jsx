@@ -7,11 +7,11 @@ import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
 import { canDeleteCharts, canEditCharts } from '../../utils/misc';
 
 // Create styles
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
   button: { minWidth: 40 },
   toolbar: { padding: 0 },
-  typography: { flexGrow: 1, textAlign: 'center' },
-});
+  typography: { flexGrow: 1, fontWeight: 'bold' },
+}));
 
 const ChartToolbar = ({ chartID, dashboard, options, sourceID, removeChart, toggleDialog }) => {
   const { role } = dashboard;
@@ -20,17 +20,19 @@ const ChartToolbar = ({ chartID, dashboard, options, sourceID, removeChart, togg
 
   return (
     <Toolbar className={toolbar}>
-      {canDeleteCharts(role) ? (
-        <Button className={button} onClick={() => removeChart(chartID, sourceID)}>
-          <CloseIcon />
-        </Button>
-      ) : null}
-      <Typography className={typography}>{title}</Typography>
-      {canEditCharts(role) ? (
+      {canEditCharts(role) && (
         <Button className={button}>
           <EditIcon onClick={() => toggleDialog(chartID)} />
         </Button>
-      ) : null}
+      )}
+      <Typography className={typography} align='center'>
+        {title}
+      </Typography>
+      {canDeleteCharts(role) && (
+        <Button className={button} onClick={() => removeChart(chartID, sourceID)}>
+          <CloseIcon />
+        </Button>
+      )}
     </Toolbar>
   );
 };

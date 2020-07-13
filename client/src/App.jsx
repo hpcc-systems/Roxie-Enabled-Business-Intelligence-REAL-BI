@@ -23,8 +23,9 @@ import { tokenName } from './constants';
 // Create custom app theme
 const theme = createMuiTheme({
   palette: {
-    primary: { main: '#ed1c24' },
-    secondary: { main: '#666666' },
+    primary: { main: '#343a40' },
+    secondary: { main: '#6c757d' },
+    info: { main: '#007bff' }, // Blue buttons
   },
 });
 

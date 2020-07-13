@@ -3,10 +3,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
 // Create styles
-const useStyles = makeStyles({
-  header: { fontSize: 40, fontWeight: 'bold', marginBottom: 20 },
+const useStyles = makeStyles(theme => ({
+  header: { fontSize: 40, fontWeight: 'bold', marginTop: theme.spacing(3), marginBottom: theme.spacing(2.5) },
   subheader: { fontSize: 20 },
-});
+}));
 
 const NoCharts = () => {
   const { header, subheader } = useStyles();

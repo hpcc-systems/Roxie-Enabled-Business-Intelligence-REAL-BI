@@ -40,7 +40,7 @@ const initState = {
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { margin: 0, marginTop: theme.spacing(3.25), minWidth: 30, padding: 0 },
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
   progress: { marginRight: 15 },
   toolbar: { padding: 0 },
@@ -53,7 +53,7 @@ const NewFilter = ({ show, toggleDialog }) => {
   const { charts } = useSelector(state => state.chart);
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { progress, toolbar, typography } = useStyles();
+  const { button, progress, toolbar, typography } = useStyles();
 
   // Add first object to mappedParams array
   useEffect(() => {
@@ -97,7 +97,7 @@ const NewFilter = ({ show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' disabled={loading} onClick={saveFilter}>
+        <Button variant='contained' className={button} disabled={loading} onClick={saveFilter}>
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Save
         </Button>

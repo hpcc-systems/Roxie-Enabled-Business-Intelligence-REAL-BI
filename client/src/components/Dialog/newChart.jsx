@@ -34,7 +34,8 @@ const initState = {
 };
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
 }));
@@ -45,7 +46,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   );
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { toolbar, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   // Reference values
   const {
@@ -129,7 +130,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' onClick={newChart}>
+        <Button variant='contained' className={button} onClick={newChart}>
           Save
         </Button>
       </DialogActions>
