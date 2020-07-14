@@ -39,6 +39,9 @@ import {
 } from '../../utils/directory';
 import { createClusterAuth } from '../../utils/clusterAuth';
 
+// Constants
+import { directoryObjNameRegexp } from '../../constants';
+
 const initState = {
   clusterID: '',
   directoryObj: {},
@@ -182,6 +185,20 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
   const createFolder = () => {
     const { directory, directoryDepth, name, parentID } = localState;
+    const objNames = getObjectNames(directory, []);
+    let errMsg;
+
+    // Check for duplicate names in directory
+    if (objNames.indexOf(name.toLowerCase().trim()) > -1) {
+      errMsg = 'Name already used';
+
+      return handleChange(null, { name: 'error', value: errMsg });
+    } else if (!directoryObjNameRegexp.test(name)) {
+      errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+
+      return handleChange(null, { name: 'error', value: errMsg });
+    }
+
     const newFolderObj = { id: name.trim(), name: name.trim(), children: [] };
     const newDepthArr = [parentID, ...directoryDepth];
 
@@ -194,6 +211,19 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
 
   const updateFolder = () => {
     const { directory, directoryDepth, directoryObj, name } = localState;
+    const objNames = getObjectNames(directory, []);
+    let errMsg;
+
+    // Check for duplicate names in directory
+    if (objNames.indexOf(name.toLowerCase().trim()) > -1) {
+      errMsg = 'Name already used';
+
+      return handleChange(null, { name: 'error', value: errMsg });
+    } else if (!directoryObjNameRegexp.test(name)) {
+      errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+
+      return handleChange(null, { name: 'error', value: errMsg });
+    }
 
     // Enable loading animation
     setLoading(true);
