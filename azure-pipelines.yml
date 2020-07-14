@@ -1,0 +1,45 @@
+trigger:
+- master
+
+pool: 
+  vmImage: ubuntu-latest
+  
+
+jobs:
+  - job: Publish
+    steps:
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Pipeline.Workspace)'
+        artifact: 'real-bi'
+        publishLocation: 'pipeline'
+
+  - deployment: VMDeploy
+    displayName: Deploy
+    pool:
+      vmImage: 'Ubuntu-18.04'
+    dependsOn: 'Publish'  
+    environment:
+      name: realbi-node-vm-001
+      resourceType: VirtualMachine
+      tags: realbi-node-vm-001
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: CmdLine@2
+            inputs:
+              script: 'pm2 stop REAL-BI'        
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '/home/hpcclabs/azagent/_work/1/REAL-BI'
+              Contents: '**'
+              TargetFolder: '/home/hpcclabs/projects/REAL-BI'
+              OverWrite: true
+          - task: CmdLine@2
+            inputs:
+              script: 'npm install'
+              workingDirectory: '/home/hpcclabs/projects/REAL-BI'
+          - task: CmdLine@2
+            inputs:
+              script: 'pm2 start REAL-BI'
