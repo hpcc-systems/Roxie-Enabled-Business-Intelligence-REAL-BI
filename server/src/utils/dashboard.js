@@ -26,7 +26,7 @@ const getDashboardByID = async dashboardID => {
 };
 
 const createDashboard = async (clusterID, name, userID) => {
-  let [err, dashboard] = await awaitHandler(dashboardModel.create({ clusterID, name, userID }));
+  let [err, dashboard] = await awaitHandler(dashboardModel.create({ clusterID, name: name.trim(), userID }));
 
   // Return error
   if (err) throw err;
@@ -44,7 +44,7 @@ const updateDashboardByID = async dataObj => {
     name,
   } = dataObj;
 
-  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name }, { where: { id } }));
+  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name: name.trim() }, { where: { id } }));
 
   // Return error
   if (err) throw err;

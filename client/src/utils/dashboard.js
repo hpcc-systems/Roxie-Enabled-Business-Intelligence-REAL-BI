@@ -1,4 +1,5 @@
 import axios from 'axios';
+import errHandler from './errHandler';
 
 export const getDashboardData = async (clusterID, dashboardID) => {
   let response;
@@ -19,8 +20,9 @@ export const addDashboardToDB = async dashboard => {
   try {
     response = await axios.post('/api/dashboard/create', dashboard);
   } catch (err) {
-    console.error(err);
-    return {};
+    const { errMsg } = errHandler(err);
+
+    throw errMsg;
   }
 
   return response.data;
@@ -50,7 +52,9 @@ export const updateDashboardInDB = async stateObj => {
   try {
     await axios.put('/api/dashboard', { ...stateObj });
   } catch (err) {
-    console.error(err);
+    const { errMsg } = errHandler(err);
+
+    throw errMsg;
   }
 
   return;
