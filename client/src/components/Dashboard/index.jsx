@@ -2,6 +2,7 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 // Redux Actions
 import { deleteDashboardParam, getDashboard, getDashboardParams } from '../../features/dashboard/actions';
@@ -27,6 +28,10 @@ import { checkForChartParams, getChartData } from '../../utils/chart';
 import { getDashboardData } from '../../utils/dashboard';
 import { sortArr } from '../../utils/misc';
 
+const useStyles = makeStyles(() => ({
+  clearDiv: { clear: 'both' },
+}));
+
 const Dashboard = () => {
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
@@ -40,6 +45,7 @@ const Dashboard = () => {
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
+  const { clearDiv } = useStyles();
 
   useEffect(() => {
     if (urlID) {
@@ -156,7 +162,9 @@ const Dashboard = () => {
                     removeChart={removeChart}
                     toggleDialog={editChart}
                   />
-                  <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
+                  <div className={clearDiv}>
+                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
+                  </div>
                 </Paper>
               </Grid>
             );
