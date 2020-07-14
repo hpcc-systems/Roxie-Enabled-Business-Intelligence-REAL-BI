@@ -31,6 +31,24 @@ export const getFavoriteDashboards = dashboards => {
   return dashboards;
 };
 
+export const getObjectNames = (directory, names) => {
+  // Iterate through objects in array
+  for (const obj of directory) {
+    const { children = false, name } = obj;
+
+    // Add name to array
+    names.push(name.toLowerCase().trim());
+
+    // Obj has children array, recurse through the nested array
+    if (children) {
+      getObjectNames(children, names);
+    }
+  }
+
+  // Return the new updated directory
+  return names;
+};
+
 export const updateDashboardObj = (directory, searchID, key, value) => {
   // Get new reference to directory []
   const newDirectory = directory;

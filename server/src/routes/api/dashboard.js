@@ -11,12 +11,23 @@ const {
 const { createDashboardPermission, getDashboardPermission } = require('../../utils/dashboardPermission');
 const errHandler = require('../../utils/errHandler');
 
+// Constants
+const { directoryObjNameRegexp } = require('../../constants');
+
 router.post('/create', async (req, res) => {
   const {
     body: { clusterID, name },
     user: { id: userID },
   } = req;
   let dashboard;
+
+  // Make sure dashboard name conforms to required regexp
+  if (!directoryObjNameRegexp.test(name)) {
+    const errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+    logger.error(errMsg);
+
+    return res.status(400).send(errMsg);
+  }
 
   try {
     dashboard = await createDashboard(clusterID, name, userID);
@@ -52,10 +63,22 @@ router.put('/', async (req, res) => {
     body,
     user: { id: userID },
   } = req;
+  const {
+    directoryObj: { id },
+    name,
+  } = body;
   let permissionObj;
 
+  // Make sure dashboard name conforms to required regexp
+  if (!directoryObjNameRegexp.test(name)) {
+    const errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+    logger.error(errMsg);
+
+    return res.status(400).send(errMsg);
+  }
+
   try {
-    permissionObj = await getDashboardPermission(body.directoryObj.id, userID);
+    permissionObj = await getDashboardPermission(id, userID);
 
     // User is the owner of the dashboard
     if (permissionObj.role === 'Owner') {

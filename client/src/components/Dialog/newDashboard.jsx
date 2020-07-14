@@ -13,6 +13,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from '@material-ui/core';
 
 // Redux Actions
@@ -25,15 +26,20 @@ import { checkForClusterAuth } from '../../utils/clusterAuth';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
+  errMsg: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+    marginBottom: theme.spacing(1),
+  },
   formControl: { marginBottom: 24 },
   progress: { marginRight: 15 },
 }));
 
 const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState, show, toggleDialog }) => {
-  const { clusterID, password, username, hasClusterAuth, name } = localState;
+  const { clusterID, error, password, username, hasClusterAuth, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
-  const { button, formControl, progress } = useStyles();
+  const { button, errMsg, formControl, progress } = useStyles();
 
   useEffect(() => {
     // Clear name and cluster ID
@@ -42,6 +48,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
     handleChange(null, { name: 'hasClusterAuth', value: null });
     handleChange(null, { name: 'username', value: '' });
     handleChange(null, { name: 'password', value: '' });
+    handleChange(null, { name: 'error', value: '' });
 
     // Get list of clusters
     getClusters().then(action => dispatch(action));
@@ -62,6 +69,11 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
     <Dialog onClose={toggleDialog} open={show} fullWidth>
       <DialogTitle>New Dashboard</DialogTitle>
       <DialogContent>
+        {error !== '' && (
+          <Typography className={errMsg} align='center'>
+            {error}
+          </Typography>
+        )}
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={checkForAuth}>
