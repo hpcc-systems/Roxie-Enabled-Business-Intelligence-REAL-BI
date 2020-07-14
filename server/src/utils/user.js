@@ -42,12 +42,12 @@ const updateDirectoryDepth = async (directoryDepth, userID) => {
 const getSuperUserToken = async () => {
   const url = `${AUTH_URL}:${AUTH_PORT}/auth/login`;
 
-  let response = await axios.post(url, { username: SHARE_USERNAME, password: SHARE_PASSWORD });
+  let [err, response] = await awaitHandler(
+    axios.post(url, { username: SHARE_USERNAME, password: SHARE_PASSWORD }),
+  );
 
-  // No response.data means no token was returned
-  if (!response.data) {
-    throw new Error('Token not received');
-  }
+  // Return error
+  if (err) throw err;
 
   return response.data.accessToken;
 };
@@ -59,11 +59,12 @@ const getAllUsers = async (token, userID) => {
     headers: { Cookie: `auth=${token}` }, // Middleware in auth service expects token in req.cookie.auth
   });
 
-  const response = await requestInstance();
+  const [err, response] = await awaitHandler(requestInstance());
 
   // Array not returned, if the request failes, HTML for the login page is returned
-  if (!Array.isArray(response.data)) {
-    throw new Error('Array not returned from Auth Service');
+  if (err || !Array.isArray(response.data)) {
+    const error = err ? err : 'Users not returned from auth service';
+    throw new Error(error);
   }
 
   // Reduce objects to only needed fields

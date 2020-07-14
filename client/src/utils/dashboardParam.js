@@ -12,6 +12,7 @@ const setEditorState = (filters, filterID) => {
   let initState = {
     filterID: id,
     datasets: [],
+    error: '',
     keyword: sourceName,
     sources: [],
     selectedDataset: {},

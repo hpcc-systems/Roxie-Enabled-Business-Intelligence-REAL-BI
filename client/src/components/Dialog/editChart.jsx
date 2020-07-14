@@ -17,7 +17,8 @@ import useForm from '../../hooks/useForm';
 import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   close: { padding: '10px 0', width: 16 },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
@@ -34,11 +35,12 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   );
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { toolbar, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   // Reference values
   const {
     dataObj: { loading: previewLoading },
+    error,
     selectedDataset = {},
     selectedSource = {},
   } = localState;
@@ -76,6 +78,12 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
       // Fetch data for selectedSource
       getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
+        if (typeof data !== 'object') {
+          return handleChange(null, { name: 'error', value: data });
+        } else if (error !== '') {
+          handleChange(null, { name: 'error', value: '' });
+        }
+
         // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
@@ -106,7 +114,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         <Button variant='contained' color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' onClick={editChart}>
+        <Button variant='contained' className={button} onClick={editChart}>
           Save
         </Button>
       </DialogActions>

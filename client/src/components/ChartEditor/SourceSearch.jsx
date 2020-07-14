@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
 
 const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, keyword, sources, selectedSource = {}, sourceType } = localState;
+  const { chartID, error, keyword, sources, selectedSource = {}, sourceType } = localState;
   const { clusterID } = dashboard;
   const { autocomplete, autocomplete2 } = useStyles();
 
@@ -25,6 +25,14 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
       setLoading(true);
 
       getSources(clusterID, keyword, sourceType).then(data => {
+        // Error received from server
+        if (!Array.isArray(data)) {
+          setLoading(false);
+          return handleChange(null, { name: 'error', value: data });
+        } else if (error !== '') {
+          handleChange(null, { name: 'error', value: '' });
+        }
+
         handleChange(null, { name: 'sources', value: data });
 
         if (chartID) {
@@ -35,7 +43,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
         setLoading(false);
       });
     }
-  }, [chartID, clusterID, handleChange, keyword, sourceType]);
+  }, [chartID, clusterID, error, handleChange, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {

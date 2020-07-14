@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Toolbar, Typography } from '@material-ui/core';
 import {
@@ -12,35 +12,38 @@ import {
 import { canAddCharts } from '../../utils/misc';
 
 // Create styles
-const useStyles = makeStyles({
-  button: { margin: 'auto 10px' },
-  typography: { flex: 1, fontSize: 24 },
-});
+const useStyles = makeStyles(theme => ({
+  button: { margin: theme.spacing(0.75) },
+  toolbar: { float: 'right', marginTop: theme.spacing(-6) },
+  typography: { fontSize: 24, fontWeight: 'bold', marginTop: theme.spacing(2) },
+}));
 
 const ToolbarComp = ({ dashboard, refreshChart, toggleDialog, toggleDrawer, toggleShare }) => {
   const { name, role } = dashboard;
-  const { button, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   return (
-    <Toolbar>
-      <Typography variant='h2' color='inherit' className={typography}>
+    <Fragment>
+      <Typography variant='h2' color='inherit' className={typography} align='center'>
         {name}
       </Typography>
-      <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
-        <RefreshIcon />
-      </Button>
-      {canAddCharts(role) ? (
-        <Button className={button} variant='contained' color='primary' onClick={toggleDialog}>
-          <AddCircleIcon />
+      <Toolbar className={toolbar}>
+        <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
+          <RefreshIcon />
         </Button>
-      ) : null}
-      <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-        <FilterListIcon />
-      </Button>
-      <Button className={button} variant='contained' color='primary' onClick={toggleShare}>
-        <ShareIcon />
-      </Button>
-    </Toolbar>
+        {canAddCharts(role) ? (
+          <Button className={button} variant='contained' color='primary' onClick={toggleDialog}>
+            <AddCircleIcon />
+          </Button>
+        ) : null}
+        <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+          <FilterListIcon />
+        </Button>
+        <Button className={button} variant='contained' color='primary' onClick={toggleShare}>
+          <ShareIcon />
+        </Button>
+      </Toolbar>
+    </Fragment>
   );
 };
 

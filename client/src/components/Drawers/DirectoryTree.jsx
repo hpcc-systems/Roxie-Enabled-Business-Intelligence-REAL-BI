@@ -1,40 +1,20 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Typography } from '@material-ui/core';
+import { IconButton, Typography } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import {
-  AddBox as AddBoxIcon,
-  Close as CloseIcon,
-  CreateNewFolder as CreateNewFolderIcon,
   Dashboard as DashboardIcon,
-  Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
-  Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon,
   Folder as FolderIcon,
   ChevronRight as ChevronRightIcon,
+  MoreHoriz as MoreHorizIcon,
 } from '@material-ui/icons';
-import classnames from 'classnames';
+
+// React Components
+import FolderSubMenu from './FolderSubMenu';
+import DashboardSubMenu from './DashboardSubMenu';
 
 const useStyles = makeStyles(theme => ({
-  button: {
-    margin: theme.spacing(1),
-    marginLeft: theme.spacing(0.5),
-    marginRight: theme.spacing(0.5),
-    minWidth: 25,
-    padding: 0,
-  },
-  buttonsDiv: {
-    marginRight: theme.spacing(1),
-    paddingTop: theme.spacing(0.5),
-    paddingBottom: 0,
-  },
-  deleteBtn: {
-    marginBottom: theme.spacing(0.5),
-  },
-  favoriteBtn: {
-    marginLeft: theme.spacing(1),
-  },
   itemDiv: { display: 'flex' },
   labelDiv: {
     display: 'flex',
@@ -55,48 +35,41 @@ const useStyles = makeStyles(theme => ({
   treeItem: { flexGrow: 1 },
 }));
 
-const RecursiveTreeView = ({
-  addNewDashboard,
-  addNewFolder,
-  deleteDashboard,
-  deleteFolder,
-  editDashboard,
-  editFolder,
-  getDashboardInfo,
-  getDirectoryDepth,
-  localState,
-  updateDirectoryObj,
-}) => {
+const RecursiveTreeView = props => {
+  const { getDashboardInfo, getDirectoryDepth, localState } = props;
   const { directory, directoryDepth } = localState;
-  const {
-    button,
-    buttonsDiv,
-    deleteBtn,
-    favoriteBtn,
-    itemDiv,
-    labelDiv,
-    labelIcon,
-    labelText,
-    rootDiv,
-    rootText,
-    treeItem,
-  } = useStyles();
+  const { itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorName, setAnchorName] = useState('');
+
   const rootLabel = (
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
-      <div className={buttonsDiv}>
-        <Button className={button} onClick={() => addNewDashboard('root')}>
-          <AddBoxIcon />
-        </Button>
-        <Button className={button} onClick={() => addNewFolder('root')}>
-          <CreateNewFolderIcon />
-        </Button>
+      <div>
+        <IconButton onClick={event => showMenu(event, { name: 'root' })}>
+          <MoreHorizIcon />
+        </IconButton>
+        {'root' === anchorName && (
+          <FolderSubMenu
+            {...props}
+            anchorEl={anchorEl}
+            directoryObj={{}}
+            root={true}
+            setAnchorEl={setAnchorEl}
+            setAnchorName={setAnchorName}
+          />
+        )}
       </div>
     </div>
   );
 
+  const showMenu = (event, directoryObj) => {
+    setAnchorEl(event.currentTarget);
+    setAnchorName(directoryObj.name);
+  };
+
   const renderTree = directoryObj => {
-    const { children, id, name, favorite } = directoryObj;
+    const { children, id, name } = directoryObj;
     const isFolder = Boolean(children);
     const label = (
       <div className={labelDiv}>
@@ -119,36 +92,37 @@ const RecursiveTreeView = ({
         >
           {isFolder ? children.map(node => renderTree(node)) : null}
         </TreeItem>
-        <div className={buttonsDiv}>
+        <div>
           {isFolder ? (
             <Fragment>
-              <Button className={button} onClick={() => addNewDashboard(id)}>
-                <AddBoxIcon />
-              </Button>
-              <Button className={button} onClick={() => addNewFolder(id)}>
-                <CreateNewFolderIcon />
-              </Button>
-              <Button className={button} onClick={() => editFolder(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteFolder(directoryObj)}>
-                <CloseIcon />
-              </Button>
+              <IconButton onClick={event => showMenu(event, directoryObj)}>
+                <MoreHorizIcon />
+              </IconButton>
+              {directoryObj.name === anchorName && (
+                <FolderSubMenu
+                  {...props}
+                  anchorEl={anchorEl}
+                  directoryObj={directoryObj}
+                  root={false}
+                  setAnchorEl={setAnchorEl}
+                  setAnchorName={setAnchorName}
+                />
+              )}
             </Fragment>
           ) : (
             <Fragment>
-              <Button
-                className={classnames(button, favoriteBtn)}
-                onClick={() => updateDirectoryObj(id, 'favorite', !favorite)}
-              >
-                {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              </Button>
-              <Button className={button} onClick={() => editDashboard(directoryObj)}>
-                <EditIcon />
-              </Button>
-              <Button className={classnames(button, deleteBtn)} onClick={() => deleteDashboard(id)}>
-                <CloseIcon />
-              </Button>
+              <IconButton onClick={event => showMenu(event, directoryObj)}>
+                <MoreHorizIcon />
+              </IconButton>
+              {directoryObj.name === anchorName && (
+                <DashboardSubMenu
+                  {...props}
+                  anchorEl={anchorEl}
+                  directoryObj={directoryObj}
+                  setAnchorEl={setAnchorEl}
+                  setAnchorName={setAnchorName}
+                />
+              )}
             </Fragment>
           )}
         </div>

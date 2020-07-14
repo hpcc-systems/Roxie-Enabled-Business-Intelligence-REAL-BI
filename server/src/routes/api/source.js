@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const logger = require('../../config/logger');
+const errHandler = require('../../utils/errHandler');
 
 // Utils
 const {
@@ -35,8 +37,8 @@ router.get('/search', async (req, res) => {
         list = await getQueryListFromCluster(cluster, keyword, userID);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   return res.status(200).send(list);
@@ -62,8 +64,8 @@ router.get('/info', async (req, res) => {
         sourceInfo.datasets = await getQueryDatasetsFromCluster(cluster, JSON.parse(source), userID);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   return res.status(200).json(sourceInfo);
@@ -88,8 +90,8 @@ router.get('/editordata', async (req, res) => {
         data = await getQueryDataFromCluster(cluster, JSON.parse(dataOptions), userID);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).end();
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   return res.status(200).json(data);
@@ -116,8 +118,8 @@ router.post('/create', async (req, res) => {
       await createDashboardSource(dashboardID, dbSource.id);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   return res.status(201).json(dbSource);
@@ -136,11 +138,12 @@ router.get('/data/single', async (req, res) => {
     sources = await getSourcesByDashboardID(dashboardID);
     params = await getDashboardParams(dashboardID, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   if (!sources) {
+    logger.error('No Sources Found');
     return res.status(500).json({ msg: 'Internal Error' });
   }
 
@@ -167,7 +170,7 @@ router.get('/data/single', async (req, res) => {
           source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
       }
     } catch (err) {
-      return console.error(err);
+      return logger.error(err);
     }
 
     data[name] = source;
@@ -196,8 +199,8 @@ router.get('/data/multiple', async (req, res) => {
         data = await getQueryDataFromCluster(cluster, { params, source }, userID);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
   }
 
   return res.status(200).json(data);

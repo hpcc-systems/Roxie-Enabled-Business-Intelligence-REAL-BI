@@ -22,8 +22,7 @@ import { tokenName } from '../../constants';
 
 // Create styles
 const useStyles = makeStyles(() => ({
-  appBar: { marginBottom: 15 },
-  typography: { flex: 1, marginLeft: 12 },
+  typography: { flex: 1, marginLeft: 12, color: '#ff5722', fontWeight: 'bold' },
 }));
 
 const Header = () => {
@@ -31,7 +30,7 @@ const Header = () => {
   const { id: userID } = useSelector(state => state.auth.user);
   const dispatch = useDispatch();
   const history = useHistory();
-  const { appBar, typography } = useStyles();
+  const { typography } = useStyles();
 
   const logout = async () => {
     localStorage.removeItem(tokenName);
@@ -43,14 +42,14 @@ const Header = () => {
 
   return (
     <Fragment>
-      <AppBar position='static' className={appBar}>
+      <AppBar position='static'>
         <Toolbar>
           {userID && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant='h6' color='inherit' className={typography}>
+          <Typography variant='h5' color='inherit' className={typography}>
             REAL BI
           </Typography>
           {userID && (

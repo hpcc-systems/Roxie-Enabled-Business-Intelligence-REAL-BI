@@ -22,6 +22,7 @@ const initState = {
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
+  error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
   options: {},
@@ -33,7 +34,8 @@ const initState = {
 };
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
 }));
@@ -44,11 +46,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   );
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { toolbar, typography } = useStyles();
+  const { button, toolbar, typography } = useStyles();
 
   // Reference values
   const {
     dataObj: { loading },
+    error,
     selectedDataset = {},
     selectedSource = {},
   } = localState;
@@ -91,6 +94,12 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
       // Fetch data for selectedSource
       getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
+        if (typeof data !== 'object') {
+          return handleChange(null, { name: 'error', value: data });
+        } else if (error !== '') {
+          handleChange(null, { name: 'error', value: '' });
+        }
+
         // Set data in local state object with source name as key
         handleChange(null, { name: 'dataObj', value: { data, loading: false } });
       });
@@ -121,7 +130,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' color='primary' onClick={newChart}>
+        <Button variant='contained' className={button} onClick={newChart}>
           Save
         </Button>
       </DialogActions>

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 //material module
 import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { useSelector } from 'react-redux';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -11,6 +12,11 @@ import useForm from '../../hooks/useForm';
 
 // Utils
 import { getUsers, shareChart } from '../../utils/share';
+
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
+  errorMsg: { color: theme.palette.error.main },
+}));
 
 const initState = {
   error: '',
@@ -23,11 +29,20 @@ const validEmailRegex = RegExp(/^[\w.=-]+@[\w-]+\.[\w]{2,3}$/i);
 const ShareLinkDialog = ({ show, toggleShare }) => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { values: localState, handleChange } = useForm(initState);
+  const { button, errorMsg } = useStyles();
 
   // Get list of available users
   useEffect(() => {
-    getUsers().then(data => handleChange(null, { name: 'users', value: data }));
-  }, [handleChange]);
+    getUsers().then(data => {
+      if (!Array.isArray(data)) {
+        return handleChange(null, { name: 'error', value: data });
+      } else if (localState.error !== '') {
+        handleChange(null, { name: 'error', value: '' });
+      }
+
+      handleChange(null, { name: 'users', value: data });
+    });
+  }, [handleChange, localState.error]);
 
   const shareDashboard = async email => {
     try {
@@ -105,13 +120,13 @@ const ShareLinkDialog = ({ show, toggleShare }) => {
                 />
               )}
             />
-            {error.length > 0 && <span className='error'>{error}</span>}
+            {error.length > 0 && <span className={errorMsg}>{error}</span>}
           </DialogContent>
           <DialogActions>
             <Button color='secondary' onClick={toggleShare}>
               Cancel
             </Button>
-            <Button variant='contained' color='primary' onClick={handleSubmit}>
+            <Button variant='contained' className={button} onClick={handleSubmit}>
               Share
             </Button>
           </DialogActions>

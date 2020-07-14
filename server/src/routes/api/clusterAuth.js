@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { checkForClusterAuth, createClusterAuth, updateClusterAuth } = require('../../utils/clusterAuth');
+const errHandler = require('../../utils/errHandler');
 
 router.post('/create', async (req, res) => {
   const {
@@ -20,8 +21,8 @@ router.post('/create', async (req, res) => {
       clusterAuth = await updateClusterAuth(clusterID, password, userID, username);
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(201).json(clusterAuth);
@@ -37,8 +38,8 @@ router.get('/check', async (req, res) => {
   try {
     clusterAuth = await checkForClusterAuth(clusterID, userID);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: 'Internal Error' });
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
   }
 
   return res.status(201).json(clusterAuth);

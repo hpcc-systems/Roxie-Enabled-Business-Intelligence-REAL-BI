@@ -15,6 +15,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from '@material-ui/core';
 
 // Redux Actions
@@ -25,23 +26,30 @@ import { checkForClusterAuth } from '../../utils/clusterAuth';
 import { sortArr } from '../../utils/misc';
 
 // Create styles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   checkbox: { marginLeft: 0 },
+  errMsg: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+    marginBottom: theme.spacing(1),
+  },
   formControl: { marginBottom: 24 },
   progress: { marginRight: 15 },
 }));
 
 const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDialog, updateDashboard }) => {
-  const { clusterID, hasClusterAuth, password, updateCreds, username, name } = localState;
+  const { clusterID, error, hasClusterAuth, password, updateCreds, username, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
-  const { checkbox, formControl, progress } = useStyles();
+  const { button, errMsg, checkbox, formControl, progress } = useStyles();
 
   useEffect(() => {
     handleChange(null, { name: 'username', value: '' });
     handleChange(null, { name: 'password', value: '' });
     handleChange(null, { name: 'hasClusterAuth', value: null });
     handleChange(null, { name: 'updateCreds', value: false });
+    handleChange(null, { name: 'error', value: '' });
 
     // Get list of clusters
     getClusters().then(action => dispatch(action));
@@ -73,6 +81,11 @@ const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDi
     <Dialog onClose={toggleDialog} open={show} fullWidth>
       <DialogTitle>Edit Dashboard</DialogTitle>
       <DialogContent>
+        {error !== '' && (
+          <Typography className={errMsg} align='center'>
+            {error}
+          </Typography>
+        )}
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={checkForAuth}>
@@ -137,7 +150,7 @@ const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDi
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button color='primary' variant='contained' disabled={loading} onClick={updateDashboard}>
+        <Button className={button} variant='contained' disabled={loading} onClick={updateDashboard}>
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Save
         </Button>

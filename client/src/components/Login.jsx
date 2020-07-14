@@ -29,6 +29,7 @@ import { tokenName } from '../constants';
 import { useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
+  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   grid: { minHeight: '50vh' },
   progress: { marginRight: 15 },
   textfield: { margin: `${theme.spacing(1)}px 0` },
@@ -45,7 +46,7 @@ const Login = () => {
   const { loading, password, username } = localState;
   const dispatch = useDispatch();
   const history = useHistory();
-  const { grid, progress, textfield } = useStyles();
+  const { button, grid, progress, textfield } = useStyles();
 
   useEffect(() => {
     const { token, valid } = checkForToken();
@@ -130,7 +131,7 @@ const Login = () => {
               <CardActions>
                 <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
                   <Grid item>
-                    <Button variant='contained' color='primary' type='submit' disabled={loading}>
+                    <Button className={button} variant='contained' type='submit' disabled={loading}>
                       {loading && <CircularProgress color='inherit' size={20} className={progress} />}
                       Login
                     </Button>

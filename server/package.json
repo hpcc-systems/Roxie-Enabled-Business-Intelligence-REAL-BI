@@ -19,7 +19,8 @@
     "nodemailer": "^6.4.8",
     "qs": "^6.9.3",
     "sequelize": "^5.21.3",
-    "uuid": "^8.0.0"
+    "uuid": "^8.0.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.3",

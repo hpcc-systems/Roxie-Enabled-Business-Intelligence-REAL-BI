@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
+import {
+  AppBar,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Tab,
+  Tabs,
+  Typography,
+} from '@material-ui/core';
 
 // React Components
 import SourceSearch from './SourceSearch';
@@ -18,15 +28,22 @@ const tabOptions = ['General', 'Parameters', 'Group By'];
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   gridContainer: { overflowY: 'hidden' },
+  typography: {
+    ...theme.typography.button,
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+  },
 }));
 
 const ChartEditor = props => {
   const {
     handleChange,
-    localState: { chartID, chartType, dataObj, dataset, options, sourceType },
+    localState: { chartID, chartType, dataObj, dataset, error, options, sourceType },
   } = props;
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, gridContainer } = useStyles();
+  const { appbar, gridContainer, typography } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -43,6 +60,11 @@ const ChartEditor = props => {
   return (
     <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={6}>
+        {error !== '' && (
+          <Typography className={typography} align='center'>
+            {error}
+          </Typography>
+        )}
         {/* Only display when not editing an existing chart */}
         {!chartID && (
           <FormControl fullWidth>

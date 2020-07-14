@@ -5,9 +5,10 @@ import { TreeItem, TreeView } from '@material-ui/lab';
 import {
   Dashboard as DashboardIcon,
   ExpandMore as ExpandMoreIcon,
-  Favorite as FavoriteIcon,
+  FavoriteTwoTone as FavoriteTwoToneIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
+import { red } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(theme => ({
   button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
@@ -16,6 +17,7 @@ const useStyles = makeStyles(theme => ({
   labelDiv: { display: 'flex', padding: theme.spacing(1, 0) },
   labelIcon: { marginRight: theme.spacing(1) },
   labelText: { flexGrow: 1 },
+  redIcon: { color: red[500] },
   root: { marginBottom: theme.spacing(3) },
   rootText: { fontSize: 20 },
   treeItem: { flexGrow: 1 },
@@ -29,6 +31,7 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
     labelDiv,
     labelIcon,
     labelText,
+    redIcon,
     root,
     rootText,
     treeItem,
@@ -62,7 +65,7 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
               />
               <div className={buttonsDiv}>
                 <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>
-                  <FavoriteIcon />
+                  <FavoriteTwoToneIcon className={redIcon} />
                 </Button>
               </div>
             </div>
