@@ -1,6 +1,5 @@
 import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { Heatmap } from '@antv/g2plot';
+import ReactChart from './ReactChart';
 
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
@@ -46,7 +45,7 @@ const HeatMap = ({ data, options }) => {
     },
   };
 
-  return <ReactG2Plot Ctor={Heatmap} config={config} />;
+  return <ReactChart config={config} />;
 };
 
 export default HeatMap;
