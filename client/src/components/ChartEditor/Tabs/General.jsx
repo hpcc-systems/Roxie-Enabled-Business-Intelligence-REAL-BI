@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState }) => {
   const {
     chartType,
-    options: { horizontal, title, xAxis, yAxis },
+    options: { horizontal, title, chartDescription, xAxis, yAxis },
   } = localState;
   const { checkbox, formControl, menuIcon, topFormControl } = useStyles();
 
@@ -130,6 +130,14 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           label='Chart Title'
           name='options:title'
           value={title || ''}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
+        <TextField
+          fullWidth
+          label='Chart Description (Optional)'
+          name='options:chartDescription'
+          value={chartDescription || ''}
           onChange={handleChangeObj}
           autoComplete='off'
         />

@@ -6,7 +6,7 @@ import { StackedColumn } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const StackedColumnChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -30,6 +30,10 @@ const StackedColumnChart = ({ data, options }) => {
       position: 'middle',
       style: { fontSize: 12 },
       visible: true,
+    },
+    description: {
+      visible: true,
+      text: chartDescription,
     },
     legend: {
       position: 'right-top',

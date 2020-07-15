@@ -6,7 +6,7 @@ import { Bar } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const BarChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -28,6 +28,10 @@ const BarChart = ({ data, options }) => {
     legend: {
       position: 'right-top',
       visible: true,
+    },
+    description: {
+      visible: true,
+      text: chartDescription,
     },
     meta: {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
