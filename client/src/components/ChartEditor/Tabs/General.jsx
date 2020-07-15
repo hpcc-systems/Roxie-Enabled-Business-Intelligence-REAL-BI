@@ -16,12 +16,14 @@ import {
   PieChart as PieChartIcon,
   TableChart as TableChartIcon,
 } from '@material-ui/icons';
+import TextFieldsIcon from '@material-ui/icons/TextFields';
 import classnames from 'classnames';
 
 // React Components
 import GeneralParams from './GeneralParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
+import TextBoxParams from './TextBoxParams';
 
 // Utils
 import { hasHorizontalOption } from '../../../utils/misc';
@@ -32,6 +34,7 @@ const charts = [
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
   { name: 'Table', value: 'table' },
+  { name: 'Text Box', value: 'textBox' },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -91,6 +94,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
                         return <PieChartIcon className={menuIcon} />;
                       case 'table':
                         return <TableChartIcon className={menuIcon} />;
+                      case 'textBox':
+                        return <TextFieldsIcon className={menuIcon} />;
                       default:
                         return null;
                     }
@@ -139,6 +144,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
       </Grid>
       {chartType === 'pie' ? (
         <PieParams handleChangeObj={handleChangeObj} localState={localState} />
+      ) : chartType === 'textBox' ? (
+        <TextBoxParams handleChangeObj={handleChangeObj} localState={localState} />
       ) : chartType === 'table' ? (
         <TableParams handleChangeObj={handleChangeObj} localState={localState} />
       ) : (
