@@ -128,7 +128,10 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           onChange={handleChangeObj}
           autoComplete='off'
         />
+      </Grid>
+      <Grid item md={12}>
         <TextField
+          className={formControl}
           fullWidth
           label='Chart Description (Optional)'
           name='options:chartDescription'
