@@ -10,8 +10,8 @@ const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
 const PieChart = ({ data, options }) => {
-  const { name, value, chartDescription } = options;
-
+  const { name, value, chartDescription, dateAndTime } = options;
+  const description = chartDescription ? chartDescription : '' + ' Created: ' + dateAndTime;
   // Convert necessary values to numbers
   data = data.map(row => ({
     ...row,
@@ -33,7 +33,7 @@ const PieChart = ({ data, options }) => {
     },
     description: {
       visible: true,
-      text: chartDescription,
+      text: description,
     },
     meta: {
       [value]: {

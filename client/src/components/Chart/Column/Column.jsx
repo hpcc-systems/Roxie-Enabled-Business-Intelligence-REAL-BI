@@ -6,9 +6,10 @@ import { Column } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const ColumnChart = ({ data, options }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription } = options;
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription, dateAndTime } = options;
 
   const sortOrder = 'asc';
+  const description = chartDescription ? chartDescription : '' + ' Created: ' + dateAndTime;
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
@@ -33,7 +34,7 @@ const ColumnChart = ({ data, options }) => {
     },
     description: {
       visible: true,
-      text: chartDescription,
+      text: description,
     },
     legend: {
       position: 'right-top',
