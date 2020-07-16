@@ -1,10 +1,13 @@
 import axios from 'axios';
 
+// Constants
+const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
+
 export const checkForClusterAuth = async clusterID => {
   let response, authObj;
 
   try {
-    response = await axios.get('/api/clusterauth/check', { params: { clusterID } });
+    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/clusterauth/check`, { params: { clusterID } });
   } catch (err) {
     console.error(err);
     return false;
@@ -22,7 +25,7 @@ export const checkForClusterAuth = async clusterID => {
 
 export const createClusterAuth = async authObj => {
   try {
-    axios.post('/api/clusterauth/create', { ...authObj });
+    axios.post(`${REACT_APP_SERVER_PROXY}/api/clusterauth/create`, { ...authObj });
   } catch (err) {
     return console.error(err);
   }

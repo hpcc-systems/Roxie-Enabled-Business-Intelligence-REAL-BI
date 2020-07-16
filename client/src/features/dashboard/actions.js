@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Constants
+const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
+
 // Action Types
 export const CREATE_DASHBOARD_PARAM = 'CREATE_DASHBOARD_PARAM';
 export const GET_DASHBOARD = 'GET_DASHBOARD';
@@ -11,7 +14,7 @@ export const getDashboard = async dashboardID => {
   let response;
 
   try {
-    response = await axios.get('/api/dashboard/info', { params: { dashboardID } });
+    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/dashboard/info`, { params: { dashboardID } });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -24,7 +27,9 @@ export const getDashboardParams = async dashboardID => {
   let response;
 
   try {
-    response = await axios.get('/api/dashboardparam/all', { params: { dashboardID } });
+    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/dashboardparam/all`, {
+      params: { dashboardID },
+    });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -37,7 +42,7 @@ export const createDashboardParam = async paramObj => {
   let response;
 
   try {
-    response = await axios.post('/api/dashboardparam/create', { paramObj });
+    response = await axios.post(`${REACT_APP_SERVER_PROXY}/api/dashboardparam/create`, { paramObj });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -50,7 +55,7 @@ export const updateDashboardParam = async paramObj => {
   let response;
 
   try {
-    response = await axios.put('/api/dashboardparam/update', { paramObj });
+    response = await axios.put(`${REACT_APP_SERVER_PROXY}/api/dashboardparam/update`, { paramObj });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };
@@ -63,7 +68,9 @@ export const deleteDashboardParam = async (dashboardID, filterID) => {
   let response;
 
   try {
-    response = await axios.delete('/api/dashboardparam/delete', { params: { dashboardID, filterID } });
+    response = await axios.delete(`${REACT_APP_SERVER_PROXY}/api/dashboardparam/delete`, {
+      params: { dashboardID, filterID },
+    });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };

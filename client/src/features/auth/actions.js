@@ -2,6 +2,7 @@ import axios from 'axios';
 
 //Constants
 import { initUserObj } from '../../constants';
+const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
 
 // Action Types
 export const SET_AUTH_ERRORS = 'SET_AUTH_ERRORS';
@@ -13,7 +14,7 @@ export const loginUser = async ({ username, password }) => {
   let response;
 
   try {
-    response = await axios.post('/api/auth/login', { username, password });
+    response = await axios.post(`${REACT_APP_SERVER_PROXY}/api/auth/login`, { username, password });
   } catch (err) {
     return { action: { type: SET_AUTH_ERRORS, payload: { msg: err.response.data } } };
   }
@@ -28,7 +29,7 @@ export const getLatestUserData = async () => {
   let response;
 
   try {
-    response = await axios.get('/api/user/getdata');
+    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/user/getdata`);
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
@@ -42,7 +43,7 @@ export const getLatestUserData = async () => {
 
 export const updateLastDashboard = async dashboardID => {
   try {
-    await axios.put('/api/user/updatelastdashboard', { dashboardID });
+    await axios.put(`${REACT_APP_SERVER_PROXY}/api/user/updatelastdashboard`, { dashboardID });
   } catch (err) {
     console.error(err);
     return { type: SET_AUTH_ERRORS, payload: err };
