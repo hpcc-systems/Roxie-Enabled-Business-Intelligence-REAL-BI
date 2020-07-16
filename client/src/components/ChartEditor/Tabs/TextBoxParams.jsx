@@ -13,23 +13,18 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
 
   return (
     <Grid item md={12}>
-      <Grid container spacing={2}>
-        <Grid item md={8}>
-          <FormControl className={formControl} fullWidth>
-            <TextField
-              fullWidth
-              label='TextBox'
-              multiline
-              name='options:TextBoxContent'
-              value={options.TextBoxContent || ''}
-              rows={8}
-              variant='outlined'
-              onChange={handleChangeObj}
-              autoComplete='off'
-            />
-          </FormControl>
-        </Grid>
-      </Grid>
+      <FormControl className={formControl} fullWidth>
+        <TextField
+          fullWidth
+          label='TextBox'
+          multiline
+          name='options:textBoxContent'
+          value={options.textBoxContent || ''}
+          rows={8}
+          onChange={handleChangeObj}
+          autoComplete='off'
+        />
+      </FormControl>
     </Grid>
   );
 };

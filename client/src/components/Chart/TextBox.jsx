@@ -4,22 +4,26 @@ import { Typography } from '@material-ui/core';
 
 // Create styles
 const useStyles = makeStyles({
-  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-  subheader: { fontSize: 20, paddingBottom: 20 },
+  textContent: { paddingLeft: 8, paddingBottom: 8 },
 });
 
 const TextBox = ({ options }) => {
-  const { TextBoxContent, chartDescription } = options;
-  const { subheader } = useStyles();
+  console.log(options);
+  const { textBoxContent, chartDescription } = options;
+  const { textContent } = useStyles();
 
   return (
     <Fragment>
-      <Typography variant='subtitle2' align='center' color='inherit' className={subheader}>
-        {chartDescription ? chartDescription : 'No description Received'}
-      </Typography>
-      <Typography variant='body2' align='center' color='inherit' className={subheader}>
-        {TextBoxContent ? TextBoxContent : 'Check chart options and refresh...'}
-      </Typography>
+      {chartDescription ? (
+        <Typography variant='subtitle2' align='left' color='inherit' className={textContent}>
+          {chartDescription}
+        </Typography>
+      ) : null}
+      {textBoxContent ? (
+        <Typography variant='body2' align='left' color='inherit' className={textContent}>
+          {textBoxContent}
+        </Typography>
+      ) : null}
     </Fragment>
   );
 };
