@@ -1,16 +1,11 @@
 import axios from 'axios';
 import errHandler from './errHandler';
 
-// Constants
-const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
-
 const getSources = async (clusterID, keyword, sourceType) => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/source/search`, {
-      params: { clusterID, keyword, sourceType },
-    });
+    response = await axios.get('/api/source/search', { params: { clusterID, keyword, sourceType } });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
@@ -28,7 +23,7 @@ const addSource = async (dashboardID, source) => {
   let response;
 
   try {
-    response = await axios.post(`${REACT_APP_SERVER_PROXY}/api/source/create`, { dashboardID, source });
+    response = await axios.post('/api/source/create', { dashboardID, source });
   } catch (err) {
     console.error(err);
     return;
@@ -43,9 +38,7 @@ const getSourceInfo = async (clusterID, source, sourceType) => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/source/info`, {
-      params: { clusterID, source, sourceType },
-    });
+    response = await axios.get('/api/source/info', { params: { clusterID, source, sourceType } });
   } catch (err) {
     console.error(err);
     return {};

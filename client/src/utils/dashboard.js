@@ -1,16 +1,11 @@
 import axios from 'axios';
 import errHandler from './errHandler';
 
-// Constants
-const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
-
 export const getDashboardData = async (clusterID, dashboardID) => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/source/data/single`, {
-      params: { clusterID, dashboardID },
-    });
+    response = await axios.get('/api/source/data/single', { params: { clusterID, dashboardID } });
   } catch (err) {
     console.error(err);
     return {};
@@ -23,7 +18,7 @@ export const addDashboardToDB = async dashboard => {
   let response;
 
   try {
-    response = await axios.post(`${REACT_APP_SERVER_PROXY}/api/dashboard/create`, dashboard);
+    response = await axios.post('/api/dashboard/create', dashboard);
   } catch (err) {
     const { errMsg } = errHandler(err);
 
@@ -35,7 +30,7 @@ export const addDashboardToDB = async dashboard => {
 
 export const updateDirectory = async directory => {
   try {
-    await axios.put(`${REACT_APP_SERVER_PROXY}/api/user/updatedirectory`, { directory });
+    await axios.put('/api/user/updatedirectory', { directory });
   } catch (err) {
     console.error(err);
   }
@@ -45,7 +40,7 @@ export const updateDirectory = async directory => {
 
 export const updateDirectoryDepth = async directoryDepth => {
   try {
-    await axios.put(`${REACT_APP_SERVER_PROXY}/api/user/updatedirectorydepth`, { directoryDepth });
+    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
   } catch (err) {
     console.error(err);
   }
@@ -55,7 +50,7 @@ export const updateDirectoryDepth = async directoryDepth => {
 
 export const updateDashboardInDB = async stateObj => {
   try {
-    await axios.put(`${REACT_APP_SERVER_PROXY}/api/dashboard`, { ...stateObj });
+    await axios.put('/api/dashboard', { ...stateObj });
   } catch (err) {
     const { errMsg } = errHandler(err);
 
@@ -67,7 +62,7 @@ export const updateDashboardInDB = async stateObj => {
 
 export const deleteDashboardInDB = async dashboardID => {
   try {
-    await axios.delete(`${REACT_APP_SERVER_PROXY}/api/dashboard`, { params: { dashboardID } });
+    await axios.delete('/api/dashboard', { params: { dashboardID } });
   } catch (err) {
     console.error(err);
   }

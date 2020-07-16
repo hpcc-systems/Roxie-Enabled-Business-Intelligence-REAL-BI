@@ -13,6 +13,7 @@
     "@material-ui/lab": "^4.0.0-alpha.40",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
+    "http-proxy-middleware": "^1.0.5",
     "jwt-decode": "^2.2.0",
     "moment": "^2.27.0",
     "react": "^16.12.0",

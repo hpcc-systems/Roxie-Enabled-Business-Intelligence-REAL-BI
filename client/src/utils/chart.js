@@ -3,15 +3,12 @@ import errHandler from './errHandler';
 
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
-const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
 
 const getChartData = async (chartID, clusterID) => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/source/data/multiple`, {
-      params: { chartID, clusterID },
-    });
+    response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
@@ -29,9 +26,7 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/source/editordata`, {
-      params: { clusterID, dataOptions, sourceType },
-    });
+    response = await axios.get('/api/source/editordata', { params: { clusterID, dataOptions, sourceType } });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 

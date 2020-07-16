@@ -1,8 +1,5 @@
 import axios from 'axios';
 
-// Constants
-const REACT_APP_SERVER_PROXY = process.env.REACT_APP_SERVER_PROXY;
-
 // Action Types
 export const ADD_CHART = 'ADD_CHART';
 export const DELETE_CHART = 'DELETE_CHART';
@@ -14,7 +11,7 @@ export const getCharts = async dashboardID => {
   let response;
 
   try {
-    response = await axios.get(`${REACT_APP_SERVER_PROXY}/api/chart/all`, { params: { dashboardID } });
+    response = await axios.get('/api/chart/all', { params: { dashboardID } });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
@@ -27,7 +24,7 @@ export const addChart = async (chart, dashboardID, sourceID, sourceName, sourceT
   let response;
 
   try {
-    response = await axios.post(`${REACT_APP_SERVER_PROXY}/api/chart/create`, {
+    response = await axios.post('/api/chart/create', {
       chart,
       dashboardID,
       sourceID,
@@ -44,9 +41,7 @@ export const deleteChart = async (chartID, dashboardID, sourceID) => {
   let response;
 
   try {
-    response = await axios.delete(`${REACT_APP_SERVER_PROXY}/api/chart/delete`, {
-      params: { chartID, dashboardID, sourceID },
-    });
+    response = await axios.delete('/api/chart/delete', { params: { chartID, dashboardID, sourceID } });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
@@ -59,11 +54,7 @@ export const updateChart = async (chart, dashboardID, sourceID) => {
   let response;
 
   try {
-    response = await axios.put(`${REACT_APP_SERVER_PROXY}/api/chart/update`, {
-      chart,
-      dashboardID,
-      sourceID,
-    });
+    response = await axios.put('/api/chart/update', { chart, dashboardID, sourceID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };
