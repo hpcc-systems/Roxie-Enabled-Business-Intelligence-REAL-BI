@@ -20,8 +20,8 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
               fullWidth
               label='TextBox'
               multiline
-              name='options:TextBox'
-              value={options.TextBox || ''}
+              name='options:TextBoxContent'
+              value={options.TextBoxContent || ''}
               rows={8}
               variant='outlined'
               onChange={handleChangeObj}

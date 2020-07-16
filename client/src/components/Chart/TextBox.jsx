@@ -8,8 +8,8 @@ const useStyles = makeStyles({
   subheader: { fontSize: 20, paddingBottom: 20 },
 });
 
-const LineChart = ({ options }) => {
-  const { TextBox, chartDescription } = options;
+const TextBox = ({ options }) => {
+  const { TextBoxContent, chartDescription } = options;
   const { subheader } = useStyles();
 
   return (
@@ -18,10 +18,10 @@ const LineChart = ({ options }) => {
         {chartDescription ? chartDescription : 'No description Received'}
       </Typography>
       <Typography variant='body2' align='center' color='inherit' className={subheader}>
-        {TextBox ? TextBox : 'Check chart options and refresh...'}
+        {TextBoxContent ? TextBoxContent : 'Check chart options and refresh...'}
       </Typography>
     </Fragment>
   );
 };
 
-export default LineChart;
+export default TextBox;
