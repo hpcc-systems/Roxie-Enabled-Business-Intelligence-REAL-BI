@@ -6,7 +6,7 @@ import { Line } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
 const LineChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -35,7 +35,7 @@ const LineChart = ({ data, options }) => {
     },
     description: {
       visible: true,
-      text: chartDescription,
+      text: description,
     },
     legend: {
       position: 'bottom',
