@@ -6,10 +6,9 @@ import { StackedBar } from '@antv/g2plot';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const StackedBarChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, chartDescription, dateAndTime } = options;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
-  const description = chartDescription ? chartDescription : '' + ' Created: ' + dateAndTime;
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 

@@ -63,22 +63,6 @@ const createChartObj = localState => {
   // Merge arrays to get a complete list of changes
   const params = mergeArrays(orginalParams, mappedParams);
 
-  // Create Time Stamp
-  var dateTimeObj = new Date();
-  const CurrentDateandTime =
-    dateTimeObj.getDate() +
-    '/' +
-    dateTimeObj.getMonth() +
-    '/' +
-    dateTimeObj.getDay() +
-    ' ' +
-    dateTimeObj.getHours() +
-    ':' +
-    dateTimeObj.getMinutes() +
-    ':' +
-    dateTimeObj.getSeconds();
-  options = { ...options, dateAndTime: CurrentDateandTime };
-
   // Change horizontal value if it doesn't apply to the chart type or is missing
   if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in options)) {
     options = { ...options, horizontal: false };
