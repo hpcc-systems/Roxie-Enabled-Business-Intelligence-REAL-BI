@@ -10,6 +10,9 @@ import PieChart from './Pie';
 import Table from './Table';
 import NoData from './NoData';
 
+// Utils
+import { createDateTimeStamp } from '../../utils/misc';
+
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
@@ -45,6 +48,9 @@ const ChartComp = ({
   } else if (error !== '') {
     err = error;
   }
+
+  // Inject datetime stamp into options as new description
+  options = { ...options, description: createDateTimeStamp(options.chartDescription) };
 
   return loading ? (
     <CircularProgress className={progress} />
