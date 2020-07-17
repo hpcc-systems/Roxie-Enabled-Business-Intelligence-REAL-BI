@@ -10,6 +10,7 @@ import {
 import { red } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(() => ({
+  menuIcon: { minWidth: 35, maxWidth: 35 },
   redIcon: { color: red[500] },
 }));
 
@@ -23,7 +24,7 @@ const DashboardSubMenu = ({
   updateDirectoryObj,
 }) => {
   const { favorite, id } = directoryObj;
-  const { redIcon } = useStyles();
+  const { menuIcon, redIcon } = useStyles();
 
   const closeMenu = () => {
     setAnchorEl(null);
@@ -38,10 +39,10 @@ const DashboardSubMenu = ({
           closeMenu();
         }}
       >
-        <ListItemIcon>
+        <ListItemIcon className={menuIcon}>
           {favorite ? <FavoriteTwoToneIcon className={redIcon} /> : <FavoriteBorderIcon />}
         </ListItemIcon>
-        <Typography>{favorite ? 'Unpin Dashboard' : 'Pin Dashboard'}</Typography>
+        <Typography>{favorite ? 'Unpin' : 'Pin'}</Typography>
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -49,10 +50,10 @@ const DashboardSubMenu = ({
           closeMenu();
         }}
       >
-        <ListItemIcon>
+        <ListItemIcon className={menuIcon}>
           <EditIcon />
         </ListItemIcon>
-        <Typography>Edit Dashboard</Typography>
+        <Typography>Edit</Typography>
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -60,10 +61,10 @@ const DashboardSubMenu = ({
           closeMenu();
         }}
       >
-        <ListItemIcon>
+        <ListItemIcon className={menuIcon}>
           <CloseIcon />
         </ListItemIcon>
-        <Typography>Delete Dashboard</Typography>
+        <Typography>Delete</Typography>
       </MenuItem>
     </Menu>
   );
