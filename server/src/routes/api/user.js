@@ -12,7 +12,7 @@ const {
 const errHandler = require('../../utils/errHandler');
 
 router.get('/getdata', async (req, res) => {
-  const { id: userID } = req.user;
+  const { id: userID, username } = req.user;
   let user;
 
   try {
@@ -21,6 +21,9 @@ router.get('/getdata', async (req, res) => {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
   }
+
+  // Add auth service username to user object
+  user = { ...user, username };
 
   return res.status(200).json(user);
 });
