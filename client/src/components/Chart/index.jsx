@@ -11,6 +11,9 @@ import Table from './Table';
 import NoData from './NoData';
 import TextBox from './TextBox';
 
+// Utils
+import { createDateTimeStamp } from '../../utils/misc';
+
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
@@ -49,6 +52,9 @@ const ChartComp = ({
   if (type === 'textBox' && isStatic) {
     return <TextBox data={chartData} options={options} />;
   }
+
+  // Inject datetime stamp into options as new description
+  options = { ...options, description: createDateTimeStamp(options.chartDescription) };
 
   return loading ? (
     <CircularProgress className={progress} />
