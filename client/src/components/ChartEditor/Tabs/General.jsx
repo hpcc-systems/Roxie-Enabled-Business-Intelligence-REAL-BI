@@ -26,7 +26,7 @@ import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
 
 // Utils
-import { hasHorizontalOption } from '../../../utils/misc';
+import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
 import { changeChartType } from '../../../utils/chart';
 
 const charts = [
@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState }) => {
   const {
     chartType,
-    options: { horizontal, title, chartDescription, xAxis, yAxis },
+    options: { horizontal, isStatic, title, chartDescription, xAxis, yAxis },
   } = localState;
   const { checkbox, formControl, menuIcon, topFormControl } = useStyles();
 
@@ -77,7 +77,11 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
 
   return (
     <Grid container direction='row' alignContent='space-between'>
-      <Grid item md={hasHorizontalOption(chartType) ? 10 : 12} className={topFormControl}>
+      <Grid
+        item
+        md={hasHorizontalOption(chartType) || hasDynamicOption(chartType) ? 10 : 12}
+        className={topFormControl}
+      >
         <FormControl className={classnames('', { [formControl]: !hasHorizontalOption(chartType) })} fullWidth>
           <InputLabel>Chart Type</InputLabel>
           <Select name='chartType' value={chartType} onChange={handleTypeChange}>
@@ -124,6 +128,23 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           />
         </Grid>
       )}
+      {hasDynamicOption(chartType) && (
+        <Grid item md={2} className={topFormControl}>
+          <FormControlLabel
+            className={checkbox}
+            control={
+              <Checkbox
+                name='options:isStatic'
+                checked={isStatic || false}
+                onChange={checkboxUpdated}
+                color='primary'
+              />
+            }
+            label='Static'
+            labelPlacement='top'
+          />
+        </Grid>
+      )}
       <Grid item md={12} className={classnames('', { [formControl]: !hasHorizontalOption(chartType) })}>
         <TextField
           fullWidth
@@ -148,7 +169,11 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
       {chartType === 'pie' ? (
         <PieParams handleChangeObj={handleChangeObj} localState={localState} />
       ) : chartType === 'textBox' ? (
-        <TextBoxParams handleChangeObj={handleChangeObj} localState={localState} />
+        <TextBoxParams
+          handleCheckbox={handleCheckbox}
+          handleChangeObj={handleChangeObj}
+          localState={localState}
+        />
       ) : chartType === 'table' ? (
         <TableParams handleChangeObj={handleChangeObj} localState={localState} />
       ) : (

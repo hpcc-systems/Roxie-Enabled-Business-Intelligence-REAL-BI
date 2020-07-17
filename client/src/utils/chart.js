@@ -55,6 +55,13 @@ export const mergeArrays = (oldArr, newArr) => {
   return oldArr;
 };
 
+const createTextBoxObj = localState => {
+  const { chartType, dataset } = localState;
+  let { options } = localState;
+
+  return { dataset, options, type: chartType };
+};
+
 const createChartObj = localState => {
   const { chartType, dataset, mappedParams, params: orginalParams } = localState;
   let { options } = localState;
@@ -199,4 +206,12 @@ const changeChartType = (oldType, newType, options) => {
   return newOptions;
 };
 
-export { changeChartType, checkForChartParams, createChartObj, getChartData, getPreviewData, setEditorState };
+export {
+  changeChartType,
+  checkForChartParams,
+  createChartObj,
+  createTextBoxObj,
+  getChartData,
+  getPreviewData,
+  setEditorState,
+};

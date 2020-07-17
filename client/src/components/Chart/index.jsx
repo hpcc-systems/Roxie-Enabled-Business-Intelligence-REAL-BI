@@ -22,7 +22,7 @@ const ChartComp = ({
   dataObj: { data = {}, error, loading = true },
   dispatch,
 }) => {
-  const { groupBy, horizontal, stacked } = options;
+  const { groupBy, horizontal, stacked, isStatic } = options;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -45,6 +45,9 @@ const ChartComp = ({
     }
   } else if (error !== '') {
     err = error;
+  }
+  if (type === 'textBox' && isStatic) {
+    return <TextBox data={chartData} options={options} />;
   }
 
   return loading ? (
@@ -69,7 +72,7 @@ const ChartComp = ({
         case 'pie':
           return <PieChart data={chartData} options={options} />;
         case 'textBox':
-          return <TextBox options={options} />;
+          return <TextBox data={chartData} options={options} />;
         case 'table':
           return <Table data={chartData} dispatch={dispatch} options={options} params={dashboard.params} />;
         default:

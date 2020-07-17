@@ -7,10 +7,20 @@ const useStyles = makeStyles({
   textContent: { paddingLeft: 8, paddingBottom: 8 },
 });
 
-const TextBox = ({ options }) => {
-  console.log(options);
-  const { textBoxContent, chartDescription } = options;
+const TextBox = ({ data, options }) => {
+  const { chartDescription } = options;
+  let { textBoxContent } = options;
   const { textContent } = useStyles();
+
+  if (data && data.length > 0) {
+    const dataField = data[0];
+    const fields = Object.keys(dataField);
+
+    fields.forEach(field => {
+      var rgx = new RegExp(`{{${field}}}`, 'gi');
+      textBoxContent = textBoxContent.replace(rgx, dataField[field]);
+    });
+  }
 
   return (
     <Fragment>

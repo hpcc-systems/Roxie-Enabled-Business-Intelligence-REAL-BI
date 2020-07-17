@@ -14,7 +14,7 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
+import { createChartObj, createTextBoxObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
@@ -64,18 +64,33 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
+    const { options, chartType } = localState;
+    const { isStatic } = options;
     const { id: dashboardID } = dashboard;
-    const sourceObj = createSourceObj(localState);
-    const newChartObj = createChartObj(localState);
 
-    try {
-      const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+    if (chartType === 'textBox' && isStatic) {
+      const newChartObj = createTextBoxObj(localState);
+      console.log(localState);
+      try {
+        addChart(newChartObj, dashboardID, null, null, 'staticText').then(action => {
+          dispatch(action);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      const sourceObj = createSourceObj(localState);
+      const newChartObj = createChartObj(localState);
 
-      addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
-        dispatch(action);
-      });
-    } catch (err) {
-      console.error(err);
+      try {
+        const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+
+        addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
+          dispatch(action);
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     // Close dialog
