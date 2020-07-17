@@ -16,6 +16,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import {
+  ArrowDropDown as ArrowDropDownIcon,
   ExitToApp as ExitToAppIcon,
   Help as HelpIcon,
   Menu as MenuIcon,
@@ -136,6 +137,7 @@ const Header = () => {
                 <Typography variant='body1' color='inherit' className={buttonLabel}>
                   Help
                 </Typography>
+                <ArrowDropDownIcon />
               </IconButton>
 
               {/* Help Dropdown */}
@@ -168,6 +170,7 @@ const Header = () => {
                 <Typography variant='body1' color='inherit' className={buttonLabel}>
                   {username}
                 </Typography>
+                <ArrowDropDownIcon />
               </IconButton>
 
               {/* User Dropdown */}
