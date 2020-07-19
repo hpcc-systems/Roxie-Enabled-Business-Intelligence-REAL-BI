@@ -3,9 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
 // Create styles
-const useStyles = makeStyles({
-  textContent: { paddingLeft: 8, paddingBottom: 8 },
-});
+const useStyles = makeStyles(theme => ({
+  textContent: { padding: theme.spacing(1), paddingTop: 0 },
+}));
 
 const TextBox = ({ data, options }) => {
   const { chartDescription } = options;

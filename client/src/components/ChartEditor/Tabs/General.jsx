@@ -38,9 +38,10 @@ const charts = [
 ];
 
 const useStyles = makeStyles(theme => ({
-  checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
   formControl: { marginTop: theme.spacing(1) },
+  horizontalCheckbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
   menuIcon: { marginRight: 10 },
+  staticCheckbox: { marginTop: theme.spacing(1.5), marginLeft: theme.spacing(4) },
   topFormControl: { marginTop: theme.spacing(3) },
 }));
 
@@ -49,7 +50,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
     chartType,
     options: { horizontal, isStatic, title, chartDescription, xAxis, yAxis },
   } = localState;
-  const { checkbox, formControl, menuIcon, topFormControl } = useStyles();
+  const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const checkboxUpdated = event => {
     const { name } = event.target;
@@ -114,7 +115,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
       {hasHorizontalOption(chartType) && (
         <Grid item md={2} className={topFormControl}>
           <FormControlLabel
-            className={checkbox}
+            className={horizontalCheckbox}
             control={
               <Checkbox
                 name='options:horizontal'
@@ -131,7 +132,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
       {hasDynamicOption(chartType) && (
         <Grid item md={2} className={topFormControl}>
           <FormControlLabel
-            className={checkbox}
+            className={staticCheckbox}
             control={
               <Checkbox
                 name='options:isStatic'

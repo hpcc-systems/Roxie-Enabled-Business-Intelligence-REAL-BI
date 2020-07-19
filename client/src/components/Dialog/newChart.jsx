@@ -64,13 +64,15 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
-    const { options, chartType } = localState;
-    const { isStatic } = options;
+    const {
+      options: { isStatic },
+      chartType,
+    } = localState;
     const { id: dashboardID } = dashboard;
 
     if (chartType === 'textBox' && isStatic) {
       const newChartObj = createTextBoxObj(localState);
-      console.log(localState);
+
       try {
         addChart(newChartObj, dashboardID, null, null, 'staticText').then(action => {
           dispatch(action);
