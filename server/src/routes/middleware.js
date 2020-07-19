@@ -35,7 +35,7 @@ const authenticateToken = () => {
     }
 
     // Destructure response to get user data
-    const { id, role } = response.data.verified;
+    const { id, role, username: tokenUsername } = response.data.verified;
     const hasPermission = role.some(({ ApplicationId }) => ApplicationId == AUTH_APP_ID); // Used == instead of === for flexibility and type coercion.
 
     // User doesn't have permission to use this app
@@ -48,6 +48,7 @@ const authenticateToken = () => {
     req.user = {
       id,
       role: role.filter(({ ApplicationId }) => ApplicationId == AUTH_APP_ID), // Used == instead of === for flexibility and type coercion.
+      username: tokenUsername,
     };
 
     // Move to next method

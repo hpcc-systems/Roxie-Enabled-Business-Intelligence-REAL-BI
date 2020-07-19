@@ -10,6 +10,7 @@ import {
 
 const useStyles = makeStyles(theme => ({
   blueIcon: { color: theme.palette.info.main },
+  menuIcon: { minWidth: 35, maxWidth: 35 },
 }));
 
 const FolderSubMenu = ({
@@ -23,7 +24,7 @@ const FolderSubMenu = ({
   setAnchorEl,
   setAnchorName,
 }) => {
-  const { blueIcon } = useStyles();
+  const { blueIcon, menuIcon } = useStyles();
 
   const closeMenu = () => {
     setAnchorEl(null);
@@ -38,8 +39,8 @@ const FolderSubMenu = ({
           closeMenu();
         }}
       >
-        <ListItemIcon className={blueIcon}>
-          <InsertChartTwoToneIcon />
+        <ListItemIcon className={menuIcon}>
+          <InsertChartTwoToneIcon className={blueIcon} />
         </ListItemIcon>
         <Typography>Create Dashboard</Typography>
       </MenuItem>
@@ -49,7 +50,7 @@ const FolderSubMenu = ({
           closeMenu();
         }}
       >
-        <ListItemIcon>
+        <ListItemIcon className={menuIcon}>
           <CreateNewFolderTwoToneIcon className={blueIcon} />
         </ListItemIcon>
         <Typography>Create Folder</Typography>
@@ -61,7 +62,7 @@ const FolderSubMenu = ({
             closeMenu();
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon className={menuIcon}>
             <EditIcon />
           </ListItemIcon>
           <Typography>Edit Folder</Typography>
@@ -74,7 +75,7 @@ const FolderSubMenu = ({
             closeMenu();
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon className={menuIcon}>
             <CloseIcon />
           </ListItemIcon>
           <Typography>Delete Folder</Typography>
