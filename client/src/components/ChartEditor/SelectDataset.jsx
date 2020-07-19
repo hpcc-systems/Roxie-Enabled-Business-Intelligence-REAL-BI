@@ -15,7 +15,15 @@ const useStyles = makeStyles(theme => ({
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
-  const { chartID, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
+  const {
+    chartID,
+    chartType,
+    dataset,
+    datasets = [],
+    options: { isStatic = false },
+    selectedSource = {},
+    sourceType,
+  } = localState;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
@@ -52,25 +60,26 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     }
   }, [dataset, datasets, handleChange]);
 
-  return (
-    sourceType !== 'file' &&
-    (loading ? (
-      <CircularProgress className={progress} />
-    ) : (
-      <FormControl className={formControl} fullWidth>
-        <InputLabel>Dataset</InputLabel>
-        <Select name='dataset' value={dataset} onChange={handleChange}>
-          {datasets.map(({ name }, index) => {
-            return (
-              <MenuItem key={index} value={name}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-    ))
-  );
+  return (chartType === 'textBox' && !isStatic) || chartType !== 'textBox' ? (
+    sourceType !== 'file' ? (
+      loading ? (
+        <CircularProgress className={progress} />
+      ) : (
+        <FormControl className={formControl} fullWidth>
+          <InputLabel>Dataset</InputLabel>
+          <Select name='dataset' value={dataset} onChange={handleChange}>
+            {datasets.map(({ name }, index) => {
+              return (
+                <MenuItem key={index} value={name}>
+                  {name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      )
+    ) : null
+  ) : null;
 };
 
 export default SelectDataset;

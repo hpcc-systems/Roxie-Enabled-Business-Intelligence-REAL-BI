@@ -30,6 +30,7 @@ import { sortArr } from '../../utils/misc';
 
 const useStyles = makeStyles(() => ({
   clearDiv: { clear: 'both' },
+  componentCard: { zIndex: -1 },
 }));
 
 const Dashboard = () => {
@@ -45,7 +46,7 @@ const Dashboard = () => {
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const dispatch = useDispatch();
-  const { clearDiv } = useStyles();
+  const { clearDiv, componentCard } = useStyles();
 
   useEffect(() => {
     if (urlID) {
@@ -152,7 +153,7 @@ const Dashboard = () => {
             const dataObj = compData[chartID] || compData[sourceName] || {};
 
             return (
-              <Grid key={index} item md={12}>
+              <Grid key={index} item md={12} className={componentCard}>
                 <Paper variant='outlined'>
                   <ChartToolbar
                     chartID={chartID}

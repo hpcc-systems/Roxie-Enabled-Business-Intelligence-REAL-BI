@@ -78,6 +78,13 @@ export const hasGroupByOption = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
+export const hasDynamicOption = chartType => {
+  const chartTypes = ['textBox'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
 export const canAddCharts = role => {
   const roles = ['Owner'];
 
