@@ -2,7 +2,7 @@ import axios from 'axios';
 import errHandler from './errHandler';
 
 // Constants
-import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
+import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
 const getChartData = async (chartID, clusterID) => {
   let response;
@@ -172,6 +172,11 @@ const changeChartType = (oldType, newType, options) => {
       delete newOptions.fields;
 
       break;
+    case 'textBox':
+      delete newOptions.textBoxContent;
+      delete newOptions.dataFields;
+
+      break;
     default:
       if (newType === 'pie') {
         newOptions.name = newOptions.xAxis;
@@ -201,6 +206,11 @@ const changeChartType = (oldType, newType, options) => {
   // Change groupBy value if it doesn't apply to the chart type or is missing
   if ((!hasGroupByOption(newType) && newOptions.groupBy) || !('groupBy' in newOptions)) {
     newOptions = { ...newOptions, groupBy: '' };
+  }
+
+  // Change static value if it doesn't apply to the chart type or is missing
+  if ((!hasDynamicOption(newType) && newOptions.isStatic) || !('isStatic' in newOptions)) {
+    newOptions = { ...newOptions, isStatic: false };
   }
 
   return newOptions;

@@ -25,7 +25,7 @@ const ChartComp = ({
   dataObj: { data = {}, error, loading = true },
   dispatch,
 }) => {
-  const { groupBy, horizontal, stacked, isStatic } = options;
+  const { groupBy, horizontal, stacked, isStatic = false } = options;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -49,16 +49,14 @@ const ChartComp = ({
   } else if (error !== '') {
     err = error;
   }
-  if (type === 'textBox' && isStatic) {
-    return <TextBox data={chartData} options={options} />;
-  }
 
   // Inject datetime stamp into options as new description
   options = { ...options, description: createDateTimeStamp(options.chartDescription) };
 
-  return loading ? (
+  // Don't render the progress wheel if the chart is a static textbox
+  return loading && (type !== 'textBox' || (type === 'textBox' && !isStatic)) ? (
     <CircularProgress className={progress} />
-  ) : chartData.length > 0 && !err ? (
+  ) : (chartData.length > 0 || (type === 'textBox' && isStatic)) && !err ? (
     (() => {
       switch (type) {
         case 'bar':
