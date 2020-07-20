@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { GroupedBar } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { GroupedBarChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const GroupBarChart = ({ data, options }) => {
+const GroupBar = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -62,7 +61,8 @@ const GroupBarChart = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={GroupedBar} config={config} />;
+  const chartRef = useRef();
+  return <GroupedBarChart {...config} chartRef={chartRef} />;
 };
 
-export default GroupBarChart;
+export default GroupBar;
