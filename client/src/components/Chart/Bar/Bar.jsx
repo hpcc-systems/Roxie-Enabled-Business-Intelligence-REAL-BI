@@ -24,12 +24,7 @@ const Bar = ({ data, options }) => {
   const config = {
     data,
     forceFit: true,
-    label: {
-      formatter: v => thousandsSeparator(v),
-      position: 'right',
-      style: { fontSize: 12 },
-      visible: true,
-    },
+    label: { visible: false },
     description: {
       visible: true,
       text: description,
