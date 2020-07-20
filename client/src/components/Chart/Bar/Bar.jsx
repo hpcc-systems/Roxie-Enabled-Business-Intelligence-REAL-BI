@@ -24,6 +24,7 @@ const Bar = ({ data, options }) => {
   const config = {
     data,
     forceFit: true,
+    label: { visible: false },
     description: {
       visible: true,
       text: description,
