@@ -34,11 +34,6 @@ const Pie = ({ data, options }) => {
       visible: true,
       text: description,
     },
-    meta: {
-      [value]: {
-        formatter: v => thousandsSeparator(v),
-      },
-    },
     legend: {
       position: 'bottom',
       visible: true,
