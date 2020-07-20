@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { StackedBar } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { StackedBarChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const StackedBarChart = ({ data, options }) => {
+const StackedBar = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -62,7 +61,8 @@ const StackedBarChart = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={StackedBar} config={config} />;
+  const chartRef = useRef();
+  return <StackedBarChart {...config} chartRef={chartRef} />;
 };
 
-export default StackedBarChart;
+export default StackedBar;

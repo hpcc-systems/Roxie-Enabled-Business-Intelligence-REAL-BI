@@ -10,6 +10,7 @@ import PieChart from './Pie';
 import Table from './Table';
 import NoData from './NoData';
 import TextBox from './TextBox';
+import HeatMap from './HeatMap';
 
 // Utils
 import { createDateTimeStamp } from '../../utils/misc';
@@ -77,6 +78,8 @@ const ChartComp = ({
           return <PieChart data={chartData} options={options} />;
         case 'textBox':
           return <TextBox data={chartData} options={options} />;
+        case 'heatmap':
+          return <HeatMap data={chartData} options={options} />;
         case 'table':
           return <Table data={chartData} dispatch={dispatch} options={options} params={dashboard.params} />;
         default:

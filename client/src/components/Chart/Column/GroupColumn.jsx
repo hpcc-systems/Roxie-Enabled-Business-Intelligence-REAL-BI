@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { GroupedColumn } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { GroupedColumnChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const GroupColumnChart = ({ data, options }) => {
+const GroupColumn = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -59,7 +58,8 @@ const GroupColumnChart = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={GroupedColumn} config={config} />;
+  const chartRef = useRef();
+  return <GroupedColumnChart {...config} chartRef={chartRef} />;
 };
 
-export default GroupColumnChart;
+export default GroupColumn;

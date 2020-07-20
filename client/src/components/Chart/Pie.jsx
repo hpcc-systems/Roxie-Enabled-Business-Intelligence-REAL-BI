@@ -1,6 +1,5 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { Pie } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { PieChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator } from '../../utils/misc';
@@ -9,7 +8,7 @@ import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
-const PieChart = ({ data, options }) => {
+const Pie = ({ data, options }) => {
   const { name, value, description } = options;
 
   // Convert necessary values to numbers
@@ -35,11 +34,6 @@ const PieChart = ({ data, options }) => {
       visible: true,
       text: description,
     },
-    meta: {
-      [value]: {
-        formatter: v => thousandsSeparator(v),
-      },
-    },
     legend: {
       position: 'bottom',
       visible: true,
@@ -53,7 +47,8 @@ const PieChart = ({ data, options }) => {
     },
   };
 
-  return <ReactG2Plot Ctor={Pie} config={config} />;
+  const chartRef = useRef();
+  return <PieChart {...config} chartRef={chartRef} />;
 };
 
-export default PieChart;
+export default Pie;
