@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Drawer, Toolbar, Typography } from '@material-ui/core';
+import { Drawer } from '@material-ui/core';
 
 // React Components
 import DirectoryTree from './DirectoryTree';
@@ -59,8 +59,12 @@ const initState = {
 // Create styles
 const useStyles = makeStyles(theme => ({
   drawer: { width: 'auto', minWidth: 250 },
-  toolbar: { marginLeft: theme.spacing(1), paddingLeft: 0 },
-  typography: { fontSize: 24, marginLeft: 0, textDecoration: 'underline' },
+  drawerClose: { width: 0 },
+  drawerPaper: {
+    backgroundColor: theme.palette.primary.main,
+    marginTop: theme.spacing(6.75),
+  },
+  drawerPaperClose: { width: 0 },
 }));
 
 const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
@@ -75,7 +79,7 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const { showDialog: showNewFolderDialog, toggleDialog: toggleNewFolderDialog } = useDialog(false);
   const { showDialog: showEditFolderDialog, toggleDialog: toggleEditFolderDialog } = useDialog(false);
   const dispatch = useDispatch();
-  const { drawer, toolbar, typography } = useStyles();
+  const { drawer, drawerClose, drawerPaper, drawerPaperClose } = useStyles();
 
   // Add redux store directory to component local state
   useEffect(() => {
@@ -390,11 +394,13 @@ const DashboardDrawer = ({ showDrawer, toggleDrawer }) => {
   const favorites = getFavoriteDashboards(dashboards);
 
   return (
-    <Drawer open={showDrawer} onClose={toggleDrawer}>
-      <div className={drawer} role='presentation'>
-        <Toolbar className={toolbar}>
-          <Typography className={typography}>REAL BI</Typography>
-        </Toolbar>
+    <Drawer
+      open={showDrawer}
+      onClose={toggleDrawer}
+      classes={{ paper: showDrawer ? drawerPaper : drawerPaperClose }}
+      variant='temporary'
+    >
+      <div className={showDrawer ? drawer : drawerClose}>
         <FavoritesTree
           favorites={favorites}
           getDashboardInfo={getDashboardInfo}
