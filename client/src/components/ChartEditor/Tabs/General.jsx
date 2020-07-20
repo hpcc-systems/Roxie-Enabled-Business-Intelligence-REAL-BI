@@ -15,6 +15,7 @@ import {
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
   TableChart as TableChartIcon,
+  TrendingFlat as HeatMapIcon,
 } from '@material-ui/icons';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
 import classnames from 'classnames';
@@ -24,6 +25,7 @@ import GeneralParams from './GeneralParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
+import HeatMapParams from './HeatMapParams';
 
 // Utils
 import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
@@ -35,6 +37,7 @@ const charts = [
   { name: 'Pie', value: 'pie' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
+  { name: 'HeatMap', value: 'heatmap' },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -101,6 +104,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
                         return <TextFieldsIcon className={menuIcon} />;
+                      case 'heatmap':
+                        return <HeatMapIcon className={menuIcon} />;
                       default:
                         return null;
                     }
@@ -177,6 +182,8 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         />
       ) : chartType === 'table' ? (
         <TableParams handleChangeObj={handleChangeObj} localState={localState} />
+      ) : chartType === 'heatmap' ? (
+        <HeatMapParams handleChangeObj={handleChangeObj} localState={localState} />
       ) : (
         <GeneralParams handleChangeObj={handleChangeObj} localState={localState} />
       )}
