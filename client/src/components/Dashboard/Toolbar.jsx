@@ -14,7 +14,7 @@ import { canAddCharts } from '../../utils/misc';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: theme.spacing(0.75) },
-  toolbar: { float: 'right', marginTop: theme.spacing(-5.5), zIndex: -1 },
+  toolbar: { float: 'right', marginTop: theme.spacing(-5.5) },
   typography: { fontSize: 24, fontWeight: 'bold', marginTop: theme.spacing(2) },
 }));
 
