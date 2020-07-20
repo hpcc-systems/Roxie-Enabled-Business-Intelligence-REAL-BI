@@ -1,12 +1,11 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { Bar } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { BarChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const BarChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+const Bar = ({ data, options }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -25,6 +24,10 @@ const BarChart = ({ data, options }) => {
   const config = {
     data,
     forceFit: true,
+    description: {
+      visible: true,
+      text: description,
+    },
     legend: {
       position: 'right-top',
       visible: true,
@@ -54,7 +57,8 @@ const BarChart = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={Bar} config={config} />;
+  const chartRef = useRef();
+  return <BarChart {...config} chartRef={chartRef} />;
 };
 
-export default BarChart;
+export default Bar;

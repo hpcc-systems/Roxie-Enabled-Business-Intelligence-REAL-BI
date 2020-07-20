@@ -15,7 +15,16 @@ const useStyles = makeStyles(theme => ({
 
 const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, error, keyword, sources, selectedSource = {}, sourceType } = localState;
+  const {
+    chartID,
+    chartType,
+    error,
+    keyword,
+    options: { isStatic = false },
+    sources,
+    selectedSource = {},
+    sourceType,
+  } = localState;
   const { clusterID } = dashboard;
   const { autocomplete, autocomplete2 } = useStyles();
 
@@ -64,7 +73,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     handleChange(null, { name: 'selectedSource', value: newValue });
   };
 
-  return chartID ? (
+  return chartID && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (
     // If chartID is present then component is being edited and this text box is just displaying the datasource name
     <TextField
       className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
@@ -73,7 +82,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
       label='Source'
       fullWidth
     />
-  ) : (
+  ) : chartType !== 'textBox' || (chartType === 'textBox' && !isStatic) ? (
     <Autocomplete
       className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
       onChange={handleOnChange}
@@ -99,7 +108,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
         />
       )}
     />
-  );
+  ) : null;
 };
 
 export default SourceSearch;

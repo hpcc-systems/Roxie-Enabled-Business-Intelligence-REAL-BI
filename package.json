@@ -4,6 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
+    "install:all": "npm install && concurrently \"cd server && npm install\" \"cd client && npm install\"",
     "start": "concurrently \"cd server && npm start\" \"cd client && npm start\""
   },
   "husky": {
@@ -13,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.ins.risk.regn.net:LNAlfresco-Research/hpcc_dashboard.git"
+    "url": "git@github.com:hpcc-systems/REAL-BI.git"
   },
   "keywords": [],
   "author": "Chris Human",

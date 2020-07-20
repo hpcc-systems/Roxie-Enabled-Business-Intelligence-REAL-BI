@@ -54,17 +54,18 @@ router.get('/all', async (req, res) => {
 
 router.post('/create', async (req, res) => {
   const {
-    body: { chart, dashboardID, sourceID },
+    body: { chart, dashboardID, sourceID, sourceType },
     user: { id: userID },
   } = req;
-  let newChart, chartParams;
+  let newChart,
+    chartParams = [];
 
   try {
     newChart = await createChart(chart, dashboardID, sourceID, userID);
-
-    await createChartParams(sourceID, chart, newChart.id);
-
-    chartParams = await findAllChartParams(newChart.id);
+    if (sourceType !== 'staticText') {
+      await createChartParams(sourceID, chart, newChart.id);
+      chartParams = await findAllChartParams(newChart.id);
+    }
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
@@ -153,22 +154,25 @@ router.delete('/delete', async (req, res) => {
     if (permissionObj.role === 'Owner') {
       await deleteChartByID(chartID);
 
-      // Determine if any other charts or filters in the application are using the same source
-      numOfCharts = await getChartsByDashboardAndSourceID(null, sourceID);
-      paramsArr = await getDashboardParamsByDashboardAndSourceID(null, sourceID);
+      //if not a static text widget
+      if (sourceID) {
+        // Determine if any other charts or filters in the application are using the same source
+        numOfCharts = await getChartsByDashboardAndSourceID(null, sourceID);
+        paramsArr = await getDashboardParamsByDashboardAndSourceID(null, sourceID);
 
-      // No other charts or dashboard filters in the application are using the same source
-      if (numOfCharts === 0 && paramsArr === 0) {
-        await deleteSourceByID(sourceID);
-      } else {
-        // Determine if any other charts or filters on the same dashboard are using the same source
-        numOfCharts = await getChartsByDashboardAndSourceID(dashboardID, sourceID);
-        paramsArr = await getDashboardParamsByDashboardAndSourceID(dashboardID, sourceID);
-
-        // No other charts or filters on the dashboard are using the same source
+        // No other charts or dashboard filters in the application are using the same source
         if (numOfCharts === 0 && paramsArr === 0) {
-          // Delete dashboard Source and 'Dashboard Level' params
-          await deleteDashboardSource(dashboardID, sourceID);
+          await deleteSourceByID(sourceID);
+        } else {
+          // Determine if any other charts or filters on the same dashboard are using the same source
+          numOfCharts = await getChartsByDashboardAndSourceID(dashboardID, sourceID);
+          paramsArr = await getDashboardParamsByDashboardAndSourceID(dashboardID, sourceID);
+
+          // No other charts or filters on the dashboard are using the same source
+          if (numOfCharts === 0 && paramsArr === 0) {
+            // Delete dashboard Source and 'Dashboard Level' params
+            await deleteDashboardSource(dashboardID, sourceID);
+          }
         }
       }
     }

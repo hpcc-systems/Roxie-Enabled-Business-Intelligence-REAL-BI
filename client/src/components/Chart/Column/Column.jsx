@@ -1,12 +1,11 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { Column } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { ColumnChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const ColumnChart = ({ data, options }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+const Column = ({ data, options }) => {
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -25,6 +24,10 @@ const ColumnChart = ({ data, options }) => {
   const config = {
     data,
     forceFit: true,
+    description: {
+      visible: true,
+      text: description,
+    },
     legend: {
       position: 'right-top',
       visible: true,
@@ -50,7 +53,8 @@ const ColumnChart = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <ReactG2Plot Ctor={Column} config={config} />;
+  const chartRef = useRef();
+  return <ColumnChart {...config} chartRef={chartRef} />;
 };
 
-export default ColumnChart;
+export default Column;

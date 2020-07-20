@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const sortArr = (arr, field = '', order = 'asc') => {
   if (!field) return arr;
 
@@ -76,6 +78,13 @@ export const hasGroupByOption = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
+export const hasDynamicOption = chartType => {
+  const chartTypes = ['textBox'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
 export const canAddCharts = role => {
   const roles = ['Owner'];
 
@@ -95,4 +104,21 @@ export const canDeleteCharts = role => {
 
   // Return boolean
   return roles.indexOf(role) > -1;
+};
+
+export const createDateTimeStamp = chartDesc => {
+  // Create Time Stamp
+  let datetimeStamp = moment().format('MM/DD/YYYY hh:mm:ss a');
+  datetimeStamp = `Last Refreshed: ${datetimeStamp}`; // Format label in front of datetime stamp
+
+  // Get user input description
+  const newDesc = chartDesc ? chartDesc : '';
+
+  if (newDesc) {
+    // Append datetime stamp to description
+    return `${newDesc}\n${datetimeStamp}`;
+  }
+
+  // No description, return the datetime stamp
+  return datetimeStamp;
 };

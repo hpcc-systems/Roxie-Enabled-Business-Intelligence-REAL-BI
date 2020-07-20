@@ -1,12 +1,11 @@
-import React from 'react';
-import ReactG2Plot from 'react-g2plot';
-import { Line } from '@antv/g2plot';
+import React, { useRef } from 'react';
+import { LineChart } from '@opd/g2plot-react';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
-const LineChart = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+const Line = ({ data, options }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -32,6 +31,10 @@ const LineChart = ({ data, options }) => {
         fontSize: 12,
       },
       visible: true,
+    },
+    description: {
+      visible: true,
+      text: description,
     },
     legend: {
       position: 'bottom',
@@ -63,7 +66,8 @@ const LineChart = ({ data, options }) => {
     },
   };
 
-  return <ReactG2Plot Ctor={Line} config={config} />;
+  const chartRef = useRef();
+  return <LineChart {...config} chartRef={chartRef} />;
 };
 
-export default LineChart;
+export default Line;

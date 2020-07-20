@@ -2,7 +2,7 @@ import axios from 'axios';
 import errHandler from './errHandler';
 
 // Constants
-import { hasGroupByOption, hasHorizontalOption, hasStackedOption } from '../utils/misc';
+import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
 const getChartData = async (chartID, clusterID) => {
   let response;
@@ -53,6 +53,13 @@ export const mergeArrays = (oldArr, newArr) => {
   });
 
   return oldArr;
+};
+
+const createTextBoxObj = localState => {
+  const { chartType, dataset } = localState;
+  let { options } = localState;
+
+  return { dataset, options, type: chartType };
 };
 
 const createChartObj = localState => {
@@ -165,6 +172,11 @@ const changeChartType = (oldType, newType, options) => {
       delete newOptions.fields;
 
       break;
+    case 'textBox':
+      delete newOptions.textBoxContent;
+      delete newOptions.dataFields;
+
+      break;
     default:
       if (newType === 'pie') {
         newOptions.name = newOptions.xAxis;
@@ -196,7 +208,20 @@ const changeChartType = (oldType, newType, options) => {
     newOptions = { ...newOptions, groupBy: '' };
   }
 
+  // Change static value if it doesn't apply to the chart type or is missing
+  if ((!hasDynamicOption(newType) && newOptions.isStatic) || !('isStatic' in newOptions)) {
+    newOptions = { ...newOptions, isStatic: false };
+  }
+
   return newOptions;
 };
 
-export { changeChartType, checkForChartParams, createChartObj, getChartData, getPreviewData, setEditorState };
+export {
+  changeChartType,
+  checkForChartParams,
+  createChartObj,
+  createTextBoxObj,
+  getChartData,
+  getPreviewData,
+  setEditorState,
+};

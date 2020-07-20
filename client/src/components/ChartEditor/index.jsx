@@ -42,6 +42,9 @@ const ChartEditor = props => {
     handleChange,
     localState: { chartID, chartType, dataObj, dataset, error, options, sourceType },
   } = props;
+  let { isStatic } = options;
+  isStatic = chartType !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
+
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, gridContainer, typography } = useStyles();
 
@@ -66,7 +69,7 @@ const ChartEditor = props => {
           </Typography>
         )}
         {/* Only display when not editing an existing chart */}
-        {!chartID && (
+        {!chartID && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) && (
           <FormControl fullWidth>
             <InputLabel>Source Type</InputLabel>
             <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
@@ -86,9 +89,14 @@ const ChartEditor = props => {
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map((option, index) => {
               /*
-                Do not show the 'group by' tab if the chart selected doesn't support group by
-              */
-              if (!hasGroupByOption(chartType) && option === 'Group By') {
+              Do not show the 'group by' tab if the chart selected doesn't support group by
+              Do not show the 'parameters' or 'group by' tab if the chart type is a static textbox
+            */
+              if (
+                (!hasGroupByOption(chartType) && option === 'Group By') ||
+                (chartType === 'textBox' && isStatic && option === 'Parameters') ||
+                (chartType === 'textBox' && option === 'Group By')
+              ) {
                 return null;
               }
 

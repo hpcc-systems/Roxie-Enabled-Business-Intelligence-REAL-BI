@@ -9,6 +9,11 @@ import LineChart from './Line';
 import PieChart from './Pie';
 import Table from './Table';
 import NoData from './NoData';
+import TextBox from './TextBox';
+import HeatMap from './HeatMap';
+
+// Utils
+import { createDateTimeStamp } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles({
@@ -21,7 +26,7 @@ const ChartComp = ({
   dataObj: { data = {}, error, loading = true },
   dispatch,
 }) => {
-  const { groupBy, horizontal, stacked } = options;
+  const { groupBy, horizontal, stacked, isStatic = false } = options;
   const { progress } = useStyles();
   let chartData = [];
   let err = null;
@@ -46,9 +51,13 @@ const ChartComp = ({
     err = error;
   }
 
-  return loading ? (
+  // Inject datetime stamp into options as new description
+  options = { ...options, description: createDateTimeStamp(options.chartDescription) };
+
+  // Don't render the progress wheel if the chart is a static textbox
+  return loading && (type !== 'textBox' || (type === 'textBox' && !isStatic)) ? (
     <CircularProgress className={progress} />
-  ) : chartData.length > 0 && !err ? (
+  ) : (chartData.length > 0 || (type === 'textBox' && isStatic)) && !err ? (
     (() => {
       switch (type) {
         case 'bar':
@@ -67,6 +76,10 @@ const ChartComp = ({
           return <LineChart data={chartData} options={options} />;
         case 'pie':
           return <PieChart data={chartData} options={options} />;
+        case 'textBox':
+          return <TextBox data={chartData} options={options} />;
+        case 'heatmap':
+          return <HeatMap data={chartData} options={options} />;
         case 'table':
           return <Table data={chartData} dispatch={dispatch} options={options} params={dashboard.params} />;
         default:
