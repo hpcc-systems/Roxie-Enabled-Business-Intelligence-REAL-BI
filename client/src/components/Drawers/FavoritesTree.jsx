@@ -8,18 +8,19 @@ import {
   FavoriteTwoTone as FavoriteTwoToneIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import { red } from '@material-ui/core/colors';
+import { red, grey } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(theme => ({
   button: { margin: `0 ${theme.spacing(1)}px`, minWidth: 25, padding: 0 },
   buttonsDiv: { padding: theme.spacing(1, 0) },
+  iconColor: { color: grey[50] },
   itemDiv: { display: 'flex' },
   labelDiv: { display: 'flex', padding: theme.spacing(1, 0) },
-  labelIcon: { marginRight: theme.spacing(1) },
-  labelText: { flexGrow: 1 },
+  labelIcon: { marginRight: theme.spacing(1), color: grey[50] },
+  labelText: { flexGrow: 1, color: theme.palette.primary.contrastText },
   redIcon: { color: red[500] },
   root: { marginBottom: theme.spacing(3) },
-  rootText: { fontSize: 20 },
+  rootText: { fontSize: 20, color: theme.palette.primary.contrastText },
   treeItem: { flexGrow: 1 },
 }));
 
@@ -27,6 +28,7 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
   const {
     button,
     buttonsDiv,
+    iconColor,
     itemDiv,
     labelDiv,
     labelIcon,
@@ -42,9 +44,9 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
   return (
     <TreeView
       className={root}
-      defaultCollapseIcon={<ExpandMoreIcon />}
+      defaultCollapseIcon={<ExpandMoreIcon className={iconColor} />}
       defaultExpanded={['root']}
-      defaultExpandIcon={<ChevronRightIcon />}
+      defaultExpandIcon={<ChevronRightIcon className={iconColor} />}
     >
       <TreeItem nodeId='root' label={rootLabel}>
         {favorites.map(({ id, name }) => {

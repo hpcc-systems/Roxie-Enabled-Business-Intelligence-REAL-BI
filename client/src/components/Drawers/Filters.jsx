@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@material-ui/icons';
+import { grey } from '@material-ui/core/colors';
 
 // Redux Actions
 import { updateDashboardParam } from '../../features/dashboard/actions';
@@ -30,10 +31,23 @@ import { sortArr } from '../../utils/misc';
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
   deleteBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0, paddingRight: theme.spacing(2) },
-  drawer: { width: 250 },
+  drawer: { width: 'auto', minWidth: 250 },
+  drawerClose: { width: 0 },
+  drawerPaper: {
+    backgroundColor: theme.palette.primary.main,
+    marginTop: theme.spacing(6.75),
+  },
+  drawerPaperClose: { width: 0 },
   editBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0 },
-  formControl: { margin: theme.spacing(1) },
-  typography: { flexGrow: 1, margin: theme.spacing(1), marginTop: theme.spacing(1.5) },
+  fontColor: { color: grey[50] },
+  formControl: { color: grey[50], margin: theme.spacing(1) },
+  iconColor: { color: grey[50] },
+  typography: {
+    flexGrow: 1,
+    margin: theme.spacing(1),
+    marginTop: theme.spacing(1.5),
+    color: theme.palette.primary.contrastText,
+  },
 }));
 
 const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDrawer }) => {
@@ -42,7 +56,19 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
   const { showDialog: showNewDialog, toggleDialog: toggleNewDialog } = useDialog(false);
   const { showDialog: showEditDialog, toggleDialog: toggleEditDialog } = useDialog(false);
   const dispatch = useDispatch();
-  const { button, deleteBtn, drawer, editBtn, formControl, typography } = useStyles();
+  const {
+    button,
+    deleteBtn,
+    drawer,
+    drawerClose,
+    drawerPaper,
+    drawerPaperClose,
+    editBtn,
+    fontColor,
+    formControl,
+    iconColor,
+    typography,
+  } = useStyles();
   let datasets = {};
 
   // Un-nest source datasets for filter dropdowns
@@ -72,14 +98,20 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
   };
 
   return (
-    <Drawer open={showDrawer} onClose={toggleDrawer} anchor='right'>
-      <div className={drawer} role='presentation'>
+    <Drawer
+      open={showDrawer}
+      onClose={toggleDrawer}
+      classes={{ paper: showDrawer ? drawerPaper : drawerPaperClose }}
+      variant='temporary'
+      anchor='right'
+    >
+      <div className={showDrawer ? drawer : drawerClose}>
         <div style={{ display: 'flex' }}>
           <Typography variant='h6' align='left' color='inherit' className={typography}>
             Dashboard Filters
           </Typography>
           <Button className={button} onClick={toggleNewDialog}>
-            <AddCircleIcon />
+            <AddCircleIcon className={iconColor} />
           </Button>
         </div>
         <Grid container direction='row' justify='space-between'>
@@ -97,8 +129,13 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
                 <Fragment key={index}>
                   <Grid item xs={8}>
                     <FormControl className={formControl} fullWidth>
-                      <InputLabel>{name}</InputLabel>
-                      <Select multiple value={value || []} onChange={event => setParam(event, id)}>
+                      <InputLabel className={fontColor}>{name}</InputLabel>
+                      <Select
+                        multiple
+                        value={value || []}
+                        onChange={event => setParam(event, id)}
+                        className={fontColor}
+                      >
                         {(() => {
                           if (datasets[dataset]) {
                             // Get the first key from the first object from reference dataset
@@ -120,12 +157,12 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
                   </Grid>
                   <Grid item xs={2}>
                     <Button className={editBtn} onClick={() => editFilter(id)}>
-                      <EditIcon />
+                      <EditIcon className={iconColor} />
                     </Button>
                   </Grid>
                   <Grid item xs={2}>
                     <Button className={deleteBtn} onClick={() => deleteFilter(id)}>
-                      <DeleteIcon />
+                      <DeleteIcon className={iconColor} />
                     </Button>
                   </Grid>
                 </Fragment>

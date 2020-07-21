@@ -9,6 +9,7 @@ import {
   ChevronRight as ChevronRightIcon,
   MoreHoriz as MoreHorizIcon,
 } from '@material-ui/icons';
+import { grey } from '@material-ui/core/colors';
 
 // React Components
 import FolderSubMenu from './FolderSubMenu';
@@ -16,21 +17,24 @@ import DashboardSubMenu from './DashboardSubMenu';
 
 const useStyles = makeStyles(theme => ({
   itemDiv: { display: 'flex' },
+  iconColor: { color: grey[50] },
   labelDiv: {
     display: 'flex',
     padding: theme.spacing(1, 0),
   },
-  labelIcon: { marginRight: theme.spacing(1) },
+  labelIcon: { marginRight: theme.spacing(1), color: grey[50] },
   labelText: {
     flexGrow: 1,
     paddingTop: theme.spacing(0.5),
     paddingBottom: 0,
+    color: theme.palette.primary.contrastText,
   },
   rootDiv: { display: 'flex' },
   rootText: {
     fontSize: 20,
     flexGrow: 1,
     padding: theme.spacing(1, 0),
+    color: theme.palette.primary.contrastText,
   },
   treeItem: { flexGrow: 1 },
 }));
@@ -38,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 const RecursiveTreeView = props => {
   const { getDashboardInfo, getDirectoryDepth, localState } = props;
   const { directory, directoryDepth } = localState;
-  const { itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
+  const { iconColor, itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorName, setAnchorName] = useState('');
 
@@ -47,7 +51,7 @@ const RecursiveTreeView = props => {
       <Typography className={rootText}>Directory</Typography>
       <div>
         <IconButton onClick={event => showMenu(event, { name: 'root' })}>
-          <MoreHorizIcon />
+          <MoreHorizIcon className={iconColor} />
         </IconButton>
         {'root' === anchorName && (
           <FolderSubMenu
@@ -96,7 +100,7 @@ const RecursiveTreeView = props => {
           {isFolder ? (
             <Fragment>
               <IconButton onClick={event => showMenu(event, directoryObj)}>
-                <MoreHorizIcon />
+                <MoreHorizIcon className={iconColor} />
               </IconButton>
               {directoryObj.name === anchorName && (
                 <FolderSubMenu
@@ -112,7 +116,7 @@ const RecursiveTreeView = props => {
           ) : (
             <Fragment>
               <IconButton onClick={event => showMenu(event, directoryObj)}>
-                <MoreHorizIcon />
+                <MoreHorizIcon className={iconColor} />
               </IconButton>
               {directoryObj.name === anchorName && (
                 <DashboardSubMenu
@@ -132,8 +136,8 @@ const RecursiveTreeView = props => {
 
   return (
     <TreeView
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
+      defaultCollapseIcon={<ExpandMoreIcon className={iconColor} />}
+      defaultExpandIcon={<ChevronRightIcon className={iconColor} />}
       expanded={directoryDepth || []}
       onNodeToggle={(event, nodeArr) => getDirectoryDepth(nodeArr)}
     >
