@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
+const ReactMarkdown = require('react-markdown');
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -26,12 +27,12 @@ const TextBox = ({ data, options }) => {
     <Fragment>
       {chartDescription ? (
         <Typography variant='subtitle2' align='left' color='inherit' className={textContent}>
-          {chartDescription}
+          <ReactMarkdown>{chartDescription}</ReactMarkdown>
         </Typography>
       ) : null}
       {textBoxContent ? (
         <Typography variant='body2' align='left' color='inherit' className={textContent}>
-          {textBoxContent}
+          <ReactMarkdown>{textBoxContent}</ReactMarkdown>
         </Typography>
       ) : null}
     </Fragment>
