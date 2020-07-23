@@ -14,30 +14,30 @@ const errHandler = require('../../utils/errHandler');
 // Constants
 const { directoryObjNameRegexp } = require('../../constants');
 
-router.post('/create', async (req, res) => {
+router.post('/', async (req, res) => {
   const {
-    body: { clusterID, name },
+    body: { dashboard, workspaceID },
     user: { id: userID },
   } = req;
-  let dashboard;
+  let newDashboard;
 
   // Make sure dashboard name conforms to required regexp
-  if (!directoryObjNameRegexp.test(name)) {
-    const errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+  if (!directoryObjNameRegexp.test(dashboard.name)) {
+    const errMsg = `"${name}" is not a valid dashboard name`;
     logger.error(errMsg);
 
     return res.status(400).send(errMsg);
   }
 
   try {
-    dashboard = await createDashboard(clusterID, name, userID);
-    await createDashboardPermission(dashboard.id, userID, 'Owner');
+    newDashboard = await createDashboard(dashboard, workspaceID, userID);
+    await createDashboardPermission(newDashboard.id, userID, 'Owner');
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
   }
 
-  return res.status(201).json(dashboard);
+  return res.status(201).json(newDashboard);
 });
 
 router.get('/info', async (req, res) => {
@@ -71,7 +71,7 @@ router.put('/', async (req, res) => {
 
   // Make sure dashboard name conforms to required regexp
   if (!directoryObjNameRegexp.test(name)) {
-    const errMsg = `${name} does not pass the RegExp ${directoryObjNameRegexp}`;
+    const errMsg = `"${name}" is not a valid dashboard name`;
     logger.error(errMsg);
 
     return res.status(400).send(errMsg);

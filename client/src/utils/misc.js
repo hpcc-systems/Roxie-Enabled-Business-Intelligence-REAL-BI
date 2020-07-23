@@ -122,3 +122,7 @@ export const createDateTimeStamp = chartDesc => {
   // No description, return the datetime stamp
   return datetimeStamp;
 };
+
+export const existsInArray = (arr, string) => {
+  return arr.indexOf(string) > -1;
+};

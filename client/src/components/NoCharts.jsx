@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
@@ -9,7 +10,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NoCharts = () => {
+  const { lastWorkspace } = useSelector(state => state.auth.user);
   const { header, subheader } = useStyles();
+
+  const subMessage = !lastWorkspace ? 'Choose a workspace to begin...' : 'Choose a dashboard to begin...';
 
   return (
     <Fragment>
@@ -17,7 +21,7 @@ const NoCharts = () => {
         Welcome to REAL BI
       </Typography>
       <Typography variant='h2' align='center' color='inherit' className={subheader}>
-        Open the left-hand menu to begin...
+        {subMessage}
       </Typography>
     </Fragment>
   );
