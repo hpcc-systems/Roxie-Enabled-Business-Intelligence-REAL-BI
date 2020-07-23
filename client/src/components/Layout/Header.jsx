@@ -141,7 +141,7 @@ const Header = () => {
               </IconButton>
 
               {/* Help Dropdown */}
-              <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+              <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
                 {({ TransitionProps }) => (
                   <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
                     <Paper>
