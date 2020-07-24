@@ -105,6 +105,9 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
   // Get array of columns from file
   files = response['DFULogicalFiles']['DFULogicalFile'];
 
+  // Remove csv files from result set
+  files = files.filter(({ Name }) => Name.indexOf('.csv') === -1);
+
   // Change JSON key labels
   files = files.map(({ ClusterName, Name }) => ({
     cluster: ClusterName,
@@ -175,6 +178,9 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
 
   // Get necessary object key and rename it
   fields = response.map(({ ColumnLabel, ColumnType }) => ({ name: ColumnLabel, type: getType(ColumnType) }));
+
+  // Remove __fileposition__ field from result set
+  fields = fields.filter(({ name }) => name !== '__fileposition__');
 
   // Set params default array
   params = [
