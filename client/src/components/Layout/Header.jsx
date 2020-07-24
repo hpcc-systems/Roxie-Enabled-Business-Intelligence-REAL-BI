@@ -68,6 +68,7 @@ const useStyles = makeStyles(theme => ({
     color: '#ff5722',
     fontWeight: 'bold',
   },
+  workspaceDiv: { flexGrow: 1 },
 }));
 
 const Header = ({ toggleDrawer }) => {
@@ -90,6 +91,7 @@ const Header = ({ toggleDrawer }) => {
     newBtn,
     toolbar,
     typography,
+    workspaceDiv,
   } = useStyles();
 
   const handleToggle = dropdownNum => {
@@ -158,7 +160,7 @@ const Header = ({ toggleDrawer }) => {
           {userID && (
             <Fragment>
               {/* Workspace Dropdown */}
-              <div style={{ flexGrow: 1 }}>
+              <div className={workspaceDiv}>
                 <WorkspaceSelector dispatch={dispatch} user={user} />
                 <Button className={newBtn} variant='contained' onClick={toggleDialog}>
                   New +

@@ -97,6 +97,11 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       const errMsg = 'Name already used';
 
       return handleChange(null, { name: 'error', value: errMsg });
+    } else if (!directoryObjNameRegexp.test(name)) {
+      // Check for compliance with RegExp
+      const errMsg = `"${name}" is not a valid dashboard name`;
+
+      return handleChange(null, { name: 'error', value: errMsg });
     }
 
     // Enable loading animation
@@ -136,7 +141,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const updateExistingDashboard = async () => {
     const { clusterID, directoryObj, name, password, updateCreds, username } = localState;
 
-    // Check for duplicate names in directory
+    // Check for compliance with RegExp
     if (!directoryObjNameRegexp.test(name)) {
       const errMsg = `"${name}" is not a valid folder name`;
 
@@ -186,6 +191,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
       return handleChange(null, { name: 'error', value: errMsg });
     } else if (!directoryObjNameRegexp.test(name)) {
+      // Check for compliance with RegExp
       errMsg = `"${name}" is not a valid folder name`;
 
       return handleChange(null, { name: 'error', value: errMsg });
@@ -207,7 +213,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const updateFolder = () => {
     const { directoryObj, name } = localState;
 
-    // Check for duplicate names in directory
+    // Check for compliance with RegExp
     if (!directoryObjNameRegexp.test(name)) {
       const errMsg = `"${name}" is not a valid folder name`;
 

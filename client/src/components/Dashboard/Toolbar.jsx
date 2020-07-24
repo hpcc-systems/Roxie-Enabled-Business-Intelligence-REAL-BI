@@ -15,7 +15,7 @@ import { canAddCharts } from '../../utils/misc';
 const useStyles = makeStyles(theme => ({
   button: { margin: theme.spacing(0.75) },
   toolbar: { float: 'right' },
-  typography: { fontSize: 24, fontWeight: 'bold', marginTop: theme.spacing(2), float: 'right' },
+  typography: { fontSize: 24, fontWeight: 'bold', marginTop: theme.spacing(3), float: 'right' },
 }));
 
 const ToolbarComp = ({ dashboard, refreshChart, toggleDialog, toggleDrawer, toggleShare }) => {
