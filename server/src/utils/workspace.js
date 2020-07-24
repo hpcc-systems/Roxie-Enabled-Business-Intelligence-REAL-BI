@@ -12,12 +12,15 @@ const createWorkspace = async (name, userID) => {
     userID,
   };
 
-  let [err] = await awaitHandler(workspaceModel.create({ ...workspaceConfig }));
+  let [err, newWorkspace] = await awaitHandler(workspaceModel.create({ ...workspaceConfig }));
 
   // Return error
   if (err) throw err;
 
-  return;
+  // Get nested object
+  newWorkspace = unNestSequelizeObj(newWorkspace);
+
+  return newWorkspace;
 };
 
 const getWorkspaces = async userID => {

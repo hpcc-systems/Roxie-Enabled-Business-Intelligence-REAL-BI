@@ -1,5 +1,6 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { useDispatch, batch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -15,7 +16,7 @@ import {
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { createNewWorkspace } from '../../features/auth/actions';
+import { createNewWorkspace, updateLastWorkspace } from '../../features/auth/actions';
 
 const initState = {
   error: '',
@@ -36,12 +37,19 @@ const useStyles = makeStyles(theme => ({
 const NewWorkspaceDialog = ({ show, toggleDialog }) => {
   const { values: localState, handleChange } = useForm(initState);
   const dispatch = useDispatch();
+  const history = useHistory();
   const { button, errMsg, formControl } = useStyles();
 
   const createWorkspace = async () => {
-    const action = await createNewWorkspace(localState);
+    const { action, workspaceID } = await createNewWorkspace(localState);
+    const action2 = await updateLastWorkspace(workspaceID);
 
-    dispatch(action);
+    batch(() => {
+      dispatch(action);
+      dispatch(action2);
+    });
+
+    history.push(`/workspace/${workspaceID}`);
     toggleDialog();
   };
 

@@ -51,7 +51,9 @@ export const createNewWorkspace = async localState => {
     return { type: SET_AUTH_ERRORS, payload: err };
   }
 
-  return { type: GET_WORKSPACES, payload: response.data };
+  const { workspaces, workspaceID } = response.data;
+
+  return { action: { type: GET_WORKSPACES, payload: workspaces }, workspaceID };
 };
 
 export const updateLastWorkspace = async workspaceID => {
