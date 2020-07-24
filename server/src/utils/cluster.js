@@ -176,6 +176,9 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
   // Get necessary object key and rename it
   fields = response.map(({ ColumnLabel, ColumnType }) => ({ name: ColumnLabel, type: getType(ColumnType) }));
 
+  // Remove __fileposition__ field from result set
+  fields = fields.filter(({ name }) => name !== '__fileposition__');
+
   // Set params default array
   params = [
     { name: 'Start', type: 'number', value: '' },
