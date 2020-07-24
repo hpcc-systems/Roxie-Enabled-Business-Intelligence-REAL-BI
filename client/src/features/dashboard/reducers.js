@@ -4,12 +4,14 @@ import {
   GET_DASHBOARD_PARAMS,
   SET_DASHBOARD_ERRORS,
   UPDATE_DASHBOARD_PARAM,
+  CLEAR_DASHBOARD,
 } from './actions';
 const initState = { dashboard: {}, errors: {} };
 
 export default (state = initState, { type, payload }) => {
   switch (type) {
     case GET_DASHBOARD:
+    case CLEAR_DASHBOARD:
       return { ...state, errors: {}, dashboard: payload };
     case GET_DASHBOARD_PARAMS:
     case CREATE_DASHBOARD_PARAM:

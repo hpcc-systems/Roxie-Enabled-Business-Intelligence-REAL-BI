@@ -10,8 +10,7 @@ import store from './store';
 // React Components
 import PrivateRoute from './components/PrivateRoute';
 import Login from './components/Login';
-import Header from './components/Layout/Header';
-import Dashboard from './components/Dashboard';
+import Workspace from './components/Workspace';
 
 // Utils
 import { checkForToken } from './utils/auth';
@@ -51,11 +50,10 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline>
           <Router>
-            <Header />
             <Switch>
               <Route exact path='/' component={Login} />
               <Route path='/login' component={Login} />
-              <PrivateRoute path='/dashboard/:dashboardID?' component={Dashboard} />
+              <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
             </Switch>
           </Router>
         </CssBaseline>

@@ -17,11 +17,18 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );
 
-  dashboard.associate = ({ cluster, dashboardPermission, dashboardSource, source, user }) => {
+  dashboard.associate = ({ cluster, dashboardPermission, dashboardSource, source, user, workspace }) => {
     // One-to-One relation between dashboards and clusters
     // Creates 'clusterID' foreign key on dashboard model
     dashboard.belongsTo(cluster, {
       foreignKey: { name: 'clusterID', allowNull: false },
+      onDelete: 'cascade',
+    });
+
+    // One-to-One relation between dashboards and workspaces
+    // Creates 'workspaceID' foreign key on dashboard model
+    dashboard.belongsTo(workspace, {
+      foreignKey: { name: 'workspaceID', allowNull: false },
       onDelete: 'cascade',
     });
 

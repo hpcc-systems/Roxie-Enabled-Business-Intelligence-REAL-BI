@@ -2,6 +2,10 @@
 import { sortArr } from './misc';
 
 export const getDashboardsFromDirectory = (directory, dashboards) => {
+  if (!directory) {
+    return [];
+  }
+
   directory.forEach(obj => {
     const { children = false } = obj;
 

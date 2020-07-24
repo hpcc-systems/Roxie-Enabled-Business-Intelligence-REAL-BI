@@ -6,6 +6,7 @@ export const GET_DASHBOARD = 'GET_DASHBOARD';
 export const GET_DASHBOARD_PARAMS = 'GET_DASHBOARD_PARAMS';
 export const SET_DASHBOARD_ERRORS = 'SET_DASHBOARD_ERRORS';
 export const UPDATE_DASHBOARD_PARAM = 'UPDATE_DASHBOARD_PARAM';
+export const CLEAR_DASHBOARD = 'CLEAR_DASHBOARD';
 
 export const getDashboard = async dashboardID => {
   let response;
@@ -70,4 +71,8 @@ export const deleteDashboardParam = async (dashboardID, filterID) => {
   }
 
   return { type: UPDATE_DASHBOARD_PARAM, payload: response.data };
+};
+
+export const clearDashboard = () => {
+  return { type: CLEAR_DASHBOARD, payload: {} };
 };

@@ -1,6 +1,16 @@
 const express = require('express');
 const { sequelize } = require('./models');
-const { auth, chart, cluster, clusterAuth, dashboard, dashboardParam, source, user } = require('./routes');
+const {
+  auth,
+  chart,
+  cluster,
+  clusterAuth,
+  dashboard,
+  dashboardParam,
+  source,
+  user,
+  workspace,
+} = require('./routes');
 const { authenticateToken } = require('./routes/middleware');
 const logger = require('./config/logger');
 
@@ -22,6 +32,7 @@ app.use('/api/dashboard', authenticateToken(), dashboard);
 app.use('/api/dashboardparam', authenticateToken(), dashboardParam);
 app.use('/api/source', authenticateToken(), source);
 app.use('/api/user', authenticateToken(), user);
+app.use('/api/workspace', authenticateToken(), workspace);
 
 sequelize
   .sync()

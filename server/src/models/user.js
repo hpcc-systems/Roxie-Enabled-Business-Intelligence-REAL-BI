@@ -2,9 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define(
     'user',
     {
-      directory: DataTypes.JSON,
-      directoryDepth: DataTypes.JSON,
-      lastDashboard: DataTypes.UUID,
+      lastWorkspace: DataTypes.UUID,
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );

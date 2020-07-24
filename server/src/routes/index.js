@@ -8,4 +8,5 @@ module.exports = {
   dashboardParam: require('./api/dashboardParam'),
   source: require('./api/source'),
   user: require('./api/user'),
+  workspace: require('./api/workspace'),
 };

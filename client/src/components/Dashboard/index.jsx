@@ -1,16 +1,13 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 // Redux Actions
-import { deleteDashboardParam, getDashboard, getDashboardParams } from '../../features/dashboard/actions';
-import { deleteChart, getCharts } from '../../features/chart/actions';
-import { updateLastDashboard } from '../../features/auth/actions';
+import { deleteDashboardParam, getDashboardParams } from '../../features/dashboard/actions';
+import { deleteChart } from '../../features/chart/actions';
 
 // React Components
-import NoCharts from './NoCharts';
 import Toolbar from './Toolbar';
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
@@ -38,36 +35,12 @@ const Dashboard = () => {
   const { dashboard } = useSelector(state => state.dashboard);
   const { clusterID, id: dashboardID, params = [] } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
   const { charts } = useSelector(state => state.chart);
-  const history = useHistory();
-  const { dashboardID: urlID } = useParams();
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
-  const { showDrawer, toggleDrawer } = useDrawer(false);
+  const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dispatch = useDispatch();
   const { clearDiv } = useStyles();
-
-  useEffect(() => {
-    if (urlID) {
-      Promise.all([getDashboard(urlID), getCharts(urlID), getDashboardParams(urlID)]).then(actions => {
-        // DB didn't return data, dashboard may not exist
-        if (Object.keys(actions[0].payload).length === 0) {
-          // Clear last dashboard ID to prevent infinite loop error
-          updateLastDashboard(null).then(action => {
-            dispatch(action);
-            history.push('/dashboard');
-          });
-        } else {
-          // Batch dispatch each action to only have React re-render once
-          batch(() => {
-            dispatch(actions[0]);
-            dispatch(actions[1]);
-            dispatch(actions[2]);
-          });
-        }
-      });
-    }
-  }, [dispatch, history, urlID]);
 
   const editChart = chartID => {
     setChartID(chartID);
@@ -136,13 +109,13 @@ const Dashboard = () => {
     }
   }, [charts, dashboardID, dataCall]);
 
-  return dashboardID ? (
+  return (
     <Fragment>
       <Toolbar
         dashboard={dashboard}
         refreshChart={dataCall}
         toggleDialog={newChartToggle}
-        toggleDrawer={toggleDrawer}
+        toggleDrawer={toggleFilterDrawer}
         toggleShare={shareLinkToggle}
       />
       <Container maxWidth='xl'>
@@ -170,12 +143,13 @@ const Dashboard = () => {
             );
           })}
         </Grid>
-        {showDrawer && (
+
+        {showFilterDrawer && (
           <FilterDrawer
             dashboard={dashboard}
             deleteFilter={deleteFilter}
-            showDrawer={showDrawer}
-            toggleDrawer={toggleDrawer}
+            showDrawer={showFilterDrawer}
+            toggleDrawer={toggleFilterDrawer}
             compData={compData}
           />
         )}
@@ -186,8 +160,6 @@ const Dashboard = () => {
         )}
       </Container>
     </Fragment>
-  ) : (
-    <NoCharts />
   );
 };
 
