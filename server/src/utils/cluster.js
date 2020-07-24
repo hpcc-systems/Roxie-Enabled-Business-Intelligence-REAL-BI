@@ -105,6 +105,9 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
   // Get array of columns from file
   files = response['DFULogicalFiles']['DFULogicalFile'];
 
+  // Remove csv files from result set
+  files = files.filter(({ Name }) => Name.indexOf('.csv') === -1);
+
   // Change JSON key labels
   files = files.map(({ ClusterName, Name }) => ({
     cluster: ClusterName,
