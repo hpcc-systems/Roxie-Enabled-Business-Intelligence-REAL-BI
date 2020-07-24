@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
+  Button,
   ClickAwayListener,
   Grow,
   IconButton,
@@ -25,14 +26,16 @@ import {
   VpnKey as VpnKeyIcon,
 } from '@material-ui/icons';
 
-// Redux Axtions
-import { logoutUser } from '../../features/auth/actions';
+// React Hooks
+import useDialog from '../../hooks/useDialog';
 
 // React Components
-import DashboardDrawer from '../Drawers/Dashboards';
+import WorkspaceSelector from './WorkspaceSelector';
+import NewWorkspace from '../Dialog/newWorkspace';
 
-// React Hooks
-import useDrawer from '../../hooks/useDrawer';
+// Redux Axtions
+import { logoutUser } from '../../features/auth/actions';
+import { clearWorkspaceRef } from '../../features/workspace/actions';
 
 // Utils
 import setAuthHeader from '../../utils/axiosConfig';
@@ -44,7 +47,7 @@ import { tokenName } from '../../constants';
 const useStyles = makeStyles(theme => ({
   button: {
     marginLeft: theme.spacing(1.25),
-    marginRight: theme.spacing(1.25),
+    marginRight: 0,
     paddingLeft: 0,
     paddingRight: 0,
   },
@@ -57,20 +60,39 @@ const useStyles = makeStyles(theme => ({
     '& > a': { color: 'inherit', display: 'inherit', textDecoration: 'none' },
   },
   menuLabel: { marginTop: theme.spacing(0.25) },
-  toolbar: { minHeight: 54, maxHeight: 54 },
-  typography: { flex: 1, marginLeft: 12, color: '#ff5722', fontWeight: 'bold' },
+  newBtn: { marginTop: theme.spacing(1.5) },
+  toolbar: { minHeight: 65, maxHeight: 65 },
+  typography: {
+    marginLeft: theme.spacing(1.5),
+    marginRight: theme.spacing(3),
+    color: '#ff5722',
+    fontWeight: 'bold',
+  },
+  workspaceDiv: { flexGrow: 1 },
 }));
 
-const Header = () => {
-  const { showDrawer, toggleDrawer } = useDrawer(false);
-  const { id: userID, username } = useSelector(state => state.auth.user);
+const Header = ({ toggleDrawer }) => {
+  const { user } = useSelector(state => state.auth);
+  const { id: userID, username } = user;
   const dispatch = useDispatch();
   const history = useHistory();
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
-  const { button, buttonIcon, buttonLabel, menuIcon, menuItem, menuLabel, toolbar, typography } = useStyles();
+  const { showDialog, toggleDialog } = useDialog(false);
+  const {
+    button,
+    buttonIcon,
+    buttonLabel,
+    menuIcon,
+    menuItem,
+    menuLabel,
+    newBtn,
+    toolbar,
+    typography,
+    workspaceDiv,
+  } = useStyles();
 
   const handleToggle = dropdownNum => {
     if (dropdownNum === 1) {
@@ -112,7 +134,13 @@ const Header = () => {
   const logout = async () => {
     localStorage.removeItem(tokenName);
     setAuthHeader();
-    dispatch(logoutUser());
+
+    Promise.all([logoutUser(), clearWorkspaceRef()]).then(actions => {
+      batch(() => {
+        dispatch(actions[0]);
+        dispatch(actions[1]);
+      });
+    });
 
     history.push('/login');
   };
@@ -131,6 +159,14 @@ const Header = () => {
           </Typography>
           {userID && (
             <Fragment>
+              {/* Workspace Dropdown */}
+              <div className={workspaceDiv}>
+                <WorkspaceSelector dispatch={dispatch} user={user} />
+                <Button className={newBtn} variant='contained' onClick={toggleDialog}>
+                  New +
+                </Button>
+              </div>
+
               {/* Help Button */}
               <IconButton className={button} color='inherit' onClick={() => handleToggle(1)} ref={anchorRef}>
                 <HelpIcon className={buttonIcon} />
@@ -206,7 +242,7 @@ const Header = () => {
           )}
         </Toolbar>
       </AppBar>
-      <DashboardDrawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />
+      {showDialog && <NewWorkspace show={showDialog} toggleDialog={toggleDialog} />}
     </Fragment>
   );
 };

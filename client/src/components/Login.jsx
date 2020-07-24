@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,6 +13,9 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
+
+// React Components
+import Header from './Layout/Header';
 
 // Redux Actions
 import { getLatestUserData, loginUser } from '../features/auth/actions';
@@ -29,10 +32,13 @@ import { tokenName } from '../constants';
 import { useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
-  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
+  button: {
+    backgroundColor: theme.palette.info.main,
+    color: theme.palette.info.contrastText,
+  },
   grid: { minHeight: '50vh' },
-  progress: { marginRight: 15 },
-  textfield: { margin: `${theme.spacing(1)}px 0` },
+  progress: { marginRight: theme.spacing(2) },
+  textfield: { margin: theme.spacing(1, 0, 1, 0) },
 }));
 
 const initState = {
@@ -57,13 +63,13 @@ const Login = () => {
         setAuthHeader(token);
 
         (async () => {
-          const { action, lastDashboard } = await getLatestUserData();
+          const { action, lastWorkspace } = await getLatestUserData();
 
           // Send data to redux store
           dispatch(action);
 
           // Generate new url and navigate there
-          const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashboard';
+          const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';
           history.push(location);
         })();
       } else {
@@ -82,7 +88,7 @@ const Login = () => {
     handleChange(null, { name: 'loading', value: true });
 
     // Attempt to login user
-    const { action, lastDashboard, token } = await loginUser(localState);
+    const { action, lastWorkspace, token } = await loginUser(localState);
 
     // Send data to redux store
     dispatch(action);
@@ -93,7 +99,7 @@ const Login = () => {
       setAuthHeader(token);
 
       // Generate new url and navigate there
-      const location = lastDashboard ? `/dashboard/${lastDashboard}` : '/dashboard';
+      const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';
       history.push(location);
     } else {
       // No token means an error occured
@@ -102,47 +108,50 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth='xl'>
-      <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
-        <Grid item>
-          <form onSubmit={loginUserFn}>
-            <Card>
-              <CardContent>
-                <Typography variant='h6'>Login</Typography>
-                <TextField
-                  className={textfield}
-                  label='Username'
-                  name='username'
-                  value={username}
-                  onChange={handleChange}
-                  fullWidth
-                />
-                <TextField
-                  className={textfield}
-                  label='Password'
-                  name='password'
-                  type='password'
-                  value={password}
-                  onChange={handleChange}
-                  autoComplete='false'
-                  fullWidth
-                />
-              </CardContent>
-              <CardActions>
-                <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
-                  <Grid item>
-                    <Button className={button} variant='contained' type='submit' disabled={loading}>
-                      {loading && <CircularProgress color='inherit' size={20} className={progress} />}
-                      Login
-                    </Button>
+    <Fragment>
+      <Header />
+      <Container maxWidth='xl'>
+        <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
+          <Grid item>
+            <form onSubmit={loginUserFn}>
+              <Card>
+                <CardContent>
+                  <Typography variant='h6'>Login</Typography>
+                  <TextField
+                    className={textfield}
+                    label='Username'
+                    name='username'
+                    value={username}
+                    onChange={handleChange}
+                    fullWidth
+                  />
+                  <TextField
+                    className={textfield}
+                    label='Password'
+                    name='password'
+                    type='password'
+                    value={password}
+                    onChange={handleChange}
+                    autoComplete='false'
+                    fullWidth
+                  />
+                </CardContent>
+                <CardActions>
+                  <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
+                    <Grid item>
+                      <Button className={button} variant='contained' type='submit' disabled={loading}>
+                        {loading && <CircularProgress color='inherit' size={20} className={progress} />}
+                        Login
+                      </Button>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </CardActions>
-            </Card>
-          </form>
+                </CardActions>
+              </Card>
+            </form>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </Fragment>
   );
 };
 

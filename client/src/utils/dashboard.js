@@ -14,11 +14,11 @@ export const getDashboardData = async (clusterID, dashboardID) => {
   return response.data;
 };
 
-export const addDashboardToDB = async dashboard => {
+export const createDashboard = async (dashboard, workspaceID) => {
   let response;
 
   try {
-    response = await axios.post('/api/dashboard/create', dashboard);
+    response = await axios.post('/api/dashboard', { dashboard, workspaceID });
   } catch (err) {
     const { errMsg } = errHandler(err);
 
@@ -28,29 +28,9 @@ export const addDashboardToDB = async dashboard => {
   return response.data;
 };
 
-export const updateDirectory = async directory => {
+export const updateDashboard = async dashboardObj => {
   try {
-    await axios.put('/api/user/updatedirectory', { directory });
-  } catch (err) {
-    console.error(err);
-  }
-
-  return;
-};
-
-export const updateDirectoryDepth = async directoryDepth => {
-  try {
-    await axios.put('/api/user/updatedirectorydepth', { directoryDepth });
-  } catch (err) {
-    console.error(err);
-  }
-
-  return;
-};
-
-export const updateDashboardInDB = async stateObj => {
-  try {
-    await axios.put('/api/dashboard', { ...stateObj });
+    await axios.put('/api/dashboard', { ...dashboardObj });
   } catch (err) {
     const { errMsg } = errHandler(err);
 
@@ -60,7 +40,7 @@ export const updateDashboardInDB = async stateObj => {
   return;
 };
 
-export const deleteDashboardInDB = async dashboardID => {
+export const deleteExistingDashboard = async dashboardID => {
   try {
     await axios.delete('/api/dashboard', { params: { dashboardID } });
   } catch (err) {

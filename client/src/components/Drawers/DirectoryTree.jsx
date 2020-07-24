@@ -40,8 +40,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const RecursiveTreeView = props => {
-  const { getDashboardInfo, getDirectoryDepth, localState } = props;
-  const { directory, directoryDepth } = localState;
+  const { directory, directoryDepth, openDashboard, updateDirectoryDepth } = props;
   const { iconColor, itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorName, setAnchorName] = useState('');
@@ -92,7 +91,7 @@ const RecursiveTreeView = props => {
           className={treeItem}
           nodeId={String(id)}
           label={label}
-          onClick={!isFolder ? () => getDashboardInfo(id) : null}
+          onClick={!isFolder ? () => openDashboard({ id, name }) : null}
         >
           {isFolder ? children.map(node => renderTree(node)) : null}
         </TreeItem>
@@ -139,7 +138,7 @@ const RecursiveTreeView = props => {
       defaultCollapseIcon={<ExpandMoreIcon className={iconColor} />}
       defaultExpandIcon={<ChevronRightIcon className={iconColor} />}
       expanded={directoryDepth || []}
-      onNodeToggle={(event, nodeArr) => getDirectoryDepth(nodeArr)}
+      onNodeToggle={(event, nodeArr) => updateDirectoryDepth(nodeArr)}
     >
       <TreeItem nodeId='root' label={rootLabel}>
         {directory.map(directoryObj => renderTree(directoryObj))}

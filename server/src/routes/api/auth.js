@@ -9,10 +9,14 @@ const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 // Utils
 const { getUserByID } = require('../../utils/auth');
 const { createUser } = require('../../utils/user');
+const { getWorkspaces } = require('../../utils/workspace');
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  let response, user;
+  let response, user, workspaces;
+
+  // Log attempt
+  logger.info(`User ${username} attempted to login.`);
 
   // Create auth service url
   const url = `${AUTH_URL}:${AUTH_PORT}/auth/login`;
@@ -38,18 +42,20 @@ router.post('/login', async (req, res) => {
   // Is user already in DB
   try {
     user = await getUserByID(id);
+
+    // No user found, add to DB
+    if (!user) {
+      await createUser(id);
+      user = { lastWorkspace: null };
+    } else {
+      workspaces = await getWorkspaces(id);
+    }
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
   }
 
-  // No user found, add to DB
-  if (!user) {
-    await createUser(id);
-    user = { directory: [], directoryDepth: [], lastDashboard: null };
-  }
-
-  res.status(200).json({ id, token, username: tokenUsername, ...user });
+  res.status(200).json({ id, token, username: tokenUsername, ...user, workspaces });
 });
 
 module.exports = router;

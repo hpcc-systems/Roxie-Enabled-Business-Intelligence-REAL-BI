@@ -19,12 +19,12 @@ const useStyles = makeStyles(theme => ({
   labelIcon: { marginRight: theme.spacing(1), color: grey[50] },
   labelText: { flexGrow: 1, color: theme.palette.primary.contrastText },
   redIcon: { color: red[500] },
-  root: { marginBottom: theme.spacing(3) },
+  root: { marginTop: theme.spacing(2), marginBottom: theme.spacing(3) },
   rootText: { fontSize: 20, color: theme.palette.primary.contrastText },
   treeItem: { flexGrow: 1 },
 }));
 
-const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
+const FavoritesTree = ({ favorites, openDashboard, updateDirectoryObj }) => {
   const {
     button,
     buttonsDiv,
@@ -63,7 +63,7 @@ const FavoritesTree = ({ favorites, getDashboardInfo, updateDirectoryObj }) => {
                 className={treeItem}
                 nodeId={String(id)}
                 label={label}
-                onClick={() => getDashboardInfo(id)}
+                onClick={() => openDashboard({ id, name })}
               />
               <div className={buttonsDiv}>
                 <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>

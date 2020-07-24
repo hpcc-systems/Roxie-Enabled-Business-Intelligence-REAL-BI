@@ -7,34 +7,7 @@ const { AUTH_PORT, AUTH_URL, SHARE_USERNAME, SHARE_PASSWORD } = process.env;
 const { awaitHandler } = require('./misc');
 
 const createUser = async userID => {
-  await userModel.create({ id: userID, directory: [], directoryDepth: [] });
-
-  return;
-};
-
-const updateUserDirectory = async (directory, userID) => {
-  let [err] = await awaitHandler(userModel.update({ directory }, { where: { id: userID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
-};
-
-const updateLastDashboard = async (lastDashboard, userID) => {
-  let [err] = await awaitHandler(userModel.update({ lastDashboard }, { where: { id: userID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
-};
-
-const updateDirectoryDepth = async (directoryDepth, userID) => {
-  let [err] = await awaitHandler(userModel.update({ directoryDepth }, { where: { id: userID } }));
-
-  // Return error
-  if (err) throw err;
+  await userModel.create({ id: userID });
 
   return;
 };
@@ -81,11 +54,12 @@ const getAllUsers = async (token, userID) => {
   return users;
 };
 
-module.exports = {
-  createUser,
-  getAllUsers,
-  getSuperUserToken,
-  updateDirectoryDepth,
-  updateLastDashboard,
-  updateUserDirectory,
+const updateLastWorkspace = async (workspaceID, userID) => {
+  let [err] = await awaitHandler(userModel.update({ lastWorkspace: workspaceID }, { where: { id: userID } }));
+
+  if (err) throw err;
+
+  return;
 };
+
+module.exports = { createUser, getAllUsers, getSuperUserToken, updateLastWorkspace };

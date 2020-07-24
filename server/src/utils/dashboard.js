@@ -25,16 +25,20 @@ const getDashboardByID = async dashboardID => {
   return dashboard;
 };
 
-const createDashboard = async (clusterID, name, userID) => {
-  let [err, dashboard] = await awaitHandler(dashboardModel.create({ clusterID, name: name.trim(), userID }));
+const createDashboard = async (dashboard, workspaceID, userID) => {
+  const { clusterID, name } = dashboard;
+
+  let [err, newDashboard] = await awaitHandler(
+    dashboardModel.create({ clusterID, name: name.trim(), workspaceID, userID }),
+  );
 
   // Return error
   if (err) throw err;
 
   // Get nested object
-  dashboard = unNestSequelizeObj(dashboard);
+  newDashboard = unNestSequelizeObj(newDashboard);
 
-  return dashboard;
+  return newDashboard;
 };
 
 const updateDashboardByID = async dataObj => {
