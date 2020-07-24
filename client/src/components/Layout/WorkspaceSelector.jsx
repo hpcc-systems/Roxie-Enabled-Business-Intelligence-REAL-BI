@@ -48,8 +48,8 @@ const WorkspaceSelector = ({ dispatch, user }) => {
     }
   }, [dispatch, history, lastWorkspace, workspaces]);
 
-  const selectWorkspace = async (event, workspaceID) => {
-    const value = event ? event.target.value : workspaceID;
+  const selectWorkspace = async event => {
+    const { value } = event.target;
 
     if (value !== '') {
       updateLastWorkspace(value).then(action => {

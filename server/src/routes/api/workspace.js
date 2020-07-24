@@ -32,10 +32,10 @@ router.post('/', async (req, res) => {
     body: { name },
     user: { id: userID },
   } = req;
-  let workspaces;
+  let newWorkspace, workspaces;
 
   try {
-    await createWorkspace(name, userID);
+    newWorkspace = await createWorkspace(name, userID);
     workspaces = await getWorkspaces(userID);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
     return res.status(status).send(errMsg);
   }
 
-  res.status(201).send(workspaces);
+  res.status(201).send({ workspaces, workspaceID: newWorkspace.id });
 });
 
 router.put('/last', async (req, res) => {
