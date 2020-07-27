@@ -35,9 +35,12 @@ const WorkspaceSelector = ({ dispatch, user }) => {
   const { formControl, icon, inputLabel, select } = useStyles();
 
   useEffect(() => {
+    // Check if user has looked at a workspace previously
     if (lastWorkspace) {
+      // Get index of last viewed workspace
       const workspaceIndex = workspaces.findIndex(({ id }) => lastWorkspace === id);
 
+      // If workspace no longer exists in DB, update last workspace to null
       if (workspaceIndex === -1) {
         updateLastWorkspace(null).then(action => {
           dispatch(action);
@@ -51,6 +54,7 @@ const WorkspaceSelector = ({ dispatch, user }) => {
   const selectWorkspace = async event => {
     const { value } = event.target;
 
+    // User clicked on a workspace in dropdown
     if (value !== '') {
       updateLastWorkspace(value).then(action => {
         dispatch(action);

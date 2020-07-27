@@ -22,7 +22,8 @@ import useDrawer from '../hooks/useDrawer';
 // Create styles
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(2), minHeight: 48, maxHeight: 48 },
-  span: { marginLeft: theme.spacing(1) },
+  closeBtn: { marginLeft: theme.spacing(4), padding: 0 },
+  span: { margin: theme.spacing(1, 0, 0, 1) },
   tab: { paddingTop: 0 },
 }));
 
@@ -34,7 +35,7 @@ const Workspace = () => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, span, tab } = useStyles();
+  const { appbar, closeBtn, span, tab } = useStyles();
 
   useEffect(() => {
     if (workspaceID) {
@@ -62,6 +63,13 @@ const Workspace = () => {
   useEffect(() => {
     if (openDashboards.length > 0) {
       dispatch(clearDashboard());
+
+      // Reset tabIndex to 0 if it falls outside bounds of array
+      if (tabIndex >= openDashboards.length) {
+        setTabIndex(0);
+        return getDashboardInfo(0);
+      }
+
       getDashboardInfo(tabIndex);
     }
   }, [dispatch, getDashboardInfo, openDashboards, tabIndex]);
@@ -104,8 +112,8 @@ const Workspace = () => {
                   label={
                     <span className={span}>
                       {name}
-                      <IconButton>
-                        <CloseIcon />
+                      <IconButton className={closeBtn}>
+                        <CloseIcon fontSize='small' />
                       </IconButton>
                     </span>
                   }

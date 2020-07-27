@@ -16,7 +16,7 @@ const NoCharts = () => {
 
   const subMessage = !lastWorkspace
     ? 'Choose a workspace to begin...'
-    : directory.length === 0
+    : !directory || directory.length === 0
     ? 'Create a dashboard to begin...'
     : 'Choose a dashboard to begin...';
 

@@ -65,7 +65,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const { workspace } = useSelector(state => state.workspace);
-  const { directory, directoryDepth, id: workspaceID } = workspace;
+  const { directory, directoryDepth, id: workspaceID, openDashboards } = workspace;
   const dispatch = useDispatch();
   const { showDialog: showNewDashboardDialog, toggleDialog: toggleNewDashboardDialog } = useDialog(false);
   const { showDialog: showEditDashboardDialog, toggleDialog: toggleEditDashboardDialog } = useDialog(false);
@@ -80,11 +80,18 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
   // Open dashboard
   const openDashboard = dashboardObj => {
-    openDashboardInWorkspace(dashboardObj, workspaceID).then(action => {
-      dispatch(action);
+    const alreadyOpen = openDashboards.some(({ id }) => id === dashboardObj.id);
 
-      toggleDrawer();
-    });
+    // Dashboard is not already open
+    if (!alreadyOpen) {
+      return openDashboardInWorkspace(dashboardObj, workspaceID).then(action => {
+        dispatch(action);
+
+        toggleDrawer();
+      });
+    }
+
+    return toggleDrawer();
   };
 
   const createNewDashboard = async () => {
