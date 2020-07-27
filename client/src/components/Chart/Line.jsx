@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { LineChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Line } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
-const Line = ({ data, options }) => {
+const LineComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -66,8 +66,7 @@ const Line = ({ data, options }) => {
     },
   };
 
-  const chartRef = useRef();
-  return <LineChart {...config} chartRef={chartRef} />;
+  return <Line {...config} />;
 };
 
-export default Line;
+export default LineComp;

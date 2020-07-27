@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { BarChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Bar } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const Bar = ({ data, options }) => {
+const BarComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -58,8 +58,7 @@ const Bar = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <BarChart {...config} chartRef={chartRef} />;
+  return <Bar {...config} />;
 };
 
-export default Bar;
+export default BarComp;

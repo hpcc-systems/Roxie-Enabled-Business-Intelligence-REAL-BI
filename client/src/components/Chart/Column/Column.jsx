@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { ColumnChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Column } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const Column = ({ data, options }) => {
+const ColumnComp = ({ data, options }) => {
   const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -54,8 +54,7 @@ const Column = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <ColumnChart {...config} chartRef={chartRef} />;
+  return <Column {...config} />;
 };
 
-export default Column;
+export default ColumnComp;

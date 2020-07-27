@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { StackedColumnChart } from '@opd/g2plot-react';
+import React from 'react';
+import { StackedColumn } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const StackedColumn = ({ data, options }) => {
+const StackedColumnComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
@@ -58,8 +58,7 @@ const StackedColumn = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <StackedColumnChart {...config} chartRef={chartRef} />;
+  return <StackedColumn {...config} />;
 };
 
-export default StackedColumn;
+export default StackedColumnComp;
