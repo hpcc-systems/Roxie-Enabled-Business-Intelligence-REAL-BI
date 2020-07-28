@@ -2,9 +2,6 @@
   "name": "server",
   "version": "1.0.0",
   "scripts": {
-    "seed": "sequelize db:seed:all",
-    "seed:gen": "sequelize seed:generate --name",
-    "seed:undo": "sequelize db:seed:undo:all",
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:dev": "nodemon",
     "start:prod": "node src/index.js"
