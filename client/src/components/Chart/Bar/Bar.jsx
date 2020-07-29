@@ -5,11 +5,17 @@ import { BarChart } from '@opd/g2plot-react';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const Bar = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const chartRef = useRef();
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -36,7 +42,6 @@ const Bar = ({ data, options }) => {
     meta: {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    stackField: groupBy,
     xAxis: {
       grid: { visible: true },
       label: { visible: true },
@@ -58,7 +63,6 @@ const Bar = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
   return <BarChart {...config} chartRef={chartRef} />;
 };
 
