@@ -10,6 +10,12 @@ const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array
 
 const Pie = ({ data, options }) => {
   const { name, value, description } = options;
+  const chartRef = useRef();
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !name || !value) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -47,7 +53,6 @@ const Pie = ({ data, options }) => {
     },
   };
 
-  const chartRef = useRef();
   return <PieChart {...config} chartRef={chartRef} />;
 };
 

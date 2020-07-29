@@ -10,6 +10,12 @@ const HeatMap = ({ data, options }) => {
   const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const chartRef = useRef();
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !colorField || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to a string
   data.forEach(row => {
@@ -52,7 +58,6 @@ const HeatMap = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
   return <HeatmapChart {...config} chartRef={chartRef} />;
 };
 

@@ -10,6 +10,12 @@ const Column = ({ data, options }) => {
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const chartRef = useRef();
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -54,7 +60,6 @@ const Column = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
   return <ColumnChart {...config} chartRef={chartRef} />;
 };
 
