@@ -1,16 +1,15 @@
-import React, { useRef } from 'react';
-import { LineChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Line } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
-const Line = ({ data, options }) => {
+const LineComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
-  const chartRef = useRef();
 
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !groupBy || !xAxis || !yAxis) {
@@ -72,7 +71,7 @@ const Line = ({ data, options }) => {
     },
   };
 
-  return <LineChart {...config} chartRef={chartRef} />;
+  return <Line {...config} />;
 };
 
-export default Line;
+export default LineComp;

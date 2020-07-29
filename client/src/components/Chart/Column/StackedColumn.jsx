@@ -1,16 +1,15 @@
-import React, { useRef } from 'react';
-import { StackedColumnChart } from '@opd/g2plot-react';
+import React from 'react';
+import { StackedColumn } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const StackedColumn = ({ data, options }) => {
+const StackedColumnComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
-  const chartRef = useRef();
 
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !groupBy || !xAxis || !yAxis) {
@@ -64,7 +63,7 @@ const StackedColumn = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <StackedColumnChart {...config} chartRef={chartRef} />;
+  return <StackedColumn {...config} />;
 };
 
-export default StackedColumn;
+export default StackedColumnComp;

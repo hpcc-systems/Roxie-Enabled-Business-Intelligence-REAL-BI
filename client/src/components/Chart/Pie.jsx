@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { PieChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Pie } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator } from '../../utils/misc';
@@ -8,9 +8,8 @@ import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
-const Pie = ({ data, options }) => {
+const PieComp = ({ data, options }) => {
   const { name, value, description } = options;
-  const chartRef = useRef();
 
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !name || !value) {
@@ -53,7 +52,7 @@ const Pie = ({ data, options }) => {
     },
   };
 
-  return <PieChart {...config} chartRef={chartRef} />;
+  return <Pie {...config} />;
 };
 
-export default Pie;
+export default PieComp;
