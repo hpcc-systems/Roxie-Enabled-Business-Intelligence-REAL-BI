@@ -147,7 +147,7 @@ const changeChartType = (oldType, newType, options) => {
   //  Update values in options object to reflect the current chart type
   switch (oldType) {
     case 'pie':
-      if (newType === 'bar' || newType === 'line') {
+      if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
         newOptions.xAxis = newOptions.name;
         newOptions.yAxis = newOptions.value;
       } else if (newType === 'table') {
@@ -160,12 +160,12 @@ const changeChartType = (oldType, newType, options) => {
 
       break;
     case 'table':
-      if (newType === 'bar' || newType === 'line') {
+      if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
         newOptions.xAxis = newOptions.checkboxValueField;
-        newOptions.yAxis = newOptions.fields[1] || '';
+        newOptions.yAxis = newOptions.fields ? newOptions.fields[1] : '';
       } else if (newType === 'pie') {
         newOptions.name = newOptions.checkboxValueField;
-        newOptions.value = newOptions.fields[1] || '';
+        newOptions.value = newOptions.fields ? newOptions.fields[1] : '';
       }
 
       delete newOptions.checkboxValueField;
@@ -190,6 +190,10 @@ const changeChartType = (oldType, newType, options) => {
 
         delete newOptions.xAxis;
         delete newOptions.yAxis;
+      }
+
+      if (oldType === 'heatmap') {
+        delete newOptions.colorField;
       }
   }
 

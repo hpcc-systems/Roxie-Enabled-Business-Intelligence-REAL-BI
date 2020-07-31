@@ -1,15 +1,20 @@
-import React, { useRef } from 'react';
-import { GroupedBarChart } from '@opd/g2plot-react';
+import React from 'react';
+import { GroupedBar } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const GroupBar = ({ data, options }) => {
+const GroupBarComp = ({ data, options }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !groupBy || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -56,8 +61,7 @@ const GroupBar = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <GroupedBarChart {...config} chartRef={chartRef} />;
+  return <GroupedBar {...config} />;
 };
 
-export default GroupBar;
+export default GroupBarComp;
