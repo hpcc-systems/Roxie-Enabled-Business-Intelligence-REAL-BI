@@ -4,8 +4,8 @@ import { Line } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
-const LineComp = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const LineComp = ({ data, config }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -26,7 +26,7 @@ const LineComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: {
@@ -71,7 +71,7 @@ const LineComp = ({ data, options }) => {
     },
   };
 
-  return <Line {...config} />;
+  return <Line {...chartConfig} />;
 };
 
 export default LineComp;

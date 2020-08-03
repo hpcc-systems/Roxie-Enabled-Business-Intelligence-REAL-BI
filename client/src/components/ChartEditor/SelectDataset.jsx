@@ -20,7 +20,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     chartType,
     dataset,
     datasets = [],
-    options: { isStatic = false },
+    config: { isStatic = false },
     selectedSource = {},
     sourceType,
   } = localState;

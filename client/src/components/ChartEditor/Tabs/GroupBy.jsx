@@ -33,7 +33,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
     chartID,
     chartType,
     dataset,
-    options: { groupBy, stacked },
+    config: { groupBy, stacked },
     selectedDataset = {},
     sourceType,
   } = localState;
@@ -48,7 +48,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
           {chartID && fields.length <= 1 ? (
             <CircularProgress className={progress} size={20} />
           ) : (
-            <Select name='options:groupBy' value={groupBy || ''} onChange={handleChangeObj}>
+            <Select name='config:groupBy' value={groupBy || ''} onChange={handleChangeObj}>
               {groupBy !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
               {fields.map(({ name, value = name }, index) => {
                 return (
@@ -67,7 +67,7 @@ const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
             className={checkbox}
             control={
               <Checkbox
-                name='options:stacked'
+                name='config:stacked'
                 checked={stacked || false}
                 onChange={handleCheckbox}
                 color='primary'

@@ -13,9 +13,9 @@ const getMsg = sourceType => {
 };
 
 const TableParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset = {}, sourceType } = localState;
+  const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
-  const { fields: optionsFields = [], checkboxValueField = '' } = options;
+  const { fields: configFields = [], checkboxValueField = '' } = config;
   const { formControl, progress } = useStyles();
 
   const getNewArray = (uniqueVal, newVals) => {
@@ -43,18 +43,18 @@ const TableParams = ({ handleChangeObj, localState }) => {
   const handlecheckboxValueField = ({ target }) => {
     const { name, value } = target;
 
-    // Update options:checkboxValueField
+    // Update config:checkboxValueField
     handleChangeObj(null, { name, value: value });
 
     // Build new fields list array
-    const arr = getNewArray(value, optionsFields);
+    const arr = getNewArray(value, configFields);
 
-    // Update options:fields
-    handleChangeObj(null, { name: 'options:fields', value: arr });
+    // Update config:fields
+    handleChangeObj(null, { name: 'config:fields', value: arr });
   };
 
   const alteredFieldsArr = fields.filter(({ name }) => name !== checkboxValueField);
-  const alteredSelectedFieldsArr = optionsFields.filter(field => field !== checkboxValueField);
+  const alteredSelectedFieldsArr = configFields.filter(field => field !== checkboxValueField);
 
   return (
     <Grid item md={12}>
@@ -64,8 +64,8 @@ const TableParams = ({ handleChangeObj, localState }) => {
           <CircularProgress className={progress} size={20} />
         ) : (
           <Select
-            name='options:checkboxValueField'
-            value={options.checkboxValueField || ''}
+            name='config:checkboxValueField'
+            value={config.checkboxValueField || ''}
             onChange={handlecheckboxValueField}
           >
             {fields.map(({ name, value = name }, index) => {
@@ -85,7 +85,7 @@ const TableParams = ({ handleChangeObj, localState }) => {
         ) : (
           <Select
             multiple
-            name='options:fields'
+            name='config:fields'
             value={alteredSelectedFieldsArr || []}
             input={<Input />}
             onChange={updateArr}

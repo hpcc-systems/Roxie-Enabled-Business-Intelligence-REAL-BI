@@ -4,8 +4,8 @@ import { Bar } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const BarComp = ({ data, options }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const BarComp = ({ data, config }) => {
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -26,7 +26,7 @@ const BarComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: { visible: false },
@@ -62,7 +62,7 @@ const BarComp = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <Bar {...config} />;
+  return <Bar {...chartConfig} />;
 };
 
 export default BarComp;

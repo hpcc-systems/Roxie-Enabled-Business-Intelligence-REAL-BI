@@ -57,35 +57,35 @@ export const mergeArrays = (oldArr, newArr) => {
 
 const createTextBoxObj = localState => {
   const { chartType, dataset } = localState;
-  let { options } = localState;
+  let { config } = localState;
 
-  return { dataset, options, type: chartType };
+  return { dataset, config, type: chartType };
 };
 
 const createChartObj = localState => {
   const { chartType, dataset, mappedParams, params: orginalParams } = localState;
-  let { options } = localState;
-  const { groupBy, horizontal, stacked } = options;
+  let { config } = localState;
+  const { groupBy, horizontal, stacked } = config;
 
   // Merge arrays to get a complete list of changes
   const params = mergeArrays(orginalParams, mappedParams);
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in options)) {
-    options = { ...options, horizontal: false };
+  if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in config)) {
+    config = { ...config, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(chartType) && stacked) || !('stacked' in options)) {
-    options = { ...options, stacked: false };
+  if ((!hasStackedOption(chartType) && stacked) || !('stacked' in config)) {
+    config = { ...config, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(chartType) && groupBy) || !('groupBy' in options)) {
-    options = { ...options, groupBy: '' };
+  if ((!hasGroupByOption(chartType) && groupBy) || !('groupBy' in config)) {
+    config = { ...config, groupBy: '' };
   }
 
-  return { dataset, options, params, type: chartType };
+  return { dataset, config, params, type: chartType };
 };
 
 const setEditorState = (charts, chartID) => {
@@ -141,83 +141,83 @@ const checkForChartParams = chartsArr => {
   return exists;
 };
 
-const changeChartType = (oldType, newType, options) => {
-  let newOptions = { ...options };
+const changeChartType = (oldType, newType, config) => {
+  let newConfig = { ...config };
 
-  //  Update values in options object to reflect the current chart type
+  //  Update values in config object to reflect the current chart type
   switch (oldType) {
     case 'pie':
       if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newOptions.xAxis = newOptions.name;
-        newOptions.yAxis = newOptions.value;
+        newConfig.xAxis = newConfig.name;
+        newConfig.yAxis = newConfig.value;
       } else if (newType === 'table') {
-        newOptions.checkboxValueField = newOptions.name;
-        newOptions.fields = [newOptions.name, newOptions.value];
+        newConfig.checkboxValueField = newConfig.name;
+        newConfig.fields = [newConfig.name, newConfig.value];
       }
 
-      delete newOptions.name;
-      delete newOptions.value;
+      delete newConfig.name;
+      delete newConfig.value;
 
       break;
     case 'table':
       if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newOptions.xAxis = newOptions.checkboxValueField;
-        newOptions.yAxis = newOptions.fields ? newOptions.fields[1] : '';
+        newConfig.xAxis = newConfig.checkboxValueField;
+        newConfig.yAxis = newConfig.fields ? newConfig.fields[1] : '';
       } else if (newType === 'pie') {
-        newOptions.name = newOptions.checkboxValueField;
-        newOptions.value = newOptions.fields ? newOptions.fields[1] : '';
+        newConfig.name = newConfig.checkboxValueField;
+        newConfig.value = newConfig.fields ? newConfig.fields[1] : '';
       }
 
-      delete newOptions.checkboxValueField;
-      delete newOptions.fields;
+      delete newConfig.checkboxValueField;
+      delete newConfig.fields;
 
       break;
     case 'textBox':
-      delete newOptions.textBoxContent;
-      delete newOptions.dataFields;
+      delete newConfig.textBoxContent;
+      delete newConfig.dataFields;
 
       break;
     default:
       if (newType === 'pie') {
-        newOptions.name = newOptions.xAxis;
-        newOptions.value = newOptions.yAxis;
+        newConfig.name = newConfig.xAxis;
+        newConfig.value = newConfig.yAxis;
 
-        delete newOptions.xAxis;
-        delete newOptions.yAxis;
+        delete newConfig.xAxis;
+        delete newConfig.yAxis;
       } else if (newType === 'table') {
-        newOptions.checkboxValueField = newOptions.xAxis;
-        newOptions.fields = [newOptions.xAxis, newOptions.yAxis];
+        newConfig.checkboxValueField = newConfig.xAxis;
+        newConfig.fields = [newConfig.xAxis, newConfig.yAxis];
 
-        delete newOptions.xAxis;
-        delete newOptions.yAxis;
+        delete newConfig.xAxis;
+        delete newConfig.yAxis;
       }
 
       if (oldType === 'heatmap') {
-        delete newOptions.colorField;
+        delete newConfig.colorField;
       }
   }
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(newType) && newOptions.horizontal) || !('horizontal' in newOptions)) {
-    newOptions = { ...newOptions, horizontal: false };
+  if ((!hasHorizontalOption(newType) && newConfig.horizontal) || !('horizontal' in newConfig)) {
+    newConfig = { ...newConfig, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(newType) && newOptions.stacked) || !('stacked' in newOptions)) {
-    newOptions = { ...newOptions, stacked: false };
+  if ((!hasStackedOption(newType) && newConfig.stacked) || !('stacked' in newConfig)) {
+    newConfig = { ...newConfig, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(newType) && newOptions.groupBy) || !('groupBy' in newOptions)) {
-    newOptions = { ...newOptions, groupBy: '' };
+  if ((!hasGroupByOption(newType) && newConfig.groupBy) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: '' };
   }
 
   // Change static value if it doesn't apply to the chart type or is missing
-  if ((!hasDynamicOption(newType) && newOptions.isStatic) || !('isStatic' in newOptions)) {
-    newOptions = { ...newOptions, isStatic: false };
+  if ((!hasDynamicOption(newType) && newConfig.isStatic) || !('isStatic' in newConfig)) {
+    newConfig = { ...newConfig, isStatic: false };
   }
 
-  return newOptions;
+  return newConfig;
 };
 
 export {

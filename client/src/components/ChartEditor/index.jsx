@@ -40,9 +40,9 @@ const useStyles = makeStyles(theme => ({
 const ChartEditor = props => {
   const {
     handleChange,
-    localState: { chartID, chartType, dataObj, dataset, error, options, sourceType },
+    localState: { chartID, chartType, dataObj, dataset, error, config, sourceType },
   } = props;
-  let { isStatic } = options;
+  let { isStatic } = config;
   isStatic = chartType !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -58,7 +58,7 @@ const ChartEditor = props => {
   };
 
   // Create object of information to pass to chart components
-  const chart = { dataset, options, type: chartType };
+  const chart = { dataset, config, type: chartType };
 
   return (
     <Grid container spacing={4} className={gridContainer}>

@@ -4,8 +4,8 @@ import { GroupedBar } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const GroupBarComp = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const GroupBarComp = ({ data, config }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -26,7 +26,7 @@ const GroupBarComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: { visible: false },
@@ -61,7 +61,7 @@ const GroupBarComp = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <GroupedBar {...config} />;
+  return <GroupedBar {...chartConfig} />;
 };
 
 export default GroupBarComp;

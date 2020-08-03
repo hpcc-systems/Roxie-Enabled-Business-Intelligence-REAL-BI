@@ -20,7 +20,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     chartType,
     error,
     keyword,
-    options: { isStatic = false },
+    config: { isStatic = false },
     sources,
     selectedSource = {},
     sourceType,

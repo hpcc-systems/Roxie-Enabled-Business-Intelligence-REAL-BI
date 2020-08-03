@@ -19,13 +19,13 @@ import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
   chartType: 'bar',
+  config: {},
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
-  options: {},
   params: [],
   sources: [],
   selectedDataset: {},
@@ -65,7 +65,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   // Add components to DB
   const newChart = async () => {
     const {
-      options: { isStatic },
+      config: { isStatic },
       chartType,
     } = localState;
     const { id: dashboardID } = dashboard;

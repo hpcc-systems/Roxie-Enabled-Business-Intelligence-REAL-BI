@@ -121,7 +121,7 @@ const Dashboard = () => {
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'id').map((chart, index) => {
-            const { id: chartID, options, sourceID, sourceName } = chart;
+            const { id: chartID, config, sourceID, sourceName } = chart;
             const dataObj = compData[chartID] || compData[sourceName] || {};
 
             return (
@@ -129,8 +129,8 @@ const Dashboard = () => {
                 <Paper variant='outlined'>
                   <ChartToolbar
                     chartID={chartID}
+                    config={config}
                     dashboard={dashboard}
-                    options={options}
                     sourceID={sourceID}
                     removeChart={removeChart}
                     toggleDialog={editChart}

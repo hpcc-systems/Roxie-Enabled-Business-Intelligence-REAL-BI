@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState }) => {
   const {
     chartType,
-    options: { horizontal, isStatic, title, chartDescription, xAxis, yAxis },
+    config: { horizontal, isStatic, title, chartDescription, xAxis, yAxis },
   } = localState;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
@@ -62,20 +62,20 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
     handleCheckbox(event);
 
     // Switch X and Y axis if they are already defined in local state
-    if (name === 'options:horizontal' && xAxis && yAxis) {
+    if (name === 'config:horizontal' && xAxis && yAxis) {
       const xVal = xAxis;
       const yVal = yAxis;
 
-      handleChangeObj(null, { name: 'options:xAxis', value: yVal });
-      handleChangeObj(null, { name: 'options:yAxis', value: xVal });
+      handleChangeObj(null, { name: 'config:xAxis', value: yVal });
+      handleChangeObj(null, { name: 'config:yAxis', value: xVal });
     }
   };
 
   const handleTypeChange = event => {
-    const { chartType, options } = localState;
-    const newOptions = changeChartType(chartType, event.target.value, options);
+    const { chartType, config } = localState;
+    const newConfig = changeChartType(chartType, event.target.value, config);
 
-    handleChange(null, { name: 'options', value: newOptions });
+    handleChange(null, { name: 'config', value: newConfig });
     handleChange(event);
   };
 
@@ -123,7 +123,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
             className={horizontalCheckbox}
             control={
               <Checkbox
-                name='options:horizontal'
+                name='config:horizontal'
                 checked={horizontal || false}
                 onChange={checkboxUpdated}
                 color='primary'
@@ -140,7 +140,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
             className={staticCheckbox}
             control={
               <Checkbox
-                name='options:isStatic'
+                name='config:isStatic'
                 checked={isStatic || false}
                 onChange={checkboxUpdated}
                 color='primary'
@@ -155,7 +155,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         <TextField
           fullWidth
           label='Chart Title'
-          name='options:title'
+          name='config:title'
           value={title || ''}
           onChange={handleChangeObj}
           autoComplete='off'
@@ -166,7 +166,7 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
           className={formControl}
           fullWidth
           label='Chart Description (Optional)'
-          name='options:chartDescription'
+          name='config:chartDescription'
           value={chartDescription || ''}
           onChange={handleChangeObj}
           autoComplete='off'
