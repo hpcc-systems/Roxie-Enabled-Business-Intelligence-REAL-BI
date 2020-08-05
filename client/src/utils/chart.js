@@ -56,42 +56,41 @@ export const mergeArrays = (oldArr, newArr) => {
 };
 
 const createTextBoxObj = localState => {
-  const { chartType, dataset } = localState;
-  let { config } = localState;
+  const { config } = localState;
 
-  return { dataset, config, type: chartType };
+  return { config };
 };
 
 const createChartObj = localState => {
-  const { chartType, dataset, mappedParams, params: orginalParams } = localState;
-  let { config } = localState;
-  const { groupBy, horizontal, stacked } = config;
+  const { config, dataset, mappedParams, params: orginalParams } = localState;
+  const { groupBy, horizontal, stacked, type } = config;
+  let newConfig = { ...config, dataset };
 
   // Merge arrays to get a complete list of changes
   const params = mergeArrays(orginalParams, mappedParams);
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in config)) {
-    config = { ...config, horizontal: false };
+  if ((!hasHorizontalOption(type) && horizontal) || !('horizontal' in newConfig)) {
+    newConfig = { ...newConfig, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(chartType) && stacked) || !('stacked' in config)) {
-    config = { ...config, stacked: false };
+  if ((!hasStackedOption(type) && stacked) || !('stacked' in newConfig)) {
+    newConfig = { ...newConfig, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(chartType) && groupBy) || !('groupBy' in config)) {
-    config = { ...config, groupBy: '' };
+  if ((!hasGroupByOption(type) && groupBy) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { dataset, config, params, type: chartType };
+  return { config: newConfig, params };
 };
 
 const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { id, params = [], sourceName, type, ...chartKeys } = charts[chartIndex];
+  const { config, id, params = [], sourceName, ...chartKeys } = charts[chartIndex];
 
   // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
@@ -108,8 +107,9 @@ const setEditorState = (charts, chartID) => {
   // Create initial state object
   let initState = {
     chartID: id,
-    chartType: type,
+    config,
     dataObj: { loading: false },
+    dataset: config.dataset,
     datasets: [],
     error: '',
     keyword: sourceName,
@@ -142,7 +142,7 @@ const checkForChartParams = chartsArr => {
 };
 
 const changeChartType = (oldType, newType, config) => {
-  let newConfig = { ...config };
+  let newConfig = { ...config, type: newType };
 
   //  Update values in config object to reflect the current chart type
   switch (oldType) {

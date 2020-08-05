@@ -15,15 +15,8 @@ const useStyles = makeStyles(theme => ({
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
-  const {
-    chartID,
-    chartType,
-    dataset,
-    datasets = [],
-    config: { isStatic = false },
-    selectedSource = {},
-    sourceType,
-  } = localState;
+  const { chartID, config, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
+  const { isStatic = false, type } = config;
   const { clusterID } = dashboard;
   const { formControl, progress } = useStyles();
 
@@ -60,26 +53,30 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
     }
   }, [dataset, datasets, handleChange]);
 
-  return (chartType === 'textBox' && !isStatic) || chartType !== 'textBox' ? (
-    sourceType !== 'file' ? (
-      loading ? (
-        <CircularProgress className={progress} />
-      ) : (
-        <FormControl className={formControl} fullWidth>
-          <InputLabel>Dataset</InputLabel>
-          <Select name='dataset' value={dataset} onChange={handleChange}>
-            {datasets.map(({ name }, index) => {
-              return (
-                <MenuItem key={index} value={name}>
-                  {name}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      )
-    ) : null
-  ) : null;
+  return (
+    /*
+      Only display component if the source type isn't a file
+      Still mount the component so the useEffect runs
+    */
+    sourceType !== 'file' &&
+    // Conditionally show the loading animation
+    (loading && ((type === 'textBox' && !isStatic) || type !== 'textBox') ? (
+      <CircularProgress className={progress} />
+    ) : (
+      <FormControl className={formControl} fullWidth>
+        <InputLabel>Dataset</InputLabel>
+        <Select name='dataset' value={dataset} onChange={handleChange}>
+          {datasets.map(({ name }, index) => {
+            return (
+              <MenuItem key={index} value={name}>
+                {name}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    ))
+  );
 };
 
 export default SelectDataset;

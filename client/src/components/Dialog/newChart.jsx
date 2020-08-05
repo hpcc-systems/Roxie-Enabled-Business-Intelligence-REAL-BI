@@ -14,12 +14,11 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, createTextBoxObj, getPreviewData, mergeArrays } from '../../utils/chart';
+import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  chartType: 'bar',
-  config: {},
+  config: { type: 'bar' },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
@@ -64,17 +63,13 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
-    const {
-      config: { isStatic },
-      chartType,
-    } = localState;
+    const { config, dataset } = localState;
+    const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
 
-    if (chartType === 'textBox' && isStatic) {
-      const newChartObj = createTextBoxObj(localState);
-
+    if (type === 'textBox' && isStatic) {
       try {
-        addChart(newChartObj, dashboardID, null, null, 'staticText').then(action => {
+        addChart({ ...config, dataset }, dashboardID, null, null, 'staticText').then(action => {
           dispatch(action);
         });
       } catch (err) {

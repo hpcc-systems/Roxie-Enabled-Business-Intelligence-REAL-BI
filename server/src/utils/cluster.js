@@ -15,6 +15,8 @@ const {
   unNestSequelizeObj,
 } = require('./misc');
 
+const logger = require('../config/logger');
+
 const getClusterByID = async id => {
   let [err, cluster] = await awaitHandler(clusterModel.findOne({ where: { id } }));
 
@@ -44,6 +46,9 @@ const getQueryDataFromCluster = async ({ id: clusterID, host, dataPort }, { para
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`;
 
+  // Log API request
+  logger.info(`Request made to ${url}`);
+
   let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
@@ -61,6 +66,9 @@ const getQueryDatasetsFromCluster = async ({ id: clusterID, host, dataPort }, { 
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`;
+
+  // Log API request
+  logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
@@ -86,6 +94,9 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
 
   // Build URL from cluster details and keyword provided by user
   const url = `${host}:${infoPort}/WsDfu/DFUQuery.json`;
+
+  // Log API request
+  logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(
     axios.post(url, { DFUQueryRequest: { LogicalName: `*${keyword}*` } }, { auth: clusterAuth }),
@@ -126,6 +137,9 @@ const getQueryListFromCluster = async ({ id: clusterID, host, infoPort }, keywor
   // Build URL from cluster details and keyword provided by user
   const url = `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`;
 
+  // Log API request
+  logger.info(`Request made to ${url}`);
+
   let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 
   // Return error
@@ -159,6 +173,9 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
 
   // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsDfu/DFUGetFileMetaData.json`;
+
+  // Log API request
+  logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(
     axios.post(url, { DFUGetFileMetaDataRequest: { LogicalFileName: filename } }, { auth: clusterAuth }),
@@ -204,6 +221,9 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
 
   let requestBody = { LogicalName: filename, FilterBy: { NamedValue: formattedParams }, Start, Count };
 
+  // Log API request
+  logger.info(`Request made to ${url} with body ${JSON.stringify(requestBody)}`);
+
   let [err, response] = await awaitHandler(
     axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
   );
@@ -229,6 +249,9 @@ const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { na
 
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/example/request/query/${target}/${name}/json?display`;
+
+  // Log API request
+  logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
 

@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 });
 
 const ChartComp = ({
-  chart: { config },
+  chart: { config = {} },
   dashboard = { params: [] },
   dataObj: { data = {}, error, loading = true },
   dispatch,
