@@ -15,9 +15,9 @@ const useStyles = makeStyles(theme => ({
   typography: { fontWeight: 'bold', marginTop: theme.spacing(2) },
 }));
 
-const ChartToolbar = ({ chartID, dashboard, options, sourceID, removeChart, toggleDialog }) => {
+const ChartToolbar = ({ chartID, dashboard, config, sourceID, removeChart, toggleDialog }) => {
   const { role } = dashboard;
-  const { title } = options;
+  const { title } = config;
   const { button, toolbar, toolbarNoTitle, typography } = useStyles();
 
   return (

@@ -13,7 +13,7 @@ const getMsg = sourceType => {
 };
 
 const PieParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset = {}, sourceType } = localState;
+  const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -24,7 +24,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name='options:name' value={options.name || ''} onChange={handleChangeObj}>
+          <Select name='config:name' value={config.name || ''} onChange={handleChangeObj}>
             {fields.map(({ name, value = name }, index) => {
               return (
                 <MenuItem key={index} value={value}>
@@ -40,7 +40,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
         {chartID && fields.length <= 1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select name='options:value' value={options.value || ''} onChange={handleChangeObj}>
+          <Select name='config:value' value={config.value || ''} onChange={handleChangeObj}>
             {fields.map(({ name, value = name }, index) => {
               return (
                 <MenuItem key={index} value={value}>

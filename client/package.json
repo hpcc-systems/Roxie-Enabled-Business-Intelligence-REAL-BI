@@ -7,16 +7,15 @@
     "start": "react-scripts start"
   },
   "dependencies": {
-    "@antv/g2plot": "^1.1.12",
     "@hpcc-js/codemirror": "^2.27.0",
     "@hpcc-js/common": "^2.37.0",
     "@hpcc-js/comms": "^2.20.0",
     "@hpcc-js/dgrid": "^2.8.30",
     "@hpcc-js/phosphor": "^2.14.25",
+    "@ant-design/charts": "^0.9.8",
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.40",
-    "@opd/g2plot-react": "^1.7.3",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
     "http-proxy-middleware": "^1.0.5",

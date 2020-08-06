@@ -24,7 +24,7 @@ export const addChart = async (chart, dashboardID, sourceID, sourceName, sourceT
   let response;
 
   try {
-    response = await axios.post('/api/chart/create', { chart, dashboardID, sourceID, sourceType });
+    response = await axios.post('/api/chart/create', { chart, dashboardID, sourceID });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };

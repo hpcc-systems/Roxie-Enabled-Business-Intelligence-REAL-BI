@@ -1,7 +1,7 @@
 import axios from 'axios';
 import errHandler from './errHandler';
 
-const getSources = async (clusterID, keyword, sourceType) => {
+export const getSources = async (clusterID, keyword, sourceType) => {
   let response;
 
   try {
@@ -19,7 +19,7 @@ const getSources = async (clusterID, keyword, sourceType) => {
   return response.data;
 };
 
-const addSource = async (dashboardID, source) => {
+export const addSource = async (dashboardID, source) => {
   let response;
 
   try {
@@ -29,12 +29,12 @@ const addSource = async (dashboardID, source) => {
     return;
   }
 
-  const { id: sourceID, name: sourceName, type: sourceType } = response.data;
+  const { id: sourceID, name: sourceName } = response.data;
 
-  return { sourceID, sourceName, sourceType };
+  return { sourceID, sourceName };
 };
 
-const getSourceInfo = async (clusterID, source, sourceType) => {
+export const getSourceInfo = async (clusterID, source, sourceType) => {
   let response;
 
   try {
@@ -47,7 +47,7 @@ const getSourceInfo = async (clusterID, source, sourceType) => {
   return response.data;
 };
 
-const createSourceObj = localState => {
+export const createSourceObj = localState => {
   const {
     selectedSource: { target, hpccID, name },
     sourceType,
@@ -56,7 +56,7 @@ const createSourceObj = localState => {
   return { hpccID, name, target, type: sourceType };
 };
 
-const getUniqueSources = charts => {
+export const getUniqueSources = charts => {
   // Get unique source values
   const uniqueSources = Array.from(new Set(charts.map(({ sourceID }) => sourceID))).map(sourceID => {
     return charts.find(({ sourceID: sourceID2 }) => sourceID === sourceID2);
@@ -64,5 +64,3 @@ const getUniqueSources = charts => {
 
   return uniqueSources;
 };
-
-export { addSource, createSourceObj, getSources, getSourceInfo, getUniqueSources };

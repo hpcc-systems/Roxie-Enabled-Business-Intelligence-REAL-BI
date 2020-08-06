@@ -1,15 +1,20 @@
-import React, { useRef } from 'react';
-import { StackedColumnChart } from '@opd/g2plot-react';
+import React from 'react';
+import { StackedColumn } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const StackedColumn = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const StackedColumnComp = ({ data, config }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !groupBy || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -21,7 +26,7 @@ const StackedColumn = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: {
@@ -58,8 +63,7 @@ const StackedColumn = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <StackedColumnChart {...config} chartRef={chartRef} />;
+  return <StackedColumn {...chartConfig} />;
 };
 
-export default StackedColumn;
+export default StackedColumnComp;

@@ -23,8 +23,8 @@ const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },
 });
 
-const TableComp = ({ data, dispatch, params = [], options }) => {
-  const { fields, checkboxValueField } = options;
+const TableComp = ({ data, dispatch, params = [], config }) => {
+  const { fields, checkboxValueField } = config;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(checkboxValueField);
   const [page, setPage] = React.useState(0);
@@ -109,6 +109,11 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
     return setSelected(newSelected);
   };
 
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !fields) {
+    return null;
+  }
+
   // Sort data
   data = sortArr(data, orderBy, order);
 
@@ -117,7 +122,7 @@ const TableComp = ({ data, dispatch, params = [], options }) => {
   const sliceStart = page * rowsPerPage;
   const sliceLength = page * rowsPerPage + rowsPerPage;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
-  const numSelected = selected.length;
+  const numSelected = selected ? selected.length : 0;
 
   return (
     <Fragment>

@@ -1,15 +1,20 @@
-import React, { useRef } from 'react';
-import { BarChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Bar } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const Bar = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const BarComp = ({ data, config }) => {
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -21,7 +26,7 @@ const Bar = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: { visible: false },
@@ -36,7 +41,6 @@ const Bar = ({ data, options }) => {
     meta: {
       [xAxis]: { formatter: v => thousandsSeparator(v) },
     },
-    stackField: groupBy,
     xAxis: {
       grid: { visible: true },
       label: { visible: true },
@@ -58,8 +62,7 @@ const Bar = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <BarChart {...config} chartRef={chartRef} />;
+  return <Bar {...chartConfig} />;
 };
 
-export default Bar;
+export default BarComp;

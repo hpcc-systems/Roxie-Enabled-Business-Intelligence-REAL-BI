@@ -1,15 +1,20 @@
-import React, { useRef } from 'react';
-import { ColumnChart } from '@opd/g2plot-react';
+import React from 'react';
+import { Column } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const Column = ({ data, options }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const ColumnComp = ({ data, config }) => {
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (!data || data.length === 0 || !xAxis || !yAxis) {
+    return null;
+  }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
@@ -21,7 +26,7 @@ const Column = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: { visible: false },
@@ -54,8 +59,7 @@ const Column = ({ data, options }) => {
     yField: yAxis,
   };
 
-  const chartRef = useRef();
-  return <ColumnChart {...config} chartRef={chartRef} />;
+  return <Column {...chartConfig} />;
 };
 
-export default Column;
+export default ColumnComp;

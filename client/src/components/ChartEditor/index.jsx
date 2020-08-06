@@ -38,12 +38,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const {
-    handleChange,
-    localState: { chartID, chartType, dataObj, dataset, error, options, sourceType },
-  } = props;
-  let { isStatic } = options;
-  isStatic = chartType !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
+  const { handleChange, localState } = props;
+  const { chartID, config, dataObj, dataset, error, sourceType } = localState;
+  let { isStatic, type } = config;
+  isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
 
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, gridContainer, typography } = useStyles();
@@ -58,8 +56,7 @@ const ChartEditor = props => {
   };
 
   // Create object of information to pass to chart components
-  const chart = { dataset, options, type: chartType };
-
+  const newConfig = { ...config, dataset };
   return (
     <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={6}>
@@ -69,7 +66,7 @@ const ChartEditor = props => {
           </Typography>
         )}
         {/* Only display when not editing an existing chart */}
-        {!chartID && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) && (
+        {!chartID && (type !== 'textBox' || (type === 'textBox' && !isStatic)) && (
           <FormControl fullWidth>
             <InputLabel>Source Type</InputLabel>
             <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
@@ -93,9 +90,9 @@ const ChartEditor = props => {
               Do not show the 'parameters' or 'group by' tab if the chart type is a static textbox
             */
               if (
-                (!hasGroupByOption(chartType) && option === 'Group By') ||
-                (chartType === 'textBox' && isStatic && option === 'Parameters') ||
-                (chartType === 'textBox' && option === 'Group By')
+                (!hasGroupByOption(type) && option === 'Group By') ||
+                (type === 'textBox' && isStatic && option === 'Parameters') ||
+                (type === 'textBox' && option === 'Group By')
               ) {
                 return null;
               }
@@ -118,7 +115,7 @@ const ChartEditor = props => {
         })()}
       </Grid>
       <Grid item xs={6}>
-        <Chart chart={chart} dataObj={dataObj} />
+        <Chart chart={{ config: newConfig }} dataObj={dataObj} />
       </Grid>
     </Grid>
   );
