@@ -25,7 +25,6 @@ const initState = {
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
-  params: [],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -69,7 +68,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
     if (type === 'textBox' && isStatic) {
       try {
-        addChart({ ...config, dataset }, dashboardID, null, null, 'staticText').then(action => {
+        addChart({ ...config, dataset }, dashboardID, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -80,9 +79,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       const newChartObj = createChartObj(localState);
 
       try {
-        const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+        const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
 
-        addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
+        addChart(newChartObj, dashboardID, sourceID, sourceName).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -95,7 +94,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { mappedParams, params, selectedSource: source, sourceType } = localState;
+    const { config, mappedParams, selectedSource: source, sourceType } = localState;
+    const { params = [] } = config;
 
     // Merge param arrays to send to server
     const usedParams = mergeArrays(params, mappedParams);

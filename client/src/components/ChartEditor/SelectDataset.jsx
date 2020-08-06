@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
-const SelectDataset = ({ dashboard, handleChange, localState }) => {
+const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
   const { chartID, config, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
@@ -36,13 +36,13 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
         }
 
         if (!chartID) {
-          handleChange(null, { name: 'params', value: params });
+          handleChangeObj(null, { name: 'config:params', value: params });
         }
 
         setLoading(false);
       });
     }
-  }, [chartID, charts, clusterID, handleChange, selectedSource, sourceType]);
+  }, [chartID, charts, clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
 
   useEffect(() => {
     if (datasets.length > 0 && dataset) {

@@ -7,7 +7,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const StaticFileParams = ({ localState, setParamObj }) => {
-  const { params = [] } = localState;
+  const { params = [] } = localState.config;
   const { formControl } = useStyles();
 
   // Show only certain params
@@ -20,9 +20,8 @@ const StaticFileParams = ({ localState, setParamObj }) => {
           <Grid key={index} item xs={6}>
             <TextField
               label={`${name}: ${type}`}
-              name='params'
               value={value || ''}
-              onChange={event => setParamObj(event, 'value', name)}
+              onChange={event => setParamObj(event, name)}
               autoComplete='off'
               className={formControl}
               fullWidth

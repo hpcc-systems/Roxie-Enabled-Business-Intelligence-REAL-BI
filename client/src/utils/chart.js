@@ -4,7 +4,7 @@ import errHandler from './errHandler';
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
-const getChartData = async (chartID, clusterID) => {
+export const getChartData = async (chartID, clusterID) => {
   let response;
 
   try {
@@ -22,7 +22,7 @@ const getChartData = async (chartID, clusterID) => {
   return response.data;
 };
 
-const getPreviewData = async (clusterID, dataOptions, sourceType) => {
+export const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   let response;
 
   try {
@@ -44,30 +44,23 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
 export const mergeArrays = (oldArr, newArr) => {
   oldArr.forEach((obj, index) => {
     const matchedParam = newArr.find(({ name }) => name === obj.name);
-    const newArrVal = matchedParam ? matchedParam.value : null;
 
-    if (obj.name !== 'Start' && obj.name !== 'Count') {
+    if (matchedParam && obj.name !== 'Start' && obj.name !== 'Count') {
       // Update value
-      oldArr[index].value = newArrVal;
+      oldArr[index].value = matchedParam.value;
     }
   });
 
   return oldArr;
 };
 
-const createTextBoxObj = localState => {
-  const { config } = localState;
-
-  return { config };
-};
-
-const createChartObj = localState => {
-  const { config, dataset, mappedParams, params: orginalParams } = localState;
-  const { groupBy, horizontal, stacked, type } = config;
+export const createChartObj = localState => {
+  const { config, dataset, mappedParams } = localState;
+  const { groupBy, horizontal, params = [], stacked, type } = config;
   let newConfig = { ...config, dataset };
 
-  // Merge arrays to get a complete list of changes
-  const params = mergeArrays(orginalParams, mappedParams);
+  // Merge param arrays to send to server
+  newConfig.params = mergeArrays(params, mappedParams);
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
   if ((!hasHorizontalOption(type) && horizontal) || !('horizontal' in newConfig)) {
@@ -84,21 +77,22 @@ const createChartObj = localState => {
     newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { config: newConfig, params };
+  return { config: newConfig };
 };
 
-const setEditorState = (charts, chartID) => {
+export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { config, id, params = [], sourceName, ...chartKeys } = charts[chartIndex];
+  const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
+  const { dataset, params } = config;
 
-  // Show only certain params
+  // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
   const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
 
   let mappedParams;
 
-  if (paramWithValueArr.length > 0) {
+  if (sourceType === 'file' && paramWithValueArr.length > 0) {
     mappedParams = paramWithValueArr;
   } else {
     mappedParams = [{ name: '', value: '' }];
@@ -109,27 +103,27 @@ const setEditorState = (charts, chartID) => {
     chartID: id,
     config,
     dataObj: { loading: false },
-    dataset: config.dataset,
+    dataset,
     datasets: [],
     error: '',
     keyword: sourceName,
     mappedParams,
-    params,
-    sources: [],
     selectedDataset: {},
     selectedSource: {},
+    sources: [],
+    sourceType,
     ...chartKeys,
   };
 
   return initState;
 };
 
-const checkForChartParams = chartsArr => {
+export const checkForChartParams = chartsArr => {
   let exists = false;
 
   // use for-loop to allow for "break"
   for (let i = 0; i < chartsArr.length; i++) {
-    const { params = [] } = chartsArr[i];
+    const { params = [] } = chartsArr[i].config;
     const hasParamValue = params.some(({ value }) => value !== null);
 
     if (hasParamValue) {
@@ -141,7 +135,7 @@ const checkForChartParams = chartsArr => {
   return exists;
 };
 
-const changeChartType = (oldType, newType, config) => {
+export const changeChartType = (oldType, newType, config) => {
   let newConfig = { ...config, type: newType };
 
   //  Update values in config object to reflect the current chart type
@@ -218,14 +212,4 @@ const changeChartType = (oldType, newType, config) => {
   }
 
   return newConfig;
-};
-
-export {
-  changeChartType,
-  checkForChartParams,
-  createChartObj,
-  createTextBoxObj,
-  getChartData,
-  getPreviewData,
-  setEditorState,
 };
