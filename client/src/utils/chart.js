@@ -145,8 +145,10 @@ export const changeChartType = (oldType, newType, config) => {
         newConfig.xAxis = newConfig.name;
         newConfig.yAxis = newConfig.value;
       } else if (newType === 'table') {
-        newConfig.checkboxValueField = newConfig.name;
-        newConfig.fields = [newConfig.name, newConfig.value];
+        if (newConfig.name && newConfig.value) {
+          newConfig.checkboxValueField = newConfig.name;
+          newConfig.fields = [newConfig.name, newConfig.value];
+        }
       }
 
       delete newConfig.name;
@@ -179,8 +181,10 @@ export const changeChartType = (oldType, newType, config) => {
         delete newConfig.xAxis;
         delete newConfig.yAxis;
       } else if (newType === 'table') {
-        newConfig.checkboxValueField = newConfig.xAxis;
-        newConfig.fields = [newConfig.xAxis, newConfig.yAxis];
+        if (newConfig.name && newConfig.value) {
+          newConfig.checkboxValueField = newConfig.xAxis;
+          newConfig.fields = [newConfig.xAxis, newConfig.yAxis];
+        }
 
         delete newConfig.xAxis;
         delete newConfig.yAxis;

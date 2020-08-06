@@ -50,8 +50,12 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
       selectedDataset = selectedDataset ? selectedDataset : {};
 
       handleChange(null, { name: 'selectedDataset', value: selectedDataset });
+
+      // Clear fields in case the value doesn't exist in new selected dataset
+      handleChangeObj(null, { name: 'config:checkboxValueField', value: '' });
+      handleChangeObj(null, { name: 'config:fields', value: [] });
     }
-  }, [dataset, datasets, handleChange]);
+  }, [dataset, datasets, handleChange, handleChangeObj]);
 
   return (
     /*
