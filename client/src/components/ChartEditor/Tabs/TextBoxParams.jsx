@@ -16,7 +16,7 @@ const getMsg = sourceType => {
 const TextBoxParams = ({ handleChangeObj, localState }) => {
   const {
     chartID,
-    options: { dataFields, isStatic = false, textBoxContent },
+    config: { dataFields, isStatic = false, textBoxContent },
     selectedDataset = {},
     sourceType,
   } = localState;
@@ -46,7 +46,7 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
               fullWidth
               label='Text Box Content'
               multiline
-              name='options:textBoxContent'
+              name='config:textBoxContent'
               value={textBoxContent || ''}
               rows={4}
               onChange={handleChangeObj}
@@ -64,7 +64,7 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
                 <CircularProgress className={progress} size={20} />
               ) : (
                 <Select
-                  name='options:dataFields'
+                  name='config:dataFields'
                   value={dataFields || []}
                   onChange={updateArr}
                   multiple

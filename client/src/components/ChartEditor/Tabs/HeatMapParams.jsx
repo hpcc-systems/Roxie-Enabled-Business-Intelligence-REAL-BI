@@ -21,7 +21,7 @@ const getMsg = sourceType => {
 };
 
 const HeatMapParams = ({ handleChangeObj, localState }) => {
-  const { chartID, options, selectedDataset = {}, sourceType } = localState;
+  const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -34,7 +34,7 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='options:xAxis' value={options.xAxis || ''} onChange={handleChangeObj}>
+              <Select name='config:xAxis' value={config.xAxis || ''} onChange={handleChangeObj}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -51,8 +51,8 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='options:xAxis_Label'
-              value={options.xAxis_Label || ''}
+              name='config:xAxis_Label'
+              value={config.xAxis_Label || ''}
               onChange={handleChangeObj}
               autoComplete='off'
             />
@@ -64,7 +64,7 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='options:yAxis' value={options.yAxis || ''} onChange={handleChangeObj}>
+              <Select name='config:yAxis' value={config.yAxis || ''} onChange={handleChangeObj}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -81,8 +81,8 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='options:yAxis_Label'
-              value={options.yAxis_Label || ''}
+              name='config:yAxis_Label'
+              value={config.yAxis_Label || ''}
               onChange={handleChangeObj}
               autoComplete='off'
             />
@@ -94,7 +94,7 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='options:colorField' value={options.colorField || ''} onChange={handleChangeObj}>
+              <Select name='config:colorField' value={config.colorField || ''} onChange={handleChangeObj}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>

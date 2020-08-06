@@ -8,8 +8,8 @@ import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
-const PieComp = ({ data, options }) => {
-  const { name, value, description } = options;
+const PieComp = ({ data, config }) => {
+  const { name, value, description } = config;
 
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !name || !value) {
@@ -25,7 +25,7 @@ const PieComp = ({ data, options }) => {
 
   const total = data.map(obj => obj[value]).reduce(reducer); // Gets total of yAxis values
 
-  const config = {
+  const chartConfig = {
     angleField: value,
     colorField: name,
     data,
@@ -52,7 +52,7 @@ const PieComp = ({ data, options }) => {
     },
   };
 
-  return <Pie {...config} />;
+  return <Pie {...chartConfig} />;
 };
 
 export default PieComp;

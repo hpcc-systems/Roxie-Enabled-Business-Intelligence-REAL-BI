@@ -14,19 +14,17 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, createTextBoxObj, getPreviewData, mergeArrays } from '../../utils/chart';
+import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  chartType: 'bar',
+  config: { type: 'bar' },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
-  options: {},
-  params: [],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -64,17 +62,13 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
-    const {
-      options: { isStatic },
-      chartType,
-    } = localState;
+    const { config, dataset } = localState;
+    const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
 
-    if (chartType === 'textBox' && isStatic) {
-      const newChartObj = createTextBoxObj(localState);
-
+    if (type === 'textBox' && isStatic) {
       try {
-        addChart(newChartObj, dashboardID, null, null, 'staticText').then(action => {
+        addChart({ ...config, dataset }, dashboardID, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -85,9 +79,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       const newChartObj = createChartObj(localState);
 
       try {
-        const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+        const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
 
-        addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
+        addChart(newChartObj, dashboardID, sourceID, sourceName).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -100,7 +94,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { mappedParams, params, selectedSource: source, sourceType } = localState;
+    const { config, mappedParams, selectedSource: source, sourceType } = localState;
+    const { params = [] } = config;
 
     // Merge param arrays to send to server
     const usedParams = mergeArrays(params, mappedParams);

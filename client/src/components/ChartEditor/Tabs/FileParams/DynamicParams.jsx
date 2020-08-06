@@ -50,7 +50,8 @@ const paramValueField = (value, index, updateValue) => {
 const templateObj = { name: '', value: '' };
 
 const DynamicFileParams = ({ handleChangeArr, localState }) => {
-  const { mappedParams = [], params = [] } = localState;
+  const { config, mappedParams = [] } = localState;
+  const { params = [] } = config;
   const { button } = useStyles();
 
   const addField = () => {

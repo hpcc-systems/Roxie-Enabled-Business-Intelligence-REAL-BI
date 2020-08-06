@@ -17,7 +17,6 @@ const { getChartByID } = require('../../utils/chart');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
 const { createSource, getSourcesByDashboardID, getSourceByHpccID } = require('../../utils/source');
 const { getDashboardParams } = require('../../utils/dashboardParam');
-const { findAllChartParams } = require('../../utils/chartParam');
 
 router.get('/search', async (req, res) => {
   const {
@@ -184,19 +183,18 @@ router.get('/data/multiple', async (req, res) => {
     query: { chartID, clusterID },
     user: { id: userID },
   } = req;
-  let cluster, data, params;
+  let cluster, data;
 
   try {
     cluster = await getClusterByID(clusterID);
-    const { source } = await getChartByID(chartID);
-    params = await findAllChartParams(chartID);
+    const { config, source } = await getChartByID(chartID);
 
     switch (source.type) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, { params, source }, userID);
+        data = await getFileDataFromCluster(cluster, { params: config.params, source }, userID);
         break;
       default:
-        data = await getQueryDataFromCluster(cluster, { params, source }, userID);
+        data = await getQueryDataFromCluster(cluster, { params: config.params, source }, userID);
     }
   } catch (err) {
     const { errMsg, status } = errHandler(err);

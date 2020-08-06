@@ -4,7 +4,7 @@ import errHandler from './errHandler';
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
-const getChartData = async (chartID, clusterID) => {
+export const getChartData = async (chartID, clusterID) => {
   let response;
 
   try {
@@ -22,7 +22,7 @@ const getChartData = async (chartID, clusterID) => {
   return response.data;
 };
 
-const getPreviewData = async (clusterID, dataOptions, sourceType) => {
+export const getPreviewData = async (clusterID, dataOptions, sourceType) => {
   let response;
 
   try {
@@ -44,62 +44,55 @@ const getPreviewData = async (clusterID, dataOptions, sourceType) => {
 export const mergeArrays = (oldArr, newArr) => {
   oldArr.forEach((obj, index) => {
     const matchedParam = newArr.find(({ name }) => name === obj.name);
-    const newArrVal = matchedParam ? matchedParam.value : null;
 
-    if (obj.name !== 'Start' && obj.name !== 'Count') {
+    if (matchedParam && obj.name !== 'Start' && obj.name !== 'Count') {
       // Update value
-      oldArr[index].value = newArrVal;
+      oldArr[index].value = matchedParam.value;
     }
   });
 
   return oldArr;
 };
 
-const createTextBoxObj = localState => {
-  const { chartType, dataset } = localState;
-  let { options } = localState;
+export const createChartObj = localState => {
+  const { config, dataset, mappedParams } = localState;
+  const { groupBy, horizontal, params = [], stacked, type } = config;
+  let newConfig = { ...config, dataset };
 
-  return { dataset, options, type: chartType };
-};
-
-const createChartObj = localState => {
-  const { chartType, dataset, mappedParams, params: orginalParams } = localState;
-  let { options } = localState;
-  const { groupBy, horizontal, stacked } = options;
-
-  // Merge arrays to get a complete list of changes
-  const params = mergeArrays(orginalParams, mappedParams);
+  // Merge param arrays to send to server
+  newConfig.params = mergeArrays(params, mappedParams);
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(chartType) && horizontal) || !('horizontal' in options)) {
-    options = { ...options, horizontal: false };
+  if ((!hasHorizontalOption(type) && horizontal) || !('horizontal' in newConfig)) {
+    newConfig = { ...newConfig, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(chartType) && stacked) || !('stacked' in options)) {
-    options = { ...options, stacked: false };
+  if ((!hasStackedOption(type) && stacked) || !('stacked' in newConfig)) {
+    newConfig = { ...newConfig, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(chartType) && groupBy) || !('groupBy' in options)) {
-    options = { ...options, groupBy: '' };
+  if ((!hasGroupByOption(type) && groupBy) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { dataset, options, params, type: chartType };
+  return { config: newConfig };
 };
 
-const setEditorState = (charts, chartID) => {
+export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { id, params = [], sourceName, type, ...chartKeys } = charts[chartIndex];
+  const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
+  const { dataset, params } = config;
 
-  // Show only certain params
+  // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
   const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
 
   let mappedParams;
 
-  if (paramWithValueArr.length > 0) {
+  if (sourceType === 'file' && paramWithValueArr.length > 0) {
     mappedParams = paramWithValueArr;
   } else {
     mappedParams = [{ name: '', value: '' }];
@@ -108,28 +101,29 @@ const setEditorState = (charts, chartID) => {
   // Create initial state object
   let initState = {
     chartID: id,
-    chartType: type,
+    config,
     dataObj: { loading: false },
+    dataset,
     datasets: [],
     error: '',
     keyword: sourceName,
     mappedParams,
-    params,
-    sources: [],
     selectedDataset: {},
     selectedSource: {},
+    sources: [],
+    sourceType,
     ...chartKeys,
   };
 
   return initState;
 };
 
-const checkForChartParams = chartsArr => {
+export const checkForChartParams = chartsArr => {
   let exists = false;
 
   // use for-loop to allow for "break"
   for (let i = 0; i < chartsArr.length; i++) {
-    const { params = [] } = chartsArr[i];
+    const { params = [] } = chartsArr[i].config;
     const hasParamValue = params.some(({ value }) => value !== null);
 
     if (hasParamValue) {
@@ -141,91 +135,85 @@ const checkForChartParams = chartsArr => {
   return exists;
 };
 
-const changeChartType = (oldType, newType, options) => {
-  let newOptions = { ...options };
+export const changeChartType = (oldType, newType, config) => {
+  let newConfig = { ...config, type: newType };
 
-  //  Update values in options object to reflect the current chart type
+  //  Update values in config object to reflect the current chart type
   switch (oldType) {
     case 'pie':
       if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newOptions.xAxis = newOptions.name;
-        newOptions.yAxis = newOptions.value;
+        newConfig.xAxis = newConfig.name;
+        newConfig.yAxis = newConfig.value;
       } else if (newType === 'table') {
-        newOptions.checkboxValueField = newOptions.name;
-        newOptions.fields = [newOptions.name, newOptions.value];
+        if (newConfig.name && newConfig.value) {
+          newConfig.checkboxValueField = newConfig.name;
+          newConfig.fields = [newConfig.name, newConfig.value];
+        }
       }
 
-      delete newOptions.name;
-      delete newOptions.value;
+      delete newConfig.name;
+      delete newConfig.value;
 
       break;
     case 'table':
       if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newOptions.xAxis = newOptions.checkboxValueField;
-        newOptions.yAxis = newOptions.fields ? newOptions.fields[1] : '';
+        newConfig.xAxis = newConfig.checkboxValueField;
+        newConfig.yAxis = newConfig.fields ? newConfig.fields[1] : '';
       } else if (newType === 'pie') {
-        newOptions.name = newOptions.checkboxValueField;
-        newOptions.value = newOptions.fields ? newOptions.fields[1] : '';
+        newConfig.name = newConfig.checkboxValueField;
+        newConfig.value = newConfig.fields ? newConfig.fields[1] : '';
       }
 
-      delete newOptions.checkboxValueField;
-      delete newOptions.fields;
+      delete newConfig.checkboxValueField;
+      delete newConfig.fields;
 
       break;
     case 'textBox':
-      delete newOptions.textBoxContent;
-      delete newOptions.dataFields;
+      delete newConfig.textBoxContent;
+      delete newConfig.dataFields;
 
       break;
     default:
       if (newType === 'pie') {
-        newOptions.name = newOptions.xAxis;
-        newOptions.value = newOptions.yAxis;
+        newConfig.name = newConfig.xAxis;
+        newConfig.value = newConfig.yAxis;
 
-        delete newOptions.xAxis;
-        delete newOptions.yAxis;
+        delete newConfig.xAxis;
+        delete newConfig.yAxis;
       } else if (newType === 'table') {
-        newOptions.checkboxValueField = newOptions.xAxis;
-        newOptions.fields = [newOptions.xAxis, newOptions.yAxis];
+        if (newConfig.name && newConfig.value) {
+          newConfig.checkboxValueField = newConfig.xAxis;
+          newConfig.fields = [newConfig.xAxis, newConfig.yAxis];
+        }
 
-        delete newOptions.xAxis;
-        delete newOptions.yAxis;
+        delete newConfig.xAxis;
+        delete newConfig.yAxis;
       }
 
       if (oldType === 'heatmap') {
-        delete newOptions.colorField;
+        delete newConfig.colorField;
       }
   }
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(newType) && newOptions.horizontal) || !('horizontal' in newOptions)) {
-    newOptions = { ...newOptions, horizontal: false };
+  if ((!hasHorizontalOption(newType) && newConfig.horizontal) || !('horizontal' in newConfig)) {
+    newConfig = { ...newConfig, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(newType) && newOptions.stacked) || !('stacked' in newOptions)) {
-    newOptions = { ...newOptions, stacked: false };
+  if ((!hasStackedOption(newType) && newConfig.stacked) || !('stacked' in newConfig)) {
+    newConfig = { ...newConfig, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(newType) && newOptions.groupBy) || !('groupBy' in newOptions)) {
-    newOptions = { ...newOptions, groupBy: '' };
+  if ((!hasGroupByOption(newType) && newConfig.groupBy) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: '' };
   }
 
   // Change static value if it doesn't apply to the chart type or is missing
-  if ((!hasDynamicOption(newType) && newOptions.isStatic) || !('isStatic' in newOptions)) {
-    newOptions = { ...newOptions, isStatic: false };
+  if ((!hasDynamicOption(newType) && newConfig.isStatic) || !('isStatic' in newConfig)) {
+    newConfig = { ...newConfig, isStatic: false };
   }
 
-  return newOptions;
-};
-
-export {
-  changeChartType,
-  checkForChartParams,
-  createChartObj,
-  createTextBoxObj,
-  getChartData,
-  getPreviewData,
-  setEditorState,
+  return newConfig;
 };

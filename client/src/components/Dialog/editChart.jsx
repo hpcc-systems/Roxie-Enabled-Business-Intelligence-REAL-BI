@@ -67,10 +67,10 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { mappedParams, params = [], selectedSource: source, sourceType } = localState;
+    const { config, mappedParams, selectedSource: source, sourceType } = localState;
 
     // Merge param arrays to send to server
-    const usedParams = mergeArrays(params, mappedParams);
+    const usedParams = mergeArrays(config.params, mappedParams);
 
     if (sourceKeys > 0 && datasetKeys > 0) {
       // Set loading

@@ -4,8 +4,8 @@ import { StackedBar } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const StackedBarComp = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const StackedBarComp = ({ data, config }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -26,7 +26,7 @@ const StackedBarComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: {
@@ -66,7 +66,7 @@ const StackedBarComp = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <StackedBar {...config} />;
+  return <StackedBar {...chartConfig} />;
 };
 
 export default StackedBarComp;

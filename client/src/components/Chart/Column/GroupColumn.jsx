@@ -4,8 +4,8 @@ import { GroupedColumn } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
-const GroupColumnComp = ({ data, options }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = options;
+const GroupColumnComp = ({ data, config }) => {
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -26,7 +26,7 @@ const GroupColumnComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, sortOrder);
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: { visible: false },
@@ -58,7 +58,7 @@ const GroupColumnComp = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <GroupedColumn {...config} />;
+  return <GroupedColumn {...chartConfig} />;
 };
 
 export default GroupColumnComp;

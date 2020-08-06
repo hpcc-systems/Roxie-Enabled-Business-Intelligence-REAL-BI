@@ -68,9 +68,10 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
   const { mappedParams = [], selectedSource } = localState;
   const { button } = useStyles();
   let dashboardCharts = charts.map(chart => {
-    const { id: chartID, options, params, sourceID, sourceName } = chart;
+    const { id: chartID, config, sourceID, sourceName } = chart;
+    const { params, title } = config;
 
-    return { chartID, title: options.title, params, sourceID, sourceName };
+    return { chartID, title, params, sourceID, sourceName };
   });
 
   // Remove source that was selected as table source

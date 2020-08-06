@@ -6,8 +6,8 @@ import { thousandsSeparator, sortArr } from '../../utils/misc';
 
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
-const HeatMapComp = ({ data, options }) => {
-  const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = options;
+const HeatMapComp = ({ data, config }) => {
+  const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
   const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
 
@@ -25,7 +25,7 @@ const HeatMapComp = ({ data, options }) => {
   // Sort data in ascending order
   data = sortArr(data, xAxis, 'asc');
 
-  const config = {
+  const chartConfig = {
     data,
     forceFit: true,
     label: {
@@ -57,7 +57,7 @@ const HeatMapComp = ({ data, options }) => {
     yField: yAxis,
   };
 
-  return <Heatmap {...config} />;
+  return <Heatmap {...chartConfig} />;
 };
 
 export default HeatMapComp;

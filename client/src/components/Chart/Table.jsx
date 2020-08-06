@@ -23,8 +23,8 @@ const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },
 });
 
-const TableComp = ({ data, dispatch, params = [], options }) => {
-  const { fields, checkboxValueField } = options;
+const TableComp = ({ data, dispatch, params = [], config }) => {
+  const { fields, checkboxValueField } = config;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(checkboxValueField);
   const [page, setPage] = React.useState(0);
