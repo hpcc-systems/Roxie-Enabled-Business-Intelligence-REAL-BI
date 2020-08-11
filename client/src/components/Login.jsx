@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -36,6 +36,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
   },
+  errMsg: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+    margin: theme.spacing(2, 0, 2, 0),
+  },
   grid: { minHeight: '50vh' },
   progress: { marginRight: theme.spacing(2) },
   textfield: { margin: theme.spacing(1, 0, 1, 0) },
@@ -50,9 +55,10 @@ const initState = {
 const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
+  const { msg: errorMsg } = useSelector(state => state.auth.errors);
   const dispatch = useDispatch();
   const history = useHistory();
-  const { button, grid, progress, textfield } = useStyles();
+  const { button, errMsg, grid, progress, textfield } = useStyles();
 
   useEffect(() => {
     const { token, valid } = checkForToken();
@@ -117,6 +123,11 @@ const Login = () => {
               <Card>
                 <CardContent>
                   <Typography variant='h6'>Login</Typography>
+                  {errorMsg && errorMsg !== '' && (
+                    <Typography className={errMsg} align='center'>
+                      {errorMsg}
+                    </Typography>
+                  )}
                   <TextField
                     className={textfield}
                     label='Username'
