@@ -9,7 +9,10 @@ const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
 const PieComp = ({ data, config }) => {
-  const { name, value, description } = config;
+  const { name, value, description, name_Label, value_Label } = config;
+
+  const customNameLabel = typeof name_Label !== 'undefined' ? name_Label : name;
+  const customValueLabel = typeof value_Label !== 'undefined' ? value_Label : value;
 
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !name || !value) {
@@ -40,13 +43,18 @@ const PieComp = ({ data, config }) => {
       text: description,
     },
     legend: {
-      position: 'bottom',
+      title: {
+        visible: true,
+        text: [customNameLabel],
+      },
+      position: 'right-top',
       visible: true,
     },
     radius: 0.8,
     tooltip: {
-      formatter: (v, text) => ({
-        name: text,
+      title: ' ', // Have to pass in a space or it will duplicate information
+      formatter: v => ({
+        name: customValueLabel,
         value: `${thousandsSeparator(v)} (${percentageOfPie(v, total)})`,
       }),
     },

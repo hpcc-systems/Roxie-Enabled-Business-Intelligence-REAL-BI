@@ -144,6 +144,8 @@ export const changeChartType = (oldType, newType, config) => {
       if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
         newConfig.xAxis = newConfig.name;
         newConfig.yAxis = newConfig.value;
+        newConfig.xAxis_Label = newConfig.name_Label;
+        newConfig.yAxis_Label = newConfig.value_Label;
       } else if (newType === 'table') {
         if (newConfig.name && newConfig.value) {
           newConfig.checkboxValueField = newConfig.name;
@@ -153,6 +155,8 @@ export const changeChartType = (oldType, newType, config) => {
 
       delete newConfig.name;
       delete newConfig.value;
+      delete newConfig.name_Label;
+      delete newConfig.value_Label;
 
       break;
     case 'table':
@@ -177,9 +181,13 @@ export const changeChartType = (oldType, newType, config) => {
       if (newType === 'pie') {
         newConfig.name = newConfig.xAxis;
         newConfig.value = newConfig.yAxis;
+        newConfig.name_Label = newConfig.xAxis_Label;
+        newConfig.value_Label = newConfig.yAxis_Label;
 
         delete newConfig.xAxis;
         delete newConfig.yAxis;
+        delete newConfig.xAxis_Label;
+        delete newConfig.yAxis_Label;
       } else if (newType === 'table') {
         if (newConfig.name && newConfig.value) {
           newConfig.checkboxValueField = newConfig.xAxis;
