@@ -122,7 +122,8 @@ const Dashboard = () => {
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'id').map((chart, index) => {
             const { id: chartID, config, sourceID, sourceName } = chart;
-            const eclDataset = Object.keys(config.ecl) ? config.ecl.dataset : '';
+            const { ecl = {} } = config;
+            const eclDataset = Object.keys(ecl) ? ecl.dataset : '';
             const dataObj = compData[chartID] || compData[sourceName] || compData[eclDataset] || {};
 
             return (
