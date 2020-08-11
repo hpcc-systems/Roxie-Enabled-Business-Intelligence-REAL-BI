@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
@@ -42,6 +42,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
   );
+  const eclRef = useRef({});
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, toolbar, typography } = useStyles();
@@ -52,6 +53,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     error,
     selectedDataset = {},
     selectedSource = {},
+    sourceType,
   } = localState;
   const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;
@@ -65,23 +67,29 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const { config, dataset } = localState;
     const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
+    const newECLObj = { ...eclRef.current };
+
+    // Remove unneccesary key for DB
+    delete newECLObj.data;
 
     if (type === 'textBox' && isStatic) {
       try {
-        addChart({ ...config, dataset }, dashboardID, null, null).then(action => {
+        addChart({ ...config, dataset, ecl: newECLObj }, dashboardID, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {
         console.error(err);
       }
     } else {
-      const sourceObj = createSourceObj(localState);
+      const sourceObj = createSourceObj(localState, eclRef);
       const newChartObj = createChartObj(localState);
 
       try {
         const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
 
-        addChart(newChartObj, dashboardID, sourceID, sourceName).then(action => {
+        const updatedChartObj = { ...newChartObj, config: { ...newChartObj.config, ecl: newECLObj } };
+
+        addChart(updatedChartObj, dashboardID, sourceID, sourceName).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -124,13 +132,16 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         <Typography variant='h6' color='inherit' className={typography}>
           New Chart
         </Typography>
-        <Button disabled={!sourceKeys > 0 || !datasetKeys > 0 || loading} onClick={updateChartPreview}>
-          <RefreshIcon />
-        </Button>
+        {sourceType !== 'ecl' && (
+          <Button disabled={sourceKeys === 0 || datasetKeys === 0 || loading} onClick={updateChartPreview}>
+            <RefreshIcon />
+          </Button>
+        )}
       </Toolbar>
       <DialogContent>
         <ChartEditor
           dashboard={dashboard}
+          eclRef={eclRef}
           handleChange={handleChange}
           handleChangeArr={handleChangeArr}
           handleChangeObj={handleChangeObj}

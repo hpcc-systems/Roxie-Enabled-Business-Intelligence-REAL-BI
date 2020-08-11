@@ -8,7 +8,7 @@ const {
   shareChart,
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
-const { deleteSourceByID } = require('../../utils/source');
+const { updateSourceByID, deleteSourceByID } = require('../../utils/source');
 const { getDashboardParamsByDashboardAndSourceID } = require('../../utils/dashboardParam');
 const { getDashboardPermission } = require('../../utils/dashboardPermission');
 const errHandler = require('../../utils/errHandler');
@@ -59,7 +59,7 @@ router.post('/share', async (req, res) => {
 
 router.put('/update', async (req, res) => {
   const {
-    body: { chart, dashboardID },
+    body: { chart, dashboardID, sourceID, sourceType },
     user: { id: userID },
   } = req;
   let charts, permissionObj;
@@ -69,6 +69,12 @@ router.put('/update', async (req, res) => {
 
     // User is the owner of the chart
     if (permissionObj.role === 'Owner') {
+      if (sourceType === 'ecl') {
+        const { workunitID } = chart.config.ecl;
+
+        await updateSourceByID(sourceID, { hpccID: workunitID, name: workunitID });
+      }
+
       await updateChartByID(chart);
     }
 
@@ -95,7 +101,7 @@ router.delete('/delete', async (req, res) => {
     if (permissionObj.role === 'Owner') {
       await deleteChartByID(chartID);
 
-      //if not a static text widget
+      // If not a static text widget
       if (sourceID) {
         // Determine if any other charts or filters in the application are using the same source
         numOfCharts = await getChartsByDashboardAndSourceID(null, sourceID);

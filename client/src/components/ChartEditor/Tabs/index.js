@@ -1,5 +1,6 @@
 import General from './General';
 import Parameters from './Parameters';
 import GroupBy from './GroupBy';
+import ECLEditor from './ECLEditor';
 
-export { General, GroupBy, Parameters };
+export { ECLEditor, General, GroupBy, Parameters };

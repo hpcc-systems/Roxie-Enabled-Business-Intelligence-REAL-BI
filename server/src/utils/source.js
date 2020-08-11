@@ -80,6 +80,15 @@ const getSourcesByDashboardID = async dashboardID => {
   return sources;
 };
 
+const updateSourceByID = async (sourceID, updateObj) => {
+  let [err] = await awaitHandler(sourceModel.update(updateObj, { where: { id: sourceID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
 const deleteSourceByID = async sourceID => {
   let [err] = await awaitHandler(sourceModel.destroy({ where: { id: sourceID } }));
 
@@ -96,4 +105,5 @@ module.exports = {
   getSourcesByDashboardID,
   getSourceByHpccID,
   getSourceByID,
+  updateSourceByID,
 };

@@ -12,8 +12,9 @@ const {
   getLogicalFilesFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
+  getWorkunitDataFromCluster,
 } = require('../../utils/cluster');
-const { getChartByID } = require('../../utils/chart');
+const { getChartByID, getEclOptionsByWuID } = require('../../utils/chart');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
 const { createSource, getSourcesByDashboardID, getSourceByHpccID } = require('../../utils/source');
 const { getDashboardParams } = require('../../utils/dashboardParam');
@@ -129,7 +130,7 @@ router.get('/data/single', async (req, res) => {
     query: { clusterID, dashboardID },
     user: { id: userID },
   } = req;
-  let cluster, params, sources;
+  let chart, cluster, params, sources;
   let data = {};
 
   try {
@@ -165,6 +166,14 @@ router.get('/data/single', async (req, res) => {
         case 'file':
           source = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
           break;
+        case 'ecl':
+          chart = await getEclOptionsByWuID(source.hpccID);
+          source = await getWorkunitDataFromCluster(
+            cluster,
+            { Count: chart.recordCount, dataset: chart.dataset, source },
+            userID,
+          );
+          break;
         default:
           source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
       }
@@ -183,7 +192,7 @@ router.get('/data/multiple', async (req, res) => {
     query: { chartID, clusterID },
     user: { id: userID },
   } = req;
-  let cluster, data;
+  let chart, cluster, data;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -192,6 +201,14 @@ router.get('/data/multiple', async (req, res) => {
     switch (source.type) {
       case 'file':
         data = await getFileDataFromCluster(cluster, { params: config.params, source }, userID);
+        break;
+      case 'ecl':
+        chart = await getEclOptionsByWuID(config.ecl.workunitID);
+        data = await getWorkunitDataFromCluster(
+          cluster,
+          { Count: chart.recordCount, dataset: chart.dataset, source },
+          userID,
+        );
         break;
       default:
         data = await getQueryDataFromCluster(cluster, { params: config.params, source }, userID);

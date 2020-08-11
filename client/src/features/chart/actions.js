@@ -46,11 +46,11 @@ export const deleteChart = async (chartID, dashboardID, sourceID) => {
   return { type: DELETE_CHART, payload: response.data };
 };
 
-export const updateChart = async (chart, dashboardID, sourceID) => {
+export const updateChart = async (chart, dashboardID, sourceID, sourceType) => {
   let response;
 
   try {
-    response = await axios.put('/api/chart/update', { chart, dashboardID, sourceID });
+    response = await axios.put('/api/chart/update', { chart, dashboardID, sourceID, sourceType });
   } catch (err) {
     console.error(err);
     return { type: SET_CHART_ERRORS, payload: err };

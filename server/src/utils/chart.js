@@ -1,5 +1,5 @@
 // DB Models
-const { chart: chartModel, source: sourceModel } = require('../models');
+const { chart: chartModel, source: sourceModel, Sequelize } = require('../models');
 
 //Node mailer for emails
 const nodemailer = require('nodemailer');
@@ -146,12 +146,27 @@ const deleteChartByID = async chartID => {
   return;
 };
 
+const getEclOptionsByWuID = async workunitID => {
+  let [err, chart] = await awaitHandler(
+    chartModel.findOne({ where: { config: { [Sequelize.Op.substring]: workunitID } } }),
+  );
+
+  // Return error
+  if (err) throw err;
+
+  // Get nested objects
+  chart = unNestSequelizeObj(chart);
+
+  return chart.config.ecl;
+};
+
 module.exports = {
   createChart,
   deleteChartByID,
   getChartsByDashboardAndSourceID,
   getChartByID,
   getChartsByDashboardID,
+  getEclOptionsByWuID,
   updateChartByID,
   shareChart,
 };

@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
@@ -23,13 +24,14 @@ const useStyles = makeStyles({
   columnHeader: { textTransform: 'capitalize' },
 });
 
-const TableComp = ({ data, dispatch, params = [], config }) => {
+const TableComp = ({ data, params = [], config }) => {
   const { fields, checkboxValueField } = config;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(checkboxValueField);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [selected, setSelected] = React.useState([]);
+  const dispatch = useDispatch();
   const { columnHeader } = useStyles();
 
   // Determine if the checkboxValueField matches any dashboard params

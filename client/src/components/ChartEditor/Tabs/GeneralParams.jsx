@@ -17,13 +17,21 @@ const useStyles = makeStyles(theme => ({
 
 // Changes message based on source type
 const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+  return sourceType === 'ecl'
+    ? 'Run ECL Script'
+    : sourceType === 'file'
+    ? 'Choose a file'
+    : 'Choose a dataset';
 };
 
-const GeneralChartParams = ({ handleChangeObj, localState }) => {
+const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMsg(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>
@@ -31,11 +39,11 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
         <Grid item md={8}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && fieldsArr.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='config:xAxis' value={config.xAxis || ''} onChange={handleChangeObj}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -61,11 +69,11 @@ const GeneralChartParams = ({ handleChangeObj, localState }) => {
         <Grid item md={8}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && fieldsArr.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='config:yAxis' value={config.yAxis || ''} onChange={handleChangeObj}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
