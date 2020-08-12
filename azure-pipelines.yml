@@ -31,7 +31,7 @@ jobs:
                 script: 'pm2 stop REAL-BI'
             - task: CopyFiles@2
               inputs:
-                SourceFolder: '/home/hpcclabs/azagent/_work/1/real-bi/s'
+                SourceFolder: '/home/hpcclabs/azagent/_work/2/real-bi/s'
                 Contents: '**'
                 TargetFolder: '/home/hpcclabs/projects/REAL-BI'
                 OverWrite: true
