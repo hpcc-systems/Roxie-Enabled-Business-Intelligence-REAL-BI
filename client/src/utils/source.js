@@ -47,11 +47,16 @@ export const getSourceInfo = async (clusterID, source, sourceType) => {
   return response.data;
 };
 
-export const createSourceObj = localState => {
+export const createSourceObj = (localState, eclRef) => {
   const {
     selectedSource: { target, hpccID, name },
     sourceType,
   } = localState;
+  const { cluster, workunitID } = eclRef.current;
+
+  if (sourceType === 'ecl') {
+    return { hpccID: workunitID, name: workunitID, target: cluster, type: sourceType };
+  }
 
   return { hpccID, name, target, type: sourceType };
 };

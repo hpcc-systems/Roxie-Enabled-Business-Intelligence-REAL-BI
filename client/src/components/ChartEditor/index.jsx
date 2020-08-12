@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -15,18 +15,19 @@ import {
 // React Components
 import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
-import { General, GroupBy, Parameters } from './Tabs';
+import { ECLEditor, General, GroupBy, Parameters } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
 import { hasGroupByOption } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
 
-const tabOptions = ['General', 'Parameters', 'Group By'];
+const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By'];
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
+  formControl: { marginBottom: theme.spacing(3) },
   gridContainer: { overflowY: 'hidden' },
   typography: {
     ...theme.typography.button,
@@ -38,13 +39,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { handleChange, localState } = props;
+  const { dashboard, eclRef, handleChange, localState } = props;
+  const { clusterHost, clusterPort } = dashboard;
   const { chartID, config, dataObj, dataset, error, sourceType } = localState;
+  const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
   let { isStatic, type } = config;
   isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
 
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, gridContainer, typography } = useStyles();
+  const { appbar, formControl, gridContainer, typography } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -57,6 +60,14 @@ const ChartEditor = props => {
 
   // Create object of information to pass to chart components
   const newConfig = { ...config, dataset };
+  const clusterURL = `${clusterHost}:${clusterPort}`;
+  let chartData = dataObj;
+
+  // If ECL Ref has data, use that array
+  if (sourceType === 'ecl' && Object.keys(eclData).length > 0) {
+    chartData = { data: eclData, error: '', loading: false };
+  }
+
   return (
     <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={6}>
@@ -67,7 +78,7 @@ const ChartEditor = props => {
         )}
         {/* Only display when not editing an existing chart */}
         {!chartID && (type !== 'textBox' || (type === 'textBox' && !isStatic)) && (
-          <FormControl fullWidth>
+          <FormControl fullWidth className={sourceType === 'ecl' ? formControl : null}>
             <InputLabel>Source Type</InputLabel>
             <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
               {sourceOptions.map((option, index) => {
@@ -80,16 +91,24 @@ const ChartEditor = props => {
             </Select>
           </FormControl>
         )}
-        <SourceSearch {...props} />
-        <SelectDataset {...props} />
+        {sourceType !== 'ecl' && (
+          <Fragment>
+            <SourceSearch {...props} />
+            <SelectDataset {...props} />
+          </Fragment>
+        )}
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
             {tabOptions.map((option, index) => {
               /*
-              Do not show the 'group by' tab if the chart selected doesn't support group by
-              Do not show the 'parameters' or 'group by' tab if the chart type is a static textbox
-            */
+                Do not show the 'ECL Script' tab if the source type is not 'ecl'
+                Do not show the Parameters' tab if the source type is 'ecl'
+                Do not show the 'Group By' tab if the chart selected doesn't support group by
+                Do not show the Parameters' or 'group by' tab if the chart type is a static textbox
+              */
               if (
+                (sourceType !== 'ecl' && option === 'ECL Script') ||
+                (sourceType === 'ecl' && option === 'Parameters') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
                 (type === 'textBox' && isStatic && option === 'Parameters') ||
                 (type === 'textBox' && option === 'Group By')
@@ -102,12 +121,18 @@ const ChartEditor = props => {
           </Tabs>
         </AppBar>
         {(() => {
-          switch (tabIndex) {
+          // Get correct position based on source type and tab index
+          // If sourceType === 'ecl', skip parameters tab
+          const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex === 2 ? 3 : tabIndex;
+
+          switch (tabNum) {
             case 0:
-              return <General {...props} />;
+              return <ECLEditor clusterURL={clusterURL} eclRef={eclRef} />;
             case 1:
-              return <Parameters {...props} />;
+              return <General {...props} />;
             case 2:
+              return <Parameters {...props} />;
+            case 3:
               return <GroupBy {...props} />;
             default:
               return 'Unknown Tab';
@@ -115,7 +140,7 @@ const ChartEditor = props => {
         })()}
       </Grid>
       <Grid item xs={6}>
-        <Chart chart={{ config: newConfig }} dataObj={dataObj} />
+        <Chart chart={{ config: newConfig }} dataObj={chartData} eclDataset={eclDataset} />
       </Grid>
     </Grid>
   );

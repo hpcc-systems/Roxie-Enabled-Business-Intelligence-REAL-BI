@@ -243,6 +243,41 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   return { [filename]: { Row } };
 };
 
+const getWorkunitDataFromCluster = async (
+  { id: clusterID, host, infoPort },
+  { Count, dataset, source },
+  userID,
+) => {
+  const { hpccID: workunitID, target } = source;
+  const clusterAuth = await getClusterAuth(clusterID, userID);
+
+  // Build URL from cluster and file details
+  const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
+
+  let requestBody = { Wuid: workunitID, Cluster: target, Count };
+
+  // Log API request
+  logger.info(`Request made to ${url} with body ${JSON.stringify(requestBody)}`);
+
+  let [err, response] = await awaitHandler(
+    axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
+  );
+
+  // Return error
+  if (err) throw err;
+
+  // Check for exception
+  if ('Exceptions' in response.data) {
+    const { Code, Message } = response.data['Exceptions']['Exception'][0];
+    throw `${Code} -> ${Message}`;
+  }
+
+  // Update variable to nested depth
+  const { Row = [] } = response.data['WUResultResponse']['Result'];
+
+  return { [dataset]: { Row } };
+};
+
 const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {
   const clusterAuth = await getClusterAuth(clusterID, userID);
   let params;
@@ -290,4 +325,5 @@ module.exports = {
   getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
+  getWorkunitDataFromCluster,
 };

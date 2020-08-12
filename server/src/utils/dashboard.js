@@ -1,5 +1,5 @@
 // DB Models
-const { dashboard: dashboardModel } = require('../models');
+const { cluster: clusterModel, dashboard: dashboardModel, Sequelize } = require('../models');
 
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
@@ -14,13 +14,30 @@ const getDashboardsByUserID = async userID => {
 };
 
 const getDashboardByID = async dashboardID => {
-  let [err, dashboard] = await awaitHandler(dashboardModel.findOne({ where: { id: dashboardID } }));
+  let [err, dashboard] = await awaitHandler(
+    dashboardModel.findOne({
+      where: { id: dashboardID },
+      include: {
+        model: clusterModel,
+        attributes: [
+          ['host', 'clusterHost'],
+          ['infoPort', 'clusterPort'],
+        ],
+        where: { id: { [Sequelize.Op.col]: 'dashboard.clusterID' } },
+      },
+    }),
+  );
 
   // Return error
   if (err) throw err;
 
   // Get nested object
   dashboard = unNestSequelizeObj(dashboard);
+  dashboard.cluster = unNestSequelizeObj(dashboard.cluster);
+
+  // Format object
+  dashboard = { ...dashboard, ...dashboard.cluster };
+  delete dashboard.cluster;
 
   return dashboard;
 };

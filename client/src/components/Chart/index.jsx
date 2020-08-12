@@ -24,20 +24,26 @@ const ChartComp = ({
   chart: { config = {} },
   dashboard = { params: [] },
   dataObj: { data = {}, error, loading = true },
-  dispatch,
+  eclDataset = '',
 }) => {
-  const { dataset, groupBy, horizontal, stacked, isStatic = false, type } = config;
+  const { dataset, ecl = {}, groupBy, horizontal, stacked, isStatic = false, type } = config;
   const { progress } = useStyles();
   let chartData = [];
   let chartType = type;
   let err = null;
 
+  eclDataset = eclDataset === '' && Object.keys(ecl).length > 0 ? ecl.dataset : eclDataset;
+
   // Determine if chart data is available
   if (Object.keys(data).length > 0) {
     if (data.Exception) {
       err = data.Exception.Message;
-    } else if (data[dataset]) {
-      chartData = data[dataset].Row;
+    } else if (data[dataset] || eclDataset !== '') {
+      if (eclDataset !== '') {
+        chartData = data[eclDataset].Row;
+      } else {
+        chartData = data[dataset].Row;
+      }
 
       // Confirm chart type
       if (chartType === 'bar') {
@@ -82,7 +88,7 @@ const ChartComp = ({
         case 'heatmap':
           return <HeatMap data={chartData} config={config} />;
         case 'table':
-          return <Table data={chartData} dispatch={dispatch} config={config} params={dashboard.params} />;
+          return <Table data={chartData} config={config} params={dashboard.params} />;
         default:
           return 'Unknown chart type';
       }

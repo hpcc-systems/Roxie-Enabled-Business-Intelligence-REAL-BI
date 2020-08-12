@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
@@ -27,12 +27,13 @@ const useStyles = makeStyles(theme => ({
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   // Get selected chart
   const { charts } = useSelector(state => state.chart);
-  const initState = setEditorState(charts, chartID);
+  const { eclObj, initState } = setEditorState(charts, chartID);
 
   // Set initial state
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
   );
+  const eclRef = useRef(eclObj);
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, toolbar, typography } = useStyles();
@@ -43,17 +44,24 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     error,
     selectedDataset = {},
     selectedSource = {},
+    sourceType,
   } = localState;
   const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
   const editChart = () => {
-    const { chartID, sourceID } = localState;
+    const { chartID, sourceID, sourceType } = localState;
+    const newECLObj = { ...eclRef.current };
+
+    // Remove unneccesary key for DB
+    delete newECLObj.data;
+
     const chartObj = createChartObj(localState);
+    const updatedChartObj = { ...chartObj, config: { ...chartObj.config, ecl: newECLObj } };
 
     // Update chart and global params in DB
-    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID).then(action => {
+    updateChart({ id: chartID, ...updatedChartObj }, dashboard.id, sourceID, sourceType).then(action => {
       // Close dialog
       /*
         Closing the dialog happens here because React will attempt to update the component
@@ -96,13 +104,19 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         <Typography variant='h6' color='inherit' className={typography}>
           Edit Chart
         </Typography>
-        <Button disabled={!sourceKeys > 0 || !datasetKeys > 0 || previewLoading} onClick={updateChartPreview}>
-          <RefreshIcon />
-        </Button>
+        {sourceType !== 'ecl' && (
+          <Button
+            disabled={sourceKeys === 0 || datasetKeys === 0 || previewLoading}
+            onClick={updateChartPreview}
+          >
+            <RefreshIcon />
+          </Button>
+        )}
       </Toolbar>
       <DialogContent>
         <ChartEditor
           dashboard={dashboard}
+          eclRef={eclRef}
           handleChange={handleChange}
           handleChangeArr={handleChangeArr}
           handleChangeObj={handleChangeObj}

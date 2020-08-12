@@ -122,7 +122,9 @@ const Dashboard = () => {
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'id').map((chart, index) => {
             const { id: chartID, config, sourceID, sourceName } = chart;
-            const dataObj = compData[chartID] || compData[sourceName] || {};
+            const { ecl = {} } = config;
+            const eclDataset = Object.keys(ecl) ? ecl.dataset : '';
+            const dataObj = compData[chartID] || compData[sourceName] || compData[eclDataset] || {};
 
             return (
               <Grid key={index} item md={12}>
@@ -136,7 +138,7 @@ const Dashboard = () => {
                     toggleDialog={editChart}
                   />
                   <div className={clearDiv}>
-                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} dispatch={dispatch} />
+                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} />
                   </div>
                 </Paper>
               </Grid>

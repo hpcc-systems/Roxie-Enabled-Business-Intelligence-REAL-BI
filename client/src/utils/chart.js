@@ -84,7 +84,7 @@ export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
-  const { dataset, params } = config;
+  const { dataset, ecl = {}, params } = config;
 
   // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
@@ -115,7 +115,7 @@ export const setEditorState = (charts, chartID) => {
     ...chartKeys,
   };
 
-  return initState;
+  return { initState, eclObj: ecl };
 };
 
 export const checkForChartParams = chartsArr => {

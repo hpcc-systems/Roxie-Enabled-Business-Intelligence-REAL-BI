@@ -17,7 +17,11 @@ import { hasStackedOption } from '../../../utils/misc';
 
 // Changes message based on source type
 const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
+  return sourceType === 'ecl'
+    ? 'Run ECL Script'
+    : sourceType === 'file'
+    ? 'Choose a file'
+    : 'Choose a dataset';
 };
 
 const useStyles = makeStyles(theme => ({
@@ -28,23 +32,27 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 20 },
 }));
 
-const GroupByTab = ({ handleChangeObj, handleCheckbox, localState }) => {
+const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => {
+  const { dataset: eclDataset, schema = [] } = eclRef.current;
   const { chartID, config, dataset, selectedDataset = {}, sourceType } = localState;
   const { groupBy, stacked, type } = config;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
-  return dataset ? (
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMsg(sourceType), value: '' }];
+
+  return dataset || eclDataset ? (
     <Grid container direction='row' alignContent='space-between' className={topFormControl}>
       <Grid item md={hasStackedOption(type) ? 10 : 12}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Group Field</InputLabel>
-          {chartID && fields.length <= 1 ? (
+          {chartID && fieldsArr.length <= 1 ? (
             <CircularProgress className={progress} size={20} />
           ) : (
             <Select name='config:groupBy' value={groupBy || ''} onChange={handleChangeObj}>
               {groupBy !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
-              {fields.map(({ name, value = name }, index) => {
+              {fieldsArr.map(({ name, value = name }, index) => {
                 return (
                   <MenuItem key={index} value={value}>
                     {name}

@@ -48,7 +48,8 @@ const useStyles = makeStyles(theme => ({
   topFormControl: { marginTop: theme.spacing(3) },
 }));
 
-const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState }) => {
+const GeneralTab = props => {
+  const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { config } = localState;
   const { horizontal, isStatic, title, chartDescription, type, xAxis, yAxis } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
@@ -169,19 +170,15 @@ const GeneralTab = ({ handleChange, handleChangeObj, handleCheckbox, localState 
         />
       </Grid>
       {type === 'pie' ? (
-        <PieParams handleChangeObj={handleChangeObj} localState={localState} />
+        <PieParams {...props} />
       ) : type === 'textBox' ? (
-        <TextBoxParams
-          handleCheckbox={handleCheckbox}
-          handleChangeObj={handleChangeObj}
-          localState={localState}
-        />
+        <TextBoxParams {...props} />
       ) : type === 'table' ? (
-        <TableParams handleChangeObj={handleChangeObj} localState={localState} />
+        <TableParams {...props} />
       ) : type === 'heatmap' ? (
-        <HeatMapParams handleChangeObj={handleChangeObj} localState={localState} />
+        <HeatMapParams {...props} />
       ) : (
-        <GeneralParams handleChangeObj={handleChangeObj} localState={localState} />
+        <GeneralParams {...props} />
       )}
     </Grid>
   );
