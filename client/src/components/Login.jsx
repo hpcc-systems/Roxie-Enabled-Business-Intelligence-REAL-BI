@@ -7,9 +7,11 @@ import {
   Card,
   CardActions,
   CardContent,
+  CardHeader,
   CircularProgress,
   Container,
   Grid,
+  Link,
   TextField,
   Typography,
 } from '@material-ui/core';
@@ -32,18 +34,36 @@ import { tokenName } from '../constants';
 import { useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
+  actions: { backgroundColor: theme.palette.secondary.light },
   button: {
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
+    margin: theme.spacing(3, 0, 1.5, 0),
+    width: 200,
   },
+  content: { padding: theme.spacing(1, 2) },
   errMsg: {
-    backgroundColor: theme.palette.error.main,
+    backgroundColor: theme.palette.error.dark,
+    borderRadius: 4,
     color: theme.palette.error.contrastText,
-    margin: theme.spacing(2, 0, 2, 0),
+    marginBottom: theme.spacing(1.5),
   },
   grid: { minHeight: '50vh' },
+  header: {
+    backgroundColor: theme.palette.primary.main,
+    color: '#ff5722',
+    padding: theme.spacing(1.25, 0, 1.25, 2),
+    '& span': {
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+    },
+  },
+  options: {
+    color: theme.palette.secondary.contrastText,
+    padding: theme.spacing(1, 1.25),
+  },
   progress: { marginRight: theme.spacing(2) },
-  textfield: { margin: theme.spacing(1, 0, 1, 0) },
+  textfield: { margin: theme.spacing(1, 0) },
 }));
 
 const initState = {
@@ -58,7 +78,7 @@ const Login = () => {
   const { msg: errorMsg } = useSelector(state => state.auth.errors);
   const dispatch = useDispatch();
   const history = useHistory();
-  const { button, errMsg, grid, progress, textfield } = useStyles();
+  const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
 
   useEffect(() => {
     const { token, valid } = checkForToken();
@@ -113,6 +133,11 @@ const Login = () => {
     }
   };
 
+  const emailAddr = 'test@test.com';
+  const emailSubject = 'Real%20BI%20Account%20Request';
+  const emailBody =
+    'To%20LexisNexis%20Risk%20Solutions%2C%0A%0AI%20would%20like%20to%20request%20access%20to%20your%20Real%20BI%20web%20application.%20Please%20find%20my%20information%20below%20to%20create%20my%20account.%0A%0AName%3A%0AEmail%3A%0AOrganization%3A';
+
   return (
     <Fragment>
       <Header />
@@ -121,8 +146,8 @@ const Login = () => {
           <Grid item>
             <form onSubmit={loginUserFn}>
               <Card>
-                <CardContent>
-                  <Typography variant='h6'>Login</Typography>
+                <CardHeader className={header} title='Login' />
+                <CardContent className={content}>
                   {errorMsg && errorMsg !== '' && (
                     <Typography className={errMsg} align='center'>
                       {errorMsg}
@@ -146,14 +171,29 @@ const Login = () => {
                     autoComplete='false'
                     fullWidth
                   />
-                </CardContent>
-                <CardActions>
-                  <Grid container direction='row' justify='flex-end' alignItems='center' spacing={0}>
+                  <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>
                       <Button className={button} variant='contained' type='submit' disabled={loading}>
                         {loading && <CircularProgress color='inherit' size={20} className={progress} />}
                         Login
                       </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+                <CardActions className={actions}>
+                  <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
+                    <Grid item>
+                      <Link className={options} href='#' /*target='_blank'*/>
+                        Forgot password?
+                      </Link>
+                    </Grid>
+                    <Grid item>
+                      <Link
+                        className={options}
+                        href={`mailto:${emailAddr}?subject=${emailSubject}&body=${emailBody}`}
+                      >
+                        Register account
+                      </Link>
                     </Grid>
                   </Grid>
                 </CardActions>
