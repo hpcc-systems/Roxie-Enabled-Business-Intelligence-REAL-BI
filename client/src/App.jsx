@@ -11,6 +11,7 @@ import store from './store';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './components/Login';
 import Workspace from './components/Workspace';
+import ChangePwd from './components/ChangePwd';
 
 // Utils
 import { checkForToken } from './utils/auth';
@@ -54,6 +55,7 @@ const App = () => {
               <Route exact path='/' component={Login} />
               <Route path='/login' component={Login} />
               <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
+              <PrivateRoute path='/changepwd' component={ChangePwd} />
             </Switch>
           </Router>
         </CssBaseline>

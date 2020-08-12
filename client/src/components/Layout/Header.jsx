@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -25,6 +25,7 @@ import {
   Person as PersonIcon,
   VpnKey as VpnKeyIcon,
 } from '@material-ui/icons';
+import classnames from 'classnames';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -63,11 +64,11 @@ const useStyles = makeStyles(theme => ({
   newBtn: { marginTop: theme.spacing(1.5) },
   toolbar: { minHeight: 65, maxHeight: 65 },
   typography: {
-    marginLeft: theme.spacing(1.5),
-    marginRight: theme.spacing(3),
+    margin: theme.spacing(0, 3, 0, 1.5),
     color: '#ff5722',
     fontWeight: 'bold',
   },
+  typography2: { marginLeft: 0 },
   workspaceDiv: { flexGrow: 1 },
 }));
 
@@ -76,6 +77,7 @@ const Header = ({ toggleDrawer }) => {
   const { id: userID, username } = user;
   const dispatch = useDispatch();
   const history = useHistory();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const anchorRef = useRef(null);
@@ -91,6 +93,7 @@ const Header = ({ toggleDrawer }) => {
     newBtn,
     toolbar,
     typography,
+    typography2,
     workspaceDiv,
   } = useStyles();
 
@@ -145,27 +148,37 @@ const Header = ({ toggleDrawer }) => {
     history.push('/login');
   };
 
+  const isChangePwdScreen = location.pathname === '/changepwd';
+
   return (
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar}>
-          {userID && (
+          {userID && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant='h5' color='inherit' className={typography}>
+          <Typography
+            variant='h5'
+            color='inherit'
+            className={classnames(typography, { [typography2]: isChangePwdScreen })}
+          >
             REAL BI
           </Typography>
           {userID && (
             <Fragment>
               {/* Workspace Dropdown */}
-              <div className={workspaceDiv}>
-                <WorkspaceSelector dispatch={dispatch} user={user} />
-                <Button className={newBtn} variant='contained' onClick={toggleDialog}>
-                  New +
-                </Button>
-              </div>
+              {!isChangePwdScreen ? (
+                <div className={workspaceDiv}>
+                  <WorkspaceSelector dispatch={dispatch} user={user} />
+                  <Button className={newBtn} variant='contained' onClick={toggleDialog}>
+                    New +
+                  </Button>
+                </div>
+              ) : (
+                <div style={{ flexGrow: 1 }}></div>
+              )}
 
               {/* Help Button */}
               <IconButton className={button} color='inherit' onClick={() => handleToggle(1)} ref={anchorRef}>
@@ -216,7 +229,7 @@ const Header = ({ toggleDrawer }) => {
                     <Paper>
                       <ClickAwayListener onClickAway={event => handleClose(event, 2)}>
                         <MenuList autoFocusItem={open} id='userMenu'>
-                          <MenuItem className={menuItem} onClick={() => console.log('Change Password')}>
+                          <MenuItem className={menuItem} onClick={() => history.push('/changepwd')}>
                             <ListItemIcon className={menuIcon}>
                               <VpnKeyIcon />
                             </ListItemIcon>
