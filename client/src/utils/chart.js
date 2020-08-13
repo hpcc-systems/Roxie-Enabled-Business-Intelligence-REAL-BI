@@ -77,14 +77,14 @@ export const createChartObj = localState => {
     newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { config: newConfig };
+  return { ...newConfig };
 };
 
 export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
-  const { dataset, ecl = {}, params } = config;
+  const { dataset, ecl = {}, params = [] } = config;
 
   // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');

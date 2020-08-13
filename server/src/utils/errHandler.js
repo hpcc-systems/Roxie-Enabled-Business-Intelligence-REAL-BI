@@ -1,11 +1,12 @@
 const logger = require('../config/logger');
 
 const errHandler = err => {
-  const { response = {} } = err;
+  const { errors = [{ message: null }], response = {} } = err;
+  const { message: sequelizeMsg = null } = errors[0];
   const { data, message, status = 500, statusText } = response;
 
   // Get error message
-  let errMsg = data || message || statusText || 'Internal Error';
+  let errMsg = sequelizeMsg || data || message || statusText || 'Internal Error';
 
   // Update error message if status is a 401
   if (status === 401) {

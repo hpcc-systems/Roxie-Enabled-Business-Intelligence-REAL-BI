@@ -29,9 +29,9 @@ export const addSource = async (dashboardID, source) => {
     return;
   }
 
-  const { id: sourceID, name: sourceName } = response.data;
+  const { id: sourceID, name: sourceName, type: sourceType } = response.data;
 
-  return { sourceID, sourceName };
+  return { sourceID, sourceName, sourceType };
 };
 
 export const getSourceInfo = async (clusterID, source, sourceType) => {

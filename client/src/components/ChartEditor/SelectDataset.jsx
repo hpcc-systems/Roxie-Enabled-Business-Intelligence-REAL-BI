@@ -57,29 +57,29 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
     }
   }, [dataset, datasets, handleChange, handleChangeObj]);
 
-  return (
-    /*
-      Only display component if the source type isn't a file
-      Still mount the component so the useEffect runs
-    */
-    sourceType !== 'file' &&
-    // Conditionally show the loading animation
-    (loading && ((type === 'textBox' && !isStatic) || type !== 'textBox') ? (
-      <CircularProgress className={progress} />
-    ) : (
-      <FormControl className={formControl} fullWidth>
-        <InputLabel>Dataset</InputLabel>
-        <Select name='dataset' value={dataset} onChange={handleChange}>
-          {datasets.map(({ name }, index) => {
-            return (
-              <MenuItem key={index} value={name}>
-                {name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-    ))
+  /*
+    Don't render component to screen
+    Still mount the component so the useEffect runs
+  */
+  if (sourceType === 'file' || (type === 'textBox' && isStatic)) {
+    return null;
+  }
+
+  return loading ? (
+    <CircularProgress className={progress} />
+  ) : (
+    <FormControl className={formControl} fullWidth>
+      <InputLabel>Dataset</InputLabel>
+      <Select name='dataset' value={dataset} onChange={handleChange}>
+        {datasets.map(({ name }, index) => {
+          return (
+            <MenuItem key={index} value={name}>
+              {name}
+            </MenuItem>
+          );
+        })}
+      </Select>
+    </FormControl>
   );
 };
 
