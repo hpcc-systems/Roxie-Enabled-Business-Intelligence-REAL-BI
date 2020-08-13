@@ -58,7 +58,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     delete newECLObj.data;
 
     const chartObj = createChartObj(localState);
-    const updatedChartObj = { ...chartObj, config: { ...chartObj.config, ecl: newECLObj } };
+    const updatedChartObj = { ...chartObj, ecl: newECLObj };
 
     // Update chart and global params in DB
     updateChart({ id: chartID, ...updatedChartObj }, dashboard.id, sourceID, sourceType).then(action => {

@@ -74,7 +74,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
     if (type === 'textBox' && isStatic) {
       try {
-        addChart({ ...config, dataset, ecl: newECLObj }, dashboardID, null, null).then(action => {
+        addChart({ ...config, dataset, ecl: {} }, dashboardID, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {
@@ -87,7 +87,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       try {
         const { sourceID, sourceName } = await addSource(dashboardID, sourceObj);
 
-        const updatedChartObj = { ...newChartObj, config: { ...newChartObj.config, ecl: newECLObj } };
+        const updatedChartObj = { ...newChartObj, ecl: newECLObj };
 
         addChart(updatedChartObj, dashboardID, sourceID, sourceName).then(action => {
           dispatch(action);

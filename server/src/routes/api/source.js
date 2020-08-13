@@ -198,6 +198,11 @@ router.get('/data/multiple', async (req, res) => {
     cluster = await getClusterByID(clusterID);
     const { config, source } = await getChartByID(chartID);
 
+    // Static textboxes won't have a source object
+    if (Object.keys(source).length === 0) {
+      return res.status(200).end();
+    }
+
     switch (source.type) {
       case 'file':
         data = await getFileDataFromCluster(cluster, { params: config.params, source }, userID);

@@ -48,7 +48,7 @@ const getChartsByDashboardID = async dashboardID => {
 };
 
 const createChart = async (chart, dashboardID, sourceID) => {
-  let [err, newChart] = await awaitHandler(chartModel.create({ ...chart, dashboardID, sourceID }));
+  let [err, newChart] = await awaitHandler(chartModel.create({ config: chart, dashboardID, sourceID }));
 
   // Return error
   if (err) throw err;
