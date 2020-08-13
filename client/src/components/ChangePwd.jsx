@@ -13,12 +13,16 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
+import classnames from 'classnames';
 
 // React Components
 import Header from './Layout/Header';
 
 // React Hooks
 import useForm from '../hooks/useForm';
+
+// Utils
+import { updatePassword } from '../utils/auth';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -35,18 +39,25 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
   },
   content: { padding: theme.spacing(1, 2) },
-  errMsg: {
+  err: {
     backgroundColor: theme.palette.error.dark,
-    borderRadius: 4,
     color: theme.palette.error.contrastText,
-    marginBottom: theme.spacing(1.5),
   },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
     padding: theme.spacing(1.25, 0, 1.25, 2),
   },
+  message: {
+    borderRadius: 4,
+    marginBottom: theme.spacing(1.5),
+    padding: theme.spacing(0.5, 0),
+  },
   progress: { marginRight: theme.spacing(2) },
+  success: {
+    backgroundColor: theme.palette.success.dark,
+    color: theme.palette.success.contrastText,
+  },
   textfield: { margin: theme.spacing(1, 0) },
   typography: {
     display: 'inline',
@@ -62,25 +73,45 @@ const initState = {
   newPwd: '',
   newPwd2: '',
   oldPwd: '',
+  successMsg: '',
 };
 
 const ChangePwd = () => {
-  const { values: localState, handleChange } = useForm(initState);
+  const { values: localState, handleChange, resetState } = useForm(initState);
   const history = useHistory();
-  const { button, closeBtn, content, header, progress, textfield, typography } = useStyles();
+  const {
+    button,
+    closeBtn,
+    content,
+    err,
+    header,
+    message,
+    progress,
+    success,
+    textfield,
+    typography,
+  } = useStyles();
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     // Prevent form from reloading page
     event.preventDefault();
 
     handleChange(null, { name: 'loading', value: true });
 
-    console.log(localState);
+    let response;
 
-    handleChange(null, { name: 'loading', value: false });
+    try {
+      response = await updatePassword(localState);
+    } catch (err) {
+      resetState(initState);
+      return handleChange(null, { name: 'errorMsg', value: err });
+    }
+
+    resetState(initState);
+    return handleChange(null, { name: 'successMsg', value: response });
   };
 
-  const { loading, oldPwd, newPwd, newPwd2 } = localState;
+  const { errorMsg, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
 
   return (
     <Fragment>
@@ -101,7 +132,7 @@ const ChangePwd = () => {
                   className={header}
                   title={
                     <Fragment>
-                      <Button className={closeBtn} onClick={() => history.goBack()}>
+                      <Button className={closeBtn} disabled={loading} onClick={() => history.goBack()}>
                         <ArrowBackOutlinedIcon fontSize='large' />
                       </Button>
                       <Typography className={typography} variant='h6'>
@@ -111,15 +142,24 @@ const ChangePwd = () => {
                   }
                 />
                 <CardContent className={content}>
-                  {/* {errorMsg && errorMsg !== '' && (
-                    <Typography className={errMsg} align='center'>
+                  {/* Error message */}
+                  {errorMsg && errorMsg !== '' && (
+                    <Typography className={classnames(message, err)} align='center'>
                       {errorMsg}
                     </Typography>
-                  )} */}
+                  )}
+
+                  {/* Success Message */}
+                  {successMsg && successMsg !== '' && (
+                    <Typography className={classnames(message, success)} align='center'>
+                      {successMsg}
+                    </Typography>
+                  )}
+
                   <TextField
                     className={textfield}
                     label='Old Password'
-                    name='oldpwd'
+                    name='oldPwd'
                     value={oldPwd}
                     type='password'
                     onChange={handleChange}
