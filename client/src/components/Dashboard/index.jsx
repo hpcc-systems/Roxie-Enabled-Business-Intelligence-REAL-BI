@@ -1,11 +1,10 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 // Redux Actions
-import { deleteDashboardParam, getDashboardParams } from '../../features/dashboard/actions';
-import { deleteChart } from '../../features/chart/actions';
+import { deleteDashboardParam } from '../../features/dashboard/actions';
 
 // React Components
 import Toolbar from './Toolbar';
@@ -15,6 +14,7 @@ import NewChartDialog from '../Dialog/newChart';
 import ShareLinkDialog from '../Dialog/shareLink';
 import EditChartDialog from '../Dialog/editChart';
 import FilterDrawer from '../Drawers/Filters';
+import DeleteChartDialog from '../Dialog/DeleteChart';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -32,12 +32,14 @@ const useStyles = makeStyles(() => ({
 const Dashboard = () => {
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
+  const [sourceID, setSourceID] = useState(null);
   const { dashboard } = useSelector(state => state.dashboard);
   const { clusterID, id: dashboardID, params = [] } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
+  const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dispatch = useDispatch();
   const { clearDiv } = useStyles();
@@ -48,15 +50,10 @@ const Dashboard = () => {
   };
 
   const removeChart = async (chartID, sourceID) => {
-    let actions = [];
+    setChartID(chartID);
+    setSourceID(sourceID);
 
-    actions[0] = await deleteChart(chartID, dashboardID, sourceID);
-    actions[1] = await getDashboardParams(dashboardID);
-
-    batch(() => {
-      dispatch(actions[0]);
-      dispatch(actions[1]);
-    });
+    deleteChartToggle();
   };
 
   const deleteFilter = filterID => {
@@ -159,6 +156,15 @@ const Dashboard = () => {
         {shareLinkShow && <ShareLinkDialog show={shareLinkShow} toggleShare={shareLinkToggle} />}
         {editChartShow && (
           <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
+        )}
+        {deleteChartShow && (
+          <DeleteChartDialog
+            chartID={chartID}
+            dashboard={dashboard}
+            sourceID={sourceID}
+            show={deleteChartShow}
+            toggleDialog={deleteChartToggle}
+          />
         )}
       </Container>
     </Fragment>
