@@ -77,7 +77,7 @@ export const createChartObj = localState => {
     newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { newConfig };
+  return { ...newConfig };
 };
 
 export const setEditorState = (charts, chartID) => {
