@@ -1,4 +1,5 @@
 import jwtDecode from 'jwt-decode';
+import axios from 'axios';
 
 // Constants
 import { tokenName } from '../constants';
@@ -23,4 +24,22 @@ export const checkForToken = () => {
   const valid = isTokenValid(token);
 
   return { token, valid };
+};
+
+export const updatePassword = async stateObj => {
+  let response;
+
+  try {
+    response = await axios.post('/api/user/changepwd', { ...stateObj });
+  } catch (err) {
+    const errReason = err.response.data.reason;
+
+    if (errReason) {
+      throw errReason;
+    }
+
+    throw err.response.data;
+  }
+
+  return response.data;
 };
