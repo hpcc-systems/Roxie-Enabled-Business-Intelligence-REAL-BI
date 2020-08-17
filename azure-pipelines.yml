@@ -1,6 +1,9 @@
 trigger:
   - master
 
+#do not trigger ci on pull requests
+pr: none
+
 pool:
   vmImage: ubuntu-latest
 
