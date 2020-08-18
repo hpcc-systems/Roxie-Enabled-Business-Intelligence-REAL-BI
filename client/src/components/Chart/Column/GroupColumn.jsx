@@ -5,7 +5,7 @@ import { GroupedColumn } from '@ant-design/charts';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const GroupColumnComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -30,10 +30,6 @@ const GroupColumnComp = ({ data, config }) => {
     data,
     forceFit: true,
     label: { visible: false },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
@@ -46,6 +42,7 @@ const GroupColumnComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
+        fill: '#333',
       },
     },
     xField: xAxis,
@@ -53,6 +50,7 @@ const GroupColumnComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
+        fill: '#333',
       },
     },
     yField: yAxis,

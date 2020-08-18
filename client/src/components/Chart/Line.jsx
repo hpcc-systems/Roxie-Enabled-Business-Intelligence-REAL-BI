@@ -5,7 +5,7 @@ import { Line } from '@ant-design/charts';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
 const LineComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -37,10 +37,6 @@ const LineComp = ({ data, config }) => {
       },
       visible: true,
     },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'bottom',
       visible: true,
@@ -60,6 +56,7 @@ const LineComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
+        fill: '#333',
       },
     },
     yField: yAxis,
@@ -67,6 +64,7 @@ const LineComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
+        fill: '#333',
       },
     },
   };

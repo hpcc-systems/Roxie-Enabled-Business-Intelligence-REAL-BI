@@ -5,7 +5,7 @@ import { Bar } from '@ant-design/charts';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const BarComp = ({ data, config }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -30,10 +30,6 @@ const BarComp = ({ data, config }) => {
     data,
     forceFit: true,
     label: { visible: false },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
@@ -48,6 +44,7 @@ const BarComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
+        fill: '#333',
       },
     },
     xField: xAxis,
@@ -57,6 +54,7 @@ const BarComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
+        fill: '#333',
       },
     },
     yField: yAxis,

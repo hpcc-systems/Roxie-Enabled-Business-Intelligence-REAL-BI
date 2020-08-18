@@ -45,6 +45,7 @@ const HeatMapComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
+        fill: '#333',
       },
     },
     xField: xAxis,
@@ -52,6 +53,7 @@ const HeatMapComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
+        fill: '#333',
       },
     },
     yField: yAxis,

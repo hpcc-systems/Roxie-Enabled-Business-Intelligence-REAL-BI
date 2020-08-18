@@ -12,9 +12,6 @@ import NoData from './NoData';
 import TextBox from './TextBox';
 import HeatMap from './HeatMap';
 
-// Utils
-import { createDateTimeStamp } from '../../utils/misc';
-
 // Create styles
 const useStyles = makeStyles({
   progress: { margin: '0 0 10px 10px' },
@@ -57,9 +54,6 @@ const ChartComp = ({
   } else if (error !== '') {
     err = error;
   }
-
-  // Inject datetime stamp into config as new description
-  config = { ...config, description: createDateTimeStamp(config.chartDescription) };
 
   // Don't render the progress wheel if the chart is a static textbox
   return loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (

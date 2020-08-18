@@ -5,7 +5,7 @@ import { StackedColumn } from '@ant-design/charts';
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 const StackedColumnComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -35,10 +35,6 @@ const StackedColumnComp = ({ data, config }) => {
       style: { fontSize: 12 },
       visible: true,
     },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
@@ -51,6 +47,7 @@ const StackedColumnComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
+        fill: '#333',
       },
     },
     xField: xAxis,
@@ -58,6 +55,7 @@ const StackedColumnComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
+        fill: '#333',
       },
     },
     yField: yAxis,

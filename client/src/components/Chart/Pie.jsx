@@ -9,7 +9,7 @@ const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
 const PieComp = ({ data, config }) => {
-  const { name, value, description, name_Label, value_Label } = config;
+  const { name, value, name_Label, value_Label } = config;
 
   const customNameLabel = typeof name_Label !== 'undefined' ? name_Label : name;
   const customValueLabel = typeof value_Label !== 'undefined' ? value_Label : value;
@@ -37,10 +37,6 @@ const PieComp = ({ data, config }) => {
       formatter: v => percentageOfPie(v, total),
       type: 'outer-center',
       visible: true,
-    },
-    description: {
-      visible: true,
-      text: description,
     },
     legend: {
       title: {
