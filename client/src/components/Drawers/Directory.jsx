@@ -117,6 +117,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     try {
       dashboard = await createDashboard(localState, workspaceID);
       await createClusterAuth({ clusterID, password, username });
+      openDashboard(dashboard);
     } catch (err) {
       // Disable loading animation
       setLoading(false);
