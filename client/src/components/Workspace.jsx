@@ -103,7 +103,7 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {openDashboards.map(({ id, name }) => {
+            {openDashboards.map(({ id, name }, key) => {
               return (
                 <Tab
                   component='div'
@@ -112,9 +112,11 @@ const Workspace = () => {
                   label={
                     <span className={span}>
                       {name}
-                      <IconButton className={closeBtn}>
-                        <CloseIcon fontSize='small' />
-                      </IconButton>
+                      {key == tabIndex ? (
+                        <IconButton className={closeBtn}>
+                          <CloseIcon fontSize='small' />
+                        </IconButton>
+                      ) : null}
                     </span>
                   }
                 />
