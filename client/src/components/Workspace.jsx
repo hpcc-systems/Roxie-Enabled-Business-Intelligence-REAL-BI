@@ -35,6 +35,7 @@ const Workspace = () => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
+  const [hoverIndex, setHoverIndex] = useState(-1);
   const { appbar, closeBtn, span, tab } = useStyles();
 
   useEffect(() => {
@@ -109,10 +110,12 @@ const Workspace = () => {
                   component='div'
                   key={id}
                   className={tab}
+                  onMouseEnter={() => setHoverIndex(key)}
+                  onMouseLeave={() => setHoverIndex(-1)}
                   label={
                     <span className={span}>
                       {name}
-                      {key == tabIndex ? (
+                      {key == tabIndex || key == hoverIndex ? (
                         <IconButton className={closeBtn}>
                           <CloseIcon fontSize='small' />
                         </IconButton>
