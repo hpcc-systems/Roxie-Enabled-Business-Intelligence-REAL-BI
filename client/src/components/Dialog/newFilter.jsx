@@ -63,10 +63,12 @@ const NewFilter = ({ show, toggleDialog }) => {
   });
 
   const saveFilter = async () => {
+    const { selectedSource, sourceType } = localState;
+
     setLoading(true);
 
     try {
-      const { sourceID } = await addSource(dashboard.id, localState.selectedSource);
+      const { sourceID } = await addSource(dashboard.id, selectedSource, sourceType);
       const filterObj = await createParamObj(localState, dashboard.id);
 
       createDashboardParam({ ...filterObj, sourceID }).then(action => dispatch(action));

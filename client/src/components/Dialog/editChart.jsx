@@ -57,11 +57,10 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     // Remove unneccesary key for DB
     delete newECLObj.data;
 
-    const chartObj = createChartObj(localState);
-    const updatedChartObj = { ...chartObj, ecl: newECLObj };
+    const chartObj = createChartObj(localState, eclRef.current);
 
     // Update chart and global params in DB
-    updateChart({ id: chartID, ...updatedChartObj }, dashboard.id, sourceID, sourceType).then(action => {
+    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType).then(action => {
       // Close dialog
       /*
         Closing the dialog happens here because React will attempt to update the component
