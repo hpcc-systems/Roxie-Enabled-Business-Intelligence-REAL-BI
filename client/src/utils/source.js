@@ -52,7 +52,7 @@ export const createSourceObj = (localState, eclRef) => {
     selectedSource: { target, hpccID, name },
     sourceType,
   } = localState;
-  const { cluster, workunitID } = eclRef.current;
+  const { cluster, workunitID } = eclRef;
 
   if (sourceType === 'ecl') {
     return { hpccID: workunitID, name: workunitID, target: cluster, type: sourceType };

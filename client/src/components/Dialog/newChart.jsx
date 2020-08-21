@@ -67,10 +67,6 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const { config, dataset } = localState;
     const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
-    const newECLObj = { ...eclRef.current };
-
-    // Remove unneccesary key for DB
-    delete newECLObj.data;
 
     if (type === 'textBox' && isStatic) {
       try {
@@ -81,15 +77,13 @@ const NewChartDialog = ({ show, toggleDialog }) => {
         console.error(err);
       }
     } else {
-      const sourceObj = createSourceObj(localState, eclRef);
-      const newChartObj = createChartObj(localState);
+      const sourceObj = createSourceObj(localState, eclRef.current);
+      const newChartObj = createChartObj(localState, eclRef.current);
 
       try {
         const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
 
-        const updatedChartObj = { ...newChartObj, ecl: newECLObj };
-
-        addChart(updatedChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
+        addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
           dispatch(action);
         });
       } catch (err) {
