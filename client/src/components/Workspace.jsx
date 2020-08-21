@@ -115,7 +115,7 @@ const Workspace = () => {
                   label={
                     <span className={span}>
                       {name}
-                      {key == tabIndex || key == hoverIndex ? (
+                      {key === tabIndex || key === hoverIndex ? (
                         <IconButton className={closeBtn}>
                           <CloseIcon fontSize='small' />
                         </IconButton>
