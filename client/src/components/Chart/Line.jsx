@@ -4,6 +4,9 @@ import { Line } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../constants';
+
 const LineComp = ({ data, config }) => {
   const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
@@ -56,7 +59,7 @@ const LineComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
     yField: yAxis,
@@ -64,7 +67,7 @@ const LineComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
   };

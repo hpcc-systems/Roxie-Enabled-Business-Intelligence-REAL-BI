@@ -4,6 +4,9 @@ import { Bar } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../../constants';
+
 const BarComp = ({ data, config }) => {
   const { xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
@@ -44,7 +47,7 @@ const BarComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
     xField: xAxis,
@@ -54,7 +57,7 @@ const BarComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
     yField: yAxis,

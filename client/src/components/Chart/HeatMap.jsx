@@ -4,6 +4,9 @@ import { Heatmap } from '@ant-design/charts';
 // Utils
 import { thousandsSeparator, sortArr } from '../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../constants';
+
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
 const HeatMapComp = ({ data, config }) => {
@@ -45,7 +48,7 @@ const HeatMapComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customXLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
     xField: xAxis,
@@ -53,7 +56,7 @@ const HeatMapComp = ({ data, config }) => {
       title: {
         visible: true,
         text: customYLabel,
-        fill: '#333',
+        fill: chartFillColor,
       },
     },
     yField: yAxis,
