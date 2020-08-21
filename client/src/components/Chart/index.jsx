@@ -32,7 +32,7 @@ const ChartComp = ({
   let chartType = type;
   let err = null;
 
-  eclDataset = eclDataset === '' && Object.keys(ecl).length > 0 ? ecl.dataset : eclDataset;
+  eclDataset = eclDataset === '' && ecl.dataset ? ecl.dataset : eclDataset;
 
   // Determine if chart data is available
   if (Object.keys(data).length > 0) {

@@ -1,4 +1,5 @@
 const axios = require('axios');
+const parseStringPromise = require('xml2js').parseStringPromise;
 
 // DB Models
 const { cluster: clusterModel } = require('../models');
@@ -9,6 +10,7 @@ const {
   awaitHandler,
   createFileParams,
   createParamString,
+  createWUParams,
   findQueryDatasets,
   getDatasetFields,
   getType,
@@ -222,7 +224,7 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   let requestBody = { LogicalName: filename, FilterBy: { NamedValue: formattedParams }, Start, Count };
 
   // Log API request
-  logger.info(`Request made to ${url} with body ${JSON.stringify(requestBody)}`);
+  logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
 
   let [err, response] = await awaitHandler(
     axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
@@ -243,25 +245,20 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   return { [filename]: { Row } };
 };
 
-const getWorkunitDataFromCluster = async (
-  { id: clusterID, host, infoPort },
-  { Count, dataset, source },
-  userID,
-) => {
+const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const { dataset } = config;
   const { hpccID: workunitID, target } = source;
   const clusterAuth = await getClusterAuth(clusterID, userID);
 
-  // Build URL from cluster and file details
+  // Build URL from cluster details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
-
-  let requestBody = { Wuid: workunitID, Cluster: target, Count };
+  const requestBody = { WUResultRequest: { Wuid: workunitID, Cluster: target, ResultName: dataset } };
 
   // Log API request
-  logger.info(`Request made to ${url} with body ${JSON.stringify(requestBody)}`);
+  logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
 
-  let [err, response] = await awaitHandler(
-    axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
-  );
+  let [err, response] = await awaitHandler(axios.post(url, requestBody, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -273,9 +270,74 @@ const getWorkunitDataFromCluster = async (
   }
 
   // Update variable to nested depth
-  const { Row = [] } = response.data['WUResultResponse']['Result'];
+  const { Row = [] } = response.data['WUResultResponse']['Result'][dataset];
 
   return { [dataset]: { Row } };
+};
+
+const getWorkunitDataFromClusterWithParams = async (cluster, config, params, source, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const { dataset, ecl } = config;
+  const { hpccID: workunitID, target } = source;
+  const clusterAuth = await getClusterAuth(clusterID, userID);
+  const formattedParams = createWUParams(params);
+  const schemaArr = ecl.schema.map(({ name }) => name);
+
+  // Build URL from cluster details
+  const url = `${host}:${infoPort}/WsWorkunits/WURun.json`;
+  const requestBody = {
+    WURunRequest: {
+      Wuid: workunitID,
+      Cluster: target,
+      Variables: { NamedValue: formattedParams },
+      ExceptionSeverity: 'error',
+    },
+  };
+
+  // No param values passed, update request body key
+  // Equivalent to running ECL script with default values
+  if (formattedParams.length === 0) {
+    requestBody.WURunRequest.Variables = { NamedValue: [{ Name: '', Value: '' }] };
+  }
+
+  // Log API request
+  logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
+
+  let [err, response] = await awaitHandler(axios.post(url, requestBody, { auth: clusterAuth }));
+
+  // Return error
+  if (err) throw err;
+
+  // Check for exception
+  if ('Exceptions' in response.data) {
+    const { Code, Message } = response.data['Exceptions']['Exception'][0];
+    throw `${Code} -> ${Message}`;
+  }
+
+  // Parse XML response to JSON
+  const parsedXML = await parseStringPromise(response.data['WURunResponse']['Results']);
+
+  // Get output that matches dataset targeted by user as charted dataset
+  const dataObj = parsedXML.Result.Dataset.find(obj => obj['$'].name === dataset);
+  const data = [];
+
+  // Check that the dataObj is not empty
+  if (Object.keys(dataObj).length > 0) {
+    // Loop through data array
+    dataObj.Row.forEach(obj => {
+      const newObj = {};
+
+      // Loop through script schema and add key/value to new object
+      schemaArr.forEach(field => {
+        return (newObj[field] = obj[field].join(''));
+      });
+
+      // Add new formatted object to data array
+      data.push(newObj);
+    });
+  }
+
+  return { [dataset]: { Row: data } };
 };
 
 const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {
@@ -326,4 +388,5 @@ module.exports = {
   getQueryListFromCluster,
   getQueryParamsFromCluster,
   getWorkunitDataFromCluster,
+  getWorkunitDataFromClusterWithParams,
 };

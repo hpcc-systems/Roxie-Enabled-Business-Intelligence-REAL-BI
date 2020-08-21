@@ -54,8 +54,8 @@ export const mergeArrays = (oldArr, newArr) => {
   return oldArr;
 };
 
-export const createChartObj = localState => {
-  const { config, dataset, mappedParams } = localState;
+export const createChartObj = (localState, ecl) => {
+  const { config, dataset, mappedParams, sourceType } = localState;
   const { groupBy, horizontal, params = [], stacked, type } = config;
   let newConfig = { ...config, dataset };
 
@@ -77,7 +77,19 @@ export const createChartObj = localState => {
     newConfig = { ...newConfig, groupBy: '' };
   }
 
-  return { ...newConfig };
+  // Move ecl values to config object root
+  if (sourceType === 'ecl') {
+    const newDataset = !ecl.dataset ? dataset : ecl.dataset;
+    const newParams = !ecl.params ? params : ecl.params;
+
+    newConfig = { ...newConfig, dataset: newDataset, params: newParams };
+
+    delete ecl.data;
+    delete ecl.dataset;
+    delete ecl.params;
+  }
+
+  return { ...newConfig, ecl };
 };
 
 export const setEditorState = (charts, chartID) => {
@@ -124,7 +136,8 @@ export const checkForChartParams = chartsArr => {
   // use for-loop to allow for "break"
   for (let i = 0; i < chartsArr.length; i++) {
     const { params = [] } = chartsArr[i].config;
-    const hasParamValue = params.some(({ value }) => value !== null);
+
+    const hasParamValue = params.some(({ value }) => value !== null && value !== '');
 
     if (hasParamValue) {
       exists = true;

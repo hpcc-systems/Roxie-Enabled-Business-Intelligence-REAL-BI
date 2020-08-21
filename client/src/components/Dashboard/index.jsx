@@ -119,9 +119,10 @@ const Dashboard = () => {
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'id').map((chart, index) => {
             const { id: chartID, config, sourceID, sourceName } = chart;
-            const { ecl = {} } = config;
-            const eclDataset = Object.keys(ecl) ? ecl.dataset : '';
-            const dataObj = compData[chartID] || compData[sourceName] || compData[eclDataset] || {};
+            const { dataset, ecl = {} } = config;
+            const eclDataset = ecl.dataset || '';
+            const dataObj =
+              compData[chartID] || compData[sourceName] || compData[dataset] || compData[eclDataset] || {};
 
             return (
               <Grid key={index} item md={12}>

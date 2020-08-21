@@ -59,6 +59,18 @@ const createFileParams = (params = []) => {
   return { Count, formattedParams, Start };
 };
 
+const createWUParams = (params = []) => {
+  // Necessary ternary because default parameter value above is not applied to "null"
+  params = params || [];
+
+  // Remove empty params
+  params = params.filter(({ value }) => value !== null);
+
+  const formattedParams = params.map(({ name, value }) => ({ Name: name, Value: value }));
+
+  return formattedParams;
+};
+
 const findQueryDatasets = (responseObj = {}) => {
   // Necessary ternary because default parameter value above is not applied to "null"
   responseObj = responseObj || {};
@@ -113,6 +125,7 @@ module.exports = {
   awaitHandler,
   createFileParams,
   createParamString,
+  createWUParams,
   findQueryDatasets,
   getDatasetFields,
   getType,

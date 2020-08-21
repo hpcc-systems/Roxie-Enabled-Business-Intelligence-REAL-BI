@@ -6,6 +6,7 @@ import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel, TabPanel } from '@hpcc-js/phosphor';
+import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
@@ -69,28 +70,44 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
 
   const getResults = useCallback(() => {
     return workunit.fetchResults().then(() => {
-      workunit.CResults.forEach(_result => {
-        _result.fetchRows().then(response => {
-          const { ECLSchemas, ResultName, Wuid } = _result._espState;
-          const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
-            name: ColumnName,
-            type: ColumnType,
-          }));
+      const outputCount = workunit.CResults.length > 0 ? workunit.CResults.length : 1;
+      const _result = workunit.CResults[outputCount - 1];
 
-          // Create config object
-          const eclConfig = {
-            cluster: targetCluster.current,
-            data: { [ResultName]: { Row: response } },
-            dataset: ResultName,
-            recordCount: response.length,
-            schema,
-            script: editor.ecl(),
-            workunitID: Wuid,
-          };
+      _result.fetchRows().then(async response => {
+        const { Count, ECLSchemas, ResultName, Wuid } = _result._espState;
+        const url = `${clusterURL}/WsWorkunits/WUInfo.json`;
 
-          // Update ref
-          eclRef.current = eclConfig;
-        });
+        // Make call to get info for variables defined in ecl script
+        const paramsResp = await axios.post(url, { WUInfoRequest: { Wuid } });
+        let params = [];
+
+        // If there is a data object
+        if (paramsResp.data) {
+          paramsResp.data.WUInfoResponse.Workunit.Variables.ECLResult.forEach(({ Name }) => {
+            params.push({ name: Name, type: '', value: null });
+          });
+        }
+
+        // Get script schema and format
+        const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
+          name: ColumnName,
+          type: ColumnType,
+        }));
+
+        // Create config object
+        const eclConfig = {
+          cluster: targetCluster.current,
+          data: { [ResultName]: { Row: response } },
+          dataset: ResultName,
+          params,
+          recordCount: Count,
+          schema,
+          script: editor.ecl(),
+          workunitID: Wuid,
+        };
+
+        // Update ref
+        eclRef.current = eclConfig;
       });
 
       if (showResults) {
@@ -104,7 +121,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
         workunit.delete();
       }
     });
-  }, [deleteWuAfterRun, eclRef, editor, mainSection, showResults, workunit, wuResults]);
+  }, [clusterURL, deleteWuAfterRun, eclRef, editor, mainSection, showResults, workunit, wuResults]);
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
 
