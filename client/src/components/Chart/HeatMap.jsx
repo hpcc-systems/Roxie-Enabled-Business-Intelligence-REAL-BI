@@ -4,6 +4,9 @@ import { Heatmap } from '@ant-design/charts';
 // Utils
 import { thousandsSeparator, sortArr } from '../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../constants';
+
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
 const HeatMapComp = ({ data, config }) => {
@@ -26,32 +29,54 @@ const HeatMapComp = ({ data, config }) => {
   data = sortArr(data, xAxis, 'asc');
 
   const chartConfig = {
+    color: colorList,
+    colorField: colorField,
     data,
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
       visible: true,
     },
+    meta: { [xAxis]: { type: 'cat' } },
     shapeType: 'rect',
     sizeField: colorField,
-    color: colorList,
-    colorField: colorField,
-    meta: {
-      [xAxis]: {
-        type: 'cat',
-      },
+    tooltip: {
+      formatter: v => ({
+        name: colorField,
+        value: thousandsSeparator(v),
+      }),
+      style: { fill: chartFillColor },
+      title: ' ', // Have to pass in a space or it will duplicate information
     },
     xAxis: {
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      title: {
+        style: { fill: chartFillColor },
         text: customXLabel,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      title: {
+        style: { fill: chartFillColor },
         text: customYLabel,
+        visible: true,
       },
     },
     yField: yAxis,

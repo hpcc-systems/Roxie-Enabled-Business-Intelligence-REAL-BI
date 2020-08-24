@@ -4,8 +4,11 @@ import { StackedColumn } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../../constants';
+
 const StackedColumnComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -35,29 +38,40 @@ const StackedColumnComp = ({ data, config }) => {
       style: { fontSize: 12 },
       visible: true,
     },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [yAxis]: { formatter: v => thousandsSeparator(v) },
-    },
+    meta: { [yAxis]: { formatter: v => thousandsSeparator(v) } },
     stackField: groupBy,
     xAxis: {
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customXLabel,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      title: {
+      grid: { visible: true },
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customYLabel,
+        visible: true,
       },
     },
     yField: yAxis,

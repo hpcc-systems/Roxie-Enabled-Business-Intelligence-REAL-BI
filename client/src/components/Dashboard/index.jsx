@@ -126,7 +126,7 @@ const Dashboard = () => {
 
             return (
               <Grid key={index} item md={12}>
-                <Paper variant='outlined'>
+                <Paper variant='outlined' style={{ position: 'relative' }}>
                   <ChartToolbar
                     chartID={chartID}
                     config={config}
