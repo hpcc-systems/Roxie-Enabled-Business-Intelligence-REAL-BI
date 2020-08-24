@@ -80,19 +80,17 @@ router.get('/find', async (req, res) => {
 
 router.put('/directory', async (req, res) => {
   const { directory, directoryDepth, workspaceID } = req.body;
-  let workspace;
 
   try {
     await updateDirectory(directory, workspaceID);
     await updateDirectoryDepth(directoryDepth, workspaceID);
-    workspace = await getWorkspaceByID(workspaceID);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
     return res.status(status).send(errMsg);
   }
 
-  res.status(202).send(workspace);
+  res.status(202).end();
 });
 
 router.post('/dashboard', async (req, res) => {
