@@ -150,36 +150,20 @@ export const checkForChartParams = chartsArr => {
 
 export const changeChartType = (oldType, newType, config) => {
   let newConfig = { ...config, type: newType };
+  const { axis1 = {}, axis2 = {} } = newConfig;
 
   //  Update values in config object to reflect the current chart type
   switch (oldType) {
     case 'pie':
-      if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newConfig.xAxis = newConfig.name;
-        newConfig.yAxis = newConfig.value;
-        newConfig.xAxis_Label = newConfig.name_Label;
-        newConfig.yAxis_Label = newConfig.value_Label;
-      } else if (newType === 'table') {
-        if (newConfig.name && newConfig.value) {
-          newConfig.checkboxValueField = newConfig.name;
-          newConfig.fields = [newConfig.name, newConfig.value];
-        }
+      if (newType === 'table' && axis1.value && axis2.value) {
+        newConfig.checkboxValueField = axis1.value;
+        newConfig.fields = [axis1.value, axis2.value];
       }
-
-      delete newConfig.name;
-      delete newConfig.value;
-      delete newConfig.name_Label;
-      delete newConfig.value_Label;
 
       break;
     case 'table':
-      if (newType === 'bar' || newType === 'line' || newType === 'heatmap') {
-        newConfig.xAxis = newConfig.checkboxValueField;
-        newConfig.yAxis = newConfig.fields ? newConfig.fields[1] : '';
-      } else if (newType === 'pie') {
-        newConfig.name = newConfig.checkboxValueField;
-        newConfig.value = newConfig.fields ? newConfig.fields[1] : '';
-      }
+      newConfig.axis1 = { label: axis1.label || '', value: newConfig.checkboxValueField };
+      newConfig.axis2 = { label: axis2.label || '', value: newConfig.fields ? newConfig.fields[1] : '' };
 
       delete newConfig.checkboxValueField;
       delete newConfig.fields;
@@ -191,29 +175,14 @@ export const changeChartType = (oldType, newType, config) => {
 
       break;
     default:
-      if (newType === 'pie') {
-        newConfig.name = newConfig.xAxis;
-        newConfig.value = newConfig.yAxis;
-        newConfig.name_Label = newConfig.xAxis_Label;
-        newConfig.value_Label = newConfig.yAxis_Label;
-
-        delete newConfig.xAxis;
-        delete newConfig.yAxis;
-        delete newConfig.xAxis_Label;
-        delete newConfig.yAxis_Label;
-      } else if (newType === 'table') {
-        if (newConfig.name && newConfig.value) {
-          newConfig.checkboxValueField = newConfig.xAxis;
-          newConfig.fields = [newConfig.xAxis, newConfig.yAxis];
-        }
-
-        delete newConfig.xAxis;
-        delete newConfig.yAxis;
+      if (newType === 'table') {
+        newConfig.checkboxValueField = axis1.value || '';
+        newConfig.fields = [axis1.value, axis2.value];
       }
 
-      if (oldType === 'heatmap') {
-        delete newConfig.colorField;
-      }
+      delete newConfig.colorField;
+
+      break;
   }
 
   // Change horizontal value if it doesn't apply to the chart type or is missing
