@@ -4,12 +4,15 @@ import { Pie } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator } from '../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../constants';
+
 // Helper Functions
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
 const PieComp = ({ data, config }) => {
-  const { name, value, description, name_Label, value_Label } = config;
+  const { name, value, name_Label, value_Label } = config;
 
   const customNameLabel = typeof name_Label !== 'undefined' ? name_Label : name;
   const customValueLabel = typeof value_Label !== 'undefined' ? value_Label : value;
@@ -35,28 +38,27 @@ const PieComp = ({ data, config }) => {
     forceFit: true,
     label: {
       formatter: v => percentageOfPie(v, total),
+      style: { fill: chartFillColor },
       type: 'outer-center',
       visible: true,
     },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       title: {
-        visible: true,
+        style: { fill: chartFillColor },
         text: [customNameLabel],
+        visible: true,
       },
       position: 'right-top',
       visible: true,
     },
     radius: 0.8,
     tooltip: {
-      title: ' ', // Have to pass in a space or it will duplicate information
       formatter: v => ({
         name: customValueLabel,
         value: `${thousandsSeparator(v)} (${percentageOfPie(v, total)})`,
       }),
+      style: { fill: chartFillColor },
+      title: ' ', // Have to pass in a space or it will duplicate information
     },
   };
 

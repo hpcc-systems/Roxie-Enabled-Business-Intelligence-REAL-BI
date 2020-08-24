@@ -4,8 +4,11 @@ import { GroupedBar } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../../constants';
+
 const GroupBarComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -29,33 +32,45 @@ const GroupBarComp = ({ data, config }) => {
   const chartConfig = {
     data,
     forceFit: true,
+    groupField: groupBy,
     label: { visible: false },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [xAxis]: { formatter: v => thousandsSeparator(v) },
-    },
-    groupField: groupBy,
+    meta: { [xAxis]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
       grid: { visible: true },
-      label: { visible: true },
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customXLabel,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      line: { visible: true },
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customYLabel,
+        visible: true,
       },
     },
     yField: yAxis,

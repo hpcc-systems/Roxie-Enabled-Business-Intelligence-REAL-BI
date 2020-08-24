@@ -35,6 +35,7 @@ const Workspace = () => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
+  const [hoverIndex, setHoverIndex] = useState(-1);
   const { appbar, closeBtn, span, tab } = useStyles();
 
   useEffect(() => {
@@ -103,18 +104,22 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {openDashboards.map(({ id, name }) => {
+            {openDashboards.map(({ id, name }, key) => {
               return (
                 <Tab
                   component='div'
                   key={id}
                   className={tab}
+                  onMouseEnter={() => setHoverIndex(key)}
+                  onMouseLeave={() => setHoverIndex(-1)}
                   label={
                     <span className={span}>
                       {name}
-                      <IconButton className={closeBtn}>
-                        <CloseIcon fontSize='small' />
-                      </IconButton>
+                      {key === tabIndex || key === hoverIndex ? (
+                        <IconButton className={closeBtn}>
+                          <CloseIcon fontSize='small' />
+                        </IconButton>
+                      ) : null}
                     </span>
                   }
                 />

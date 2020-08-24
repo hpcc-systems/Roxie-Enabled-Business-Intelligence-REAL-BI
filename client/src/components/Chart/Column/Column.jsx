@@ -4,8 +4,11 @@ import { Column } from '@ant-design/charts';
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
+// Constants
+import { chartFillColor } from '../../../constants';
+
 const ColumnComp = ({ data, config }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label, description } = config;
+  const { xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
 
   const sortOrder = 'asc';
   const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
@@ -30,30 +33,39 @@ const ColumnComp = ({ data, config }) => {
     data,
     forceFit: true,
     label: { visible: false },
-    description: {
-      visible: true,
-      text: description,
-    },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [yAxis]: { formatter: v => thousandsSeparator(v) },
-    },
+    meta: { [yAxis]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
+      label: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
       min: 0,
       title: {
-        visible: true,
+        style: { fill: chartFillColor },
         text: customXLabel,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
+      grid: { visible: true },
+      label: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
       min: 0,
       title: {
-        visible: true,
+        style: { fill: chartFillColor },
         text: customYLabel,
+        visible: true,
       },
     },
     yField: yAxis,

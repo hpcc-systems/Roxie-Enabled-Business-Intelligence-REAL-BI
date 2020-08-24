@@ -157,7 +157,7 @@ const getEclOptionsByWuID = async workunitID => {
   // Get nested objects
   chart = unNestSequelizeObj(chart);
 
-  return chart.config.ecl;
+  return chart;
 };
 
 module.exports = {

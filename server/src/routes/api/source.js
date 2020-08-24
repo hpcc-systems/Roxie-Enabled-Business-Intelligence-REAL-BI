@@ -13,6 +13,7 @@ const {
   getQueryListFromCluster,
   getQueryParamsFromCluster,
   getWorkunitDataFromCluster,
+  getWorkunitDataFromClusterWithParams,
 } = require('../../utils/cluster');
 const { getChartByID, getEclOptionsByWuID } = require('../../utils/chart');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
@@ -168,11 +169,19 @@ router.get('/data/single', async (req, res) => {
           break;
         case 'ecl':
           chart = await getEclOptionsByWuID(source.hpccID);
-          source = await getWorkunitDataFromCluster(
-            cluster,
-            { Count: chart.recordCount, dataset: chart.dataset, source },
-            userID,
-          );
+
+          if (newParam.length > 0) {
+            source = await getWorkunitDataFromClusterWithParams(
+              cluster,
+              chart.config,
+              newParam,
+              source,
+              userID,
+            );
+          } else {
+            source = await getWorkunitDataFromCluster(cluster, chart.config, source, userID);
+          }
+
           break;
         default:
           source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
@@ -192,7 +201,7 @@ router.get('/data/multiple', async (req, res) => {
     query: { chartID, clusterID },
     user: { id: userID },
   } = req;
-  let chart, cluster, data;
+  let cluster, data;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -208,12 +217,7 @@ router.get('/data/multiple', async (req, res) => {
         data = await getFileDataFromCluster(cluster, { params: config.params, source }, userID);
         break;
       case 'ecl':
-        chart = await getEclOptionsByWuID(config.ecl.workunitID);
-        data = await getWorkunitDataFromCluster(
-          cluster,
-          { Count: chart.recordCount, dataset: chart.dataset, source },
-          userID,
-        );
+        data = await getWorkunitDataFromCluster(cluster, config, source, userID);
         break;
       default:
         data = await getQueryDataFromCluster(cluster, { params: config.params, source }, userID);
