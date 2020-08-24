@@ -32,28 +32,41 @@ const GroupColumnComp = ({ data, config }) => {
   const chartConfig = {
     data,
     forceFit: true,
+    groupField: groupBy,
     label: { visible: false },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [yAxis]: { formatter: v => thousandsSeparator(v) },
-    },
-    groupField: groupBy,
+    meta: { [yAxis]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customXLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      title: {
+      grid: { visible: true },
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customYLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     yField: yAxis,

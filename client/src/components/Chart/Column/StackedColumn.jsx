@@ -42,23 +42,36 @@ const StackedColumnComp = ({ data, config }) => {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [yAxis]: { formatter: v => thousandsSeparator(v) },
-    },
+    meta: { [yAxis]: { formatter: v => thousandsSeparator(v) } },
     stackField: groupBy,
     xAxis: {
-      title: {
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customXLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      title: {
+      grid: { visible: true },
+      label: {
+        style: { fill: chartFillColor },
         visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      min: 0,
+      title: {
+        style: { fill: chartFillColor },
         text: customYLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     yField: yAxis,

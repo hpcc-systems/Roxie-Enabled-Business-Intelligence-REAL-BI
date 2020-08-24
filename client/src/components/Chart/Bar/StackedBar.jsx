@@ -42,26 +42,39 @@ const StackedBarComp = ({ data, config }) => {
       position: 'right-top',
       visible: true,
     },
-    meta: {
-      [xAxis]: { formatter: v => thousandsSeparator(v) },
-    },
+    meta: { [xAxis]: { formatter: v => thousandsSeparator(v) } },
     stackField: groupBy,
     xAxis: {
+      label: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
       min: 0,
       title: {
-        visible: true,
+        style: { fill: chartFillColor },
         text: customXLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     xField: xAxis,
     yAxis: {
-      line: { visible: true },
+      label: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
+      line: {
+        style: { fill: chartFillColor },
+        visible: true,
+      },
       min: 0,
       title: {
-        visible: true,
+        style: { fill: chartFillColor },
         text: customYLabel,
-        fill: chartFillColor,
+        visible: true,
       },
     },
     yField: yAxis,
