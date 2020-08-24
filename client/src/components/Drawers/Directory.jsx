@@ -141,7 +141,11 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       // Disable loading animation
       setLoading(false);
 
+      // Close new dashboard dialog
       toggleNewDashboardDialog();
+
+      // Open dashboard in tab bar
+      openDashboard(dashboard);
     });
   };
 

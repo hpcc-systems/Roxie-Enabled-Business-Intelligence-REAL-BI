@@ -6,6 +6,7 @@ export const SET_WORKSPACE_ERROR = 'SET_WORKSPACE_ERROR';
 export const UPDATE_WORKSPACE = 'UPDATE_WORKSPACE';
 export const CLEAR_WORKSPACE = 'CLEAR_WORKSPACE';
 export const UPDATE_WORKSPACE_DASHBOARDS = 'UPDATE_WORKSPACE_DASHBOARDS';
+export const UPDATE_WORKSPACE_DIRECTORY = 'UPDATE_WORKSPACE_DIRECTORY';
 
 export const getWorkspace = async workspaceID => {
   let response;
@@ -20,15 +21,13 @@ export const getWorkspace = async workspaceID => {
 };
 
 export const updateWorkspaceDirectory = async (directory, directoryDepth, workspaceID) => {
-  let response;
-
   try {
-    response = await axios.put('/api/workspace/directory', { directory, directoryDepth, workspaceID });
+    await axios.put('/api/workspace/directory', { directory, directoryDepth, workspaceID });
   } catch (err) {
     return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
   }
 
-  return { type: GET_WORKSPACE, payload: response.data };
+  return { type: UPDATE_WORKSPACE_DIRECTORY, payload: { directory, directoryDepth } };
 };
 
 export const clearWorkspaceRef = () => {
