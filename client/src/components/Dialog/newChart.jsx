@@ -18,7 +18,7 @@ import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  config: { type: 'bar' },
+  config: { axis1: {}, axis2: {}, type: 'bar' },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
