@@ -74,9 +74,6 @@ const GroupColumnComp = ({ data, config }) => {
       },
     },
     yField: yValue,
-    events: {
-      onColumnClick: e => console.log(e.data),
-    },
   };
 
   return <GroupedColumn {...chartConfig} />;

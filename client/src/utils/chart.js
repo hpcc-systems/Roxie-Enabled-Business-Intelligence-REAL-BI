@@ -175,7 +175,7 @@ export const changeChartType = (oldType, newType, config) => {
 
       break;
     default:
-      if (newType === 'table') {
+      if (newType === 'table' && axis1.value && axis2.value) {
         newConfig.checkboxValueField = axis1.value || '';
         newConfig.fields = [axis1.value, axis2.value];
       }

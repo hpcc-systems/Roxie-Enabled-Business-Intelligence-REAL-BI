@@ -72,9 +72,6 @@ const ColumnComp = ({ data, config }) => {
       },
     },
     yField: yValue,
-    events: {
-      onColumnClick: e => console.log({ axisName: xValue, value: e.data[xValue] }),
-    },
   };
 
   return <Column {...chartConfig} />;
