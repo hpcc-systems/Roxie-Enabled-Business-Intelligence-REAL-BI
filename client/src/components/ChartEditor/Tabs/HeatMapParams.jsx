@@ -20,8 +20,9 @@ const getMsg = sourceType => {
   return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
 };
 
-const HeatMapParams = ({ handleChangeObj, localState }) => {
+const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = config;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -34,7 +35,7 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:xAxis' value={config.xAxis || ''} onChange={handleChangeObj}>
+              <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -51,9 +52,9 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='config:xAxis_Label'
-              value={config.xAxis_Label || ''}
-              onChange={handleChangeObj}
+              name='axis1:label'
+              value={axis1.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>
@@ -64,7 +65,7 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:yAxis' value={config.yAxis || ''} onChange={handleChangeObj}>
+              <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -81,9 +82,9 @@ const HeatMapParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='config:yAxis_Label'
-              value={config.yAxis_Label || ''}
-              onChange={handleChangeObj}
+              name='axis2:label'
+              value={axis2.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>

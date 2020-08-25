@@ -20,8 +20,9 @@ const getMsg = sourceType => {
   return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
 };
 
-const PieParams = ({ handleChangeObj, localState }) => {
+const PieParams = ({ localState, updateAxisKey }) => {
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = config;
   const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -34,7 +35,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:name' value={config.name || ''} onChange={handleChangeObj}>
+              <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -51,9 +52,9 @@ const PieParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Name Label'
-              name='config:name_Label'
-              value={config.name_Label || ''}
-              onChange={handleChangeObj}
+              name='axis1:label'
+              value={axis1.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>
@@ -64,7 +65,7 @@ const PieParams = ({ handleChangeObj, localState }) => {
             {chartID && fields.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:value' value={config.value || ''} onChange={handleChangeObj}>
+              <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
                 {fields.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -81,9 +82,9 @@ const PieParams = ({ handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Value Label'
-              name='config:value_Label'
-              value={config.value_Label || ''}
-              onChange={handleChangeObj}
+              name='axis2:label'
+              value={axis2.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>

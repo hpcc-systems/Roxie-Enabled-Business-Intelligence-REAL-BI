@@ -8,26 +8,29 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 import { chartFillColor } from '../../../constants';
 
 const ColumnComp = ({ data, config }) => {
-  const { xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
+  const {
+    axis1: { label: xLabel, value: xValue },
+    axis2: { label: yLabel, value: yValue },
+  } = config;
 
   const sortOrder = 'asc';
-  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
-  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const customXLabel = xLabel ? xLabel : xValue;
+  const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xAxis || !yAxis) {
+  if (!data || data.length === 0 || !xValue || !yValue) {
     return null;
   }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
     ...row,
-    [xAxis]: checkForNumber(row[xAxis]),
-    [yAxis]: checkForNumber(row[yAxis]),
+    [xValue]: checkForNumber(row[xValue]),
+    [yValue]: checkForNumber(row[yValue]),
   }));
 
   // Sort data in ascending order
-  data = sortArr(data, xAxis, sortOrder);
+  data = sortArr(data, xValue, sortOrder);
 
   const chartConfig = {
     data,
@@ -37,7 +40,7 @@ const ColumnComp = ({ data, config }) => {
       position: 'right-top',
       visible: true,
     },
-    meta: { [yAxis]: { formatter: v => thousandsSeparator(v) } },
+    meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
       label: {
         style: { fill: chartFillColor },
@@ -50,7 +53,7 @@ const ColumnComp = ({ data, config }) => {
         visible: true,
       },
     },
-    xField: xAxis,
+    xField: xValue,
     yAxis: {
       grid: { visible: true },
       label: {
@@ -68,7 +71,7 @@ const ColumnComp = ({ data, config }) => {
         visible: true,
       },
     },
-    yField: yAxis,
+    yField: yValue,
   };
 
   return <Column {...chartConfig} />;

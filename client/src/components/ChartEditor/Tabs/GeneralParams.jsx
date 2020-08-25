@@ -24,9 +24,10 @@ const getMsg = sourceType => {
     : 'Choose a dataset';
 };
 
-const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
+const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
   const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = config;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -42,7 +43,7 @@ const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
             {chartID && fieldsArr.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:xAxis' value={config.xAxis || ''} onChange={handleChangeObj}>
+              <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
                 {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -59,9 +60,9 @@ const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='config:xAxis_Label'
-              value={config.xAxis_Label || ''}
-              onChange={handleChangeObj}
+              name='axis1:label'
+              value={axis1.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>
@@ -72,7 +73,7 @@ const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
             {chartID && fieldsArr.length <= 1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:yAxis' value={config.yAxis || ''} onChange={handleChangeObj}>
+              <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
                 {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
@@ -89,9 +90,9 @@ const GeneralChartParams = ({ eclRef, handleChangeObj, localState }) => {
             <TextField
               fullWidth
               label='Axis Label'
-              name='config:yAxis_Label'
-              value={config.yAxis_Label || ''}
-              onChange={handleChangeObj}
+              name='axis2:label'
+              value={axis2.label || ''}
+              onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>

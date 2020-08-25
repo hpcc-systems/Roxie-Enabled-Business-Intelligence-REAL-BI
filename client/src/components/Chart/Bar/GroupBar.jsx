@@ -8,26 +8,30 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 import { chartFillColor } from '../../../constants';
 
 const GroupBarComp = ({ data, config }) => {
-  const { groupBy, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
+  const {
+    axis1: { label: xLabel = '', value: xValue },
+    axis2: { label: yLabel = '', value: yValue },
+    groupBy,
+  } = config;
 
   const sortOrder = 'asc';
-  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
-  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const customXLabel = xLabel ? xLabel : xValue;
+  const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !groupBy || !xAxis || !yAxis) {
+  if (!data || data.length === 0 || !xValue || !yValue || !groupBy) {
     return null;
   }
 
   // Convert necessary values to numbers
   data = data.map(row => ({
     ...row,
-    [xAxis]: checkForNumber(row[xAxis]),
-    [yAxis]: checkForNumber(row[yAxis]),
+    [xValue]: checkForNumber(row[xValue]),
+    [yValue]: checkForNumber(row[yValue]),
   }));
 
   // Sort data in ascending order
-  data = sortArr(data, xAxis, sortOrder);
+  data = sortArr(data, xValue, sortOrder);
 
   const chartConfig = {
     data,
@@ -38,7 +42,7 @@ const GroupBarComp = ({ data, config }) => {
       position: 'right-top',
       visible: true,
     },
-    meta: { [xAxis]: { formatter: v => thousandsSeparator(v) } },
+    meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
       grid: { visible: true },
       label: {
@@ -56,7 +60,7 @@ const GroupBarComp = ({ data, config }) => {
         visible: true,
       },
     },
-    xField: xAxis,
+    xField: xValue,
     yAxis: {
       label: {
         style: { fill: chartFillColor },
@@ -73,7 +77,7 @@ const GroupBarComp = ({ data, config }) => {
         visible: true,
       },
     },
-    yField: yAxis,
+    yField: yValue,
   };
 
   return <GroupedBar {...chartConfig} />;

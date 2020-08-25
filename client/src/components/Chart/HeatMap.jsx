@@ -10,23 +10,30 @@ import { chartFillColor } from '../../constants';
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
 const HeatMapComp = ({ data, config }) => {
-  const { colorField, xAxis, yAxis, xAxis_Label, yAxis_Label } = config;
-  const customXLabel = typeof xAxis_Label !== 'undefined' ? xAxis_Label : xAxis;
-  const customYLabel = typeof yAxis_Label !== 'undefined' ? yAxis_Label : yAxis;
+  const {
+    axis1: { label: xLabel, value: xValue },
+    axis2: { label: yLabel, value: yValue },
+    colorField,
+  } = config;
+
+  const sortOrder = 'asc';
+  const customXLabel = xLabel ? xLabel : xValue;
+  const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !colorField || !xAxis || !yAxis) {
+  if (!data || data.length === 0 || !colorField || !xValue || !yValue) {
     return null;
   }
 
-  // Convert necessary values to a string
-  data.forEach(row => {
-    row[xAxis] = String(row[xAxis]);
-    row[yAxis] = String(row[yAxis]);
-  });
+  // Convert necessary values to numbers
+  data = data.map(row => ({
+    ...row,
+    [xValue]: String(row[xValue]),
+    [yValue]: String(row[yValue]),
+  }));
 
   // Sort data in ascending order
-  data = sortArr(data, xAxis, 'asc');
+  data = sortArr(data, xValue, sortOrder);
 
   const chartConfig = {
     color: colorList,
@@ -37,7 +44,7 @@ const HeatMapComp = ({ data, config }) => {
       formatter: v => thousandsSeparator(v),
       visible: true,
     },
-    meta: { [xAxis]: { type: 'cat' } },
+    meta: { [xValue]: { type: 'cat' } },
     shapeType: 'rect',
     sizeField: colorField,
     tooltip: {
@@ -63,7 +70,7 @@ const HeatMapComp = ({ data, config }) => {
         visible: true,
       },
     },
-    xField: xAxis,
+    xField: xValue,
     yAxis: {
       label: {
         style: { fill: chartFillColor },
@@ -79,7 +86,7 @@ const HeatMapComp = ({ data, config }) => {
         visible: true,
       },
     },
-    yField: yAxis,
+    yField: yValue,
   };
 
   return <Heatmap {...chartConfig} />;

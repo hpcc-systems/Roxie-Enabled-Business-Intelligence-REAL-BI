@@ -54,6 +54,17 @@ const GeneralTab = props => {
   const { horizontal, isStatic, title, chartDescription, type, xAxis, yAxis } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
+  const updateAxisKey = event => {
+    const { name, value } = event.target;
+    const [state, key] = name.split(':');
+    let newConfig = localState.config;
+
+    // Update object key
+    newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: value } };
+
+    return handleChange(null, { name: 'config', value: newConfig });
+  };
+
   const checkboxUpdated = event => {
     const { name } = event.target;
 
@@ -170,15 +181,15 @@ const GeneralTab = props => {
         />
       </Grid>
       {type === 'pie' ? (
-        <PieParams {...props} />
+        <PieParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'textBox' ? (
         <TextBoxParams {...props} />
       ) : type === 'table' ? (
         <TableParams {...props} />
       ) : type === 'heatmap' ? (
-        <HeatMapParams {...props} />
+        <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
-        <GeneralParams {...props} />
+        <GeneralParams {...props} updateAxisKey={updateAxisKey} />
       )}
     </Grid>
   );
