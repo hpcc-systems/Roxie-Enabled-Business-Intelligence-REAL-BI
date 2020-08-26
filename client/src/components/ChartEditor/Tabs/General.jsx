@@ -14,6 +14,7 @@ import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
+  ScatterPlot as ScatterPlotIcon,
   TableChart as TableChartIcon,
   TrendingFlat as HeatMapIcon,
 } from '@material-ui/icons';
@@ -35,6 +36,7 @@ const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
+  { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
   { name: 'HeatMap', value: 'heatmap' },
@@ -108,6 +110,8 @@ const GeneralTab = props => {
                         return <LineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
+                      case 'scatter':
+                        return <ScatterPlotIcon className={menuIcon} />;
                       case 'table':
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
