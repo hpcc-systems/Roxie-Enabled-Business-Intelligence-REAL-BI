@@ -14,6 +14,7 @@ import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
+  Poll as PollIcon,
   TableChart as TableChartIcon,
   TrendingFlat as HeatMapIcon,
 } from '@material-ui/icons';
@@ -26,6 +27,7 @@ import PieParams from './PieParams';
 import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
 import HeatMapParams from './HeatMapParams';
+import HistogramParams from './HistogramParams';
 
 // Utils
 import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
@@ -37,6 +39,7 @@ const charts = [
   { name: 'Pie', value: 'pie' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
+  { name: 'Histogram', value: 'histogram' },
   { name: 'HeatMap', value: 'heatmap' },
 ];
 
@@ -112,6 +115,8 @@ const GeneralTab = props => {
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
                         return <TextFieldsIcon className={menuIcon} />;
+                      case 'histogram':
+                        return <PollIcon className={menuIcon} />;
                       case 'heatmap':
                         return <HeatMapIcon className={menuIcon} />;
                       default:
@@ -188,6 +193,8 @@ const GeneralTab = props => {
         <TableParams {...props} />
       ) : type === 'heatmap' ? (
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'histogram' ? (
+        <HistogramParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
         <GeneralParams {...props} updateAxisKey={updateAxisKey} />
       )}
