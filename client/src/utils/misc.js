@@ -126,3 +126,16 @@ export const createDateTimeStamp = chartDesc => {
 export const existsInArray = (arr, string) => {
   return arr.indexOf(string) > -1;
 };
+
+// Changes message based on source type
+export const getMessage = (sourceType, isFilter = false) => {
+  let message = 'Choose a dataset';
+
+  if (sourceType === 'ecl') {
+    message = 'Run ECL Script';
+  } else if (sourceType === 'file') {
+    message = isFilter ? 'Error retrieving file metadata' : 'Choose a file';
+  }
+
+  return message;
+};

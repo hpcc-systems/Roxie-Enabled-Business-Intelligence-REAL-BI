@@ -2,19 +2,17 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, FormControl, Grid, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0` },
   progress: { margin: 0, marginTop: 50 },
 }));
 
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
-
 const TableParams = ({ handleChangeObj, localState }) => {
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
   const { fields: configFields = [], checkboxValueField = '' } = config;
   const { formControl, progress } = useStyles();
 

@@ -13,16 +13,7 @@ import {
 } from '@material-ui/core';
 
 // Constants
-import { hasStackedOption } from '../../../utils/misc';
-
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'ecl'
-    ? 'Run ECL Script'
-    : sourceType === 'file'
-    ? 'Choose a file'
-    : 'Choose a dataset';
-};
+import { getMessage, hasStackedOption } from '../../../utils/misc';
 
 const useStyles = makeStyles(theme => ({
   checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
@@ -40,7 +31,7 @@ const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => 
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
   const fieldsArr =
-    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMsg(sourceType), value: '' }];
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return dataset || eclDataset ? (
     <Grid container direction='row' alignContent='space-between' className={topFormControl}>
@@ -83,7 +74,7 @@ const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => 
     </Grid>
   ) : (
     <Typography variant='h6' color='inherit' align='center' className={typography}>
-      {getMsg(sourceType)}
+      {getMessage(sourceType)}
     </Typography>
   );
 };

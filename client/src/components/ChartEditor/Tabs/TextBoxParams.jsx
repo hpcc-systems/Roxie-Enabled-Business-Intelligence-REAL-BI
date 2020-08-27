@@ -2,16 +2,14 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, Grid, TextField, CircularProgress, InputLabel, Select } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   textfield: { paddingTop: theme.spacing(0.5) },
 }));
-
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
 
 const TextBoxParams = ({ handleChangeObj, localState }) => {
   const {
@@ -20,7 +18,7 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
     selectedDataset = {},
     sourceType,
   } = localState;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress, textfield } = useStyles();
 
   const updateArr = ({ target }) => {
