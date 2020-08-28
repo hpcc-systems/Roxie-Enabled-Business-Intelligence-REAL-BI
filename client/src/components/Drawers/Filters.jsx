@@ -30,22 +30,21 @@ import { sortArr } from '../../utils/misc';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
-  deleteBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0, paddingRight: theme.spacing(2) },
-  drawer: { width: 'auto', minWidth: 250 },
+  deleteBtn: { margin: theme.spacing(4, 0, 0, 0), padding: theme.spacing(0, 2, 0, 0) },
+  drawer: { width: 'auto', minWidth: 250, maxWidth: 250 },
   drawerClose: { width: 0 },
   drawerPaper: {
     backgroundColor: theme.palette.primary.main,
-    marginTop: theme.spacing(6.75),
+    marginTop: theme.spacing(8.125),
   },
   drawerPaperClose: { width: 0 },
-  editBtn: { margin: 0, marginTop: theme.spacing(4), padding: 0 },
+  editBtn: { margin: theme.spacing(4, 0, 0, 0), padding: 0 },
   fontColor: { color: grey[50] },
   formControl: { color: grey[50], margin: theme.spacing(1) },
   iconColor: { color: grey[50] },
   typography: {
     flexGrow: 1,
-    margin: theme.spacing(1),
-    marginTop: theme.spacing(1.5),
+    margin: theme.spacing(1.5, 1, 1, 1),
     color: theme.palette.primary.contrastText,
   },
 }));

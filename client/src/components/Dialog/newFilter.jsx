@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -31,7 +31,7 @@ const initState = {
   field: '',
   keyword: '',
   name: '',
-  mappedParams: [],
+  mappedParams: [{ chartID: '', parameter: '', sourceID: '' }],
   sources: [],
   sourceType: 'query',
   selectedDataset: {},
@@ -54,13 +54,6 @@ const NewFilter = ({ show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, progress, toolbar, typography } = useStyles();
-
-  // Add first object to mappedParams array
-  useEffect(() => {
-    if (localState.mappedParams.length === 0) {
-      handleChange(null, { name: 'mappedParams', value: [{ chartID: '', parameter: '', sourceID: '' }] });
-    }
-  });
 
   const saveFilter = async () => {
     const { selectedSource, sourceType } = localState;

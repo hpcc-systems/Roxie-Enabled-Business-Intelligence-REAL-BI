@@ -14,16 +14,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-// React Components
-const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
-
 // Dropdown component to choose from a list of charts on the dashboard
 const chartDropdown = (arr, field, index, updateArr) => (
   <FormControl fullWidth>
     <InputLabel>Chart</InputLabel>
-    <Select name='chartID' value={field || ''} onChange={event => updateArr(event, index)}>
-      {field !== '' ? clearSelection() : null}
-      {arr.map(({ chartID, title = 'No Chart Title' }, index) => {
+    <Select name='chartID' value={field} onChange={event => updateArr(event, index)}>
+      {arr.map(({ chartID, title }, index) => {
+        title = !title ? 'No Chart Title' : title;
+
         return (
           <MenuItem key={index} value={chartID}>
             {title}
@@ -36,25 +34,20 @@ const chartDropdown = (arr, field, index, updateArr) => (
 
 // Dropdown component to select source parameter for a particular chart
 const paramDropdown = (arr, chartID, field, index, updateArr) => {
-  let arrParams = [{ name: 'Choose a chart', value: '' }];
+  let arrParams = [];
 
   // Confirm chart was chosen, array exists, and params exist in first object
   if (chartID && arr.length > 0 && arr[0].params) {
-    arrParams = arr.find(({ chartID: localID }) => localID === chartID).params;
+    arrParams = arr.find(obj => obj.chartID === chartID).params;
   }
 
   return (
     <FormControl fullWidth>
       <InputLabel>Parameter</InputLabel>
-      <Select name='parameter' value={field || ''} onChange={event => updateArr(event, index)}>
-        {field !== '' ? clearSelection() : null}
-        {arrParams.map(({ name, value }, index) => {
-          if (value !== '') {
-            value = name;
-          }
-
+      <Select name='parameter' value={field} onChange={event => updateArr(event, index)}>
+        {arrParams.map(({ name }, index) => {
           return (
-            <MenuItem key={index} value={value}>
+            <MenuItem key={index} value={name}>
               {name}
             </MenuItem>
           );
@@ -65,17 +58,16 @@ const paramDropdown = (arr, chartID, field, index, updateArr) => {
 };
 
 const FilterMapper = ({ charts, handleChangeArr, localState }) => {
-  const { mappedParams = [], selectedSource } = localState;
+  const { mappedParams = [] } = localState;
   const { button } = useStyles();
-  let dashboardCharts = charts.map(chart => {
+
+  // Configure charts to get formatted array of objects
+  charts = charts.map(chart => {
     const { id: chartID, config, sourceID, sourceName } = chart;
     const { params, title } = config;
 
     return { chartID, title, params, sourceID, sourceName };
   });
-
-  // Remove source that was selected as table source
-  dashboardCharts = dashboardCharts.filter(({ sourceName }) => sourceName !== selectedSource.name);
 
   const addField = () => {
     handleChangeArr('mappedParams', [...mappedParams, { chartID: '', parameter: '', sourceID: '' }]);
@@ -92,7 +84,7 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
 
   const updateChartDropdown = ({ target }, index) => {
     const newArr = mappedParams;
-    const { chartID, sourceID } = dashboardCharts.find(({ chartID }) => chartID === target.value); // Add source info to new array
+    const { chartID, sourceID } = charts.find(({ chartID }) => chartID === target.value); // Add source info to new array
 
     newArr[index] = { chartID, parameter: '', sourceID };
 
@@ -110,46 +102,25 @@ const FilterMapper = ({ charts, handleChangeArr, localState }) => {
 
   return (
     <Grid container direction='row' spacing={1}>
-      {mappedParams.length === 1
-        ? (() => {
-            const index = 0;
-            const { chartID, parameter } = mappedParams[index];
+      {mappedParams.map((obj, index) => {
+        const { chartID, parameter } = obj;
 
-            return (
-              <Fragment>
-                <Grid item xs={2}>
-                  <Button className={button} onClick={addField}>
-                    <AddCircleIcon />
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  {chartDropdown(dashboardCharts, chartID, index, updateChartDropdown)}
-                </Grid>
-                <Grid item xs={4}>
-                  {paramDropdown(dashboardCharts, chartID, parameter, index, updateParamDropdown)}
-                </Grid>
-              </Fragment>
-            );
-          })()
-        : mappedParams.map((obj, index) => {
-            const { chartID, parameter } = obj;
-
-            return (
-              <Fragment key={index}>
-                <Grid item xs={2}>
-                  <Button className={button} onClick={index === 0 ? addField : () => removeField(index)}>
-                    {index === 0 ? <AddCircleIcon /> : <RemoveIcon />}
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  {chartDropdown(dashboardCharts, chartID, index, updateChartDropdown)}
-                </Grid>
-                <Grid item xs={4}>
-                  {paramDropdown(dashboardCharts, chartID, parameter, index, updateParamDropdown)}
-                </Grid>
-              </Fragment>
-            );
-          })}
+        return (
+          <Fragment key={index}>
+            <Grid item xs={2}>
+              <Button className={button} onClick={index === 0 ? addField : () => removeField(index)}>
+                {index === 0 ? <AddCircleIcon /> : <RemoveIcon />}
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              {chartDropdown(charts, chartID, index, updateChartDropdown)}
+            </Grid>
+            <Grid item xs={4}>
+              {paramDropdown(charts, chartID, parameter, index, updateParamDropdown)}
+            </Grid>
+          </Fragment>
+        );
+      })}
     </Grid>
   );
 };
