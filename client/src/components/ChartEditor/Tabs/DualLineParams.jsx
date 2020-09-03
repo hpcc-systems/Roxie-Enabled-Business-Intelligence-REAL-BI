@@ -59,7 +59,7 @@ const DualLineParams = ({ localState, updateAxisKey }) => {
             />
           </FormControl>
         </Grid>
-        <Grid item md={8}>
+        <Grid item md={12}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis 1</InputLabel>
             {chartID && fields.length <= 1 ? (

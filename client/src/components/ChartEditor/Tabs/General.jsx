@@ -38,14 +38,14 @@ import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
-  { name: 'Line', value: 'line' },
   { name: 'DualLine', value: 'dualline' },
+  { name: 'HeatMap', value: 'heatmap' },
+  { name: 'Histogram', value: 'histogram' },
+  { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
   { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
-  { name: 'Histogram', value: 'histogram' },
-  { name: 'HeatMap', value: 'heatmap' },
 ];
 
 const useStyles = makeStyles(theme => ({
