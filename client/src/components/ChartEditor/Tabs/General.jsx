@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { config } = localState;
-  const { horizontal, isStatic, title, chartDescription, type, xAxis, yAxis } = config;
+  const { horizontal, isStatic, title, chartDescription, type } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const updateAxisKey = event => {
@@ -69,18 +69,18 @@ const GeneralTab = props => {
   };
 
   const checkboxUpdated = event => {
-    const { name } = event.target;
+    const { name, checked } = event.target;
+    const [state, key] = name.split(':');
+    let newConfig = localState.config;
 
-    // Update local state
-    handleCheckbox(event);
-
-    // Switch X and Y axis if they are already defined in local state
-    if (name === 'config:horizontal' && xAxis && yAxis) {
-      const xVal = xAxis;
-      const yVal = yAxis;
-
-      handleChangeObj(null, { name: 'config:xAxis', value: yVal });
-      handleChangeObj(null, { name: 'config:yAxis', value: xVal });
+    switch (key) {
+      case 'showTickLabels':
+        newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      default:
+        // Update local state
+        handleCheckbox(event);
     }
   };
 
@@ -196,7 +196,7 @@ const GeneralTab = props => {
       ) : type === 'histogram' ? (
         <HistogramParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
-        <GeneralParams {...props} updateAxisKey={updateAxisKey} />
+        <GeneralParams {...props} updateAxisKey={updateAxisKey} checkboxUpdated={checkboxUpdated} />
       )}
     </Grid>
   );
