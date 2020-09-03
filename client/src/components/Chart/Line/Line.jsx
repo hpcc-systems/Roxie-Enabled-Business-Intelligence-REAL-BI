@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bar } from '@ant-design/charts';
+import { Line } from '@ant-design/charts';
 
 // Utils
 import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
@@ -7,10 +7,11 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const BarComp = ({ chartID, data, config, interactiveClick }) => {
+const LineComp = ({ data, chartID, config, interactiveClick }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
+    groupBy,
   } = config;
 
   const sortOrder = 'asc';
@@ -35,30 +36,42 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
   const chartConfig = {
     data,
     events: {
-      onBarClick: ({ data }) => interactiveClick(chartID, yValue, data[yValue]),
+      onLineClick: ({ data }) => (groupBy ? interactiveClick(chartID, groupBy, data[0][groupBy]) : null),
+      onPointClick: ({ data }) =>
+        groupBy
+          ? interactiveClick(chartID, groupBy, data[groupBy])
+          : interactiveClick(chartID, xValue, data[xValue]),
     },
     forceFit: true,
-    label: { visible: false },
+    label: {
+      formatter: v => thousandsSeparator(v),
+      position: 'top',
+      style: { fontSize: 12 },
+      visible: groupBy ? false : true,
+    },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
+    meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
+    point: { visible: true },
+    seriesField: groupBy,
+    smooth: true,
+    xField: xValue,
     xAxis: {
-      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
         visible: xShowTickLabels,
       },
-      min: 0,
       title: {
         style: { fill: chartFillColor },
         text: customXLabel,
         visible: true,
       },
     },
-    xField: xValue,
+    yField: yValue,
     yAxis: {
+      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
         visible: yShowTickLabels,
@@ -67,17 +80,15 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
         style: { fill: chartFillColor },
         visible: true,
       },
-      min: 0,
       title: {
         style: { fill: chartFillColor },
         text: customYLabel,
         visible: true,
       },
     },
-    yField: yValue,
   };
 
-  return <Bar {...chartConfig} />;
+  return <Line {...chartConfig} />;
 };
 
-export default BarComp;
+export default LineComp;

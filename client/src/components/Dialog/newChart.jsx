@@ -20,7 +20,7 @@ import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  config: { axis1: {}, axis2: {}, type: 'bar' },
+  config: { axis1: { showTickLabels: true }, axis2: { showTickLabels: true }, type: 'bar' },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],

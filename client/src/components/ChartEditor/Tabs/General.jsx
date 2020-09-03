@@ -13,7 +13,10 @@ import {
 import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
+  MultilineChart as MultilineChartIcon,
   PieChart as PieChartIcon,
+  ScatterPlot as ScatterPlotIcon,
+  Poll as PollIcon,
   TableChart as TableChartIcon,
   TrendingFlat as HeatMapIcon,
 } from '@material-ui/icons';
@@ -21,11 +24,13 @@ import TextFieldsIcon from '@material-ui/icons/TextFields';
 import classnames from 'classnames';
 
 // React Components
+import DualLineParams from './DualLineParams';
 import GeneralParams from './GeneralParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
 import HeatMapParams from './HeatMapParams';
+import HistogramParams from './HistogramParams';
 
 // Utils
 import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
@@ -33,11 +38,14 @@ import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
+  { name: 'DualLine', value: 'dualline' },
+  { name: 'HeatMap', value: 'heatmap' },
+  { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
+  { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
-  { name: 'HeatMap', value: 'heatmap' },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -67,22 +75,29 @@ const GeneralTab = props => {
 
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
+    const [state, key] = name.split(':');
+    let newConfig = config;
 
-    // Update local state
-    handleCheckbox(event);
+    switch (key) {
+      case 'showTickLabels':
+        newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      case 'horizontal':
+        newConfig = { ...newConfig, [key]: checked };
 
-    // Switch X and Y axis if they are already defined in local state
-    if (name === 'config:horizontal' && axis1.value && axis2.value) {
-      let newConfig = config;
+        // Switch X and Y axis if they are already defined in local state
+        if (axis1.value && axis2.value) {
+          // Switch axis objects
+          newConfig.axis1 = axis2;
+          newConfig.axis2 = axis1;
+        }
 
-      // Switch axis objects
-      newConfig.axis1 = axis2;
-      newConfig.axis2 = axis1;
-
-      // Update checkbox state, newConfig won't contain checkbox change yet
-      newConfig.horizontal = checked;
-
-      handleChange(null, { name: 'config', value: newConfig });
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      default:
+        // Update local state
+        handleCheckbox(event);
     }
   };
 
@@ -111,12 +126,18 @@ const GeneralTab = props => {
                         return <BarChartIcon className={menuIcon} />;
                       case 'line':
                         return <LineChartIcon className={menuIcon} />;
+                      case 'dualline':
+                        return <MultilineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
+                      case 'scatter':
+                        return <ScatterPlotIcon className={menuIcon} />;
                       case 'table':
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
                         return <TextFieldsIcon className={menuIcon} />;
+                      case 'histogram':
+                        return <PollIcon className={menuIcon} />;
                       case 'heatmap':
                         return <HeatMapIcon className={menuIcon} />;
                       default:
@@ -193,8 +214,12 @@ const GeneralTab = props => {
         <TableParams {...props} />
       ) : type === 'heatmap' ? (
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'dualline' ? (
+        <DualLineParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'histogram' ? (
+        <HistogramParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
-        <GeneralParams {...props} updateAxisKey={updateAxisKey} />
+        <GeneralParams {...props} updateAxisKey={updateAxisKey} checkboxUpdated={checkboxUpdated} />
       )}
     </Grid>
   );

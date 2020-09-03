@@ -1,24 +1,23 @@
 import React from 'react';
-import { Bar } from '@ant-design/charts';
+import { Histogram } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { checkForNumber, sortArr } from '../../utils/misc';
 
 // Constants
-import { chartFillColor } from '../../../constants';
+import { chartFillColor } from '../../constants';
 
-const BarComp = ({ chartID, data, config, interactiveClick }) => {
+const HistogramComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
+    axis1: { label: xLabel, value: xValue },
+    binNumber,
   } = config;
 
   const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
-  const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xValue || !yValue) {
+  if (!data || data.length === 0 || !xValue) {
     return null;
   }
 
@@ -26,7 +25,6 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
   data = data.map(row => ({
     ...row,
     [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
   }));
 
   // Sort data in ascending order
@@ -34,21 +32,16 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
 
   const chartConfig = {
     data,
-    events: {
-      onBarClick: ({ data }) => interactiveClick(chartID, yValue, data[yValue]),
-    },
     forceFit: true,
     label: { visible: false },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
-      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: xShowTickLabels,
+        visible: true,
       },
       min: 0,
       title: {
@@ -57,11 +50,13 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
         visible: true,
       },
     },
-    xField: xValue,
+    binField: xValue,
+    binNumber: binNumber,
     yAxis: {
+      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: yShowTickLabels,
+        visible: true,
       },
       line: {
         style: { fill: chartFillColor },
@@ -70,14 +65,12 @@ const BarComp = ({ chartID, data, config, interactiveClick }) => {
       min: 0,
       title: {
         style: { fill: chartFillColor },
-        text: customYLabel,
         visible: true,
       },
     },
-    yField: yValue,
   };
 
-  return <Bar {...chartConfig} />;
+  return <Histogram {...chartConfig} />;
 };
 
-export default BarComp;
+export default HistogramComp;

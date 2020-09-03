@@ -1,16 +1,16 @@
 import React from 'react';
-import { Line } from '@ant-design/charts';
+import { Scatter } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
+import { checkForNumber, sortArr } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
 
-const LineComp = ({ data, chartID, config, interactiveClick }) => {
+const ScatterComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { label: yLabel, value: yValue },
+    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
+    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
     groupBy,
   } = config;
 
@@ -35,33 +35,12 @@ const LineComp = ({ data, chartID, config, interactiveClick }) => {
 
   const chartConfig = {
     data,
-    events: {
-      onLineClick: ({ data }) => (groupBy ? interactiveClick(chartID, groupBy, data[0][groupBy]) : null),
-      onPointClick: ({ data }) =>
-        groupBy
-          ? interactiveClick(chartID, groupBy, data[groupBy])
-          : interactiveClick(chartID, xValue, data[xValue]),
-    },
-    forceFit: true,
-    label: {
-      formatter: v => thousandsSeparator(v),
-      position: 'top',
-      style: { fontSize: 12 },
-      visible: groupBy ? false : true,
-    },
-    legend: {
-      position: 'right-top',
-      visible: true,
-    },
-    meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
-    point: { visible: true },
-    seriesField: groupBy,
-    smooth: true,
+    colorField: groupBy,
     xField: xValue,
     xAxis: {
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: xShowTickLabels,
       },
       title: {
         style: { fill: chartFillColor },
@@ -74,7 +53,7 @@ const LineComp = ({ data, chartID, config, interactiveClick }) => {
       grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: yShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },
@@ -88,7 +67,7 @@ const LineComp = ({ data, chartID, config, interactiveClick }) => {
     },
   };
 
-  return <Line {...chartConfig} />;
+  return <Scatter {...chartConfig} />;
 };
 
-export default LineComp;
+export default ScatterComp;

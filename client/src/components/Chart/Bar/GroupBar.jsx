@@ -9,8 +9,8 @@ import { chartFillColor } from '../../../constants';
 
 const GroupBarComp = ({ chartID, data, config, interactiveClick }) => {
   const {
-    axis1: { label: xLabel = '', value: xValue },
-    axis2: { label: yLabel = '', value: yValue },
+    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
+    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
     groupBy,
   } = config;
 
@@ -50,7 +50,7 @@ const GroupBarComp = ({ chartID, data, config, interactiveClick }) => {
       grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: xShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },
@@ -67,7 +67,7 @@ const GroupBarComp = ({ chartID, data, config, interactiveClick }) => {
     yAxis: {
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: yShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },

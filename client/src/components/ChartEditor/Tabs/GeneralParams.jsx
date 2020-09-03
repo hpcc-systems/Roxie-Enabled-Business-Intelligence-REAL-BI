@@ -1,8 +1,10 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Checkbox,
   CircularProgress,
   FormControl,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -16,14 +18,16 @@ import { getMessage } from '../../../utils/misc';
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
+  checkbox: { margin: theme.spacing(2.5, 0, 0, 0.5) },
 }));
 
-const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
+const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated }) => {
   const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, axis2 = {} } = config;
   const { fields = [] } = selectedDataset;
-  const { formControl, progress } = useStyles();
+  const { formControl, progress, checkbox } = useStyles();
+  const showTicksCheckboxLabel = 'Show Value Labels';
 
   const fieldsArr =
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
@@ -31,7 +35,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <Grid item md={8}>
+        <Grid item md={5}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
             {chartID && fieldsArr.length <= 1 ? (
@@ -49,7 +53,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
             )}
           </FormControl>
         </Grid>
-        <Grid item md={4}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
@@ -61,7 +65,20 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
             />
           </FormControl>
         </Grid>
-        <Grid item md={8}>
+        <Grid item md={4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={axis1.showTickLabels}
+                onChange={checkboxUpdated}
+                name='axis1:showTickLabels'
+              />
+            }
+            className={checkbox}
+            label={showTicksCheckboxLabel}
+          />
+        </Grid>
+        <Grid item md={5}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
             {chartID && fieldsArr.length <= 1 ? (
@@ -79,7 +96,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
             )}
           </FormControl>
         </Grid>
-        <Grid item md={4}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
@@ -90,6 +107,19 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey }) => {
               autoComplete='off'
             />
           </FormControl>
+        </Grid>
+        <Grid item md={4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={axis2.showTickLabels}
+                onChange={checkboxUpdated}
+                name='axis2:showTickLabels'
+              />
+            }
+            className={checkbox}
+            label={showTicksCheckboxLabel}
+          />
         </Grid>
       </Grid>
     </Grid>

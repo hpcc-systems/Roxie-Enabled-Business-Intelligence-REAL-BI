@@ -98,7 +98,7 @@ export const setEditorState = (charts, chartID, dashboard) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
-  const { dataset, ecl = {}, params = [] } = config;
+  const { axis1, axis2, dataset, ecl = {}, params = [] } = config;
 
   // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
@@ -117,6 +117,9 @@ export const setEditorState = (charts, chartID, dashboard) => {
   if (!relations || relations.length === 0) {
     relations = [{ originField: '', mappedChart: '', mappedField: '' }];
   }
+  // Confirm values are present to prevent error
+  config.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
+  config.axis2.showTickLabels = !('showTickLabels' in axis2) ? true : axis2.showTickLabels;
 
   // Create initial state object
   let initState = {
