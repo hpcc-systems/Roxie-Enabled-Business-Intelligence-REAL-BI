@@ -10,7 +10,7 @@ import { chartFillColor } from '../../constants';
 const HistogramComp = ({ data, config }) => {
   const {
     axis1: { label: xLabel, value: xValue },
-    binNumber: binNumber,
+    binNumber,
   } = config;
 
   const sortOrder = 'asc';
