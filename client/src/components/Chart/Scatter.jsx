@@ -9,8 +9,8 @@ import { chartFillColor } from '../../constants';
 
 const ScatterComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { label: yLabel, value: yValue },
+    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
+    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
     groupBy,
   } = config;
 
@@ -40,7 +40,7 @@ const ScatterComp = ({ data, config }) => {
     xAxis: {
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: xShowTickLabels,
       },
       title: {
         style: { fill: chartFillColor },
@@ -53,7 +53,7 @@ const ScatterComp = ({ data, config }) => {
       grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: yShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },
