@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
   const [sourceID, setSourceID] = useState(null);
+  const [interactiveObj, setInteractiveObj] = useState({});
   const { dashboard } = useSelector(state => state.dashboard);
   const { clusterID, id: dashboardID, params = [] } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
   const { charts } = useSelector(state => state.chart);
@@ -64,7 +65,7 @@ const Dashboard = () => {
     const dashboardParamsExist = params.some(({ value }) => value !== null);
     const chartParamsExist = checkForChartParams(charts);
 
-    if (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist)) {
+    if (!interactiveObj.value && (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist))) {
       // Fetch data for dashboard
       getDashboardData(clusterID, dashboardID).then(data => {
         const newDataObj = {};
@@ -85,7 +86,7 @@ const Dashboard = () => {
 
       // Fetch data for each chart
       charts.forEach(({ id: chartID }) => {
-        getChartData(chartID, clusterID).then(data => {
+        getChartData(chartID, clusterID, interactiveObj, dashboardID).then(data => {
           if (typeof data !== 'object') {
             return setCompData(prevState => ({
               ...prevState,
@@ -98,13 +99,24 @@ const Dashboard = () => {
         });
       });
     }
-  }, [charts, clusterID, dashboardID, params]);
+  }, [charts, clusterID, dashboardID, interactiveObj, params]);
+
+  const interactiveClick = (chartID, field, clickValue) => {
+    // Click same value twice, clear interactive click value
+    if (clickValue === interactiveObj.value) {
+      return setInteractiveObj({});
+    }
+
+    // Set interactive click values
+    setInteractiveObj({ chartID, field, value: clickValue });
+  };
 
   useEffect(() => {
-    if (dashboardID && charts.length > 0) {
+    if ((dashboardID || interactiveObj.value) && charts.length > 0) {
+      setCompData({}); // Reset component data state
       dataCall();
     }
-  }, [charts, dashboardID, dataCall]);
+  }, [charts, dashboardID, dataCall, interactiveObj.value]);
 
   return (
     <Fragment>
@@ -136,7 +148,12 @@ const Dashboard = () => {
                     toggleDialog={editChart}
                   />
                   <div className={clearDiv}>
-                    <Chart chart={chart} dashboard={dashboard} dataObj={dataObj} />
+                    <Chart
+                      chart={chart}
+                      dataObj={dataObj}
+                      interactiveClick={interactiveClick}
+                      interactiveObj={interactiveObj}
+                    />
                   </div>
                 </Paper>
               </Grid>

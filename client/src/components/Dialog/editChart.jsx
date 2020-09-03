@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
+import { updateDashboard } from '../../features/dashboard/actions';
 import { updateChart } from '../../features/chart/actions';
 
 // React Components
@@ -14,6 +15,7 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
+import { updateRelations } from '../../utils/dashboard';
 import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
 
 // Create styles
@@ -25,16 +27,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
-  // Get selected chart
+  const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
-  const { eclObj, initState } = setEditorState(charts, chartID);
+  const { eclObj, initState } = setEditorState(charts, chartID, dashboard);
 
   // Set initial state
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
   );
   const eclRef = useRef(eclObj);
-  const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, toolbar, typography } = useStyles();
 
@@ -50,8 +51,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
-  const editChart = () => {
-    const { chartID, sourceID, sourceType } = localState;
+  const editChart = async () => {
+    const { chartID, sourceID, sourceType, relations } = localState;
     const newECLObj = { ...eclRef.current };
 
     // Remove unneccesary key for DB
@@ -59,18 +60,34 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     const chartObj = createChartObj(localState, eclRef.current);
 
-    // Update chart and global params in DB
-    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType).then(action => {
-      // Close dialog
-      /*
-        Closing the dialog happens here because React will attempt to update the component
-        after the action updates the Redux store, causing a memory leak error because the component
-        will already be un-mounted.
-      */
-      toggleDialog();
+    let action, action2;
 
-      return dispatch(action);
-    });
+    try {
+      // Update chart and global params in DB
+      action = await updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType);
+
+      // Update relations array
+      const newRelations = updateRelations(chartID, dashboard, relations);
+
+      action2 = await updateDashboard(chartID, { ...dashboard, relations: newRelations });
+    } catch (err) {
+      console.error(err);
+    }
+
+    // Close dialog
+    /*
+      Closing the dialog happens here because React will attempt to update the component
+      after the action updates the Redux store, causing a memory leak error because the component
+      will already be un-mounted.
+    */
+    toggleDialog();
+
+    if (action && action2) {
+      batch(() => {
+        dispatch(action);
+        dispatch(action2);
+      });
+    }
   };
 
   const updateChartPreview = () => {

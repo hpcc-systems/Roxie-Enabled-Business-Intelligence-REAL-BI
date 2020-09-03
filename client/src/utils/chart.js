@@ -4,11 +4,13 @@ import errHandler from './errHandler';
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
-export const getChartData = async (chartID, clusterID) => {
+export const getChartData = async (chartID, clusterID, interactiveObj, dashboardID) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
+    response = await axios.get('/api/source/data/multiple', {
+      params: { chartID, clusterID, interactiveObj, dashboardID },
+    });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
@@ -92,7 +94,7 @@ export const createChartObj = (localState, ecl) => {
   return { ...newConfig, ecl };
 };
 
-export const setEditorState = (charts, chartID) => {
+export const setEditorState = (charts, chartID, dashboard) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
@@ -103,11 +105,17 @@ export const setEditorState = (charts, chartID) => {
   const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
 
   let mappedParams;
+  let relations = dashboard.relations ? dashboard.relations[chartID] : [];
 
   if (sourceType === 'file' && paramWithValueArr.length > 0) {
     mappedParams = paramWithValueArr;
   } else {
     mappedParams = [{ name: '', value: '' }];
+  }
+
+  // Add default value
+  if (!relations || relations.length === 0) {
+    relations = [{ originField: '', mappedChart: '', mappedField: '' }];
   }
 
   // Create initial state object
@@ -120,6 +128,7 @@ export const setEditorState = (charts, chartID) => {
     error: '',
     keyword: sourceName,
     mappedParams,
+    relations,
     selectedDataset: {},
     selectedSource: {},
     sources: [],

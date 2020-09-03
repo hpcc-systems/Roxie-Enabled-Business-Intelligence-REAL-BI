@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const BarComp = ({ data, config }) => {
+const BarComp = ({ chartID, data, config, interactiveClick }) => {
   const {
     axis1: { label: xLabel, value: xValue },
     axis2: { label: yLabel, value: yValue },
@@ -34,6 +34,9 @@ const BarComp = ({ data, config }) => {
 
   const chartConfig = {
     data,
+    events: {
+      onBarClick: ({ data }) => interactiveClick(chartID, yValue, data[yValue]),
+    },
     forceFit: true,
     label: { visible: false },
     legend: {

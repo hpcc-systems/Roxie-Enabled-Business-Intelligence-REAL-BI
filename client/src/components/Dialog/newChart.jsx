@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
 import { addChart } from '../../features/chart/actions';
+import { updateDashboard } from '../../features/dashboard/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
@@ -14,17 +15,19 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
+import { updateRelations } from '../../utils/dashboard';
 import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  config: { type: 'bar' },
+  config: { axis1: {}, axis2: {}, type: 'bar' },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
+  relations: [{ originField: '', mappedChart: '', mappedField: '' }],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -64,15 +67,25 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
-    const { config, dataset } = localState;
+    const { config, dataset, relations } = localState;
     const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
 
+    let action, action2, chartID;
+
     if (type === 'textBox' && isStatic) {
+      const chartObj = { ...config, dataset, ecl: {} };
+
       try {
-        addChart({ ...config, dataset, ecl: {} }, dashboardID, null, null, null).then(action => {
-          dispatch(action);
-        });
+        const responseObj = await addChart(chartObj, dashboardID, null, null, null);
+
+        action = responseObj.action;
+        chartID = responseObj.chartID;
+
+        // Update relations array
+        const newRelations = updateRelations(chartID, dashboard, relations);
+
+        action2 = await updateDashboard(chartID, { ...dashboard, relations: newRelations });
       } catch (err) {
         console.error(err);
       }
@@ -92,7 +105,14 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     }
 
     // Close dialog
-    return toggleDialog();
+    toggleDialog();
+
+    if (action && action2) {
+      batch(() => {
+        dispatch(action);
+        dispatch(action2);
+      });
+    }
   };
 
   const updateChartPreview = () => {

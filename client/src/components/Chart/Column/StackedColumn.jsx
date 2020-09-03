@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const StackedColumnComp = ({ data, config }) => {
+const StackedColumnComp = ({ chartID, data, config, interactiveClick }) => {
   const {
     axis1: { label: xLabel, value: xValue },
     axis2: { label: yLabel, value: yValue },
@@ -35,6 +35,9 @@ const StackedColumnComp = ({ data, config }) => {
 
   const chartConfig = {
     data,
+    events: {
+      onColumnClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
+    },
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),

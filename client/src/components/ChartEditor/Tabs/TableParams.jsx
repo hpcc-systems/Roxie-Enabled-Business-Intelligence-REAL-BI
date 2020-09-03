@@ -10,9 +10,10 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: 0, marginTop: 50 },
 }));
 
-const TableParams = ({ handleChangeObj, localState }) => {
+const TableParams = ({ eclRef, handleChangeObj, localState }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { fields: configFields = [], checkboxValueField = '' } = config;
   const { formControl, progress } = useStyles();
 
@@ -51,7 +52,9 @@ const TableParams = ({ handleChangeObj, localState }) => {
     handleChangeObj(null, { name: 'config:fields', value: arr });
   };
 
-  const alteredFieldsArr = fields.filter(({ name }) => name !== checkboxValueField);
+  const fieldsArr =
+    schema.length > 0 ? schema : !fields ? [{ name: getMessage(sourceType), value: '' }] : fields;
+  const alteredFieldsArr = fieldsArr.filter(({ name }) => name !== checkboxValueField);
   const alteredSelectedFieldsArr = configFields.filter(field => field !== checkboxValueField);
 
   return (
@@ -63,12 +66,12 @@ const TableParams = ({ handleChangeObj, localState }) => {
         ) : (
           <Select
             name='config:checkboxValueField'
-            value={config.checkboxValueField || ''}
+            value={checkboxValueField}
             onChange={handlecheckboxValueField}
           >
-            {fields.map(({ name, value = name }, index) => {
+            {fieldsArr.map(({ name }, index) => {
               return (
-                <MenuItem key={index} value={value}>
+                <MenuItem key={index} value={name}>
                   {name}
                 </MenuItem>
               );
@@ -84,13 +87,13 @@ const TableParams = ({ handleChangeObj, localState }) => {
           <Select
             multiple
             name='config:fields'
-            value={alteredSelectedFieldsArr || []}
+            value={alteredSelectedFieldsArr}
             input={<Input />}
             onChange={updateArr}
           >
-            {alteredFieldsArr.map(({ name, value = name }, index) => {
+            {alteredFieldsArr.map(({ name }, index) => {
               return (
-                <MenuItem key={index} value={value}>
+                <MenuItem key={index} value={name}>
                   {name}
                 </MenuItem>
               );
