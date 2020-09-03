@@ -15,6 +15,7 @@ import {
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
   ScatterPlot as ScatterPlotIcon,
+  Poll as PollIcon,
   TableChart as TableChartIcon,
   TrendingFlat as HeatMapIcon,
 } from '@material-ui/icons';
@@ -27,6 +28,7 @@ import PieParams from './PieParams';
 import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
 import HeatMapParams from './HeatMapParams';
+import HistogramParams from './HistogramParams';
 
 // Utils
 import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
@@ -39,6 +41,7 @@ const charts = [
   { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
+  { name: 'Histogram', value: 'histogram' },
   { name: 'HeatMap', value: 'heatmap' },
 ];
 
@@ -53,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { config } = localState;
-  const { horizontal, isStatic, title, chartDescription, type, xAxis, yAxis } = config;
+  const { horizontal, isStatic, title, chartDescription, type } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const updateAxisKey = event => {
@@ -68,18 +71,18 @@ const GeneralTab = props => {
   };
 
   const checkboxUpdated = event => {
-    const { name } = event.target;
+    const { name, checked } = event.target;
+    const [state, key] = name.split(':');
+    let newConfig = localState.config;
 
-    // Update local state
-    handleCheckbox(event);
-
-    // Switch X and Y axis if they are already defined in local state
-    if (name === 'config:horizontal' && xAxis && yAxis) {
-      const xVal = xAxis;
-      const yVal = yAxis;
-
-      handleChangeObj(null, { name: 'config:xAxis', value: yVal });
-      handleChangeObj(null, { name: 'config:yAxis', value: xVal });
+    switch (key) {
+      case 'showTickLabels':
+        newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      default:
+        // Update local state
+        handleCheckbox(event);
     }
   };
 
@@ -116,6 +119,8 @@ const GeneralTab = props => {
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
                         return <TextFieldsIcon className={menuIcon} />;
+                      case 'histogram':
+                        return <PollIcon className={menuIcon} />;
                       case 'heatmap':
                         return <HeatMapIcon className={menuIcon} />;
                       default:
@@ -192,8 +197,10 @@ const GeneralTab = props => {
         <TableParams {...props} />
       ) : type === 'heatmap' ? (
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'histogram' ? (
+        <HistogramParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
-        <GeneralParams {...props} updateAxisKey={updateAxisKey} />
+        <GeneralParams {...props} updateAxisKey={updateAxisKey} checkboxUpdated={checkboxUpdated} />
       )}
     </Grid>
   );

@@ -9,8 +9,8 @@ import { chartFillColor } from '../../../constants';
 
 const ColumnComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { label: yLabel, value: yValue },
+    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
+    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
   } = config;
 
   const sortOrder = 'asc';
@@ -44,7 +44,7 @@ const ColumnComp = ({ data, config }) => {
     xAxis: {
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: xShowTickLabels,
       },
       min: 0,
       title: {
@@ -58,7 +58,7 @@ const ColumnComp = ({ data, config }) => {
       grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: yShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },
