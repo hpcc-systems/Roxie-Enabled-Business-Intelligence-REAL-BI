@@ -14,6 +14,7 @@ import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
   PieChart as PieChartIcon,
+  ScatterPlot as ScatterPlotIcon,
   Poll as PollIcon,
   TableChart as TableChartIcon,
   TrendingFlat as HeatMapIcon,
@@ -37,6 +38,7 @@ const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
+  { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
   { name: 'Histogram', value: 'histogram' },
@@ -111,6 +113,8 @@ const GeneralTab = props => {
                         return <LineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
+                      case 'scatter':
+                        return <ScatterPlotIcon className={menuIcon} />;
                       case 'table':
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':

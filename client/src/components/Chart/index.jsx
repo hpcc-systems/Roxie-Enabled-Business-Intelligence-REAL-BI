@@ -8,6 +8,7 @@ import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
 import HistogramChart from './Histogram';
 import LineChart from './Line';
 import PieChart from './Pie';
+import ScatterChart from './Scatter';
 import Table from './Table';
 import NoData from './NoData';
 import TextBox from './TextBox';
@@ -80,6 +81,8 @@ const ChartComp = ({
           return <LineChart data={chartData} config={config} />;
         case 'pie':
           return <PieChart data={chartData} config={config} />;
+        case 'scatter':
+          return <ScatterChart data={chartData} config={config} />;
         case 'textBox':
           return <TextBox data={chartData} config={config} />;
         case 'heatmap':
