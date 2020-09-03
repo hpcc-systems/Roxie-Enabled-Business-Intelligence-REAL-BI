@@ -9,8 +9,8 @@ import { chartFillColor } from '../../../constants';
 
 const StackedColumnComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { label: yLabel, value: yValue },
+    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
+    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
     groupBy,
   } = config;
 
@@ -51,7 +51,7 @@ const StackedColumnComp = ({ data, config }) => {
     xAxis: {
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: xShowTickLabels,
       },
       min: 0,
       title: {
@@ -65,7 +65,7 @@ const StackedColumnComp = ({ data, config }) => {
       grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: true,
+        visible: yShowTickLabels,
       },
       line: {
         style: { fill: chartFillColor },

@@ -1,13 +1,13 @@
 import React from 'react';
-import { GroupedBar } from '@ant-design/charts';
+import { Scatter } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { checkForNumber, sortArr } from '../../utils/misc';
 
 // Constants
-import { chartFillColor } from '../../../constants';
+import { chartFillColor } from '../../constants';
 
-const GroupBarComp = ({ data, config }) => {
+const ScatterComp = ({ data, config }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -19,7 +19,7 @@ const GroupBarComp = ({ data, config }) => {
   const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xValue || !yValue || !groupBy) {
+  if (!data || data.length === 0 || !xValue || !yValue) {
     return null;
   }
 
@@ -35,33 +35,22 @@ const GroupBarComp = ({ data, config }) => {
 
   const chartConfig = {
     data,
-    forceFit: true,
-    groupField: groupBy,
-    label: { visible: false },
-    legend: {
-      position: 'right-top',
-      visible: true,
-    },
-    meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
+    colorField: groupBy,
+    xField: xValue,
     xAxis: {
-      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
         visible: xShowTickLabels,
       },
-      line: {
-        style: { fill: chartFillColor },
-        visible: true,
-      },
-      min: 0,
       title: {
         style: { fill: chartFillColor },
         text: customXLabel,
         visible: true,
       },
     },
-    xField: xValue,
+    yField: yValue,
     yAxis: {
+      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
         visible: yShowTickLabels,
@@ -70,17 +59,15 @@ const GroupBarComp = ({ data, config }) => {
         style: { fill: chartFillColor },
         visible: true,
       },
-      min: 0,
       title: {
         style: { fill: chartFillColor },
         text: customYLabel,
         visible: true,
       },
     },
-    yField: yValue,
   };
 
-  return <GroupedBar {...chartConfig} />;
+  return <Scatter {...chartConfig} />;
 };
 
-export default GroupBarComp;
+export default ScatterComp;

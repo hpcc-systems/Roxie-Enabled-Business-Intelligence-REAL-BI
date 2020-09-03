@@ -1,25 +1,23 @@
 import React from 'react';
-import { GroupedBar } from '@ant-design/charts';
+import { Histogram } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { checkForNumber, sortArr } from '../../utils/misc';
 
 // Constants
-import { chartFillColor } from '../../../constants';
+import { chartFillColor } from '../../constants';
 
-const GroupBarComp = ({ data, config }) => {
+const HistogramComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
-    groupBy,
+    axis1: { label: xLabel, value: xValue },
+    binNumber,
   } = config;
 
   const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
-  const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xValue || !yValue || !groupBy) {
+  if (!data || data.length === 0 || !xValue) {
     return null;
   }
 
@@ -27,7 +25,6 @@ const GroupBarComp = ({ data, config }) => {
   data = data.map(row => ({
     ...row,
     [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
   }));
 
   // Sort data in ascending order
@@ -36,20 +33,13 @@ const GroupBarComp = ({ data, config }) => {
   const chartConfig = {
     data,
     forceFit: true,
-    groupField: groupBy,
     label: { visible: false },
     legend: {
       position: 'right-top',
       visible: true,
     },
-    meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
     xAxis: {
-      grid: { visible: true },
       label: {
-        style: { fill: chartFillColor },
-        visible: xShowTickLabels,
-      },
-      line: {
         style: { fill: chartFillColor },
         visible: true,
       },
@@ -60,11 +50,13 @@ const GroupBarComp = ({ data, config }) => {
         visible: true,
       },
     },
-    xField: xValue,
+    binField: xValue,
+    binNumber: binNumber,
     yAxis: {
+      grid: { visible: true },
       label: {
         style: { fill: chartFillColor },
-        visible: yShowTickLabels,
+        visible: true,
       },
       line: {
         style: { fill: chartFillColor },
@@ -73,14 +65,12 @@ const GroupBarComp = ({ data, config }) => {
       min: 0,
       title: {
         style: { fill: chartFillColor },
-        text: customYLabel,
         visible: true,
       },
     },
-    yField: yValue,
   };
 
-  return <GroupedBar {...chartConfig} />;
+  return <Histogram {...chartConfig} />;
 };
 
-export default GroupBarComp;
+export default HistogramComp;

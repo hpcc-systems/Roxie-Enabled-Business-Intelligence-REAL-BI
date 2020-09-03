@@ -72,7 +72,7 @@ export const hasStackedOption = chartType => {
 };
 
 export const hasGroupByOption = chartType => {
-  const chartTypes = ['bar', 'line'];
+  const chartTypes = ['bar', 'line', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;

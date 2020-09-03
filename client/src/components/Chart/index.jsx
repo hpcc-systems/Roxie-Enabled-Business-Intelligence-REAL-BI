@@ -6,7 +6,9 @@ import { CircularProgress } from '@material-ui/core';
 import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
 import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
 import { LineChart, DualLineChart } from './Line';
+import HistogramChart from './Histogram';
 import PieChart from './Pie';
+import ScatterChart from './Scatter';
 import Table from './Table';
 import NoData from './NoData';
 import TextBox from './TextBox';
@@ -73,12 +75,16 @@ const ChartComp = ({
           return <GroupColumnChart data={chartData} config={config} />;
         case 'column-stacked':
           return <StackedColumnChart data={chartData} config={config} />;
+        case 'histogram':
+          return <HistogramChart data={chartData} config={config} />;
         case 'line':
           return <LineChart data={chartData} config={config} />;
         case 'dualline':
           return <DualLineChart data={chartData} config={config} />;
         case 'pie':
           return <PieChart data={chartData} config={config} />;
+        case 'scatter':
+          return <ScatterChart data={chartData} config={config} />;
         case 'textBox':
           return <TextBox data={chartData} config={config} />;
         case 'heatmap':
