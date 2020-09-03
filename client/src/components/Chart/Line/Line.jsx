@@ -2,10 +2,10 @@ import React from 'react';
 import { Line } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../utils/misc';
+import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
 
 // Constants
-import { chartFillColor } from '../../constants';
+import { chartFillColor } from '../../../constants';
 
 const LineComp = ({ data, config }) => {
   const {

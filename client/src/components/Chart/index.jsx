@@ -5,8 +5,8 @@ import { CircularProgress } from '@material-ui/core';
 //React Components
 import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
 import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
+import { LineChart, DualLineChart } from './Line';
 import HistogramChart from './Histogram';
-import LineChart from './Line';
 import PieChart from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
@@ -79,6 +79,8 @@ const ChartComp = ({
           return <HistogramChart data={chartData} config={config} />;
         case 'line':
           return <LineChart data={chartData} config={config} />;
+        case 'dualline':
+          return <DualLineChart data={chartData} config={config} />;
         case 'pie':
           return <PieChart data={chartData} config={config} />;
         case 'scatter':

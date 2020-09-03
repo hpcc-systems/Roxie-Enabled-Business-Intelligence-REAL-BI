@@ -13,6 +13,7 @@ import {
 import {
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
+  MultilineChart as MultilineChartIcon,
   PieChart as PieChartIcon,
   ScatterPlot as ScatterPlotIcon,
   Poll as PollIcon,
@@ -23,6 +24,7 @@ import TextFieldsIcon from '@material-ui/icons/TextFields';
 import classnames from 'classnames';
 
 // React Components
+import DualLineParams from './DualLineParams';
 import GeneralParams from './GeneralParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
@@ -36,13 +38,14 @@ import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
+  { name: 'DualLine', value: 'dualline' },
+  { name: 'HeatMap', value: 'heatmap' },
+  { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
   { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
   { name: 'Text Box', value: 'textBox' },
-  { name: 'Histogram', value: 'histogram' },
-  { name: 'HeatMap', value: 'heatmap' },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -111,6 +114,8 @@ const GeneralTab = props => {
                         return <BarChartIcon className={menuIcon} />;
                       case 'line':
                         return <LineChartIcon className={menuIcon} />;
+                      case 'dualline':
+                        return <MultilineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
                       case 'scatter':
@@ -197,6 +202,8 @@ const GeneralTab = props => {
         <TableParams {...props} />
       ) : type === 'heatmap' ? (
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'dualline' ? (
+        <DualLineParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'histogram' ? (
         <HistogramParams {...props} updateAxisKey={updateAxisKey} />
       ) : (
