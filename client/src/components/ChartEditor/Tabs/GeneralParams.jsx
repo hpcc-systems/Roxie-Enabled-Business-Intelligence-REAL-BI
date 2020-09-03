@@ -15,7 +15,7 @@ import {
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
-  checkbox: { marginTop: 10 },
+  checkbox: { margin: theme.spacing(2.5, 0, 0, 0.5) },
 }));
 
 // Changes message based on source type
@@ -41,7 +41,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <Grid item md={6}>
+        <Grid item md={5}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
             {chartID && fieldsArr.length <= 1 ? (
@@ -71,7 +71,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
             />
           </FormControl>
         </Grid>
-        <Grid item md={3}>
+        <Grid item md={4}>
           <FormControlLabel
             control={
               <Checkbox
@@ -84,7 +84,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
             label={showTicksCheckboxLabel}
           />
         </Grid>
-        <Grid item md={6}>
+        <Grid item md={5}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
             {chartID && fieldsArr.length <= 1 ? (
@@ -114,7 +114,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
             />
           </FormControl>
         </Grid>
-        <Grid item md={3}>
+        <Grid item md={4}>
           <FormControlLabel
             control={
               <Checkbox
