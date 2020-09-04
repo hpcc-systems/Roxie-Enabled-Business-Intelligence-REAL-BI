@@ -163,7 +163,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     setLoading(true);
 
     try {
-      await updateDashboard(null, localState);
+      await updateDashboard(localState);
 
       if (updateCreds || (username && password)) {
         createClusterAuth({ clusterID, password, username });

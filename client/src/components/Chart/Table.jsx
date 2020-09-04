@@ -19,9 +19,7 @@ import { sortArr, thousandsSeparator } from '../../utils/misc';
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
   columnHeader: { textTransform: 'capitalize' },
-  tableCell: {
-    '&:hover': { cursor: 'pointer' },
-  },
+  tableCell: { '&:hover': { cursor: 'pointer' } },
 }));
 
 const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) => {

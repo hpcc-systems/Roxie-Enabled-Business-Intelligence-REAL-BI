@@ -49,7 +49,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
-  const editChart = async () => {
+  const editChart = () => {
     const { chartID, sourceID, sourceType } = localState;
     const newECLObj = { ...eclRef.current };
 
@@ -58,24 +58,18 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     const chartObj = createChartObj(localState, eclRef.current);
 
-    let action;
+    // Update chart and global params in DB
+    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType).then(action => {
+      // Close dialog
+      /*
+        Closing the dialog happens here because React will attempt to update the component
+        after the action updates the Redux store, causing a memory leak error because the component
+        will already be un-mounted.
+      */
+      toggleDialog();
 
-    try {
-      // Update chart and global params in DB
-      action = await updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType);
-    } catch (err) {
-      console.error(err);
-    }
-
-    // Close dialog
-    /*
-      Closing the dialog happens here because React will attempt to update the component
-      after the action updates the Redux store, causing a memory leak error because the component
-      will already be un-mounted.
-    */
-    toggleDialog();
-
-    dispatch(action);
+      return dispatch(action);
+    });
   };
 
   const updateChartPreview = () => {

@@ -95,7 +95,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     }
 
     // Close dialog
-    toggleDialog();
+    return toggleDialog();
   };
 
   const updateChartPreview = () => {
