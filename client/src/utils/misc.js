@@ -85,6 +85,13 @@ export const hasDynamicOption = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
+export const hasClickEventOption = chartType => {
+  const chartTypes = ['bar', 'line', 'table'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
 export const canAddCharts = role => {
   const roles = ['Owner'];
 

@@ -16,9 +16,12 @@ import {
 } from '@material-ui/core';
 import { Remove as RemoveIcon } from '@material-ui/icons';
 
+// Redux Actions
+import { updateDashboard } from '../../features/dashboard/actions';
+
 // Utils
 import { formatRelations } from '../../utils/dashboard';
-import { updateDashboard } from '../../features/dashboard/actions';
+import { hasClickEventOption } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -37,6 +40,11 @@ const useStyles = makeStyles(theme => ({
 
 // Dropdown component to choose from a list of charts on the dashboard
 const chartDropdown = (label, name, arr, field, index, updateArr) => {
+  if (name === 'sourceChart') {
+    // Filter list of charts to ones that support click events
+    arr = arr.filter(chart => hasClickEventOption(chart.type));
+  }
+
   return (
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
@@ -99,7 +107,7 @@ const Relations = ({ show, toggleDialog }) => {
   // Configure charts to get formatted array of objects
   charts = charts.map(chart => {
     const { id: chartID, config, sourceID, sourceName } = chart;
-    const { axis1, axis2, fields = [], groupBy = '', params, title } = config;
+    const { axis1, axis2, fields = [], groupBy = '', params, title, type } = config;
     const newFields = [];
 
     // Get fields from chart config
@@ -121,7 +129,7 @@ const Relations = ({ show, toggleDialog }) => {
       newFields.push({ name: groupBy });
     }
 
-    return { chartID, fields: newFields, params, sourceID, sourceName, title };
+    return { chartID, fields: newFields, params, sourceID, sourceName, title, type };
   });
 
   const updateField = (event, index) => {

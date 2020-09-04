@@ -52,6 +52,7 @@ export const formatRelations = relations => {
     });
   });
 
+  // Add new relation to end of array
   relationsArr.push({ sourceChart: '', sourceField: '', targetChart: '', targetField: '' });
 
   return relationsArr;
@@ -63,19 +64,20 @@ export const deleteRelations = (relations = {}, chartID) => {
   // Remove interactions where the deleted chart is the source
   delete newRelations[chartID];
 
-  const keys = Object.keys(newRelations);
+  // Get list of source chart ID's
+  const sourceCharts = Object.keys(newRelations);
 
-  // Interate through each key in object
-  keys.forEach(key => {
+  // Interate through each source chart id in object
+  sourceCharts.forEach(sourceChart => {
     // Get relations where the target chart is not the chart being deleted
-    const filteredArr = newRelations[key].filter(({ targetChart }) => chartID !== targetChart);
+    const filteredArr = newRelations[sourceChart].filter(({ targetChart }) => chartID !== targetChart);
 
     if (filteredArr.length === 0) {
-      // No relations left for source chart, delete the key
-      delete newRelations[key];
+      // No relations left for source chart, delete the sourceChart
+      delete newRelations[sourceChart];
     } else {
-      // Replace array at current key with filtered array
-      newRelations[key] = filteredArr;
+      // Replace array for current source chart with filtered array
+      newRelations[sourceChart] = filteredArr;
     }
   });
 
