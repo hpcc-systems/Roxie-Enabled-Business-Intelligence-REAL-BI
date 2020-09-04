@@ -1,12 +1,6 @@
 {
   "name": "real_bi",
   "version": "1.0.0",
-  "description": "",
-  "main": "",
-  "scripts": {
-    "install:all": "npm install && concurrently \"cd server && npm install\" \"cd client && npm install\"",
-    "start": "concurrently \"cd server && npm start\" \"cd client && npm start\""
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
