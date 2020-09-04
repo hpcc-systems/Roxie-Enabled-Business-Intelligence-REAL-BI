@@ -30,10 +30,7 @@ export const addChart = async (chart, dashboardID, sourceID, sourceName, sourceT
     return { type: SET_CHART_ERRORS, payload: err };
   }
 
-  return {
-    type: ADD_CHART,
-    payload: { ...response.data, sourceName, sourceType },
-  };
+  return { type: ADD_CHART, payload: { ...response.data, sourceName, sourceType } };
 };
 
 export const deleteChart = async (chartID, dashboardID, sourceID) => {
