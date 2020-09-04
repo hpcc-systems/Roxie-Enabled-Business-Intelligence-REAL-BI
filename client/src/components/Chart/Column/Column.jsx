@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const ColumnComp = ({ data, config }) => {
+const ColumnComp = ({ chartID, data, config, interactiveClick, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -73,6 +73,13 @@ const ColumnComp = ({ data, config }) => {
     },
     yField: yValue,
   };
+
+  // Add click events
+  if (relations[chartID]) {
+    chartConfig.events = {
+      onColumnClick: ({ data }) => interactiveClick(chartID, customXLabel, data[xValue]),
+    };
+  }
 
   return <Column {...chartConfig} />;
 };

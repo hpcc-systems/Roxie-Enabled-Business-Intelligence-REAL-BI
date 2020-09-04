@@ -9,20 +9,18 @@ import SelectDataset from './SelectDataset';
 // Constants
 import { sourceOptions } from '../../constants';
 
+// Utils
+import { getMessage } from '../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { margin: 0, marginTop: theme.spacing(1) },
 }));
-
-// Changes error message for dropdown
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Error retrieving file metadata' : 'Choose a dataset';
-};
 
 const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
 
 const FilterInfo = ({ dashboard, handleChange, localState }) => {
   const { field, filterID, name, selectedDataset, sourceType } = localState;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [{ name: getMessage(sourceType, true), value: '' }] } = selectedDataset;
   const { formControl } = useStyles();
 
   const changeSourceType = event => {

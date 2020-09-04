@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const GroupBarComp = ({ data, config }) => {
+const GroupBarComp = ({ chartID, data, config, interactiveClick, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -79,6 +79,13 @@ const GroupBarComp = ({ data, config }) => {
     },
     yField: yValue,
   };
+
+  // Add click events
+  if (relations[chartID]) {
+    chartConfig.events = {
+      onBarClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
+    };
+  }
 
   return <GroupedBar {...chartConfig} />;
 };

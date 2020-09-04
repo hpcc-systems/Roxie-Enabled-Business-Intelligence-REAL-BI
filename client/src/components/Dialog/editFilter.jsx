@@ -25,12 +25,12 @@ const useStyles = makeStyles(theme => ({
 
 const EditFilterDialog = ({ filterID, show, toggleDialog }) => {
   // Get selected filter
-  const { params } = useSelector(state => state.dashboard.dashboard);
-  const initState = setEditorState(params, filterID);
+  const { dashboard } = useSelector(state => state.dashboard);
+
+  const initState = setEditorState(dashboard.params, filterID);
 
   const { values: localState, handleChange, handleChangeArr } = useForm(initState);
   const { charts } = useSelector(state => state.chart);
-  const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, toolbar, typography } = useStyles();
 

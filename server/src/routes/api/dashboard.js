@@ -63,10 +63,7 @@ router.put('/', async (req, res) => {
     body,
     user: { id: userID },
   } = req;
-  const {
-    directoryObj: { id },
-    name,
-  } = body;
+  const { id, name } = body;
   let permissionObj;
 
   // Make sure dashboard name conforms to required regexp

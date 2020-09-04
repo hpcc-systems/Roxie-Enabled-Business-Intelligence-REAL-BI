@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { config } = localState;
-  const { horizontal, isStatic, title, chartDescription, type } = config;
+  const { axis1, axis2, horizontal, isStatic, title, chartDescription, type } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const updateAxisKey = event => {
@@ -76,11 +76,23 @@ const GeneralTab = props => {
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
     const [state, key] = name.split(':');
-    let newConfig = localState.config;
+    let newConfig = config;
 
     switch (key) {
       case 'showTickLabels':
         newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      case 'horizontal':
+        newConfig = { ...newConfig, [key]: checked };
+
+        // Switch X and Y axis if they are already defined in local state
+        if (axis1.value && axis2.value) {
+          // Switch axis objects
+          newConfig.axis1 = axis2;
+          newConfig.axis2 = axis1;
+        }
+
         handleChange(null, { name: 'config', value: newConfig });
         break;
       default:

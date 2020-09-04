@@ -4,11 +4,13 @@ import errHandler from './errHandler';
 // Constants
 import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
 
-export const getChartData = async (chartID, clusterID) => {
+export const getChartData = async (chartID, clusterID, interactiveObj, dashboardID) => {
   let response;
 
   try {
-    response = await axios.get('/api/source/data/multiple', { params: { chartID, clusterID } });
+    response = await axios.get('/api/source/data/multiple', {
+      params: { chartID, clusterID, interactiveObj, dashboardID },
+    });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 

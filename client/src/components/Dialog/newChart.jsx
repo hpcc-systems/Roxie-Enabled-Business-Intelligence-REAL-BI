@@ -25,6 +25,7 @@ const initState = {
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
+  relations: [{ originField: '', mappedChart: '', mappedField: '' }],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -69,8 +70,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const { id: dashboardID } = dashboard;
 
     if (type === 'textBox' && isStatic) {
+      const chartObj = { ...config, dataset, ecl: {} };
+
       try {
-        addChart({ ...config, dataset, ecl: {} }, dashboardID, null, null, null).then(action => {
+        addChart(chartObj, dashboardID, null, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {
