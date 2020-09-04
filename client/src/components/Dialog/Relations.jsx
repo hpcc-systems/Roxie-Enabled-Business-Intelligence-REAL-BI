@@ -179,7 +179,12 @@ const Relations = ({ show, toggleDialog }) => {
   };
 
   return (
-    <Dialog onClose={toggleDialog} open={show} fullWidth classes={{ paper: dialog }}>
+    <Dialog
+      onClose={toggleDialog}
+      open={show}
+      fullWidth
+      classes={{ paper: charts.length > 1 ? dialog : null }}
+    >
       <DialogTitle>Chart Relations</DialogTitle>
       <DialogContent>
         {charts.length <= 1 ? (
