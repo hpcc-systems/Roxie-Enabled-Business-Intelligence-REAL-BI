@@ -15,14 +15,14 @@ import {
 // React Components
 import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
-import { ECLEditor, General, GroupBy, Parameters, RelationMapper } from './Tabs';
+import { ECLEditor, General, GroupBy, Parameters } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
 import { hasGroupByOption } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
 
-const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Relations'];
+const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By'];
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -110,7 +110,7 @@ const ChartEditor = props => {
                 (sourceType !== 'ecl' && option === 'ECL Script') ||
                 (sourceType === 'ecl' && option === 'Parameters') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
-                (type === 'textBox' && isStatic && (option === 'Parameters' || option === 'Relations')) ||
+                (type === 'textBox' && isStatic && option === 'Parameters') ||
                 (type === 'textBox' && option === 'Group By')
               ) {
                 return null;
@@ -121,31 +121,9 @@ const ChartEditor = props => {
           </Tabs>
         </AppBar>
         {(() => {
-          let tabNum = tabIndex;
-
-          // Get correct position based on type and tab index
-          if (sourceType !== 'ecl') {
-            // source type !== 'ecl', skip ecl tab
-            tabNum += 1;
-
-            if (tabNum === 3 && !hasGroupByOption(type)) {
-              // chart type doesn't support group by, skip group by tab
-              tabNum = 4;
-            }
-          } else {
-            if (tabNum === 2) {
-              if (!hasGroupByOption(type)) {
-                // chart type doesn't support group by, skip parameters and group by tabs
-                tabNum = 4;
-              } else {
-                // source type === 'ecl', skip parameters tab
-                tabNum = 3;
-              }
-            } else if (tabNum > 2) {
-              // Last option, show relation mapper
-              tabNum = 4;
-            }
-          }
+          // Get correct position based on source type and tab index
+          // If sourceType === 'ecl', skip parameters tab
+          const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex === 2 ? 3 : tabIndex;
 
           switch (tabNum) {
             case 0:
@@ -156,8 +134,6 @@ const ChartEditor = props => {
               return <Parameters {...props} />;
             case 3:
               return <GroupBy {...props} />;
-            case 4:
-              return <RelationMapper {...props} />;
             default:
               return 'Unknown Tab';
           }

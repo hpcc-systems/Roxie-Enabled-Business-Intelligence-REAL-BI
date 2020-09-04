@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { updateDashboard } from '../../features/dashboard/actions';
 import { updateChart } from '../../features/chart/actions';
 
 // React Components
@@ -15,7 +14,6 @@ import ChartEditor from '../ChartEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { updateRelations } from '../../utils/dashboard';
 import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
 
 // Create styles
@@ -29,7 +27,7 @@ const useStyles = makeStyles(theme => ({
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
-  const { eclObj, initState } = setEditorState(charts, chartID, dashboard);
+  const { eclObj, initState } = setEditorState(charts, chartID);
 
   // Set initial state
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
@@ -52,7 +50,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Update chart in DB and store
   const editChart = async () => {
-    const { chartID, sourceID, sourceType, relations } = localState;
+    const { chartID, sourceID, sourceType } = localState;
     const newECLObj = { ...eclRef.current };
 
     // Remove unneccesary key for DB
@@ -60,16 +58,11 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     const chartObj = createChartObj(localState, eclRef.current);
 
-    let action, action2;
+    let action;
 
     try {
       // Update chart and global params in DB
       action = await updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType);
-
-      // Update relations array
-      const newRelations = updateRelations(chartID, dashboard, relations);
-
-      action2 = await updateDashboard(chartID, { ...dashboard, relations: newRelations });
     } catch (err) {
       console.error(err);
     }
@@ -82,12 +75,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     */
     toggleDialog();
 
-    if (action && action2) {
-      batch(() => {
-        dispatch(action);
-        dispatch(action2);
-      });
-    }
+    dispatch(action);
   };
 
   const updateChartPreview = () => {

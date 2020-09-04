@@ -15,6 +15,7 @@ import ShareLinkDialog from '../Dialog/shareLink';
 import EditChartDialog from '../Dialog/editChart';
 import FilterDrawer from '../Drawers/Filters';
 import DeleteChartDialog from '../Dialog/DeleteChart';
+import Relations from '../Dialog/Relations';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -40,6 +41,7 @@ const Dashboard = () => {
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
+  const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dispatch = useDispatch();
@@ -123,7 +125,8 @@ const Dashboard = () => {
       <Toolbar
         dashboard={dashboard}
         refreshChart={dataCall}
-        toggleDialog={newChartToggle}
+        toggleNewChartDialog={newChartToggle}
+        toggleRelationsDialog={relationsToggle}
         toggleDrawer={toggleFilterDrawer}
         toggleShare={shareLinkToggle}
       />
@@ -184,6 +187,7 @@ const Dashboard = () => {
             toggleDialog={deleteChartToggle}
           />
         )}
+        {relationsShow && <Relations show={relationsShow} toggleDialog={relationsToggle} />}
       </Container>
     </Fragment>
   );

@@ -94,7 +94,7 @@ export const createChartObj = (localState, ecl) => {
   return { ...newConfig, ecl };
 };
 
-export const setEditorState = (charts, chartID, dashboard) => {
+export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
@@ -105,7 +105,6 @@ export const setEditorState = (charts, chartID, dashboard) => {
   const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
 
   let mappedParams;
-  let relations = dashboard.relations ? dashboard.relations[chartID] : [];
 
   if (sourceType === 'file' && paramWithValueArr.length > 0) {
     mappedParams = paramWithValueArr;
@@ -113,10 +112,6 @@ export const setEditorState = (charts, chartID, dashboard) => {
     mappedParams = [{ name: '', value: '' }];
   }
 
-  // Add default value
-  if (!relations || relations.length === 0) {
-    relations = [{ originField: '', mappedChart: '', mappedField: '' }];
-  }
   // Confirm values are present to prevent error
   config.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
   config.axis2.showTickLabels = !('showTickLabels' in axis2) ? true : axis2.showTickLabels;
@@ -131,7 +126,6 @@ export const setEditorState = (charts, chartID, dashboard) => {
     error: '',
     keyword: sourceName,
     mappedParams,
-    relations,
     selectedDataset: {},
     selectedSource: {},
     sources: [],

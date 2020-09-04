@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const StackedBarComp = ({ chartID, data, config, interactiveClick }) => {
+const StackedBarComp = ({ chartID, data, config, interactiveClick, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -35,9 +35,6 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick }) => {
 
   const chartConfig = {
     data,
-    events: {
-      onBarClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
-    },
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
@@ -86,6 +83,13 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick }) => {
     },
     yField: yValue,
   };
+
+  // Add click events
+  if (relations[chartID]) {
+    chartConfig.events = {
+      onBarClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
+    };
+  }
 
   return <StackedBar {...chartConfig} />;
 };

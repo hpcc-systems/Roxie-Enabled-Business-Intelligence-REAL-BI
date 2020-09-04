@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
@@ -26,6 +27,7 @@ const ChartComp = ({
   interactiveClick,
   interactiveObj,
 }) => {
+  const { relations = {} } = useSelector(state => state.dashboard.dashboard);
   const { dataset, ecl = {}, groupBy, horizontal, stacked, isStatic = false, type } = config;
   const { progress } = useStyles();
   let chartData = [];
@@ -72,6 +74,7 @@ const ChartComp = ({
               data={chartData}
               interactiveObj={interactiveObj}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'bar-group':
@@ -81,6 +84,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'bar-stacked':
@@ -90,6 +94,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'column':
@@ -99,6 +104,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'column-group':
@@ -108,6 +114,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'column-stacked':
@@ -117,6 +124,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'line':
@@ -126,6 +134,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         case 'histogram':
@@ -148,6 +157,7 @@ const ChartComp = ({
               data={chartData}
               interactiveObj={interactiveObj}
               interactiveClick={interactiveClick}
+              relations={relations}
             />
           );
         default:

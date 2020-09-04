@@ -38,49 +38,46 @@ export const deleteExistingDashboard = async dashboardID => {
   return;
 };
 
-export const updateRelations = (chartID, dashboard, relationsArr) => {
-  let newRelations = dashboard.relations || {};
+export const formatRelations = relations => {
+  // Get array of sourceChart ID's
+  const sourceCharts = Object.keys(relations || {});
+  const relationsArr = [];
 
-  // Remove any relations that are not complete
-  relationsArr = relationsArr.filter(
-    ({ originField, mappedChart, mappedField }) =>
-      originField !== '' && mappedChart !== '' && mappedField !== '',
-  );
+  // Flatten nested relations object into flat array of objects
+  sourceCharts.forEach(sourceChart => {
+    const chartRelations = relations[sourceChart];
 
-  // Replace or create key/value pair in relations object
-  newRelations[chartID] = relationsArr;
+    chartRelations.forEach(relation => {
+      return relationsArr.push({ sourceChart, ...relation });
+    });
+  });
 
-  relationsArr.forEach(obj => {
-    newRelations = createInverseRelation(chartID, obj, newRelations);
+  relationsArr.push({ sourceChart: '', sourceField: '', targetChart: '', targetField: '' });
+
+  return relationsArr;
+};
+
+export const deleteRelations = (relations = {}, chartID) => {
+  let newRelations = relations || {};
+
+  // Remove interactions where the deleted chart is the source
+  delete newRelations[chartID];
+
+  const keys = Object.keys(newRelations);
+
+  // Interate through each key in object
+  keys.forEach(key => {
+    // Get relations where the target chart is not the chart being deleted
+    const filteredArr = newRelations[key].filter(({ targetChart }) => chartID !== targetChart);
+
+    if (filteredArr.length === 0) {
+      // No relations left for source chart, delete the key
+      delete newRelations[key];
+    } else {
+      // Replace array at current key with filtered array
+      newRelations[key] = filteredArr;
+    }
   });
 
   return newRelations;
-};
-
-const createInverseRelation = (chartID, originalRelationObj, masterRelationsObj) => {
-  const { originField, mappedChart, mappedField } = originalRelationObj;
-  const targetChartID = mappedChart;
-  const inverseRelationObj = { originField: mappedField, mappedChart: chartID, mappedField: originField };
-  const targetArray = masterRelationsObj[targetChartID];
-
-  // Look for existing nested object
-  if (targetArray && targetArray.length > 0) {
-    const targetIndex = targetArray.findIndex(
-      ({ mappedChart, mappedField }) =>
-        mappedChart === inverseRelationObj.mappedChart && mappedField === inverseRelationObj.mappedField,
-    );
-
-    if (targetIndex > -1) {
-      masterRelationsObj[targetChartID][targetIndex] = inverseRelationObj;
-    } else {
-      masterRelationsObj[targetChartID].push(inverseRelationObj);
-    }
-  } else {
-    // Create array with inverse object on relations object
-    masterRelationsObj[targetChartID] = [inverseRelationObj];
-  }
-
-  console.log('masterRelationsObj', masterRelationsObj);
-
-  return masterRelationsObj;
 };

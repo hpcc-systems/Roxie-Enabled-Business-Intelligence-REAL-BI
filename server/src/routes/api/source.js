@@ -234,17 +234,13 @@ router.get('/data/multiple', async (req, res) => {
       const { relations = {} } = await getDashboardByID(dashboardID);
 
       if (relations[parsedObj.chartID]) {
-        relations[parsedObj.chartID].map(({ originField, mappedChart, mappedField }) => {
-          console.log('inside map\n', parsedObj.field, originField, parsedObj.field === originField);
-
-          if (chartID === mappedChart && parsedObj.field === originField) {
-            newParam = [{ name: mappedField, value: parsedObj.value }];
+        relations[parsedObj.chartID].map(({ sourceField, targetChart, targetField }) => {
+          if (chartID === targetChart && parsedObj.field === sourceField) {
+            newParam = [{ name: targetField, value: parsedObj.value }];
           }
         });
       }
     }
-
-    console.log('newParam\n', newParam);
 
     switch (source.type) {
       case 'file':

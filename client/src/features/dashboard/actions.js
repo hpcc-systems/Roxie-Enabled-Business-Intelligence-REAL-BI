@@ -48,9 +48,9 @@ export const createDashboardParam = async paramObj => {
   return { type: CREATE_DASHBOARD_PARAM, payload: response.data };
 };
 
-export const updateDashboard = async (chartID, dashboardObj) => {
+export const updateDashboard = async dashboardObj => {
   try {
-    await axios.put('/api/dashboard', { chartID, ...dashboardObj });
+    await axios.put('/api/dashboard', { ...dashboardObj });
   } catch (err) {
     console.error(err);
     return { type: SET_DASHBOARD_ERRORS, payload: err };

@@ -31,11 +31,8 @@ export const addChart = async (chart, dashboardID, sourceID, sourceName, sourceT
   }
 
   return {
-    action: {
-      type: ADD_CHART,
-      payload: { ...response.data, sourceName, sourceType },
-    },
-    chartID: response.data.id,
+    type: ADD_CHART,
+    payload: { ...response.data, sourceName, sourceType },
   };
 };
 

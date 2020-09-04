@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const GroupColumnComp = ({ chartID, data, config, interactiveClick }) => {
+const GroupColumnComp = ({ chartID, data, config, interactiveClick, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -35,9 +35,6 @@ const GroupColumnComp = ({ chartID, data, config, interactiveClick }) => {
 
   const chartConfig = {
     data,
-    events: {
-      onColumnClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
-    },
     forceFit: true,
     groupField: groupBy,
     label: { visible: false },
@@ -78,6 +75,11 @@ const GroupColumnComp = ({ chartID, data, config, interactiveClick }) => {
     },
     yField: yValue,
   };
+
+  // Add click events
+  if (relations[chartID]) {
+    chartConfig.events = { onColumnClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]) };
+  }
 
   return <GroupedColumn {...chartConfig} />;
 };

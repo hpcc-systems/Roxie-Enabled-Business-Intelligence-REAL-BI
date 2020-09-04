@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const LineComp = ({ data, chartID, config, interactiveClick }) => {
+const LineComp = ({ data, chartID, config, interactiveClick, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -35,13 +35,6 @@ const LineComp = ({ data, chartID, config, interactiveClick }) => {
 
   const chartConfig = {
     data,
-    events: {
-      onLineClick: ({ data }) => (groupBy ? interactiveClick(chartID, groupBy, data[0][groupBy]) : null),
-      onPointClick: ({ data }) =>
-        groupBy
-          ? interactiveClick(chartID, groupBy, data[groupBy])
-          : interactiveClick(chartID, xValue, data[xValue]),
-    },
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
@@ -87,6 +80,17 @@ const LineComp = ({ data, chartID, config, interactiveClick }) => {
       },
     },
   };
+
+  // Add click events
+  if (relations[chartID]) {
+    chartConfig.events = {
+      onLineClick: ({ data }) => (groupBy ? interactiveClick(chartID, groupBy, data[0][groupBy]) : null),
+      onPointClick: ({ data }) =>
+        groupBy
+          ? interactiveClick(chartID, groupBy, data[groupBy])
+          : interactiveClick(chartID, customXLabel, data[xValue]),
+    };
+  }
 
   return <Line {...chartConfig} />;
 };
