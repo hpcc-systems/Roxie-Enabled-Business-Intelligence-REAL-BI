@@ -6,14 +6,15 @@ import { CircularProgress } from '@material-ui/core';
 //React Components
 import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
 import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
-import { LineChart, DualLineChart } from './Line';
+import Gauge from './Gauge';
+import HeatMap from './HeatMap';
 import HistogramChart from './Histogram';
+import { LineChart, DualLineChart } from './Line';
+import NoData from './NoData';
 import PieChart from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
-import NoData from './NoData';
 import TextBox from './TextBox';
-import HeatMap from './HeatMap';
 
 // Create styles
 const useStyles = makeStyles({
@@ -155,6 +156,8 @@ const ChartComp = ({
           return <TextBox data={chartData} config={config} />;
         case 'heatmap':
           return <HeatMap data={chartData} config={config} />;
+        case 'gauge':
+          return <Gauge data={chartData} config={config} />;
         case 'table':
           return (
             <Table
