@@ -72,8 +72,8 @@ const ChartComp = ({
               chartID={chartID}
               config={config}
               data={chartData}
-              interactiveObj={interactiveObj}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -84,6 +84,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -94,6 +95,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -104,6 +106,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -114,6 +117,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -124,6 +128,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -134,6 +139,7 @@ const ChartComp = ({
               config={config}
               data={chartData}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );
@@ -155,8 +161,8 @@ const ChartComp = ({
               chartID={chartID}
               config={config}
               data={chartData}
-              interactiveObj={interactiveObj}
               interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
               relations={relations}
             />
           );

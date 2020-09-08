@@ -7,7 +7,7 @@ import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const LineComp = ({ data, chartID, config, interactiveClick, relations }) => {
+const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, relations }) => {
   const {
     axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
     axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
@@ -45,6 +45,16 @@ const LineComp = ({ data, chartID, config, interactiveClick, relations }) => {
     legend: {
       position: 'right-top',
       visible: true,
+    },
+    lineStyle: d => {
+      const { chartID: objID, field, value } = interactiveObj;
+
+      // Change non-clicked lines to dashed and reduce opacity
+      if (chartID === objID && (field === customXLabel || field === groupBy) && d !== value) {
+        return { lineDash: [3, 3], opacity: 0.3 };
+      }
+
+      return;
     },
     meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
     point: { visible: true },
