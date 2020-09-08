@@ -21,21 +21,23 @@ const GaugeComp = ({ data, config }) => {
 
   const minVal = Number(val2);
   const maxVal = Number(val3);
-  const diff = (maxVal - minVal) / 4;
-  let range = [];
 
-  // Create range of values for gauge
-  for (let i = 0; i < 5; i++) {
-    if (i === 0) {
-      range.push(Number(minVal));
-    } else if (i === 4) {
-      range.push(Number(maxVal));
-    } else {
-      const val = Math.round(range[i - 1] + diff);
+  // Create range array of equal segments
+  const split = (min, max, segments) => {
+    const result = [];
+    let delta = (max - min) / (segments - 1);
 
-      range.push(val);
+    // Add smaller numbers to array and increase by delta
+    while (min < max) {
+      result.push(min);
+      min += delta;
     }
-  }
+
+    // Add max value to end of array
+    result.push(max);
+
+    return result;
+  };
 
   // Convert necessary values to numbers
   data = data.map(row => ({ ...row, [value]: checkForNumber(row[value]) }));
@@ -46,7 +48,7 @@ const GaugeComp = ({ data, config }) => {
     forceFit: true,
     min: minVal,
     max: maxVal,
-    range,
+    range: split(minVal, maxVal, 5),
     statistic: {
       color: chartFillColor,
       position: ['50%', '90%'],
