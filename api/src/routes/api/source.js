@@ -16,6 +16,7 @@ const {
   getWorkunitDataFromClusterWithParams,
 } = require('../../utils/cluster');
 const { getChartByID, getEclOptionsByWuID } = require('../../utils/chart');
+const { getDashboardByID } = require('../../utils/dashboard');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
 const { createSource, getSourcesByDashboardID, getSourceByHpccID } = require('../../utils/source');
 const { getDashboardParams } = require('../../utils/dashboardParam');
@@ -198,10 +199,11 @@ router.get('/data/single', async (req, res) => {
 
 router.get('/data/multiple', async (req, res) => {
   const {
-    query: { chartID, clusterID },
+    query: { chartID, clusterID, interactiveObj, dashboardID },
     user: { id: userID },
   } = req;
-  let cluster, data;
+  const parsedObj = JSON.parse(interactiveObj);
+  let cluster, data, newParam, params;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -212,15 +214,47 @@ router.get('/data/multiple', async (req, res) => {
       return res.status(200).end();
     }
 
+    // Default params to chart params or empty array
+    newParam = config.params || [];
+
+    // Get dashboard level params
+    params = await getDashboardParams(dashboardID, userID);
+
+    // Determine if the current source has a mapped parameter
+    params.map(({ mappedParams, value }) => {
+      const obj = mappedParams.find(({ sourceID }) => sourceID === source.id);
+
+      if (obj && Object.keys(obj).length > 0) {
+        newParam = [{ name: obj.parameter, value }];
+      }
+    });
+
+    // Get data for interactive click event
+    if (parsedObj.value && chartID !== parsedObj.chartID) {
+      const { relations = {} } = await getDashboardByID(dashboardID);
+
+      if (relations[parsedObj.chartID]) {
+        relations[parsedObj.chartID].map(({ sourceField, targetChart, targetField }) => {
+          if (chartID === targetChart && parsedObj.field === sourceField) {
+            newParam = [{ name: targetField, value: parsedObj.value }];
+          }
+        });
+      }
+    }
+
     switch (source.type) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, { params: config.params, source }, userID);
+        data = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
         break;
       case 'ecl':
-        data = await getWorkunitDataFromCluster(cluster, config, source, userID);
+        if (newParam.length > 0) {
+          data = await getWorkunitDataFromClusterWithParams(cluster, config, newParam, source, userID);
+        } else {
+          data = await getWorkunitDataFromCluster(cluster, config, source, userID);
+        }
         break;
       default:
-        data = await getQueryDataFromCluster(cluster, { params: config.params, source }, userID);
+        data = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
     }
   } catch (err) {
     const { errMsg, status } = errHandler(err);

@@ -1,8 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Checkbox,
   Paper,
   Table,
   TableBody,
@@ -13,49 +11,25 @@ import {
   TableRow,
   TableSortLabel,
 } from '@material-ui/core';
-
-// Redux Actions
-import { updateDashboardParam } from '../../features/dashboard/actions';
+import classnames from 'classnames';
 
 // Utils
 import { sortArr, thousandsSeparator } from '../../utils/misc';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
+  activeCell: { fontWeight: 'bold' },
   columnHeader: { textTransform: 'capitalize' },
-});
+  tableCell: { '&:hover': { cursor: 'pointer' } },
+}));
 
-const TableComp = ({ data, params = [], config }) => {
+const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) => {
   const { fields, checkboxValueField } = config;
+  const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(checkboxValueField);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [selected, setSelected] = React.useState([]);
-  const dispatch = useDispatch();
-  const { columnHeader } = useStyles();
-
-  // Determine if the checkboxValueField matches any dashboard params
-  const matchedParam = params.some(({ field }) => field === checkboxValueField);
-  const paramObj = matchedParam ? params.find(({ field }) => field === checkboxValueField) : {};
-
-  // Update table with already selected values
-  useEffect(() => {
-    if (matchedParam) {
-      const selectedString = selected.join(',');
-      let { value = '' } = paramObj;
-
-      // Convert null to empty string
-      value = value === null ? '' : value;
-
-      if (selectedString !== value) {
-        if (value === '') {
-          setSelected([]);
-        } else {
-          setSelected(value.split(','));
-        }
-      }
-    }
-  }, [matchedParam, paramObj, selected]);
+  const { activeCell, columnHeader, tableCell } = useStyles();
 
   const updateOrderByField = property => {
     const isAsc = orderBy === property && order === 'asc';
@@ -73,44 +47,6 @@ const TableComp = ({ data, params = [], config }) => {
     setPage(0);
   };
 
-  const updateParams = value => {
-    // Join array together as string
-    value = value.sort().join(',');
-
-    updateDashboardParam({ ...paramObj, value }).then(action => dispatch(action));
-  };
-
-  const handleCheckbox = event => {
-    const { name } = event.target;
-    let newSelected = [];
-
-    if (selected.indexOf(name) === -1) {
-      newSelected = [...selected, name];
-    } else {
-      newSelected = selected.filter(val => val !== name);
-    }
-
-    setSelected(newSelected);
-
-    if (matchedParam) {
-      updateParams(newSelected);
-    }
-  };
-
-  const handleSelectAllClick = event => {
-    let newSelected = [];
-
-    if (event.target.checked) {
-      newSelected = data.map(row => row[checkboxValueField]);
-    }
-
-    if (matchedParam) {
-      updateParams(newSelected);
-    }
-
-    return setSelected(newSelected);
-  };
-
   // Confirm all necessary values are present before trying to render the chart
   if (!data || data.length === 0 || !fields) {
     return null;
@@ -124,7 +60,6 @@ const TableComp = ({ data, params = [], config }) => {
   const sliceStart = page * rowsPerPage;
   const sliceLength = page * rowsPerPage + rowsPerPage;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
-  const numSelected = selected ? selected.length : 0;
 
   return (
     <Fragment>
@@ -132,13 +67,6 @@ const TableComp = ({ data, params = [], config }) => {
         <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell padding='checkbox'>
-                <Checkbox
-                  indeterminate={numSelected > 0 && numSelected < rowCount}
-                  checked={rowCount > 0 && numSelected === rowCount}
-                  onChange={handleSelectAllClick}
-                />
-              </TableCell>
               {fields.map((field, index) => {
                 return (
                   <TableCell key={index} className={columnHeader}>
@@ -156,20 +84,22 @@ const TableComp = ({ data, params = [], config }) => {
           </TableHead>
           <TableBody>
             {data.slice(sliceStart, sliceLength).map((row, index) => {
-              const isSelected = selected.indexOf(row[checkboxValueField]) > -1;
-
               return (
                 <TableRow key={index}>
-                  <TableCell padding='checkbox'>
-                    <Checkbox
-                      name={String(row[checkboxValueField])}
-                      checked={isSelected}
-                      onClick={handleCheckbox}
-                    />
-                  </TableCell>
                   {fields.map((field, index) => {
                     return (
-                      <TableCell key={index} component='th' scope='row'>
+                      <TableCell
+                        key={index}
+                        component='th'
+                        scope='row'
+                        className={classnames(tableCell, {
+                          [activeCell]:
+                            chartID === interactiveChartID &&
+                            field === interactiveField &&
+                            row[field] === interactiveValue,
+                        })}
+                        onClick={() => interactiveClick(chartID, field, row[field])}
+                      >
                         {!isNaN(Number(row[field])) && !field.includes('date')
                           ? thousandsSeparator(Number(row[field]))
                           : row[field]}

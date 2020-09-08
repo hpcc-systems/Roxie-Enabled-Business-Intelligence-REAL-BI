@@ -43,10 +43,10 @@ const getDashboardByID = async dashboardID => {
 };
 
 const createDashboard = async (dashboard, workspaceID, userID) => {
-  const { clusterID, name } = dashboard;
+  const { clusterID, name, relations = {} } = dashboard;
 
   let [err, newDashboard] = await awaitHandler(
-    dashboardModel.create({ clusterID, name: name.trim(), workspaceID, userID }),
+    dashboardModel.create({ clusterID, name: name.trim(), relations, workspaceID, userID }),
   );
 
   // Return error
@@ -59,13 +59,11 @@ const createDashboard = async (dashboard, workspaceID, userID) => {
 };
 
 const updateDashboardByID = async dataObj => {
-  const {
-    clusterID,
-    directoryObj: { id },
-    name,
-  } = dataObj;
+  const { clusterID, id, name, relations = {} } = dataObj;
 
-  let [err] = await awaitHandler(dashboardModel.update({ clusterID, name: name.trim() }, { where: { id } }));
+  let [err] = await awaitHandler(
+    dashboardModel.update({ clusterID, name: name.trim(), relations }, { where: { id } }),
+  );
 
   // Return error
   if (err) throw err;

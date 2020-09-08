@@ -11,6 +11,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import {
+  AvTimer as AvTimerIcon,
   BarChart as BarChartIcon,
   Timeline as LineChartIcon,
   MultilineChart as MultilineChartIcon,
@@ -25,12 +26,13 @@ import classnames from 'classnames';
 
 // React Components
 import DualLineParams from './DualLineParams';
+import GaugeParams from './GaugeParams';
 import GeneralParams from './GeneralParams';
+import HeatMapParams from './HeatMapParams';
+import HistogramParams from './HistogramParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
 import TextBoxParams from './TextBoxParams';
-import HeatMapParams from './HeatMapParams';
-import HistogramParams from './HistogramParams';
 
 // Utils
 import { hasHorizontalOption, hasDynamicOption } from '../../../utils/misc';
@@ -39,6 +41,7 @@ import { changeChartType } from '../../../utils/chart';
 const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'DualLine', value: 'dualline' },
+  { name: 'Gauge', value: 'gauge' },
   { name: 'HeatMap', value: 'heatmap' },
   { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
@@ -59,7 +62,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { config } = localState;
-  const { horizontal, isStatic, title, chartDescription, type } = config;
+  const { axis1, axis2, horizontal, isStatic, title, chartDescription, type } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const updateAxisKey = event => {
@@ -76,11 +79,23 @@ const GeneralTab = props => {
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
     const [state, key] = name.split(':');
-    let newConfig = localState.config;
+    let newConfig = config;
 
     switch (key) {
       case 'showTickLabels':
         newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
+        handleChange(null, { name: 'config', value: newConfig });
+        break;
+      case 'horizontal':
+        newConfig = { ...newConfig, [key]: checked };
+
+        // Switch X and Y axis if they are already defined in local state
+        if (axis1.value && axis2.value) {
+          // Switch axis objects
+          newConfig.axis1 = axis2;
+          newConfig.axis2 = axis1;
+        }
+
         handleChange(null, { name: 'config', value: newConfig });
         break;
       default:
@@ -112,10 +127,16 @@ const GeneralTab = props => {
                     switch (value) {
                       case 'bar':
                         return <BarChartIcon className={menuIcon} />;
-                      case 'line':
-                        return <LineChartIcon className={menuIcon} />;
                       case 'dualline':
                         return <MultilineChartIcon className={menuIcon} />;
+                      case 'histogram':
+                        return <PollIcon className={menuIcon} />;
+                      case 'heatmap':
+                        return <HeatMapIcon className={menuIcon} />;
+                      case 'gauge':
+                        return <AvTimerIcon className={menuIcon} />;
+                      case 'line':
+                        return <LineChartIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
                       case 'scatter':
@@ -124,10 +145,6 @@ const GeneralTab = props => {
                         return <TableChartIcon className={menuIcon} />;
                       case 'textBox':
                         return <TextFieldsIcon className={menuIcon} />;
-                      case 'histogram':
-                        return <PollIcon className={menuIcon} />;
-                      case 'heatmap':
-                        return <HeatMapIcon className={menuIcon} />;
                       default:
                         return null;
                     }
@@ -194,18 +211,20 @@ const GeneralTab = props => {
           autoComplete='off'
         />
       </Grid>
-      {type === 'pie' ? (
-        <PieParams {...props} updateAxisKey={updateAxisKey} />
-      ) : type === 'textBox' ? (
-        <TextBoxParams {...props} />
-      ) : type === 'table' ? (
-        <TableParams {...props} />
+      {type === 'dualline' ? (
+        <DualLineParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'gauge' ? (
+        <GaugeParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'heatmap' ? (
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
-      ) : type === 'dualline' ? (
-        <DualLineParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'histogram' ? (
         <HistogramParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'pie' ? (
+        <PieParams {...props} updateAxisKey={updateAxisKey} />
+      ) : type === 'table' ? (
+        <TableParams {...props} />
+      ) : type === 'textBox' ? (
+        <TextBoxParams {...props} />
       ) : (
         <GeneralParams {...props} updateAxisKey={updateAxisKey} checkboxUpdated={checkboxUpdated} />
       )}

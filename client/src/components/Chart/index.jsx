@@ -1,18 +1,20 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 //React Components
 import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
 import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
-import { LineChart, DualLineChart } from './Line';
+import Gauge from './Gauge';
+import HeatMap from './HeatMap';
 import HistogramChart from './Histogram';
+import { LineChart, DualLineChart } from './Line';
+import NoData from './NoData';
 import PieChart from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
-import NoData from './NoData';
 import TextBox from './TextBox';
-import HeatMap from './HeatMap';
 
 // Create styles
 const useStyles = makeStyles({
@@ -20,11 +22,13 @@ const useStyles = makeStyles({
 });
 
 const ChartComp = ({
-  chart: { config = {} },
-  dashboard = { params: [] },
+  chart: { config = {}, id: chartID },
   dataObj: { data = {}, error, loading = true },
   eclDataset = '',
+  interactiveClick,
+  interactiveObj,
 }) => {
+  const { relations = {} } = useSelector(state => state.dashboard.dashboard);
   const { dataset, ecl = {}, groupBy, horizontal, stacked, isStatic = false, type } = config;
   const { progress } = useStyles();
   let chartData = [];
@@ -64,21 +68,84 @@ const ChartComp = ({
     (() => {
       switch (chartType) {
         case 'bar':
-          return <BarChart data={chartData} config={config} />;
+          return (
+            <BarChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'bar-group':
-          return <GroupBarChart data={chartData} config={config} />;
+          return (
+            <GroupBarChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'bar-stacked':
-          return <StackedBarChart data={chartData} config={config} />;
+          return (
+            <StackedBarChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'column':
-          return <ColumnChart data={chartData} config={config} />;
+          return (
+            <ColumnChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'column-group':
-          return <GroupColumnChart data={chartData} config={config} />;
+          return (
+            <GroupColumnChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'column-stacked':
-          return <StackedColumnChart data={chartData} config={config} />;
+          return (
+            <StackedColumnChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
+        case 'line':
+          return (
+            <LineChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         case 'histogram':
           return <HistogramChart data={chartData} config={config} />;
-        case 'line':
-          return <LineChart data={chartData} config={config} />;
         case 'dualline':
           return <DualLineChart data={chartData} config={config} />;
         case 'pie':
@@ -89,8 +156,19 @@ const ChartComp = ({
           return <TextBox data={chartData} config={config} />;
         case 'heatmap':
           return <HeatMap data={chartData} config={config} />;
+        case 'gauge':
+          return <Gauge data={chartData} config={config} />;
         case 'table':
-          return <Table data={chartData} config={config} params={dashboard.params} />;
+          return (
+            <Table
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
         default:
           return 'Unknown chart type';
       }

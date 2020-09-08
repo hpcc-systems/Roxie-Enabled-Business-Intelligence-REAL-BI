@@ -18,13 +18,19 @@ import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
 import { addSource, createSourceObj } from '../../utils/source';
 
 const initState = {
-  config: { axis1: { showTickLabels: true }, axis2: { showTickLabels: true }, type: 'bar' },
+  config: {
+    axis1: { showTickLabels: true },
+    axis2: { showTickLabels: true },
+    axis3: { showTickLabels: true },
+    type: 'bar',
+  },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
   error: '',
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
+  relations: [{ originField: '', mappedChart: '', mappedField: '' }],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -69,8 +75,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const { id: dashboardID } = dashboard;
 
     if (type === 'textBox' && isStatic) {
+      const chartObj = { ...config, dataset, ecl: {} };
+
       try {
-        addChart({ ...config, dataset, ecl: {} }, dashboardID, null, null, null).then(action => {
+        addChart(chartObj, dashboardID, null, null, null).then(action => {
           dispatch(action);
         });
       } catch (err) {

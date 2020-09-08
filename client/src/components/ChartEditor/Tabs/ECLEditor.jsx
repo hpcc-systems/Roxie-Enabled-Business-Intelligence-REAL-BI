@@ -82,7 +82,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
         let params = [];
 
         // If there is a data object
-        if (paramsResp.data) {
+        if (paramsResp.data && paramsResp.data.WUInfoResponse.Workunit.Variables) {
           paramsResp.data.WUInfoResponse.Workunit.Variables.ECLResult.forEach(({ Name }) => {
             params.push({ name: Name, type: '', value: null });
           });

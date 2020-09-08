@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      relations: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );

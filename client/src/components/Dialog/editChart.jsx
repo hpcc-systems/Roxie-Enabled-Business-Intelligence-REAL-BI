@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
-  // Get selected chart
+  const { dashboard } = useSelector(state => state.dashboard);
   const { charts } = useSelector(state => state.chart);
   const { eclObj, initState } = setEditorState(charts, chartID);
 
@@ -34,7 +34,6 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     initState,
   );
   const eclRef = useRef(eclObj);
-  const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, toolbar, typography } = useStyles();
 

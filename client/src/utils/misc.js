@@ -85,6 +85,13 @@ export const hasDynamicOption = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
+export const hasClickEventOption = chartType => {
+  const chartTypes = ['bar', 'line', 'table'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
 export const canAddCharts = role => {
   const roles = ['Owner'];
 
@@ -125,4 +132,17 @@ export const createDateTimeStamp = chartDesc => {
 
 export const existsInArray = (arr, string) => {
   return arr.indexOf(string) > -1;
+};
+
+// Changes message based on source type
+export const getMessage = (sourceType, isFilter = false) => {
+  let message = 'Choose a dataset';
+
+  if (sourceType === 'ecl') {
+    message = 'Run ECL Script';
+  } else if (sourceType === 'file') {
+    message = isFilter ? 'Error retrieving file metadata' : 'Choose a file';
+  }
+
+  return message;
 };

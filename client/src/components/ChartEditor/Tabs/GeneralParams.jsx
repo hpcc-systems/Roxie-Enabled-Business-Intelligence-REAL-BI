@@ -12,20 +12,14 @@ import {
   TextField,
 } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   checkbox: { margin: theme.spacing(2.5, 0, 0, 0.5) },
 }));
-
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'ecl'
-    ? 'Run ECL Script'
-    : sourceType === 'file'
-    ? 'Choose a file'
-    : 'Choose a dataset';
-};
 
 const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated }) => {
   const { schema = [] } = eclRef.current;
@@ -36,7 +30,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
   const showTicksCheckboxLabel = 'Show Value Labels';
 
   const fieldsArr =
-    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMsg(sourceType), value: '' }];
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>

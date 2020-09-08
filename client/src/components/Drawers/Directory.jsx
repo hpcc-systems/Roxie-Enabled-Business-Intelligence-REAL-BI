@@ -16,11 +16,11 @@ import useDialog from '../../hooks/useDialog';
 import useForm from '../../hooks/useForm';
 
 // Redux Actions
-import { getDashboard } from '../../features/dashboard/actions';
+import { getDashboard, updateDashboard } from '../../features/dashboard/actions';
 import { openDashboardInWorkspace, updateWorkspaceDirectory } from '../../features/workspace/actions';
 
 // Utils
-import { createDashboard, deleteExistingDashboard, updateDashboard } from '../../utils/dashboard';
+import { createDashboard, deleteExistingDashboard } from '../../utils/dashboard';
 import {
   addObjectToDirectory,
   getDashboardsFromDirectory,

@@ -10,20 +10,18 @@ import {
   TextField,
 } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
 }));
 
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
-
 const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, axis2 = {} } = config;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
   return (

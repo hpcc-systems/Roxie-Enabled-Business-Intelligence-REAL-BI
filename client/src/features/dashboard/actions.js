@@ -5,6 +5,7 @@ export const CREATE_DASHBOARD_PARAM = 'CREATE_DASHBOARD_PARAM';
 export const GET_DASHBOARD = 'GET_DASHBOARD';
 export const GET_DASHBOARD_PARAMS = 'GET_DASHBOARD_PARAMS';
 export const SET_DASHBOARD_ERRORS = 'SET_DASHBOARD_ERRORS';
+export const UPDATE_DASHBOARD = 'UPDATE_DASHBOARD';
 export const UPDATE_DASHBOARD_PARAM = 'UPDATE_DASHBOARD_PARAM';
 export const CLEAR_DASHBOARD = 'CLEAR_DASHBOARD';
 
@@ -45,6 +46,17 @@ export const createDashboardParam = async paramObj => {
   }
 
   return { type: CREATE_DASHBOARD_PARAM, payload: response.data };
+};
+
+export const updateDashboard = async dashboardObj => {
+  try {
+    await axios.put('/api/dashboard', { ...dashboardObj });
+  } catch (err) {
+    console.error(err);
+    return { type: SET_DASHBOARD_ERRORS, payload: err };
+  }
+
+  return { type: UPDATE_DASHBOARD, payload: dashboardObj };
 };
 
 export const updateDashboardParam = async paramObj => {

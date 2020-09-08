@@ -5,16 +5,14 @@ import { FormControl, Grid, TextField, Typography } from '@material-ui/core';
 // React Components
 import { DynamicFileParams, StaticFileParams } from './FileParams';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   typography: { marginTop: 20 },
 }));
-
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
 
 const ParametersTab = ({ handleChangeArr, handleChangeObj, localState }) => {
   const { config, dataset, sourceType } = localState;
@@ -71,7 +69,7 @@ const ParametersTab = ({ handleChangeArr, handleChangeObj, localState }) => {
     )
   ) : (
     <Typography variant='h6' color='inherit' align='center' className={typography}>
-      {getMsg(sourceType)}
+      {getMessage(sourceType)}
     </Typography>
   );
 };

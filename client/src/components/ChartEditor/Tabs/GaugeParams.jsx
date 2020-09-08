@@ -16,25 +16,31 @@ import { getMessage } from '../../../utils/misc';
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
+  checkbox: { margin: theme.spacing(2.5, 0, 0, 0.5) },
 }));
 
-const PieParams = ({ localState, updateAxisKey }) => {
+const GaugeParams = ({ eclRef, localState, updateAxisKey }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, axis2 = {} } = config;
-  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
+  const { axis1 = {}, axis2 = {}, axis3 = {} } = config;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
+  const messages = ['Choose a dataset', 'Run ECL Script', 'Choose a file'];
 
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <Grid item md={8}>
+        <Grid item md={4}>
           <FormControl className={formControl} fullWidth>
-            <InputLabel>Name</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            <InputLabel>Value Field</InputLabel>
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -49,39 +55,21 @@ const PieParams = ({ localState, updateAxisKey }) => {
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
-              label='Name Label'
-              name='axis1:label'
-              value={axis1.label || ''}
+              label='Lower Limit'
+              name='axis2:value'
+              value={axis2.value || ''}
               onChange={updateAxisKey}
               autoComplete='off'
             />
           </FormControl>
         </Grid>
-        <Grid item md={8}>
-          <FormControl className={formControl} fullWidth>
-            <InputLabel>Value</InputLabel>
-            {chartID && fields.length <= 1 ? (
-              <CircularProgress className={progress} size={20} />
-            ) : (
-              <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
-                  return (
-                    <MenuItem key={index} value={value}>
-                      {name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            )}
-          </FormControl>
-        </Grid>
         <Grid item md={4}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
-              label='Value Label'
-              name='axis2:label'
-              value={axis2.label || ''}
+              label='Upper Limit'
+              name='axis3:value'
+              value={axis3.value || ''}
               onChange={updateAxisKey}
               autoComplete='off'
             />
@@ -92,4 +80,4 @@ const PieParams = ({ localState, updateAxisKey }) => {
   );
 };
 
-export default PieParams;
+export default GaugeParams;
