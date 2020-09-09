@@ -35,7 +35,7 @@ app.use('/api/user', authenticateToken(), user);
 app.use('/api/workspace', authenticateToken(), workspace);
 
 sequelize
-  .sync()
+  .authenticate()
   .then(() => {
     app.listen(port, () => logger.info(`Server listening on port ${port}.`));
   })

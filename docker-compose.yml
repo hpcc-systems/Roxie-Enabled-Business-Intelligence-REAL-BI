@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: realbi_db
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_USER: ${DB_USER}
+    image: mysql:8.0.21
+    ports:
+      - ${DB_EXTERNAL_PORT}:3306
+    restart: always
+    volumes:
+      - ./db/data:/data/db
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+      # dockerfile: Dockerfile
+    container_name: realbi_api
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+      # dockerfile: Dockerfile
+    container_name: realbi_client
+    restart: always
+    stdin_open: true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: realbi_nginx
+    depends_on:
+      - api
+      - client
+    ports:
+      - ${EXTERNAL_PORT}:80
+    restart: always

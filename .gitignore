@@ -38,8 +38,10 @@ node_modules/
 *.sql
 *.sqlite
 !example.sql
-/server/src/seeders/*
-!/server/src/seeders/.gitkeep
+/api/src/seeders/*
+!/api/src/seeders/.gitkeep
+/db/*
+!/db/.gitkeep
 
 # Testing
 /coverage

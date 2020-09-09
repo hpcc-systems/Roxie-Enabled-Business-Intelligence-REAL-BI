@@ -31,7 +31,8 @@ jobs:
           steps:
             - task: CmdLine@2
               inputs:
-                script: 'pm2 stop REAL-BI'
+                script: 'docker-compose down --volumes'
+                workingDirectory: '/home/hpcclabs/projects/REAL-BI'
             - task: CopyFiles@2
               inputs:
                 SourceFolder: '/home/hpcclabs/azagent/_work/2/real-bi/s'
@@ -40,8 +41,9 @@ jobs:
                 OverWrite: true
             - task: CmdLine@2
               inputs:
-                script: 'npm run install:all'
+                script: 'docker-compose up --build -d'
                 workingDirectory: '/home/hpcclabs/projects/REAL-BI'
             - task: CmdLine@2
               inputs:
-                script: 'pm2 start REAL-BI'
+                script: 'docker restart realbi_api'
+                workingDirectory: '/home/hpcclabs/projects/REAL-BI'
