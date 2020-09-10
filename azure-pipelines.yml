@@ -31,7 +31,7 @@ jobs:
           steps:
             - task: CmdLine@2
               inputs:
-                script: 'docker-compose down --volumes'
+                script: 'docker-compose down'
                 workingDirectory: '/home/hpcclabs/projects/REAL-BI'
             - task: CopyFiles@2
               inputs:

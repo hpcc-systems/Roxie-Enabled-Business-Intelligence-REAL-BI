@@ -26,11 +26,11 @@ const ChartComp = ({
   dataObj: { data = {}, error, loading = true },
   eclDataset = '',
   interactiveClick,
-  interactiveObj,
+  interactiveObj = {},
 }) => {
-  const { relations = {} } = useSelector(state => state.dashboard.dashboard);
   const { dataset, ecl = {}, groupBy, horizontal, stacked, isStatic = false, type } = config;
   const { progress } = useStyles();
+  let { relations = {} } = useSelector(state => state.dashboard.dashboard);
   let chartData = [];
   let chartType = type;
   let err = null;
@@ -60,6 +60,9 @@ const ChartComp = ({
   } else if (error !== '') {
     err = error;
   }
+
+  // Confirm relations exist else default to {}
+  relations = relations || {};
 
   // Don't render the progress wheel if the chart is a static textbox
   return loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (

@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  realbi_network:
+    name: realbi_network
+
 services:
   db:
     container_name: realbi_db
@@ -9,11 +13,13 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
       MYSQL_USER: ${DB_USER}
     image: mysql:8.0.21
+    networks:
+      - realbi_network
     ports:
       - ${DB_EXTERNAL_PORT}:3306
     restart: always
     volumes:
-      - ./db/data:/data/db
+      - ./db/data:/var/lib/mysql
   api:
     build:
       context: ./api
@@ -24,6 +30,8 @@ services:
       - db
     env_file:
       - .env
+    networks:
+      - realbi_network
     restart: always
     volumes:
       - ./api:/app
@@ -34,6 +42,8 @@ services:
       dockerfile: Dockerfile.dev
       # dockerfile: Dockerfile
     container_name: realbi_client
+    networks:
+      - realbi_network
     restart: always
     stdin_open: true
     volumes:
@@ -44,6 +54,8 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     container_name: realbi_nginx
+    networks:
+      - realbi_network
     depends_on:
       - api
       - client
