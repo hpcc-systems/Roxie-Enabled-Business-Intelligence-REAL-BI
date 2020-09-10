@@ -22,7 +22,7 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
    - Change the `NODE_ENV` value to "production".
    - Change the database information to point to your production database.
 4. Run `docker-compose up --build -d`.
-5. Complete installation steps #5-#7.
+5. Complete installation steps #5-#8.
 
 ### Notes
 
