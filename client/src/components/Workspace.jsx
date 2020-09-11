@@ -75,6 +75,12 @@ const Workspace = () => {
     }
   }, [dispatch, getDashboardInfo, openDashboards, tabIndex]);
 
+  useEffect(() => {
+    if (openDashboards.length === 0 && dashboardID) {
+      dispatch(clearDashboard());
+    }
+  }, [dashboardID, dispatch, openDashboards]);
+
   const changeTabIndex = (event, newValue) => {
     // Close open dashboard
     if (event.target.tagName !== 'SPAN') {

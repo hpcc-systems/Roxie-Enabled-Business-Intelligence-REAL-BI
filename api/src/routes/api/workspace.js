@@ -113,6 +113,26 @@ router.post('/dashboard', async (req, res) => {
   res.status(202).send(dashboards);
 });
 
+router.put('/dashboard/multiple', async (req, res) => {
+  const { dashboardIDArray, workspaceID } = req.body;
+  let dashboards, workspace;
+
+  try {
+    workspace = await getWorkspaceByID(workspaceID);
+
+    // Remove selected dashboard from array
+    dashboards = workspace.openDashboards.filter(({ id }) => dashboardIDArray.indexOf(id) === -1);
+
+    await updateOpenDashboards(dashboards, workspaceID);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  res.status(202).send(dashboards);
+});
+
 router.put('/dashboard', async (req, res) => {
   const { dashboardID, workspaceID } = req.body;
   let dashboards, workspace;
