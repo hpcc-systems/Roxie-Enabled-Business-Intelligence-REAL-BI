@@ -62,7 +62,7 @@ const Workspace = () => {
   );
 
   useEffect(() => {
-    if (openDashboards.length > 0) {
+    if (openDashboards.length > 0 && !dashboardID) {
       dispatch(clearDashboard());
 
       // Reset tabIndex to 0 if it falls outside bounds of array
@@ -72,8 +72,10 @@ const Workspace = () => {
       }
 
       getDashboardInfo(tabIndex);
+    } else if (openDashboards.length === 0 && dashboardID) {
+      dispatch(clearDashboard());
     }
-  }, [dispatch, getDashboardInfo, openDashboards, tabIndex]);
+  }, [dashboardID, dispatch, getDashboardInfo, openDashboards, tabIndex]);
 
   const changeTabIndex = (event, newValue) => {
     // Close open dashboard

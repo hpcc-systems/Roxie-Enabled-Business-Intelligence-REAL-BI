@@ -57,3 +57,15 @@ export const closeDashboardInWorkspace = async (dashboardID, workspaceID) => {
 
   return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
 };
+
+export const closeMultipleOpenDashboards = async (dashboardIDArray, workspaceID) => {
+  let response;
+
+  try {
+    response = await axios.put('/api/workspace/dashboard/multiple', { dashboardIDArray, workspaceID });
+  } catch (err) {
+    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+  }
+
+  return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+};

@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Typography } from '@material-ui/core';
 
@@ -17,7 +17,12 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { getDashboard, updateDashboard } from '../../features/dashboard/actions';
-import { openDashboardInWorkspace, updateWorkspaceDirectory } from '../../features/workspace/actions';
+import {
+  closeDashboardInWorkspace,
+  closeMultipleOpenDashboards,
+  openDashboardInWorkspace,
+  updateWorkspaceDirectory,
+} from '../../features/workspace/actions';
 
 // Utils
 import { createDashboard, deleteExistingDashboard } from '../../utils/dashboard';
@@ -80,7 +85,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
   // Open dashboard
   const openDashboard = dashboardObj => {
-    const alreadyOpen = openDashboards.some(({ id }) => id === dashboardObj.id);
+    const alreadyOpen = openDashboards.findIndex(({ id }) => id === dashboardObj.id) > -1;
 
     // Dashboard is not already open
     if (!alreadyOpen) {
@@ -290,22 +295,26 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
     // Delete dashboards from DB if in folder
     if (children) {
-      deleteNestedDashboards(children);
+      const deletedDashboardIDs = deleteNestedDashboards(children, []);
+      closeMultipleOpenDashboards(deletedDashboardIDs, workspaceID).then(action => dispatch(action));
     }
   };
 
-  const deleteNestedDashboards = arr => {
-    const newArr = new Array(...arr);
+  const deleteNestedDashboards = (arr, dashboards) => {
+    const deletedDashboards = new Array(...dashboards);
 
-    newArr.forEach(row => {
+    arr.forEach(row => {
       const { children = false, id = false } = row;
 
       if (id && !children) {
         deleteExistingDashboard(id);
+        deletedDashboards.push(id);
       } else if (children) {
-        deleteNestedDashboards(children);
+        deleteNestedDashboards(children, deletedDashboards);
       }
     });
+
+    return deletedDashboards;
   };
 
   const editDashboard = directoryObj => {
@@ -325,7 +334,16 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const deleteDashboard = dashboardID => {
     const newDirectory = removeObjFromDirectory(directory, dashboardID);
     deleteExistingDashboard(dashboardID);
-    updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID).then(action => dispatch(action));
+
+    // Update directory and remove dashboard from tab bar, if it was open
+    Promise.all([
+      updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID),
+      closeDashboardInWorkspace(dashboardID, workspaceID),
+    ]).then(actions => {
+      batch(() => {
+        actions.forEach(action => dispatch(action));
+      });
+    });
   };
 
   // Directory references
