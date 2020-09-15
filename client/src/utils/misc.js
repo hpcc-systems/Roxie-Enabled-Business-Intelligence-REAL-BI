@@ -86,7 +86,7 @@ export const hasDynamicOption = chartType => {
 };
 
 export const hasClickEventOption = chartType => {
-  const chartTypes = ['bar', 'line', 'table'];
+  const chartTypes = ['bar', 'donut', 'line', 'table'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;

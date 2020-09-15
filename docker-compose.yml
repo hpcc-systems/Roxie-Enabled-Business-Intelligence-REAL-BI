@@ -42,6 +42,8 @@ services:
       dockerfile: Dockerfile.dev
       # dockerfile: Dockerfile
     container_name: realbi_client
+    depends_on:
+      - api
     networks:
       - realbi_network
     restart: always
@@ -57,7 +59,6 @@ services:
     networks:
       - realbi_network
     depends_on:
-      - api
       - client
     ports:
       - ${EXTERNAL_PORT}:80

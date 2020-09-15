@@ -2,10 +2,10 @@ import React from 'react';
 import { Pie } from '@ant-design/charts';
 
 // Utils
-import { checkForNumber, thousandsSeparator } from '../../utils/misc';
+import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
 
 // Constants
-import { chartFillColor } from '../../constants';
+import { chartFillColor } from '../../../constants';
 
 // Helper Functions
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage

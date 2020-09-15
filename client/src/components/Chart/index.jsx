@@ -11,7 +11,7 @@ import HeatMap from './HeatMap';
 import HistogramChart from './Histogram';
 import { LineChart, DualLineChart } from './Line';
 import NoData from './NoData';
-import PieChart from './Pie';
+import { DonutChart, PieChart } from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
 import TextBox from './TextBox';
@@ -128,6 +128,17 @@ const ChartComp = ({
         case 'column-stacked':
           return (
             <StackedColumnChart
+              chartID={chartID}
+              config={config}
+              data={chartData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              relations={relations}
+            />
+          );
+        case 'donut':
+          return (
+            <DonutChart
               chartID={chartID}
               config={config}
               data={chartData}

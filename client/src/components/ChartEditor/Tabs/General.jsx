@@ -13,6 +13,7 @@ import {
 import {
   AvTimer as AvTimerIcon,
   BarChart as BarChartIcon,
+  DonutLarge as DonutChartIcon,
   Timeline as LineChartIcon,
   MultilineChart as MultilineChartIcon,
   PieChart as PieChartIcon,
@@ -40,6 +41,7 @@ import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
+  { name: 'Donut', value: 'donut' },
   { name: 'DualLine', value: 'dualline' },
   { name: 'Gauge', value: 'gauge' },
   { name: 'HeatMap', value: 'heatmap' },
@@ -127,6 +129,8 @@ const GeneralTab = props => {
                     switch (value) {
                       case 'bar':
                         return <BarChartIcon className={menuIcon} />;
+                      case 'donut':
+                        return <DonutChartIcon className={menuIcon} />;
                       case 'dualline':
                         return <MultilineChartIcon className={menuIcon} />;
                       case 'histogram':
@@ -219,7 +223,7 @@ const GeneralTab = props => {
         <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'histogram' ? (
         <HistogramParams {...props} updateAxisKey={updateAxisKey} />
-      ) : type === 'pie' ? (
+      ) : type === 'pie' || type === 'donut' ? (
         <PieParams {...props} updateAxisKey={updateAxisKey} />
       ) : type === 'table' ? (
         <TableParams {...props} />
