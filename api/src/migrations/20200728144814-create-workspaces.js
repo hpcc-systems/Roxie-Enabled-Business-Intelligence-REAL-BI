@@ -19,10 +19,7 @@ module.exports = {
         defaultValue: false,
         allowNull: false,
       },
-      deletedDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
+      deletedDate: DataTypes.DATE,
       userID: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -6,6 +6,7 @@ const {
   createDashboard,
   deleteDashboardByID,
   getDashboardByID,
+  getDashboardFilterSourceInfo,
   updateDashboardByID,
 } = require('../../utils/dashboard');
 const { createDashboardPermission, getDashboardPermission } = require('../../utils/dashboardPermission');
@@ -49,6 +50,16 @@ router.get('/info', async (req, res) => {
 
   try {
     dashboard = await getDashboardByID(dashboardID);
+
+    if (dashboard.filters) {
+      const promises = dashboard.filters.map(async (filter, index) => {
+        const newFilter = await getDashboardFilterSourceInfo(filter);
+        dashboard.filters[index] = newFilter;
+      });
+
+      await Promise.all(promises);
+    }
+
     permissionObj = await getDashboardPermission(dashboardID, userID);
   } catch (err) {
     const { errMsg, status } = errHandler(err);

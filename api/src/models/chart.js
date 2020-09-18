@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     // One-to-One relation between charts and sources
     // Creates 'sourceID' foreign key on chart model
     chart.belongsTo(source, {
-      foreignKey: { name: 'sourceID', allowNull: true },
+      foreignKey: { name: 'sourceID' },
       onDelete: 'cascade',
     });
   };

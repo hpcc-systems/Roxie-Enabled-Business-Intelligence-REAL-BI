@@ -15,11 +15,10 @@ import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } fr
 import { grey } from '@material-ui/core/colors';
 
 // Redux Actions
-import { updateDashboardParam } from '../../features/dashboard/actions';
+import { updateDashboard } from '../../features/dashboard/actions.js';
 
 // React Components
-import NewFilter from '../Dialog/newFilter';
-import EditFilter from '../Dialog/editFilter';
+import Filters from '../Dialog/Filters.jsx';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -49,11 +48,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDrawer }) => {
-  const { params = [] } = dashboard;
-  const [filterID, setFilterID] = useState(null);
-  const { showDialog: showNewDialog, toggleDialog: toggleNewDialog } = useDialog(false);
-  const { showDialog: showEditDialog, toggleDialog: toggleEditDialog } = useDialog(false);
+const FilterDrawer = ({ compData, dashboard, showDrawer, toggleDrawer }) => {
+  const { filters = [] } = dashboard;
+  const [filterIndex, setFilterIndex] = useState(-1);
+  const { showDialog: showFilter, toggleDialog: toggleFilter } = useDialog(false);
   const dispatch = useDispatch();
   const {
     button,
@@ -77,7 +75,7 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
       .forEach(nestedObj => (datasets = { ...datasets, ...nestedObj }));
   }
 
-  const setParam = (event, paramID) => {
+  const setFilterValue = (event, index) => {
     let { value } = event.target;
 
     // If array of values, join together as string
@@ -85,15 +83,36 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
       value = value.sort().join(',');
     }
 
-    // Get altered param
-    const param = params.find(({ id }) => id === paramID);
+    // Create new dashboard object
+    const newDashboardObj = { ...dashboard };
 
-    updateDashboardParam({ ...param, value }).then(action => dispatch(action));
+    // Alter filter
+    newDashboardObj.filters[index] = { ...newDashboardObj.filters[index], value };
+
+    updateDashboard(newDashboardObj).then(action => dispatch(action));
   };
 
-  const editFilter = id => {
-    setFilterID(id);
-    toggleEditDialog();
+  const newFilter = () => {
+    setFilterIndex(-1);
+    toggleFilter();
+  };
+
+  const setCurrentFilter = index => {
+    setFilterIndex(index);
+    toggleFilter();
+  };
+
+  const deleteFilter = index => {
+    // Create new dashboard object
+    const dashboardObj = { ...dashboard };
+
+    // Update dashboard object
+    dashboardObj.filters.splice(index, 1);
+
+    // Update DB and Redux store
+    updateDashboard(dashboardObj).then(action => {
+      dispatch(action);
+    });
   };
 
   return (
@@ -109,19 +128,21 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
           <Typography variant='h6' align='left' color='inherit' className={typography}>
             Dashboard Filters
           </Typography>
-          <Button className={button} onClick={toggleNewDialog}>
+          <Button className={button} onClick={newFilter}>
             <AddCircleIcon className={iconColor} />
           </Button>
         </div>
         <Grid container direction='row' justify='space-between'>
-          {params.length > 0 &&
-            params.map(({ dataset, id, name, value }, index) => {
+          {filters.length > 0 &&
+            filters.map(({ name, sourceDataset, value }, index) => {
               if (value) {
                 if (value.indexOf(',') > -1) {
                   value = value.split(',').sort();
                 } else {
                   value = [value];
                 }
+              } else {
+                value = [];
               }
 
               return (
@@ -131,16 +152,16 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
                       <InputLabel className={fontColor}>{name}</InputLabel>
                       <Select
                         multiple
-                        value={value || []}
-                        onChange={event => setParam(event, id)}
+                        value={value}
+                        onChange={event => setFilterValue(event, index)}
                         className={fontColor}
                       >
                         {(() => {
-                          if (datasets[dataset]) {
+                          if (datasets[sourceDataset]) {
                             // Get the first key from the first object from reference dataset
-                            const key = Object.keys(datasets[dataset].Row[0])[0];
+                            const key = Object.keys(datasets[sourceDataset].Row[0])[0];
 
-                            return sortArr(datasets[dataset].Row, key).map((object, index) => {
+                            return sortArr(datasets[sourceDataset].Row, key).map((object, index) => {
                               const value = object[key];
 
                               return (
@@ -155,12 +176,12 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
                     </FormControl>
                   </Grid>
                   <Grid item xs={2}>
-                    <Button className={editBtn} onClick={() => editFilter(id)}>
+                    <Button className={editBtn} onClick={() => setCurrentFilter(index)}>
                       <EditIcon className={iconColor} />
                     </Button>
                   </Grid>
                   <Grid item xs={2}>
-                    <Button className={deleteBtn} onClick={() => deleteFilter(id)}>
+                    <Button className={deleteBtn} onClick={() => deleteFilter(index)}>
                       <DeleteIcon className={iconColor} />
                     </Button>
                   </Grid>
@@ -169,9 +190,13 @@ const FilterDrawer = ({ compData, dashboard, deleteFilter, showDrawer, toggleDra
             })}
         </Grid>
       </div>
-      {showNewDialog && <NewFilter show={showNewDialog} toggleDialog={toggleNewDialog} />}
-      {showEditDialog && (
-        <EditFilter filterID={filterID} show={showEditDialog} toggleDialog={toggleEditDialog} />
+      {showFilter && (
+        <Filters
+          dashboard={dashboard}
+          filterIndex={filterIndex}
+          show={showFilter}
+          toggleDialog={toggleFilter}
+        />
       )}
     </Drawer>
   );

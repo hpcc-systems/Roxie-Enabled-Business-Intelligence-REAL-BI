@@ -1,5 +1,10 @@
 // DB Models
-const { cluster: clusterModel, dashboard: dashboardModel, Sequelize } = require('../models');
+const {
+  cluster: clusterModel,
+  dashboard: dashboardModel,
+  Sequelize,
+  source: sourceModel,
+} = require('../models');
 
 // Utils
 const { awaitHandler, unNestSequelizeObj } = require('./misc');
@@ -42,11 +47,34 @@ const getDashboardByID = async dashboardID => {
   return dashboard;
 };
 
+const getDashboardFilterSourceInfo = async filter => {
+  const { sourceID } = filter;
+  const newFilter = { ...filter };
+
+  let [err, source] = await awaitHandler(
+    sourceModel.findOne({
+      attributes: [
+        ['name', 'sourceName'],
+        ['type', 'sourceType'],
+      ],
+      where: { id: sourceID },
+    }),
+  );
+
+  // Return error
+  if (err) throw err;
+
+  // Get nested object
+  source = unNestSequelizeObj(source);
+
+  return { ...newFilter, ...source };
+};
+
 const createDashboard = async (dashboard, workspaceID, userID) => {
-  const { clusterID, name, relations = {} } = dashboard;
+  const { clusterID, name, relations = {}, filters = [] } = dashboard;
 
   let [err, newDashboard] = await awaitHandler(
-    dashboardModel.create({ clusterID, name: name.trim(), relations, workspaceID, userID }),
+    dashboardModel.create({ clusterID, name: name.trim(), relations, filters, workspaceID, userID }),
   );
 
   // Return error
@@ -59,10 +87,10 @@ const createDashboard = async (dashboard, workspaceID, userID) => {
 };
 
 const updateDashboardByID = async dataObj => {
-  const { clusterID, id, name, relations = {} } = dataObj;
+  const { clusterID, id, name, relations = {}, filters = [] } = dataObj;
 
   let [err] = await awaitHandler(
-    dashboardModel.update({ clusterID, name: name.trim(), relations }, { where: { id } }),
+    dashboardModel.update({ clusterID, name: name.trim(), relations, filters }, { where: { id } }),
   );
 
   // Return error
@@ -84,6 +112,7 @@ module.exports = {
   createDashboard,
   deleteDashboardByID,
   getDashboardByID,
+  getDashboardFilterSourceInfo,
   getDashboardsByUserID,
   updateDashboardByID,
 };

@@ -5,7 +5,6 @@ module.exports = {
     // Create column
     await queryInterface.addColumn('dashboards', 'relations', {
       type: DataTypes.JSON,
-      allowNull: true,
     });
 
     return;

@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const logger = require('../../config/logger');
 const errHandler = require('../../utils/errHandler');
 
 // Utils
@@ -15,11 +14,10 @@ const {
   getWorkunitDataFromCluster,
   getWorkunitDataFromClusterWithParams,
 } = require('../../utils/cluster');
-const { getChartByID, getEclOptionsByWuID } = require('../../utils/chart');
+const { getChartByID } = require('../../utils/chart');
 const { getDashboardByID } = require('../../utils/dashboard');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
-const { createSource, getSourcesByDashboardID, getSourceByHpccID } = require('../../utils/source');
-const { getDashboardParams } = require('../../utils/dashboardParam');
+const { createSource, getSourceByHpccID } = require('../../utils/source');
 
 router.get('/search', async (req, res) => {
   const {
@@ -127,83 +125,13 @@ router.post('/create', async (req, res) => {
   return res.status(201).json(dbSource);
 });
 
-router.get('/data/single', async (req, res) => {
-  const {
-    query: { clusterID, dashboardID },
-    user: { id: userID },
-  } = req;
-  let chart, cluster, params, sources;
-  let data = {};
-
-  try {
-    cluster = await getClusterByID(clusterID);
-    sources = await getSourcesByDashboardID(dashboardID);
-    params = await getDashboardParams(dashboardID, userID);
-  } catch (err) {
-    const { errMsg, status } = errHandler(err);
-    return res.status(status).json(errMsg);
-  }
-
-  if (!sources) {
-    logger.error('No Sources Found');
-    return res.status(500).json({ msg: 'Internal Error' });
-  }
-
-  // Create nested data objects with the name of the source as the key
-  for (let source of sources) {
-    const { id, name, type } = source;
-    let newParam = [];
-
-    // Determine if the current source has a mapped parameter
-    params.map(({ mappedParams, value }) => {
-      const obj = mappedParams.find(({ sourceID }) => sourceID === id);
-
-      if (obj && Object.keys(obj).length > 0) {
-        newParam = [{ name: obj.parameter, value }];
-      }
-    });
-
-    try {
-      switch (type) {
-        case 'file':
-          source = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
-          break;
-        case 'ecl':
-          chart = await getEclOptionsByWuID(source.hpccID);
-
-          if (newParam.length > 0) {
-            source = await getWorkunitDataFromClusterWithParams(
-              cluster,
-              chart.config,
-              newParam,
-              source,
-              userID,
-            );
-          } else {
-            source = await getWorkunitDataFromCluster(cluster, chart.config, source, userID);
-          }
-
-          break;
-        default:
-          source = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
-      }
-    } catch (err) {
-      return logger.error(err);
-    }
-
-    data[name] = source;
-  }
-
-  return res.status(200).json(data);
-});
-
-router.get('/data/multiple', async (req, res) => {
+router.get('/data', async (req, res) => {
   const {
     query: { chartID, clusterID, interactiveObj, dashboardID },
     user: { id: userID },
   } = req;
   const parsedObj = JSON.parse(interactiveObj);
-  let cluster, data, newParam, params;
+  let cluster, dashboard, data, newParam;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -217,17 +145,23 @@ router.get('/data/multiple', async (req, res) => {
     // Default params to chart params or empty array
     newParam = config.params || [];
 
-    // Get dashboard level params
-    params = await getDashboardParams(dashboardID, userID);
+    // Get dashboard level filters
+    dashboard = await getDashboardByID(dashboardID);
 
     // Determine if the current source has a mapped parameter
-    params.map(({ mappedParams, value }) => {
-      const obj = mappedParams.find(({ sourceID }) => sourceID === source.id);
+    if (Array.isArray(dashboard.filters)) {
+      dashboard.filters.forEach(filter => {
+        const { params, sourceID, value } = filter;
 
-      if (obj && Object.keys(obj).length > 0) {
-        newParam = [{ name: obj.parameter, value }];
-      }
-    });
+        if (sourceID === source.id && value && value !== '') {
+          params.forEach(({ targetChart, targetParam }) => {
+            if (chartID === targetChart) {
+              newParam.push({ name: targetParam, value });
+            }
+          });
+        }
+      });
+    }
 
     // Get data for interactive click event
     if (parsedObj.value && chartID !== parsedObj.chartID) {

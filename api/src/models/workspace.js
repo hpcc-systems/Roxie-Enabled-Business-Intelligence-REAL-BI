@@ -21,10 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
         allowNull: false,
       },
-      deletedDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
+      deletedDate: DataTypes.DATE,
     },
     { charset: 'utf8', collate: 'utf8_general_ci', timestamps: false },
   );

@@ -8,7 +8,7 @@ export const getChartData = async (chartID, clusterID, interactiveObj, dashboard
   let response;
 
   try {
-    response = await axios.get('/api/source/data/multiple', {
+    response = await axios.get('/api/source/data', {
       params: { chartID, clusterID, interactiveObj, dashboardID },
     });
   } catch (err) {

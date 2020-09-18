@@ -160,7 +160,7 @@ const Relations = ({ show, toggleDialog }) => {
     return setRelations(newRelationsArr);
   };
 
-  const formatDashboardRelations = () => {
+  const saveRelations = () => {
     // Get array of objects that are complete
     const filteredRelations = relations.filter(({ sourceChart, sourceField, targetChart, targetField }) => {
       return sourceChart !== '' && sourceField !== '' && targetChart !== '' && targetField !== '';
@@ -251,12 +251,7 @@ const Relations = ({ show, toggleDialog }) => {
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button
-          className={button}
-          variant='contained'
-          onClick={formatDashboardRelations}
-          disabled={charts.length <= 1}
-        >
+        <Button className={button} variant='contained' onClick={saveRelations} disabled={charts.length <= 1}>
           Save
         </Button>
       </DialogActions>
