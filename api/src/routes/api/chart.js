@@ -9,7 +9,6 @@ const {
 } = require('../../utils/chart');
 const { deleteDashboardSource } = require('../../utils/dashboardSource');
 const { updateSourceByID, deleteSourceByID } = require('../../utils/source');
-// const { getDashboardParamsByDashboardAndSourceID } = require('../../utils/dashboardParam');
 const { getDashboardPermission } = require('../../utils/dashboardPermission');
 const errHandler = require('../../utils/errHandler');
 
@@ -103,19 +102,17 @@ router.delete('/delete', async (req, res) => {
 
       // If not a static text widget
       if (sourceID) {
-        // Determine if any other charts or filters in the application are using the same source
+        // Determine if any other charts in the application are using the same source
         numOfCharts = await getChartsByDashboardAndSourceID(null, sourceID);
-        // paramsArr = await getDashboardParamsByDashboardAndSourceID(null, sourceID);
 
         // No other charts or dashboard filters in the application are using the same source
         if (numOfCharts === 0 && paramsArr === 0) {
           await deleteSourceByID(sourceID);
         } else {
-          // Determine if any other charts or filters on the same dashboard are using the same source
+          // Determine if any other charts on the same dashboard are using the same source
           numOfCharts = await getChartsByDashboardAndSourceID(dashboardID, sourceID);
-          // paramsArr = await getDashboardParamsByDashboardAndSourceID(dashboardID, sourceID);
 
-          // No other charts or filters on the dashboard are using the same source
+          // No other charts on the dashboard are using the same source
           if (numOfCharts === 0 && paramsArr === 0) {
             // Delete dashboard Source and 'Dashboard Level' params
             await deleteDashboardSource(dashboardID, sourceID);

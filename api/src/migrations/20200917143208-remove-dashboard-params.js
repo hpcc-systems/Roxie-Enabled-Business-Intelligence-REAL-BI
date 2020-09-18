@@ -29,7 +29,15 @@ module.exports = {
           return { targetChart: chartID, targetParam: parameter };
         });
 
-        const newFilter = { name, params, sourceID, sourceDataset: dataset, sourceField: field, value };
+        const newFilter = {
+          ecl: {},
+          name,
+          params,
+          sourceID,
+          sourceDataset: dataset,
+          sourceField: field,
+          value,
+        };
 
         return newFilter;
       });
@@ -120,7 +128,7 @@ module.exports = {
 
     // Complete update promises to DB
     if (newDashboardParams.length > 0) {
-      await queryInterface.bulkInsert('dashboardParams', newDashboardParams, { individualHooks: true });
+      await queryInterface.bulkInsert('dashboardParams', newDashboardParams);
     }
 
     // Remove params values from config object

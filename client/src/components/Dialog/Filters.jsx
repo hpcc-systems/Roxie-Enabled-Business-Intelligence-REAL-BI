@@ -58,7 +58,7 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
   useEffect(() => {
     if (filterIndex >= 0) {
       const filter = filters[filterIndex];
-      const { ecl, params, sourceDataset, sourceName, sourceType } = filter;
+      const { ecl = {}, params, sourceDataset, sourceName, sourceType } = filter;
 
       const newParams = [...params, { targetChart: '', targetParam: '' }];
 
@@ -80,15 +80,15 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
 
   const saveFilter = async () => {
     const sourceObj = createSourceObj(localState, eclRef.current);
-    const newFilterObj = createFilterObj(localState, eclRef.current);
+    let newFilterObj = createFilterObj(localState, eclRef.current);
 
     setLoading(true);
 
     try {
-      const { sourceID } = await addSource(dashboardID, sourceObj);
+      const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
 
-      // Append source ID to new filter object
-      newFilterObj.sourceID = sourceID;
+      // Append source information to new filter object
+      newFilterObj = { ...newFilterObj, sourceID, sourceName, sourceType };
 
       // Create new dashboard object
       const dashboardObj = { ...dashboard };

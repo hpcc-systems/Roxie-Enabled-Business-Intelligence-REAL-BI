@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -24,6 +24,7 @@ import Filters from '../Dialog/Filters.jsx';
 import useDialog from '../../hooks/useDialog';
 
 // Utils
+import { getSourceData } from '../../utils/source';
 import { sortArr } from '../../utils/misc';
 
 // Create styles
@@ -48,9 +49,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const FilterDrawer = ({ compData, dashboard, showDrawer, toggleDrawer }) => {
+const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
   const { filters = [] } = dashboard;
   const [filterIndex, setFilterIndex] = useState(-1);
+  const [compData, setCompData] = useState({});
   const { showDialog: showFilter, toggleDialog: toggleFilter } = useDialog(false);
   const dispatch = useDispatch();
   const {
@@ -66,14 +68,30 @@ const FilterDrawer = ({ compData, dashboard, showDrawer, toggleDrawer }) => {
     iconColor,
     typography,
   } = useStyles();
-  let datasets = {};
 
-  // Un-nest source datasets for filter dropdowns
-  if (Object.keys(compData).length > 0) {
-    Object.keys(compData)
-      .map(key => compData[key].data)
-      .forEach(nestedObj => (datasets = { ...datasets, ...nestedObj }));
-  }
+  useEffect(() => {
+    const { clusterID, filters = [] } = dashboard;
+
+    // Set initial object keys and loading
+    filters.forEach(({ sourceID }) => {
+      setCompData(prevState => ({ ...prevState, [sourceID]: {} }));
+    });
+
+    // Fetch data for each chart
+    filters.forEach(({ sourceDataset, sourceID }) => {
+      getSourceData(clusterID, sourceDataset, sourceID).then(data => {
+        if (typeof data !== 'object') {
+          return setCompData(prevState => ({
+            ...prevState,
+            [sourceID]: { data: [], error: data, loading: false },
+          }));
+        }
+
+        // Set data in local state object with sourceID as key
+        setCompData(prevState => ({ ...prevState, [sourceID]: { data, error: '', loading: false } }));
+      });
+    });
+  }, [dashboard]);
 
   const setFilterValue = (event, index) => {
     let { value } = event.target;
@@ -134,7 +152,7 @@ const FilterDrawer = ({ compData, dashboard, showDrawer, toggleDrawer }) => {
         </div>
         <Grid container direction='row' justify='space-between'>
           {filters.length > 0 &&
-            filters.map(({ name, sourceDataset, value }, index) => {
+            filters.map(({ name, sourceDataset, sourceField, sourceID, sourceName, value }, index) => {
               if (value) {
                 if (value.indexOf(',') > -1) {
                   value = value.split(',').sort();
@@ -157,12 +175,20 @@ const FilterDrawer = ({ compData, dashboard, showDrawer, toggleDrawer }) => {
                         className={fontColor}
                       >
                         {(() => {
-                          if (datasets[sourceDataset]) {
-                            // Get the first key from the first object from reference dataset
-                            const key = Object.keys(datasets[sourceDataset].Row[0])[0];
+                          let data = [];
 
-                            return sortArr(datasets[sourceDataset].Row, key).map((object, index) => {
-                              const value = object[key];
+                          if (compData[sourceID]) {
+                            let dataObj = compData[sourceID].data || {};
+
+                            if (Object.keys(dataObj).length > 0) {
+                              if (!dataObj.Exception) {
+                                data = dataObj[sourceName] || dataObj[sourceDataset] || {};
+                                data = data.Row;
+                              }
+                            }
+
+                            return sortArr(data, sourceField).map((object, index) => {
+                              const value = object[sourceField];
 
                               return (
                                 <MenuItem key={index} value={value}>

@@ -69,3 +69,16 @@ export const getUniqueSources = charts => {
 
   return uniqueSources;
 };
+
+export const getSourceData = async (clusterID, sourceDataset, sourceID) => {
+  let response;
+
+  try {
+    response = await axios.get('/api/source/filter/data', { params: { clusterID, sourceDataset, sourceID } });
+  } catch (err) {
+    console.error(err);
+    return {};
+  }
+
+  return response.data;
+};

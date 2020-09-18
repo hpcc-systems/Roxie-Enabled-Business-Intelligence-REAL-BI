@@ -17,7 +17,7 @@ const {
 const { getChartByID } = require('../../utils/chart');
 const { getDashboardByID } = require('../../utils/dashboard');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
-const { createSource, getSourceByHpccID } = require('../../utils/source');
+const { createSource, getSourceByHpccID, getSourceByID } = require('../../utils/source');
 
 router.get('/search', async (req, res) => {
   const {
@@ -151,11 +151,16 @@ router.get('/data', async (req, res) => {
     // Determine if the current source has a mapped parameter
     if (Array.isArray(dashboard.filters)) {
       dashboard.filters.forEach(filter => {
-        const { params, sourceID, value } = filter;
+        const { params, value } = filter;
 
-        if (sourceID === source.id && value && value !== '') {
+        if (value) {
+          // Reset array
+          newParam = [];
+
+          // Loop through and add params that match current chart
           params.forEach(({ targetChart, targetParam }) => {
             if (chartID === targetChart) {
+              console.log('match');
               newParam.push({ name: targetParam, value });
             }
           });
@@ -189,6 +194,35 @@ router.get('/data', async (req, res) => {
         break;
       default:
         data = await getQueryDataFromCluster(cluster, { params: newParam, source }, userID);
+    }
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).json(errMsg);
+  }
+
+  return res.status(200).json(data);
+});
+
+router.get('/filter/data', async (req, res) => {
+  const {
+    query: { clusterID, sourceDataset, sourceID },
+    user: { id: userID },
+  } = req;
+  let cluster, data, source;
+
+  try {
+    cluster = await getClusterByID(clusterID);
+    source = await getSourceByID(sourceID);
+
+    switch (source.type) {
+      case 'file':
+        data = await getFileDataFromCluster(cluster, { params: [], source }, userID);
+        break;
+      case 'ecl':
+        data = await getWorkunitDataFromCluster(cluster, { dataset: sourceDataset }, source, userID);
+        break;
+      default:
+        data = await getQueryDataFromCluster(cluster, { params: [], source }, userID);
     }
   } catch (err) {
     const { errMsg, status } = errHandler(err);
