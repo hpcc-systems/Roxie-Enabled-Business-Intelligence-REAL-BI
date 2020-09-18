@@ -34,7 +34,7 @@ const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
         setLoading(false);
       });
     }
-  }, [chartID, clusterID, error, handleChange, keyword, sourceType]);
+  }, [chartID, clusterID, error, filterIndex, handleChange, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {

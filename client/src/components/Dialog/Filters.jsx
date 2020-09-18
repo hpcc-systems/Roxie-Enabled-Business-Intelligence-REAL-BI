@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   dialog: { minWidth: '50vw', maxWidth: '50vw' },
   formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
   progress: { marginRight: 15 },
-  typography: { margin: theme.spacing(1, 0, 0, 3) },
+  typography: { margin: theme.spacing(1, 0, 0, 2.75) },
 }));
 
 const initState = {

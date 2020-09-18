@@ -75,7 +75,7 @@ router.put('/', async (req, res) => {
     user: { id: userID },
   } = req;
   const { id, name } = body;
-  let permissionObj;
+  let dashboard, permissionObj;
 
   // Make sure dashboard name conforms to required regexp
   if (!directoryObjNameRegexp.test(name)) {
@@ -101,7 +101,23 @@ router.put('/', async (req, res) => {
     return res.status(status).send(errMsg);
   }
 
-  return res.status(202).end();
+  try {
+    dashboard = await getDashboardByID(body.id);
+
+    if (dashboard.filters) {
+      const promises = dashboard.filters.map(async (filter, index) => {
+        const newFilter = await getDashboardFilterSourceInfo(filter);
+        dashboard.filters[index] = newFilter;
+      });
+
+      await Promise.all(promises);
+    }
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+    return res.status(status).send(errMsg);
+  }
+
+  return res.status(202).json({ ...dashboard, role: permissionObj.role });
 });
 
 router.delete('/', async (req, res) => {

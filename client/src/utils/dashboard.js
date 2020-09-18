@@ -104,3 +104,23 @@ export const createFilterObj = (localState, ecl) => {
 
   return { ...newFilter, ecl };
 };
+
+export const deleteFilters = (filters = [], chartID) => {
+  let newFilters = filters || {};
+
+  newFilters = newFilters.map(filter => {
+    const { params, ...vals } = filter;
+    const newParams = params.filter(({ targetChart }) => targetChart !== chartID);
+
+    if (newParams.length === 0) {
+      return null;
+    }
+
+    return { ...vals, params: newParams };
+  });
+
+  // Remove any null entries
+  newFilters = newFilters.filter(filter => filter != null);
+
+  return newFilters;
+};
