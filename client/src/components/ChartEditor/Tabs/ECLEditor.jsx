@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ECLEditorComp = ({ clusterURL, eclRef }) => {
-  const { script } = eclRef.current;
+  const { cluster, script } = eclRef.current;
 
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -26,6 +26,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
   const targetCluster = useRef(null);
   const playButtonElement = useRef(null);
   const resultsShown = useRef(false);
+  const clusterIndex = useRef(0);
   const showLinkToECLWatch = true;
   const showResults = true;
   const deleteWuAfterRun = false;
@@ -211,6 +212,9 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
     const _dropdown = document.querySelector(`#${clusterDropdown._id}`);
     const lbl = document.createElement('label');
 
+    // Set _dropdown initial selection
+    _dropdown.selectedIndex = clusterIndex.current;
+
     lbl.innerText = 'Target:';
     lbl.setAttribute('style', 'margin-right: 6px;');
     _dropdown.parentElement.insertBefore(lbl, _dropdown);
@@ -235,11 +239,14 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
       // Add click handlers to dropdown for available cluster names
       clusterDropdown.values(_clusters).on('click', key => (targetCluster.current = key));
 
-      targetCluster.current = Object.keys(_clusters)[0];
+      clusterIndex.current = cluster ? Object.keys(_clusters).indexOf(cluster) : 0;
+      clusterIndex.current = clusterIndex.current === -1 ? 0 : clusterIndex.current;
+
+      targetCluster.current = Object.keys(_clusters)[clusterIndex];
 
       addComponentsToWidget();
     })();
-  }, [addComponentsToWidget, clusterDropdown, clusterURL]);
+  }, [addComponentsToWidget, cluster, clusterDropdown, clusterURL]);
 
   return <div id={targetDomId} className={eclWidgetStyle}></div>;
 };
