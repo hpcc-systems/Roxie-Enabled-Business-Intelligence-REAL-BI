@@ -17,6 +17,9 @@ const {
   unNestSequelizeObj,
 } = require('./misc');
 
+// Constants
+const { DEFAULT_ROW_COUNT_RETURN } = process.env;
+
 const logger = require('../config/logger');
 
 const getClusterByID = async id => {
@@ -253,7 +256,14 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
 
   // Build URL from cluster details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
-  const requestBody = { WUResultRequest: { Wuid: workunitID, Cluster: target, ResultName: dataset } };
+  const requestBody = {
+    WUResultRequest: {
+      Wuid: workunitID,
+      Cluster: target,
+      ResultName: dataset,
+      Count: DEFAULT_ROW_COUNT_RETURN,
+    },
+  };
 
   // Log API request
   logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);

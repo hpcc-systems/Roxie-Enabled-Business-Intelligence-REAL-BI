@@ -1,6 +1,9 @@
 // Misc. functions to separate reused code to keep files DRY
 const qs = require('qs');
 
+// Constants
+const { DEFAULT_ROW_COUNT_RETURN } = process.env;
+
 const getType = (value = '') => {
   // Necessary ternary because default parameter value above is not applied to "null"
   value = value || '';
@@ -48,7 +51,7 @@ const createFileParams = (params = []) => {
   let Count = params.find(({ name }) => name === 'Count');
   let Start = params.find(({ name }) => name === 'Start');
 
-  Count = Count ? Count.value : null;
+  Count = Count ? (Count.value ? Count.value : DEFAULT_ROW_COUNT_RETURN) : DEFAULT_ROW_COUNT_RETURN;
   Start = Start ? Start.value - 1 : 0; // Convert start value back to 0 index
 
   // Remove Start and Count params
@@ -64,7 +67,7 @@ const createWUParams = (params = []) => {
   params = params || [];
 
   // Remove empty params
-  params = params.filter(({ value }) => value !== null);
+  params = params.filter(({ value }) => name !== 'Count' && value !== null);
 
   const formattedParams = params.map(({ name, value }) => ({ Name: name, Value: value }));
 
