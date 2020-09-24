@@ -1,19 +1,6 @@
 import axios from 'axios';
 import errHandler from './errHandler';
 
-export const getDashboardData = async (clusterID, dashboardID) => {
-  let response;
-
-  try {
-    response = await axios.get('/api/source/data/single', { params: { clusterID, dashboardID } });
-  } catch (err) {
-    console.error(err);
-    return {};
-  }
-
-  return response.data;
-};
-
 export const createDashboard = async (dashboard, workspaceID) => {
   let response;
 
@@ -82,4 +69,58 @@ export const deleteRelations = (relations = {}, chartID) => {
   });
 
   return newRelations;
+};
+
+export const createFilterObj = (localState, ecl) => {
+  const {
+    name,
+    sourceDataset,
+    sourceField,
+    sourceID,
+    sourceName,
+    sourceType,
+    params,
+    value = '',
+  } = localState;
+  let newFilter = { name, sourceDataset, sourceField, sourceID, sourceName, sourceType, params, value };
+
+  // Get array of objects that are complete
+  const completeParams = params.filter(({ targetChart, targetParam }) => {
+    return targetChart !== '' && targetParam !== '';
+  });
+
+  // Update params
+  newFilter = { ...newFilter, params: completeParams };
+
+  // Move ecl value to object root
+  if (sourceType === 'ecl') {
+    const newDataset = !ecl.dataset ? sourceDataset : ecl.dataset;
+
+    newFilter = { ...newFilter, sourceDataset: newDataset };
+
+    delete ecl.data;
+    delete ecl.dataset;
+  }
+
+  return { ...newFilter, ecl };
+};
+
+export const deleteFilters = (filters = [], chartID) => {
+  let newFilters = filters || {};
+
+  newFilters = newFilters.map(filter => {
+    const { params, ...vals } = filter;
+    const newParams = params.filter(({ targetChart }) => targetChart !== chartID);
+
+    if (newParams.length === 0) {
+      return null;
+    }
+
+    return { ...vals, params: newParams };
+  });
+
+  // Remove any null entries
+  newFilters = newFilters.filter(filter => filter != null);
+
+  return newFilters;
 };

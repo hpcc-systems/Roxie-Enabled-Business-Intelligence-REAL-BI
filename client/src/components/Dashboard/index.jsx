@@ -1,10 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
-// Redux Actions
-import { deleteDashboardParam } from '../../features/dashboard/actions';
 
 // React Components
 import Toolbar from './Toolbar';
@@ -22,8 +19,7 @@ import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
 // Utils
-import { checkForChartParams, getChartData } from '../../utils/chart';
-import { getDashboardData } from '../../utils/dashboard';
+import { getChartData } from '../../utils/chart';
 import { sortArr } from '../../utils/misc';
 
 const useStyles = makeStyles(() => ({
@@ -36,7 +32,7 @@ const Dashboard = () => {
   const [sourceID, setSourceID] = useState(null);
   const [interactiveObj, setInteractiveObj] = useState({});
   const { dashboard } = useSelector(state => state.dashboard);
-  const { clusterID, id: dashboardID, params = [] } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
+  const { clusterID, id: dashboardID } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
   const { charts } = useSelector(state => state.chart);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
@@ -44,7 +40,6 @@ const Dashboard = () => {
   const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
-  const dispatch = useDispatch();
   const { clearDiv } = useStyles();
 
   const editChart = chartID => {
@@ -59,49 +54,27 @@ const Dashboard = () => {
     deleteChartToggle();
   };
 
-  const deleteFilter = filterID => {
-    deleteDashboardParam(dashboardID, filterID).then(action => dispatch(action));
-  };
-
   const dataCall = useCallback(() => {
-    const dashboardParamsExist = params.some(({ value }) => value !== null);
-    const chartParamsExist = checkForChartParams(charts);
+    // Set initial object keys and loading
+    charts.forEach(({ id: chartID }) => {
+      setCompData(prevState => ({ ...prevState, [chartID]: {} }));
+    });
 
-    if (!interactiveObj.value && (dashboardParamsExist || (!dashboardParamsExist && !chartParamsExist))) {
-      // Fetch data for dashboard
-      getDashboardData(clusterID, dashboardID).then(data => {
-        const newDataObj = {};
+    // Fetch data for each chart
+    charts.forEach(({ id: chartID }) => {
+      getChartData(chartID, clusterID, interactiveObj, dashboardID).then(data => {
+        if (typeof data !== 'object') {
+          return setCompData(prevState => ({
+            ...prevState,
+            [chartID]: { data: [], error: data, loading: false },
+          }));
+        }
 
-        // Create nested object for local state
-        Object.keys(data).forEach(key => {
-          return (newDataObj[key] = { data: { ...data[key] }, loading: false });
-        });
-
-        // Set data in local state object with source name as key
-        setCompData(newDataObj);
+        // Set data in local state object with chartID as key
+        setCompData(prevState => ({ ...prevState, [chartID]: { data, error: '', loading: false } }));
       });
-    } else {
-      // Set initial object keys and loading
-      charts.forEach(({ id: chartID }) => {
-        setCompData(prevState => ({ ...prevState, [chartID]: {} }));
-      });
-
-      // Fetch data for each chart
-      charts.forEach(({ id: chartID }) => {
-        getChartData(chartID, clusterID, interactiveObj, dashboardID).then(data => {
-          if (typeof data !== 'object') {
-            return setCompData(prevState => ({
-              ...prevState,
-              [chartID]: { data: [], error: data, loading: false },
-            }));
-          }
-
-          // Set data in local state object with chartID as key
-          setCompData(prevState => ({ ...prevState, [chartID]: { data, error: '', loading: false } }));
-        });
-      });
-    }
-  }, [charts, clusterID, dashboardID, interactiveObj, params]);
+    });
+  }, [charts, clusterID, dashboardID, interactiveObj]);
 
   const interactiveClick = (chartID, field, clickValue) => {
     // Click same value twice, clear interactive click value
@@ -114,11 +87,10 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if ((dashboardID || interactiveObj.value) && charts.length > 0) {
-      setCompData({}); // Reset component data state
+    if ((dashboard.id || interactiveObj.value) && charts.length > 0) {
       dataCall();
     }
-  }, [charts, dashboardID, dataCall, interactiveObj.value]);
+  }, [charts, dashboard, dataCall, interactiveObj.value]);
 
   return (
     <Fragment>
@@ -167,7 +139,6 @@ const Dashboard = () => {
         {showFilterDrawer && (
           <FilterDrawer
             dashboard={dashboard}
-            deleteFilter={deleteFilter}
             showDrawer={showFilterDrawer}
             toggleDrawer={toggleFilterDrawer}
             compData={compData}

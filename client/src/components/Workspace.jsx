@@ -13,7 +13,7 @@ import NoCharts from './NoCharts';
 
 // Redux Actions
 import { getWorkspace, closeDashboardInWorkspace } from '../features/workspace/actions';
-import { getDashboard, getDashboardParams, clearDashboard } from '../features/dashboard/actions';
+import { getDashboard, clearDashboard } from '../features/dashboard/actions';
 import { getCharts } from '../features/chart/actions';
 
 // React Hooks
@@ -49,12 +49,9 @@ const Workspace = () => {
     index => {
       const id = openDashboards[index].id;
 
-      Promise.all([getDashboard(id), getCharts(id), getDashboardParams(id)]).then(actions => {
-        // Batch dispatch each action to only have React re-render once
+      Promise.all([getDashboard(id), getCharts(id)]).then(actions => {
         batch(() => {
-          dispatch(actions[0]);
-          dispatch(actions[1]);
-          dispatch(actions[2]);
+          actions.forEach(action => dispatch(action));
         });
       });
     },

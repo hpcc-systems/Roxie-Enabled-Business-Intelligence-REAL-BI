@@ -4,11 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
 
 // Redux Actions
-import { getDashboardParams, updateDashboard } from '../../features/dashboard/actions';
+import { updateDashboard } from '../../features/dashboard/actions';
 import { deleteChart } from '../../features/chart/actions';
 
 // Utils
-import { deleteRelations } from '../../utils/dashboard';
+import { deleteFilters, deleteRelations } from '../../utils/dashboard';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -17,21 +17,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteChartDialog = ({ chartID, dashboard, sourceID, show, toggleDialog }) => {
-  const { id: dashboardID, relations } = dashboard;
+  const { filters = [], id: dashboardID, relations = {} } = dashboard;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
 
   const confirmDelete = async () => {
-    let actions = [];
+    const newRelations = deleteRelations(relations, chartID);
+    const newFilters = deleteFilters(filters, chartID);
 
-    const newRelations = deleteRelations(relations || {}, chartID);
-
-    actions[0] = await deleteChart(chartID, dashboardID, sourceID);
-    actions[1] = await getDashboardParams(dashboardID);
-    actions[2] = await updateDashboard({ ...dashboard, relations: newRelations });
-
-    batch(() => {
-      actions.forEach(action => dispatch(action));
+    Promise.all([
+      deleteChart(chartID, dashboardID, sourceID),
+      updateDashboard({ ...dashboard, relations: newRelations, filters: newFilters }),
+    ]).then(actions => {
+      batch(() => {
+        actions.forEach(action => dispatch(action));
+      });
     });
 
     toggleDialog();
