@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
+  CircularProgress,
   Drawer,
   FormControl,
   Grid,
@@ -42,6 +43,7 @@ const useStyles = makeStyles(theme => ({
   fontColor: { color: grey[50] },
   formControl: { color: grey[50], margin: theme.spacing(1) },
   iconColor: { color: grey[50] },
+  progress: { margin: theme.spacing(1, 0, 1, 1) },
   typography: {
     flexGrow: 1,
     margin: theme.spacing(1.5, 1, 1, 1),
@@ -66,6 +68,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
     fontColor,
     formControl,
     iconColor,
+    progress,
     typography,
   } = useStyles();
 
@@ -74,7 +77,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
 
     // Set initial object keys and loading
     filters.forEach(({ sourceID }) => {
-      setCompData(prevState => ({ ...prevState, [sourceID]: {} }));
+      setCompData(prevState => ({ ...prevState, [sourceID]: { loading: true } }));
     });
 
     // Fetch data for each chart
@@ -163,7 +166,13 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
                 value = [];
               }
 
-              return (
+              const loading = compData[sourceID] ? compData[sourceID].loading : false;
+
+              return loading ? (
+                <Grid item key={index} xs={12} className={progress}>
+                  <CircularProgress color='secondary' size={30} />
+                </Grid>
+              ) : (
                 <Fragment key={index}>
                   <Grid item xs={8}>
                     <FormControl className={formControl} fullWidth>

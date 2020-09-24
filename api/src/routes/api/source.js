@@ -131,7 +131,10 @@ router.get('/data', async (req, res) => {
     user: { id: userID },
   } = req;
   const parsedObj = JSON.parse(interactiveObj);
-  let cluster, dashboard, data, newParam;
+  const dashboardFilters = [];
+  const interactiveFilters = [];
+
+  let chartParams, cluster, dashboard, data, newParam;
 
   try {
     cluster = await getClusterByID(clusterID);
@@ -143,43 +146,44 @@ router.get('/data', async (req, res) => {
     }
 
     // Default params to chart params or empty array
-    newParam = config.params || [];
+    chartParams = config.params || [];
 
     // Get dashboard level filters
     dashboard = await getDashboardByID(dashboardID);
+    const { filters = [], relations = {} } = dashboard;
 
     // Determine if the current source has a mapped parameter
-    if (Array.isArray(dashboard.filters)) {
-      dashboard.filters.forEach(filter => {
+    if (Array.isArray(filters)) {
+      filters.forEach(filter => {
         const { params, value } = filter;
 
-        if (value) {
-          // Reset array
-          newParam = [];
-
-          // Loop through and add params that match current chart
-          params.forEach(({ targetChart, targetParam }) => {
-            if (chartID === targetChart) {
-              console.log('match');
-              newParam.push({ name: targetParam, value });
-            }
-          });
-        }
+        // Loop through and add params that match current chart
+        params.forEach(({ targetChart, targetParam }) => {
+          if (chartID === targetChart) {
+            dashboardFilters.push({ name: targetParam, value });
+          }
+        });
       });
     }
 
     // Get data for interactive click event
     if (parsedObj.value && chartID !== parsedObj.chartID) {
-      const { relations = {} } = await getDashboardByID(dashboardID);
-
       if (relations[parsedObj.chartID]) {
-        relations[parsedObj.chartID].map(({ sourceField, targetChart, targetField }) => {
+        relations[parsedObj.chartID].forEach(({ sourceField, targetChart, targetField }) => {
           if (chartID === targetChart && parsedObj.field === sourceField) {
-            newParam = [{ name: targetField, value: parsedObj.value }];
+            interactiveFilters.push({ name: targetField, value: parsedObj.value });
           }
         });
       }
     }
+
+    // Set hierarchy of importance
+    newParam =
+      interactiveFilters.length > 0
+        ? interactiveFilters
+        : dashboardFilters.length > 0
+        ? dashboardFilters
+        : chartParams;
 
     switch (source.type) {
       case 'file':
