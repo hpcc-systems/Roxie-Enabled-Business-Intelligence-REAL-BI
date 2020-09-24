@@ -113,7 +113,7 @@ module.exports = {
 
         const newDashboardParam = {
           name,
-          mappedParams,
+          mappedParams: JSON.stringify(mappedParams),
           sourceID,
           dataset: sourceDataset,
           field: sourceField,
