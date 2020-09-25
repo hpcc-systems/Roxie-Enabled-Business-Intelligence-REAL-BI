@@ -7,12 +7,8 @@ const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 
 const authenticateToken = () => {
   return async (req, res, next) => {
-    const { baseUrl, method, url } = req;
     let token = req.headers.authorization;
     let response;
-
-    // Log request
-    logger.info(`${method} request made to ${baseUrl}${url}`);
 
     // No token provided
     if (!token) {
@@ -56,4 +52,16 @@ const authenticateToken = () => {
   };
 };
 
-module.exports = { authenticateToken };
+const logRequest = () => {
+  return async (req, res, next) => {
+    const { baseUrl, method, url } = req;
+
+    // Log request
+    logger.info(`${method} request made to ${baseUrl}${url}`);
+
+    // Move to next method
+    next();
+  };
+};
+
+module.exports = { authenticateToken, logRequest };

@@ -14,7 +14,7 @@ const errHandler = err => {
   }
 
   // Log error
-  logger.error(errMsg);
+  logger.error(typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg);
 
   // Return error object
   return { errMsg, status };

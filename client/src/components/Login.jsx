@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.error.contrastText,
     marginBottom: theme.spacing(1.5),
   },
-  grid: { minHeight: '50vh' },
+  grid: { margin: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
@@ -60,6 +60,7 @@ const useStyles = makeStyles(theme => ({
   },
   options: {
     color: theme.palette.secondary.contrastText,
+    cursor: 'pointer',
     padding: theme.spacing(1, 1.25),
   },
   progress: { marginRight: theme.spacing(2) },
@@ -75,7 +76,7 @@ const initState = {
 const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
-  const { msg: errorMsg } = useSelector(state => state.auth.errors);
+  const { errors } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const history = useHistory();
   const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
@@ -133,11 +134,6 @@ const Login = () => {
     }
   };
 
-  const emailAddr = 'test@test.com';
-  const emailSubject = 'Real%20BI%20Account%20Request';
-  const emailBody =
-    'To%20LexisNexis%20Risk%20Solutions%2C%0A%0AI%20would%20like%20to%20request%20access%20to%20your%20Real%20BI%20web%20application.%20Please%20find%20my%20information%20below%20to%20create%20my%20account.%0A%0AName%3A%0AEmail%3A%0AOrganization%3A';
-
   return (
     <Fragment>
       <Header />
@@ -148,9 +144,9 @@ const Login = () => {
               <Card>
                 <CardHeader className={header} title='Login' />
                 <CardContent className={content}>
-                  {errorMsg && errorMsg !== '' && (
+                  {errors.find(err => err.msg) !== undefined && (
                     <Typography className={errMsg} align='center'>
-                      {errorMsg}
+                      {errors.find(err => err.msg).msg}
                     </Typography>
                   )}
                   <TextField
@@ -160,6 +156,12 @@ const Login = () => {
                     value={username}
                     onChange={handleChange}
                     fullWidth
+                    error={errors.find(err => err['username']) !== undefined}
+                    helperText={
+                      errors.find(err => err['username']) !== undefined
+                        ? errors.find(err => err['username'])['username']
+                        : ''
+                    }
                   />
                   <TextField
                     className={textfield}
@@ -170,6 +172,12 @@ const Login = () => {
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
+                    error={errors.find(err => err['password']) !== undefined}
+                    helperText={
+                      errors.find(err => err['password']) !== undefined
+                        ? errors.find(err => err['password'])['password']
+                        : ''
+                    }
                   />
                   <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>
@@ -183,16 +191,13 @@ const Login = () => {
                 <CardActions className={actions}>
                   <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
                     <Grid item>
-                      <Link className={options} href='#' /*target='_blank'*/>
+                      <Link className={options} onClick={() => console.log('Option not available')}>
                         Forgot password?
                       </Link>
                     </Grid>
                     <Grid item>
-                      <Link
-                        className={options}
-                        href={`mailto:${emailAddr}?subject=${emailSubject}&body=${emailBody}`}
-                      >
-                        Register account
+                      <Link className={options} onClick={() => history.push('/register')}>
+                        Register
                       </Link>
                     </Grid>
                   </Grid>

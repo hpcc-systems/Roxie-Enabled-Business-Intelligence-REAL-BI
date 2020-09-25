@@ -22,7 +22,7 @@ import Header from './Layout/Header';
 import useForm from '../hooks/useForm';
 
 // Utils
-import { updatePassword } from '../utils/auth';
+import { registerUser } from '../utils/auth';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -39,9 +39,11 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
   },
   content: { padding: theme.spacing(1, 2) },
-  err: {
+  errMsg: {
     backgroundColor: theme.palette.error.dark,
+    borderRadius: 4,
     color: theme.palette.error.contrastText,
+    marginBottom: theme.spacing(1.5),
   },
   grid: { margin: '2rem' },
   header: {
@@ -69,22 +71,34 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const initState = {
-  errorMsg: '',
+  confirmPassword: '',
+  email: '',
+  errors: [],
+  firstName: '',
+  lastName: '',
   loading: false,
-  newPwd: '',
-  newPwd2: '',
-  oldPwd: '',
+  password: '',
   successMsg: '',
+  username: '',
 };
 
-const ChangePwd = () => {
-  const { values: localState, handleChange, resetState } = useForm(initState);
+const fields = [
+  { name: 'firstName', label: 'First Name', type: 'text' },
+  { name: 'lastName', label: 'Last Name', type: 'text' },
+  { name: 'email', label: 'Email', type: 'email' },
+  { name: 'username', label: 'Username', type: 'text' },
+  { name: 'password', label: 'Password', type: 'password' },
+  { name: 'confirmPassword', label: 'Confirm Password', type: 'password' },
+];
+
+const Register = () => {
+  const { values: localState, handleChange } = useForm(initState);
   const history = useHistory();
   const {
     button,
     closeBtn,
     content,
-    err,
+    errMsg,
     grid,
     header,
     message,
@@ -100,50 +114,58 @@ const ChangePwd = () => {
 
     handleChange(null, { name: 'loading', value: true });
 
-    let response;
+    let response, successMsg;
 
     try {
-      response = await updatePassword(localState);
+      response = await registerUser(localState);
     } catch (err) {
-      resetState(initState);
-      return handleChange(null, { name: 'errorMsg', value: err });
+      handleChange(null, { name: 'loading', value: false });
+      return handleChange(null, { name: 'errors', value: err });
     }
 
-    resetState(initState);
-    return handleChange(null, { name: 'successMsg', value: response });
+    handleChange(null, { name: 'loading', value: false });
+    handleChange(null, { name: 'errors', value: [] });
+
+    if (response === 201) {
+      successMsg = 'User Account Created';
+    } else {
+      successMsg = 'Real BI Permissions Added to Existing Tombolo Account';
+    }
+
+    handleChange(null, { name: 'successMsg', value: successMsg });
+    setTimeout(() => history.push('/login'), 3000); // Wait 3 seconds then redirect to login page
   };
 
-  const { errorMsg, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
+  const { errors, loading, successMsg } = localState;
 
   return (
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
         <Grid container direction='column' justify='center' alignItems='center' className={grid}>
-          <Grid item style={{ maxWidth: '25vw' }}>
+          <Grid item style={{ maxWidth: '40vw' }}>
             <form onSubmit={handleSubmit}>
               <Card>
                 <CardHeader
                   className={header}
                   title={
                     <Fragment>
-                      <Button className={closeBtn} disabled={loading} onClick={() => history.goBack()}>
+                      <Button className={closeBtn} disabled={loading} onClick={() => history.push('/login')}>
                         <ArrowBackOutlinedIcon fontSize='large' />
                       </Button>
                       <Typography className={typography} variant='h6'>
-                        Change Password
+                        Create Account
                       </Typography>
                     </Fragment>
                   }
                 />
                 <CardContent className={content}>
-                  {/* Error message */}
-                  {errorMsg && errorMsg !== '' && (
-                    <Typography className={classnames(message, err)} align='center'>
-                      {errorMsg}
+                  {/* Error Message */}
+                  {errors.find(err => err.msg) !== undefined && (
+                    <Typography className={errMsg} align='center'>
+                      {errors.find(err => err.msg).msg}
                     </Typography>
                   )}
-
                   {/* Success Message */}
                   {successMsg && successMsg !== '' && (
                     <Typography className={classnames(message, success)} align='center'>
@@ -151,39 +173,37 @@ const ChangePwd = () => {
                     </Typography>
                   )}
 
-                  <TextField
-                    className={textfield}
-                    label='Old Password'
-                    name='oldPwd'
-                    value={oldPwd}
-                    type='password'
-                    onChange={handleChange}
-                    autoComplete='false'
-                    fullWidth
-                  />
-                  <TextField
-                    className={textfield}
-                    label='New Password'
-                    name='newPwd'
-                    value={newPwd}
-                    type='password'
-                    onChange={handleChange}
-                    autoComplete='false'
-                    fullWidth
-                  />
-                  <TextField
-                    className={textfield}
-                    label='Confirm New Password'
-                    name='newPwd2'
-                    value={newPwd2}
-                    type='password'
-                    onChange={handleChange}
-                    autoComplete='false'
-                    fullWidth
-                  />
+                  <Grid container spacing={1}>
+                    {fields.map(({ label, name, type }, index) => {
+                      return (
+                        <Grid key={index} item xs={6}>
+                          <TextField
+                            className={textfield}
+                            label={label}
+                            name={name}
+                            value={localState[name]}
+                            type={type}
+                            onChange={handleChange}
+                            fullWidth
+                            error={errors.find(err => err[name]) !== undefined}
+                            helperText={
+                              errors.find(err => err[name]) !== undefined
+                                ? errors.find(err => err[name])[name]
+                                : ''
+                            }
+                          />
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
                   <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>
-                      <Button className={button} variant='contained' type='submit' disabled={loading}>
+                      <Button
+                        className={button}
+                        variant='contained'
+                        type='submit'
+                        disabled={loading || successMsg !== ''}
+                      >
                         {loading && <CircularProgress color='inherit' size={20} className={progress} />}
                         Submit
                       </Button>
@@ -199,4 +219,4 @@ const ChangePwd = () => {
   );
 };
 
-export default ChangePwd;
+export default Register;

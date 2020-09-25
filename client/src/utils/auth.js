@@ -43,3 +43,25 @@ export const updatePassword = async stateObj => {
 
   return response.data;
 };
+
+export const registerUser = async stateObj => {
+  let response;
+
+  try {
+    response = await axios.post('/api/auth/register', { ...stateObj });
+  } catch (err) {
+    const { data } = err.response;
+
+    if (!data.errors) {
+      if (typeof data === 'object') {
+        throw [{ msg: JSON.stringify(err.response.data) }];
+      }
+
+      throw [{ msg: err.response.data }];
+    }
+
+    throw err.response.data.errors;
+  }
+
+  return response.status;
+};

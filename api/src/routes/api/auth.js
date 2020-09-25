@@ -10,8 +10,9 @@ const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
 const { getUserByID } = require('../../utils/auth');
 const { createUser } = require('../../utils/user');
 const { getWorkspaces } = require('../../utils/workspace');
+const { validate, validateLogin, validateRegistration } = require('../../utils/validation');
 
-router.post('/login', async (req, res) => {
+router.post('/login', [validateLogin(), validate], async (req, res) => {
   const { username, password } = req.body;
   let response, user, workspaces;
 
@@ -25,6 +26,11 @@ router.post('/login', async (req, res) => {
     response = await axios.post(url, { username, password });
   } catch (err) {
     const { errMsg, status } = errHandler(err);
+
+    if (typeof errMsg !== 'object') {
+      return res.status(status).send({ errors: [{ msg: errMsg }] });
+    }
+
     return res.status(status).send(errMsg);
   }
 
@@ -36,7 +42,7 @@ router.post('/login', async (req, res) => {
   // User doesn't have permission to use this app
   if (!hasPermission) {
     logger.error('User not authorized to use Real BI.');
-    return res.status(401).send('Unauthorized Request');
+    return res.status(401).send({ errors: [{ msg: 'Unauthorized Request' }] });
   }
 
   // Is user already in DB
@@ -56,6 +62,39 @@ router.post('/login', async (req, res) => {
   }
 
   res.status(200).json({ id, token, username: tokenUsername, ...user, workspaces });
+});
+
+router.post('/register', [validateRegistration(), validate], async (req, res) => {
+  const { confirmPassword, email, firstName, lastName, password, username } = req.body;
+  let response;
+
+  // Create axios request objects
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/registerUser`;
+  const reqBody = {
+    applicationId: AUTH_APP_ID,
+    confirmpassword: confirmPassword,
+    email,
+    firstName,
+    lastName,
+    role: 'User',
+    password,
+    username,
+  };
+
+  // Log API request
+  logger.info(`Request made to ${reqURL} with body '${JSON.stringify(reqBody)}'`);
+
+  try {
+    response = await axios.post(reqURL, reqBody);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  // Auth Service will send a 201 if it creates a new user account or a 202 if it modifies an existing account to grant permission to Real BI
+  // Handle notification to user on the client side
+  res.status(response.status).end();
 });
 
 module.exports = router;

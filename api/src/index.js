@@ -1,7 +1,7 @@
 const express = require('express');
 const { sequelize } = require('./models');
 const { auth, chart, cluster, clusterAuth, dashboard, source, user, workspace } = require('./routes');
-const { authenticateToken } = require('./routes/middleware');
+const { authenticateToken, logRequest } = require('./routes/middleware');
 const logger = require('./config/logger');
 
 const { PORT, NODE_PORT } = process.env;
@@ -12,6 +12,7 @@ const app = express();
 // Enable middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(logRequest()); // Middleware designed to log the request method and destination to log file
 
 // Routes
 app.use('/api/auth', auth);
