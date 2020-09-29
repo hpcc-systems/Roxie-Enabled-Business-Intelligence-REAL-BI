@@ -242,7 +242,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
       clusterIndex.current = cluster ? Object.keys(_clusters).indexOf(cluster) : 0;
       clusterIndex.current = clusterIndex.current === -1 ? 0 : clusterIndex.current;
 
-      targetCluster.current = Object.keys(_clusters)[clusterIndex];
+      targetCluster.current = Object.keys(_clusters)[clusterIndex.current];
 
       addComponentsToWidget();
     })();
