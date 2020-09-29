@@ -15,17 +15,7 @@ const GaugeComp = ({ data, config }) => {
   const maxVal = Number(val3);
 
   // Confirm all necessary values are present before trying to render the chart
-  if (
-    !data ||
-    data.length === 0 ||
-    !value ||
-    !val2 ||
-    !val3 ||
-    !minVal ||
-    !maxVal ||
-    isNaN(minVal) ||
-    isNaN(maxVal)
-  ) {
+  if (!data || data.length === 0 || !value || !val2 || !val3 || !minVal || !maxVal) {
     return null;
   }
 
