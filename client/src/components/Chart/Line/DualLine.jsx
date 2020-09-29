@@ -1,17 +1,18 @@
 import React from 'react';
 import { DualLine } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { thousandsSeparator, sortArr } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
 
 const DualLineComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { value: yValue1 },
-    axis3: { value: yValue2 },
+    axis1: { label: xLabel, type: xType = 'string', value: xValue },
+    axis2: { type: yType1 = 'string', value: yValue1 },
+    axis3: { type: yType2 = 'string', value: yValue2 },
   } = config;
 
   const sortOrder = 'asc';
@@ -22,12 +23,27 @@ const DualLineComp = ({ data, config }) => {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
-    [yValue1]: checkForNumber(row[yValue1]),
-    [yValue2]: checkForNumber(row[yValue2]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
+    [yValue1]:
+      yType1 === 'date'
+        ? moment(String(row[yValue1])).format('L')
+        : yType1 === 'number'
+        ? Number(row[yValue1])
+        : String(row[yValue1]),
+    [yValue2]:
+      yType2 === 'date'
+        ? moment(String(row[yValue2])).format('L')
+        : yType2 === 'number'
+        ? Number(row[yValue2])
+        : String(row[yValue2]),
   }));
 
   // Sort data in ascending order

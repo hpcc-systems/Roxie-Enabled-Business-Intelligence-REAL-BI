@@ -1,16 +1,14 @@
 import React from 'react';
 import { Donut } from '@ant-design/charts';
-
-// Utils
-import { checkForNumber } from '../../../utils/misc';
+import moment from 'moment';
 
 // Constants
 import { chartFillColor } from '../../../constants';
 
 const DonutComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
   const {
-    axis1: { label: nameLabel, value: nameValue },
-    axis2: { label: valueLabel, value },
+    axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
+    axis2: { label: valueLabel, type: valueType = 'string', value },
   } = config;
 
   const customNameLabel = nameLabel ? nameLabel : nameValue;
@@ -21,11 +19,21 @@ const DonutComp = ({ chartID, data, config, interactiveClick, interactiveObj, re
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [nameValue]: checkForNumber(row[nameValue]),
-    [value]: checkForNumber(row[value]),
+    [nameValue]:
+      nameType === 'date'
+        ? moment(String(row[nameValue])).format('L')
+        : nameType === 'number'
+        ? Number(row[nameValue])
+        : String(row[nameValue]),
+    [value]:
+      valueType === 'date'
+        ? moment(String(row[value])).format('L')
+        : valueType === 'number'
+        ? Number(row[value])
+        : String(row[value]),
   }));
 
   const chartConfig = {

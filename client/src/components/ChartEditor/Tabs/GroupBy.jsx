@@ -13,6 +13,9 @@ import {
 } from '@material-ui/core';
 
 // Constants
+import { dataTypes } from '../../../constants';
+
+// Utils
 import { getMessage, hasStackedOption } from '../../../utils/misc';
 
 const useStyles = makeStyles(theme => ({
@@ -23,10 +26,10 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 20 },
 }));
 
-const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => {
+const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
   const { dataset: eclDataset, schema = [] } = eclRef.current;
   const { chartID, config, dataset, selectedDataset = {}, sourceType } = localState;
-  const { groupBy, stacked, type } = config;
+  const { groupBy = {}, stacked, type } = config;
   const { fields = [] } = selectedDataset;
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
@@ -34,14 +37,14 @@ const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => 
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return dataset || eclDataset ? (
-    <Grid container direction='row' alignContent='space-between' className={topFormControl}>
-      <Grid item md={hasStackedOption(type) ? 10 : 12}>
+    <Grid container direction='row' alignContent='space-between' spacing={1} className={topFormControl}>
+      <Grid item md={hasStackedOption(type) ? 7 : 9}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Group Field</InputLabel>
           {chartID && fieldsArr.length <= 1 ? (
             <CircularProgress className={progress} size={20} />
           ) : (
-            <Select name='config:groupBy' value={groupBy || ''} onChange={handleChangeObj}>
+            <Select name='groupBy:value' value={groupBy.value || ''} onChange={updateAxisKey}>
               {groupBy !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
               {fieldsArr.map(({ name, value = name }, index) => {
                 return (
@@ -52,6 +55,20 @@ const GroupByTab = ({ eclRef, handleChangeObj, handleCheckbox, localState }) => 
               })}
             </Select>
           )}
+        </FormControl>
+      </Grid>
+      <Grid item md={3}>
+        <FormControl className={formControl} fullWidth>
+          <InputLabel>Data Type</InputLabel>
+          <Select name='groupBy:type' value={groupBy.type || 'string'} onChange={updateAxisKey}>
+            {dataTypes.map((dataType, index) => {
+              return (
+                <MenuItem key={index} value={dataType}>
+                  {dataType}
+                </MenuItem>
+              );
+            })}
+          </Select>
         </FormControl>
       </Grid>
       {hasStackedOption(type) && (

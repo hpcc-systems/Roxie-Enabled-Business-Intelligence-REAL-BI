@@ -58,7 +58,7 @@ export const mergeArrays = (oldArr, newArr) => {
 
 export const createChartObj = (localState, ecl) => {
   const { config, dataset, mappedParams, sourceType } = localState;
-  const { groupBy, horizontal, params = [], stacked, type } = config;
+  const { groupBy = {}, horizontal, params = [], stacked, type } = config;
   let newConfig = { ...config, dataset };
 
   // Merge param arrays to send to server
@@ -75,8 +75,8 @@ export const createChartObj = (localState, ecl) => {
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(type) && groupBy) || !('groupBy' in newConfig)) {
-    newConfig = { ...newConfig, groupBy: '' };
+  if ((!hasGroupByOption(type) && groupBy.value) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: {} };
   }
 
   // Move ecl values to config object root
@@ -156,22 +156,20 @@ export const checkForChartParams = chartsArr => {
 
 export const changeChartType = (oldType, newType, config) => {
   let newConfig = { ...config, type: newType };
-  const { axis1 = {}, axis2 = {} } = newConfig;
+  const { axis1 = {}, axis2 = {}, groupBy = {} } = newConfig;
 
   //  Update values in config object to reflect the current chart type
   switch (oldType) {
     case 'pie':
       if (newType === 'table' && axis1.value && axis2.value) {
-        newConfig.checkboxValueField = axis1.value;
         newConfig.fields = [axis1.value, axis2.value];
       }
 
       break;
     case 'table':
-      newConfig.axis1 = { label: axis1.label || '', value: newConfig.checkboxValueField };
+      newConfig.axis1 = { label: axis1.label || '', value: newConfig.fields ? newConfig.fields[0] : '' };
       newConfig.axis2 = { label: axis2.label || '', value: newConfig.fields ? newConfig.fields[1] : '' };
 
-      delete newConfig.checkboxValueField;
       delete newConfig.fields;
 
       break;
@@ -182,7 +180,6 @@ export const changeChartType = (oldType, newType, config) => {
       break;
     default:
       if (newType === 'table' && axis1.value && axis2.value) {
-        newConfig.checkboxValueField = axis1.value || '';
         newConfig.fields = [axis1.value, axis2.value];
       }
 
@@ -202,8 +199,8 @@ export const changeChartType = (oldType, newType, config) => {
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(newType) && newConfig.groupBy) || !('groupBy' in newConfig)) {
-    newConfig = { ...newConfig, groupBy: '' };
+  if ((!hasGroupByOption(newType) && groupBy.value) || !('groupBy' in newConfig)) {
+    newConfig = { ...newConfig, groupBy: {} };
   }
 
   // Change static value if it doesn't apply to the chart type or is missing

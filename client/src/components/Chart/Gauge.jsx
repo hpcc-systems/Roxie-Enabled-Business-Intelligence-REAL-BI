@@ -1,26 +1,33 @@
 import React from 'react';
 import { Gauge } from '@ant-design/charts';
 
-// Utils
-import { checkForNumber } from '../../utils/misc';
-
 // Constants
 import { chartFillColor } from '../../constants';
 
 const GaugeComp = ({ data, config }) => {
   const {
-    axis1: { value = null },
+    axis1: { type: valueType = 'string', value = null },
     axis2: { value: val2 = null },
     axis3: { value: val3 = null },
   } = config;
 
-  // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !value || !val2 || !val3) {
-    return null;
-  }
-
   const minVal = Number(val2);
   const maxVal = Number(val3);
+
+  // Confirm all necessary values are present before trying to render the chart
+  if (
+    !data ||
+    data.length === 0 ||
+    !value ||
+    !val2 ||
+    !val3 ||
+    !minVal ||
+    !maxVal ||
+    isNaN(minVal) ||
+    isNaN(maxVal)
+  ) {
+    return null;
+  }
 
   // Create range array of equal segments
   const split = (min, max, segments) => {
@@ -40,7 +47,10 @@ const GaugeComp = ({ data, config }) => {
   };
 
   // Convert necessary values to numbers
-  data = data.map(row => ({ ...row, [value]: checkForNumber(row[value]) }));
+  data = data.map(row => ({
+    ...row,
+    [value]: valueType === 'number' ? Number(row[value]) : String(row[value]),
+  }));
 
   const chartConfig = {
     color: ['#39B8FF', '#52619B', '#43E089', '#C0EDF3'],

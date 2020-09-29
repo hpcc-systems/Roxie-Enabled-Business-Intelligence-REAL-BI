@@ -58,6 +58,17 @@ const ChartEditor = props => {
     handleChange(event);
   };
 
+  const updateAxisKey = event => {
+    const { name, value } = event.target;
+    const [state, key] = name.split(':');
+    let newConfig = localState.config;
+
+    // Update object key
+    newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: value } };
+
+    return handleChange(null, { name: 'config', value: newConfig });
+  };
+
   // Create object of information to pass to chart components
   const newConfig = { ...config, dataset };
   const clusterURL = `${clusterHost}:${clusterPort}`;
@@ -129,11 +140,11 @@ const ChartEditor = props => {
             case 0:
               return <ECLEditor clusterURL={clusterURL} eclRef={eclRef} />;
             case 1:
-              return <General {...props} />;
+              return <General {...props} updateAxisKey={updateAxisKey} />;
             case 2:
               return <Parameters {...props} />;
             case 3:
-              return <GroupBy {...props} />;
+              return <GroupBy {...props} updateAxisKey={updateAxisKey} />;
             default:
               return 'Unknown Tab';
           }
