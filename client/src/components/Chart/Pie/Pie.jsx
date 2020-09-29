@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pie } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, thousandsSeparator } from '../../../utils/misc';
+import { thousandsSeparator } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
@@ -13,8 +14,8 @@ const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array
 
 const PieComp = ({ data, config }) => {
   const {
-    axis1: { label: nameLabel, value: nameValue },
-    axis2: { label: valueLabel, value },
+    axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
+    axis2: { label: valueLabel, type: valueType = 'string', value },
   } = config;
 
   const customNameLabel = nameLabel ? nameLabel : nameValue;
@@ -25,11 +26,21 @@ const PieComp = ({ data, config }) => {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [nameValue]: checkForNumber(row[nameValue]),
-    [value]: checkForNumber(row[value]),
+    [nameValue]:
+      nameType === 'date'
+        ? moment(String(row[nameValue])).format('L')
+        : nameType === 'number'
+        ? Number(row[nameValue])
+        : String(row[nameValue]),
+    [value]:
+      valueType === 'date'
+        ? moment(String(row[value])).format('L')
+        : valueType === 'number'
+        ? Number(row[value])
+        : String(row[value]),
   }));
 
   const total = data.map(obj => obj[value]).reduce(reducer); // Gets total of yAxis values

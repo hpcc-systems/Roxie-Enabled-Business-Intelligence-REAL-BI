@@ -1,15 +1,16 @@
 import React from 'react';
 import { Histogram } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, sortArr } from '../../utils/misc';
+import { sortArr } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
 
 const HistogramComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
+    axis1: { label: xLabel, type: xType = 'string', value: xValue },
     binNumber,
   } = config;
 
@@ -17,14 +18,19 @@ const HistogramComp = ({ data, config }) => {
   const customXLabel = xLabel ? xLabel : xValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xValue) {
+  if (!data || data.length === 0 || !xValue || !binNumber || isNaN(binNumber)) {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
   }));
 
   // Sort data in ascending order

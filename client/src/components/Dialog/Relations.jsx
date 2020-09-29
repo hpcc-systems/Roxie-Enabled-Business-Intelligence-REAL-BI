@@ -107,7 +107,7 @@ const Relations = ({ show, toggleDialog }) => {
   // Configure charts to get formatted array of objects
   charts = charts.map(chart => {
     const { id: chartID, config, sourceID, sourceName } = chart;
-    const { axis1, axis2, fields = [], groupBy = '', params, title, type } = config;
+    const { axis1, axis2, fields = [], groupBy = {}, params, title, type } = config;
     const newFields = [];
 
     // Get fields from chart config
@@ -125,8 +125,8 @@ const Relations = ({ show, toggleDialog }) => {
     }
 
     // Include group by as available field
-    if (groupBy !== '') {
-      newFields.push({ name: groupBy });
+    if (groupBy.value !== '') {
+      newFields.push({ name: groupBy.value });
     }
 
     return { chartID, fields: newFields, params, sourceID, sourceName, title, type };

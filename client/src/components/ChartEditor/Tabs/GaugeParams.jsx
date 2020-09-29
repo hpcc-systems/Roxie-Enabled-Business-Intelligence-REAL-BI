@@ -13,6 +13,9 @@ import {
 // Utils
 import { getMessage } from '../../../utils/misc';
 
+// Constants
+import { dataTypes } from '../../../constants';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
@@ -33,7 +36,7 @@ const GaugeParams = ({ eclRef, localState, updateAxisKey }) => {
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <Grid item md={4}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Value Field</InputLabel>
             {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
@@ -51,7 +54,23 @@ const GaugeParams = ({ eclRef, localState, updateAxisKey }) => {
             )}
           </FormControl>
         </Grid>
-        <Grid item md={4}>
+        <Grid item md={3}>
+          <FormControl className={formControl} fullWidth>
+            <InputLabel>Data Type</InputLabel>
+            <Select name='axis1:type' value={axis1.type || 'string'} onChange={updateAxisKey}>
+              {dataTypes
+                .filter(type => type !== 'date')
+                .map((dataType, index) => {
+                  return (
+                    <MenuItem key={index} value={dataType}>
+                      {dataType}
+                    </MenuItem>
+                  );
+                })}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
@@ -63,7 +82,7 @@ const GaugeParams = ({ eclRef, localState, updateAxisKey }) => {
             />
           </FormControl>
         </Grid>
-        <Grid item md={4}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth

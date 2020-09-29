@@ -51,16 +51,19 @@ export const registerUser = async stateObj => {
     response = await axios.post('/api/auth/register', { ...stateObj });
   } catch (err) {
     const { data } = err.response;
+    let error;
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        throw [{ msg: JSON.stringify(err.response.data) }];
+        error = [{ msg: JSON.stringify(data) }];
+        throw error;
       }
 
-      throw [{ msg: err.response.data }];
+      error = [{ msg: data }];
+      throw error;
     }
 
-    throw err.response.data.errors;
+    throw data.errors;
   }
 
   return response.status;

@@ -11,6 +11,9 @@ import {
   Tooltip,
 } from '@material-ui/core';
 
+// Constants
+import { dataTypes } from '../../../constants';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
@@ -33,7 +36,7 @@ const HistogramParams = ({ localState, updateAxisKey, handleChangeObj }) => {
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <Grid item md={8}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Bin</InputLabel>
             {chartID && fields.length <= 1 ? (
@@ -51,11 +54,11 @@ const HistogramParams = ({ localState, updateAxisKey, handleChangeObj }) => {
             )}
           </FormControl>
         </Grid>
-        <Grid item md={4}>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
-              label='Name Label'
+              label='Label'
               name='axis1:label'
               value={axis1.label || ''}
               onChange={updateAxisKey}
@@ -63,7 +66,21 @@ const HistogramParams = ({ localState, updateAxisKey, handleChangeObj }) => {
             />
           </FormControl>
         </Grid>
-        <Grid item md={12}>
+        <Grid item md={3}>
+          <FormControl className={formControl} fullWidth>
+            <InputLabel>Data Type</InputLabel>
+            <Select name='axis1:type' value={axis1.type || 'string'} onChange={updateAxisKey}>
+              {dataTypes.map((dataType, index) => {
+                return (
+                  <MenuItem key={index} value={dataType}>
+                    {dataType}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <Tooltip title={binNumTooltipText} placement='right'>
               <TextField

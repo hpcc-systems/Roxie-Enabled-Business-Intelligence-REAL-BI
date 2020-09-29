@@ -1,17 +1,18 @@
 import React from 'react';
 import { Scatter } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, sortArr } from '../../utils/misc';
+import { sortArr } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
 
 const ScatterComp = ({ data, config }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
-    groupBy,
+    axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
+    axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
+    groupBy: { type: groupByType = 'string', value: groupByValue },
   } = config;
 
   const sortOrder = 'asc';
@@ -23,11 +24,27 @@ const ScatterComp = ({ data, config }) => {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
+    [groupByValue]:
+      groupByType === 'date'
+        ? moment(String(row[groupByValue])).format('L')
+        : groupByType === 'number'
+        ? Number(row[groupByValue])
+        : String(row[groupByValue]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
+    [yValue]:
+      yType === 'date'
+        ? moment(String(row[yValue])).format('L')
+        : yType === 'number'
+        ? Number(row[yValue])
+        : String(row[yValue]),
   }));
 
   // Sort data in ascending order
@@ -35,7 +52,7 @@ const ScatterComp = ({ data, config }) => {
 
   const chartConfig = {
     data,
-    colorField: groupBy,
+    colorField: groupByValue,
     xField: xValue,
     xAxis: {
       label: {

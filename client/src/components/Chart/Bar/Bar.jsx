@@ -1,16 +1,17 @@
 import React from 'react';
 import { Bar } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { thousandsSeparator, sortArr } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
 
 const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
+    axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
+    axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
   } = config;
 
   const sortOrder = 'asc';
@@ -22,11 +23,21 @@ const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, rela
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
+    [yValue]:
+      yType === 'date'
+        ? moment(String(row[yValue])).format('L')
+        : yType === 'number'
+        ? Number(row[yValue])
+        : String(row[yValue]),
   }));
 
   // Sort data in ascending order

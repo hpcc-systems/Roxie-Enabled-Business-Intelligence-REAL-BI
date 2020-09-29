@@ -49,7 +49,7 @@ const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
-              label='Axis Label'
+              label='Label'
               name='axis1:label'
               value={axis1.label || ''}
               onChange={updateAxisKey}
@@ -79,7 +79,7 @@ const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
-              label='Axis Label'
+              label='Label'
               name='axis2:label'
               value={axis2.label || ''}
               onChange={updateAxisKey}

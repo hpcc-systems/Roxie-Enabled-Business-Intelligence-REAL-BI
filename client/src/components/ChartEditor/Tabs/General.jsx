@@ -67,17 +67,6 @@ const GeneralTab = props => {
   const { axis1, axis2, horizontal, isStatic, title, chartDescription, type } = config;
   const { formControl, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
-  const updateAxisKey = event => {
-    const { name, value } = event.target;
-    const [state, key] = name.split(':');
-    let newConfig = localState.config;
-
-    // Update object key
-    newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: value } };
-
-    return handleChange(null, { name: 'config', value: newConfig });
-  };
-
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
     const [state, key] = name.split(':');
@@ -216,21 +205,21 @@ const GeneralTab = props => {
         />
       </Grid>
       {type === 'dualline' ? (
-        <DualLineParams {...props} updateAxisKey={updateAxisKey} />
+        <DualLineParams {...props} />
       ) : type === 'gauge' ? (
-        <GaugeParams {...props} updateAxisKey={updateAxisKey} />
+        <GaugeParams {...props} />
       ) : type === 'heatmap' ? (
-        <HeatMapParams {...props} updateAxisKey={updateAxisKey} />
+        <HeatMapParams {...props} />
       ) : type === 'histogram' ? (
-        <HistogramParams {...props} updateAxisKey={updateAxisKey} />
+        <HistogramParams {...props} />
       ) : type === 'pie' || type === 'donut' ? (
-        <PieParams {...props} updateAxisKey={updateAxisKey} />
+        <PieParams {...props} />
       ) : type === 'table' ? (
         <TableParams {...props} />
       ) : type === 'textBox' ? (
         <TextBoxParams {...props} />
       ) : (
-        <GeneralParams {...props} updateAxisKey={updateAxisKey} checkboxUpdated={checkboxUpdated} />
+        <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
       )}
     </Grid>
   );

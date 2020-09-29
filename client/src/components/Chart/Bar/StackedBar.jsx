@@ -1,17 +1,18 @@
 import React from 'react';
 import { StackedBar } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { thousandsSeparator, sortArr } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
 
 const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
-    groupBy,
+    axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
+    axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
+    groupBy: { type: groupByType = 'string', value: groupByValue },
   } = config;
 
   const sortOrder = 'asc';
@@ -19,15 +20,31 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
   const customYLabel = yLabel ? yLabel : yValue;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !xValue || !yValue || !groupBy) {
+  if (!data || data.length === 0 || !xValue || !yValue || !groupByValue) {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
+    [groupByValue]:
+      groupByType === 'date'
+        ? moment(String(row[groupByValue])).format('L')
+        : groupByType === 'number'
+        ? Number(row[groupByValue])
+        : String(row[groupByValue]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
+    [yValue]:
+      yType === 'date'
+        ? moment(String(row[yValue])).format('L')
+        : yType === 'number'
+        ? Number(row[yValue])
+        : String(row[yValue]),
   }));
 
   // Sort data in ascending order
@@ -38,7 +55,7 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
       const { chartID: objID, field, value } = interactiveObj;
 
       // Highlight columns from click event
-      if (chartID === objID && field === groupBy && d === value) {
+      if (chartID === objID && field === groupByValue && d === value) {
         return { stroke: 'red' };
       }
 
@@ -57,7 +74,7 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
       visible: true,
     },
     meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
-    stackField: groupBy,
+    stackField: groupByValue,
     xAxis: {
       label: {
         style: { fill: chartFillColor },
@@ -97,7 +114,7 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
   // Add click events
   if (relations[chartID]) {
     chartConfig.events = {
-      onBarClick: ({ data }) => interactiveClick(chartID, groupBy, data[groupBy]),
+      onBarClick: ({ data }) => interactiveClick(chartID, groupByValue, data[groupByValue]),
     };
   }
 

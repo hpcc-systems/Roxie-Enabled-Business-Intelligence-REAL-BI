@@ -1,17 +1,18 @@
 import React from 'react';
 import { Line } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
-import { checkForNumber, thousandsSeparator, sortArr } from '../../../utils/misc';
+import { thousandsSeparator, sortArr } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
 
 const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, relations }) => {
   const {
-    axis1: { label: xLabel, value: xValue, showTickLabels: xShowTickLabels },
-    axis2: { label: yLabel, value: yValue, showTickLabels: yShowTickLabels },
-    groupBy,
+    axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
+    axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
+    groupBy: { type: groupByType = 'string', value: groupByValue },
   } = config;
 
   const sortOrder = 'asc';
@@ -23,11 +24,27 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [xValue]: checkForNumber(row[xValue]),
-    [yValue]: checkForNumber(row[yValue]),
+    [groupByValue]:
+      groupByType === 'date'
+        ? moment(String(row[groupByValue])).format('L')
+        : groupByType === 'number'
+        ? Number(row[groupByValue])
+        : String(row[groupByValue]),
+    [xValue]:
+      xType === 'date'
+        ? moment(String(row[xValue])).format('L')
+        : xType === 'number'
+        ? Number(row[xValue])
+        : String(row[xValue]),
+    [yValue]:
+      yType === 'date'
+        ? moment(String(row[yValue])).format('L')
+        : yType === 'number'
+        ? Number(row[yValue])
+        : String(row[yValue]),
   }));
 
   // Sort data in ascending order
@@ -40,7 +57,7 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
       formatter: v => thousandsSeparator(v),
       position: 'top',
       style: { fontSize: 12 },
-      visible: groupBy ? false : true,
+      visible: groupByValue ? false : true,
     },
     legend: {
       position: 'right-top',
@@ -50,7 +67,7 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
       const { chartID: objID, field, value } = interactiveObj;
 
       // Change non-clicked lines to dashed and reduce opacity
-      if (chartID === objID && (field === customXLabel || field === groupBy) && d !== value) {
+      if (chartID === objID && (field === customXLabel || field === groupByValue) && d !== value) {
         return { lineDash: [3, 3], opacity: 0.3 };
       }
 
@@ -58,7 +75,7 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
     },
     meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
     point: { visible: true },
-    seriesField: groupBy,
+    seriesField: groupByValue,
     smooth: true,
     xField: xValue,
     xAxis: {
@@ -94,10 +111,11 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
   // Add click events
   if (relations[chartID]) {
     chartConfig.events = {
-      onLineClick: ({ data }) => (groupBy ? interactiveClick(chartID, groupBy, data[0][groupBy]) : null),
+      onLineClick: ({ data }) =>
+        groupByValue ? interactiveClick(chartID, groupByValue, data[0][groupByValue]) : null,
       onPointClick: ({ data }) =>
-        groupBy
-          ? interactiveClick(chartID, groupBy, data[groupBy])
+        groupByValue
+          ? interactiveClick(chartID, groupByValue, data[groupByValue])
           : interactiveClick(chartID, customXLabel, data[xValue]),
     };
   }

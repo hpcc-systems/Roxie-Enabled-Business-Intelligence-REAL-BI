@@ -28,7 +28,7 @@ const ChartComp = ({
   interactiveClick,
   interactiveObj = {},
 }) => {
-  const { dataset, ecl = {}, groupBy, horizontal, stacked, isStatic = false, type } = config;
+  const { dataset, ecl = {}, groupBy = {}, horizontal, stacked, isStatic = false, type } = config;
   const { progress } = useStyles();
   let { relations = {} } = useSelector(state => state.dashboard.dashboard);
   let chartData = [];
@@ -51,9 +51,9 @@ const ChartComp = ({
       // Confirm chart type
       if (chartType === 'bar') {
         if (horizontal) {
-          chartType = stacked ? 'bar-stacked' : groupBy ? 'bar-group' : 'bar';
+          chartType = stacked ? 'bar-stacked' : groupBy.value ? 'bar-group' : 'bar';
         } else {
-          chartType = stacked ? 'column-stacked' : groupBy ? 'column-group' : 'column';
+          chartType = stacked ? 'column-stacked' : groupBy.value ? 'column-group' : 'column';
         }
       }
     }

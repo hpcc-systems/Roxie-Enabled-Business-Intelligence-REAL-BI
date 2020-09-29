@@ -7,3 +7,5 @@ export const sourceOptions = ['ecl', 'file', 'query'];
 export const directoryObjNameRegexp = new RegExp(/^[a-zA-Z].{1,}$/);
 
 export const chartFillColor = '#333';
+
+export const dataTypes = ['date', 'number', 'string'];

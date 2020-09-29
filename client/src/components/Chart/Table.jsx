@@ -14,7 +14,7 @@ import {
 import classnames from 'classnames';
 
 // Utils
-import { sortArr, thousandsSeparator } from '../../utils/misc';
+import { sortArr } from '../../utils/misc';
 
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
@@ -23,10 +23,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) => {
-  const { fields, checkboxValueField } = config;
+  const { fields } = config;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(checkboxValueField);
+  const [orderBy, setOrderBy] = useState(fields[0]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const { activeCell, columnHeader, tableCell } = useStyles();
@@ -100,9 +100,7 @@ const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) 
                         })}
                         onClick={() => interactiveClick(chartID, field, row[field])}
                       >
-                        {!isNaN(Number(row[field])) && !field.includes('date')
-                          ? thousandsSeparator(Number(row[field]))
-                          : row[field]}
+                        {row[field]}
                       </TableCell>
                     );
                   })}

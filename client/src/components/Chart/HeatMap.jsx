@@ -25,7 +25,7 @@ const HeatMapComp = ({ data, config }) => {
     return null;
   }
 
-  // Convert necessary values to numbers
+  // Convert necessary values to strings
   data = data.map(row => ({
     ...row,
     [xValue]: String(row[xValue]),
