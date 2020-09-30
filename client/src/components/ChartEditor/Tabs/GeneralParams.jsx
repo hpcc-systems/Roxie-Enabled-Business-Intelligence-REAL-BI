@@ -16,7 +16,7 @@ import {
 import { getMessage } from '../../../utils/misc';
 
 // Constants
-import { dataTypes } from '../../../constants';
+import { dataTypes, messages } from '../../../constants';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -41,7 +41,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
         <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
-            {chartID && fieldsArr.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
@@ -98,7 +98,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
         <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
-            {chartID && fieldsArr.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>

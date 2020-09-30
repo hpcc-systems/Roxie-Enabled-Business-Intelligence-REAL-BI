@@ -5,6 +5,9 @@ import { CircularProgress, FormControl, Grid, Input, InputLabel, MenuItem, Selec
 // Utils
 import { getMessage } from '../../../utils/misc';
 
+// Constants
+import { messages } from '../../../constants';
+
 const useStyles = makeStyles(theme => ({
   formControl: { margin: `${theme.spacing(1)}px 0` },
   progress: { margin: 0, marginTop: 50 },
@@ -29,7 +32,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
     <Grid item md={12}>
       <FormControl className={formControl} fullWidth>
         <InputLabel>Fields</InputLabel>
-        {chartID && fields.length <= 1 ? (
+        {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
           <Select multiple name='config:fields' value={configFields} input={<Input />} onChange={updateArr}>

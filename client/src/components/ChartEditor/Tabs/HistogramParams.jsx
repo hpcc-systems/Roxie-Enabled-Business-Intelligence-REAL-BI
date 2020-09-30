@@ -11,27 +11,29 @@ import {
   Tooltip,
 } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 // Constants
-import { dataTypes } from '../../../constants';
+import { dataTypes, messages } from '../../../constants';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
 }));
 
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
-
-const HistogramParams = ({ localState, updateAxisKey, handleChangeObj }) => {
+const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, binNumber } = config;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
   const binNumTooltipText = `The number of bins, or buckets, the dataset should be split into.
   For example, specifiying "3" would split the dataset 3 times, resulting in 4 buckets
   of values.`;
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>
@@ -39,11 +41,11 @@ const HistogramParams = ({ localState, updateAxisKey, handleChangeObj }) => {
         <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Bin</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}

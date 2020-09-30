@@ -118,7 +118,10 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
         if (typeof data !== 'object') {
           return handleChange(null, { name: 'error', value: data });
-        } else if (error !== '') {
+        }
+
+        // Clear previous error
+        if (error !== '') {
           handleChange(null, { name: 'error', value: '' });
         }
 
