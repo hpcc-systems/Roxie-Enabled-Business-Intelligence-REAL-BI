@@ -10,15 +10,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NoCharts = () => {
-  const { lastWorkspace } = useSelector(state => state.auth.user);
+  const { lastWorkspace, workspaces } = useSelector(state => state.auth.user);
   const { directory } = useSelector(state => state.workspace.workspace);
   const { header, subheader } = useStyles();
 
-  const subMessage = !lastWorkspace
-    ? 'Choose a workspace to begin...'
-    : !directory || directory.length === 0
-    ? 'Create a dashboard to begin...'
-    : 'Choose a dashboard to begin...';
+  const subMessage =
+    workspaces.length === 0
+      ? "Click on the 'Help' section to access the user guide."
+      : !lastWorkspace
+      ? 'Choose a workspace to begin...'
+      : !directory || directory.length === 0
+      ? 'Create a dashboard to begin...'
+      : 'Choose a dashboard to begin...';
 
   return (
     <Fragment>
