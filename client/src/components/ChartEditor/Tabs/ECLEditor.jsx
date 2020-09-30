@@ -14,7 +14,6 @@ const useStyles = makeStyles(theme => ({
 
 const ECLEditorComp = ({ clusterURL, eclRef }) => {
   const { cluster, script } = eclRef.current;
-
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
   const clusterDropdown = new SelectDropDown();
@@ -29,7 +28,6 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
   const clusterIndex = useRef(0);
   const showLinkToECLWatch = true;
   const showResults = true;
-  const deleteWuAfterRun = false;
   const targetDomId = 'ecleditor';
 
   const { eclWidgetStyle } = useStyles();
@@ -57,17 +55,13 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
           editor.highlightError(start, start + end);
         });
 
-        if (!resultsShown) {
+        if (!resultsShown.current) {
           mainSection.addWidget(wuResults);
           resultsShown.current = true;
         }
       }
-
-      if (deleteWuAfterRun) {
-        workunit.delete();
-      }
     });
-  }, [deleteWuAfterRun, editor, mainSection, workunit, wuResults]);
+  }, [editor, mainSection, workunit, wuResults]);
 
   const getResults = useCallback(() => {
     return workunit.fetchResults().then(() => {
@@ -117,12 +111,8 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
           resultsShown.current = true;
         }
       }
-
-      if (deleteWuAfterRun) {
-        workunit.delete();
-      }
     });
-  }, [clusterURL, deleteWuAfterRun, eclRef, editor, mainSection, showResults, workunit, wuResults]);
+  }, [clusterURL, eclRef, editor, mainSection, showResults, workunit, wuResults]);
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
 
@@ -154,16 +144,6 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
       } else {
         _title.innerText = workunit._espState.Wuid;
       }
-
-      if (deleteWuAfterRun) {
-        const deleteNote = document.createElement('small');
-        deleteNote.innerText = '(deleted)';
-        deleteNote.setAttribute(
-          'style',
-          'font-size: 11px; position: absolute; margin: 5px 10px; font-weight: normal;',
-        );
-        _title.appendChild(deleteNote);
-      }
     }
 
     playButtonElement.current.classList.remove(runBtnClasses.working);
@@ -180,10 +160,6 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
       // WU did not fail
       if (showResults) {
         getResults();
-      } else {
-        if (deleteWuAfterRun) {
-          workunit.delete();
-        }
       }
     } //end if WU is not failed
   }); //end click callback for runButton

@@ -57,7 +57,7 @@ const Dashboard = () => {
   const dataCall = useCallback(() => {
     // Set initial object keys and loading
     charts.forEach(({ id: chartID }) => {
-      setCompData(prevState => ({ ...prevState, [chartID]: {} }));
+      setCompData(prevState => ({ ...prevState, [chartID]: { loading: true } }));
     });
 
     // Fetch data for each chart
