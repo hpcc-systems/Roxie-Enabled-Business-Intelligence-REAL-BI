@@ -9,3 +9,5 @@ export const directoryObjNameRegexp = new RegExp(/^[a-zA-Z].{1,}$/);
 export const chartFillColor = '#333';
 
 export const dataTypes = ['date', 'number', 'string'];
+
+export const messages = ['Choose a dataset', 'Run ECL Script', 'Choose a file'];

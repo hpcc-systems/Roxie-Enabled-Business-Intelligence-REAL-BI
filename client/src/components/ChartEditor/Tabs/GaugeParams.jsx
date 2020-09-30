@@ -14,7 +14,7 @@ import {
 import { getMessage } from '../../../utils/misc';
 
 // Constants
-import { dataTypes } from '../../../constants';
+import { dataTypes, messages } from '../../../constants';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -31,7 +31,6 @@ const GaugeParams = ({ eclRef, localState, updateAxisKey }) => {
 
   const fieldsArr =
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
-  const messages = ['Choose a dataset', 'Run ECL Script', 'Choose a file'];
 
   return (
     <Grid item md={12}>

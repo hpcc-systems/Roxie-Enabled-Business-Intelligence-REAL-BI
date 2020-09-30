@@ -10,24 +10,26 @@ import {
   TextField,
 } from '@material-ui/core';
 
+// Utils
+import { getMessage } from '../../../utils/misc';
+
 // Constants
-import { dataTypes } from '../../../constants';
+import { dataTypes, messages } from '../../../constants';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
 }));
 
-// Changes message based on source type
-const getMsg = sourceType => {
-  return sourceType === 'file' ? 'Choose a file' : 'Choose a dataset';
-};
-
-const DualLineParams = ({ localState, updateAxisKey }) => {
+const DualLineParams = ({ eclRef, localState, updateAxisKey }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, axis2 = {}, axis3 = {} } = config;
-  const { fields = [{ name: getMsg(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>
@@ -35,11 +37,11 @@ const DualLineParams = ({ localState, updateAxisKey }) => {
         <Grid item md={4}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -80,11 +82,11 @@ const DualLineParams = ({ localState, updateAxisKey }) => {
         <Grid item md={6}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis 1</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -112,11 +114,11 @@ const DualLineParams = ({ localState, updateAxisKey }) => {
         <Grid item md={6}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis 2</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis3:value' value={axis3.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}

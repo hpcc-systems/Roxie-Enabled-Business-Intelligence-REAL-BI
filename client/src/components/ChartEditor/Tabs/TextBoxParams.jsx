@@ -5,20 +5,24 @@ import { FormControl, Grid, TextField, CircularProgress, InputLabel, Select } fr
 // Utils
 import { getMessage } from '../../../utils/misc';
 
+// Constants
+import { messages } from '../../../constants';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   textfield: { paddingTop: theme.spacing(0.5) },
 }));
 
-const TextBoxParams = ({ handleChangeObj, localState }) => {
+const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
+  const { schema = [] } = eclRef.current;
   const {
     chartID,
     config: { dataFields, isStatic = false, textBoxContent },
     selectedDataset = {},
     sourceType,
   } = localState;
-  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress, textfield } = useStyles();
 
   const updateArr = ({ target }) => {
@@ -33,6 +37,9 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
 
     handleChangeObj(null, { name, value: arr });
   };
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>
@@ -58,7 +65,7 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
               <InputLabel shrink htmlFor='dataFieldsDropdown'>
                 Data Fields
               </InputLabel>
-              {chartID && fields.length <= 1 ? (
+              {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
                 <CircularProgress className={progress} size={20} />
               ) : (
                 <Select
@@ -69,7 +76,7 @@ const TextBoxParams = ({ handleChangeObj, localState }) => {
                   native
                   inputProps={{ id: 'dataFieldsDropdown' }}
                 >
-                  {fields.map(({ name, value = name }, index) => {
+                  {fieldsArr.map(({ name, value = name }, index) => {
                     return (
                       <option key={index} value={value}>
                         {name}

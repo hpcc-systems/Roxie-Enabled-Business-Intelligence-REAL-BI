@@ -13,16 +13,23 @@ import {
 // Utils
 import { getMessage } from '../../../utils/misc';
 
+// Constants
+import { messages } from '../../../constants';
+
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
 }));
 
-const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
+const HeatMapParams = ({ eclRef, handleChangeObj, localState, updateAxisKey }) => {
+  const { schema = [] } = eclRef.current;
   const { chartID, config, selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, axis2 = {} } = config;
-  const { fields = [{ name: getMessage(sourceType), value: '' }] } = selectedDataset;
+  const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
+
+  const fieldsArr =
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>
@@ -30,11 +37,11 @@ const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
         <Grid item md={8}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -60,11 +67,11 @@ const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
         <Grid item md={8}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}
@@ -90,11 +97,11 @@ const HeatMapParams = ({ handleChangeObj, localState, updateAxisKey }) => {
         <Grid item md={12}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Color Field</InputLabel>
-            {chartID && fields.length <= 1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='config:colorField' value={config.colorField || ''} onChange={handleChangeObj}>
-                {fields.map(({ name, value = name }, index) => {
+                {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>
                       {name}

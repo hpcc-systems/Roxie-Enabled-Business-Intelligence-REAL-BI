@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) => {
-  const { fields } = config;
+  const { fields = [] } = config;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(fields[0]);
