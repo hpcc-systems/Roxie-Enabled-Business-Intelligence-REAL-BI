@@ -64,9 +64,13 @@ yarn-debug.log*
 yarn-error.log*
 
 # SSL Certificates and Keys
+*.cer
+*.der
+*.p7b
 *.cert
 *.crt
 *.key
+*.pem
 
 # Temporary Files
 tmp/
