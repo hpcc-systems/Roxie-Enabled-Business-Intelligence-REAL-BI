@@ -8,8 +8,13 @@ const useStyles = makeStyles({
   subheader: { fontSize: 20, paddingBottom: 20 },
 });
 
-const NoData = ({ err }) => {
+const NoData = ({ err, sourceType }) => {
   const { header, subheader } = useStyles();
+  let defaultSubheaderMsg = 'Check chart config and refresh...';
+
+  if (sourceType === 'ecl') {
+    defaultSubheaderMsg = 'Execute ECL to preview chart...';
+  }
 
   return (
     <Fragment>
@@ -17,7 +22,7 @@ const NoData = ({ err }) => {
         {err ? 'Error received from HPCC cluster' : 'No Data Received'}
       </Typography>
       <Typography variant='h3' align='center' color='inherit' className={subheader}>
-        {err ? err : 'Check chart config and refresh...'}
+        {err ? err : defaultSubheaderMsg}
       </Typography>
     </Fragment>
   );

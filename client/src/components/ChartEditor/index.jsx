@@ -151,7 +151,12 @@ const ChartEditor = props => {
         })()}
       </Grid>
       <Grid item xs={6}>
-        <Chart chart={{ config: newConfig }} dataObj={chartData} eclDataset={eclDataset} />
+        <Chart
+          chart={{ config: newConfig }}
+          dataObj={chartData}
+          sourceType={sourceType}
+          eclDataset={eclDataset}
+        />
       </Grid>
     </Grid>
   );
