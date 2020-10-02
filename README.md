@@ -7,14 +7,12 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 1. Run `git clone https://github.com/hpcc-systems/REAL-BI.git`
 2. Rename the **_.env.example_** file to **_.env_** and fill in the remaining values.
 3. Run `npm install`.
-4. Add cert and key files to `/nginx/certs`.
-5. Update lines #17 and #18 in `/nginx/conf/default.dev.conf` to match file names.
-6. Run `docker-compose up --build -d`.
-7. After all containers are started, run `docker restart realbi_api`.
+4. Run `docker-compose up --build -d`.
+5. After all containers are started, run `docker restart realbi_api`.
    - This is done because the server starts before the database is ready to accept connections even with the api container depending on the db container.
-8. Run `docker exec -it realbi_api sh`.
-9. Run `npx sequelize db:migrate` to build database tables.
-10. If you have any seed files in **_api/src/seeders_**, run `npx sequelize db:seed:all`.
+6. Run `docker exec -it realbi_api sh`.
+7. Run `npx sequelize db:migrate` to build database tables.
+8. If you have any seed files in **_api/src/seeders_**, run `npx sequelize db:seed:all`.
 
 ### Production
 
@@ -23,14 +21,14 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 3. In the **_.env_** file:
    - Change the `NODE_ENV` value to "production".
    - Change the database information to point to your production database.
-4. Complete installation step #4
-5. Update lines #17 and #18 in `/nginx/conf/default.conf` to match file names.
-6. Complete installation steps #6-#10.
+4. Add cert and key files to `/nginx/certs`.
+5. Update lines #17 and #18 in `/nginx/conf.d/realbi.conf.template` to match cert and key file names.
+6. Complete installation steps #4-#8.
 
 ### Notes
 
 - This application relies on:
-  - A running instance of [Auth Service](https://github.com/hpcc-systems/Auth-Service) to handle authentication and JWT generation.
+  - A running instance of [Auth Service](https://github.com/hpcc-systems/Auth-Service) to handle user authentication and JWT generation.
   - An HPCC cluster containing data files.
 - This application uses docker-compose to simultaneously start multiple containers:
   - MySQL Database

@@ -57,11 +57,19 @@ services:
       dockerfile: Dockerfile.dev
       # dockerfile: Dockerfile
     container_name: realbi_nginx
+    entrypoint: [/etc/nginx/run_nginx.sh, '${HOSTNAME}']
+    environment:
+      - EXTERNAL_HTTP_PORT=${EXTERNAL_HTTP_PORT}
+      - EXTERNAL_HTTPS_PORT=${EXTERNAL_HTTPS_PORT}
+      - HOSTNAME=${HOSTNAME}
+      - NODE_PORT=${NODE_PORT}
     networks:
       - realbi_network
     depends_on:
       - client
     ports:
-      - ${EXTERNAL_HTTP_PORT}:80
-      - ${EXTERNAL_HTTPS_PORT}:443
+      - ${EXTERNAL_HTTP_PORT}:${EXTERNAL_HTTP_PORT}
+      - ${EXTERNAL_HTTPS_PORT}:${EXTERNAL_HTTPS_PORT}
     restart: always
+    volumes:
+      - ./nginx/run_nginx.sh:/etc/nginx/run_nginx.sh
