@@ -207,7 +207,19 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
     lbl.innerText = 'Target:';
     lbl.setAttribute('style', 'margin-right: 6px;');
     _dropdown.parentElement.insertBefore(lbl, _dropdown);
-  }, [clusterDropdown, editor, layout, mainSection, runBtnClasses.ready, runButton, targetDomId, titleBar]);
+  }, [
+    clusterDropdown,
+    clusterURL,
+    eclRef,
+    editor,
+    layout,
+    mainSection,
+    runBtnClasses.ready,
+    runButton,
+    showLinkToECLWatch,
+    targetDomId,
+    titleBar,
+  ]);
 
   useEffect(() => {
     if (clusterURL === '') {
