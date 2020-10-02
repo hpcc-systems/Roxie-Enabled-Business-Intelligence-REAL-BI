@@ -6,6 +6,7 @@ import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel, TabPanel } from '@hpcc-js/phosphor';
+import { debounce } from 'lodash';
 import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
@@ -132,6 +133,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
     await workunit.watchUntilComplete();
 
     if (workunit && workunit._espState.Wuid) {
+      eclRef.current.workunitID = workunit._espState.Wuid;
       const _title = document.querySelector(`#${targetDomId} header .title-text`);
       _title.innerHTML = '';
 
@@ -182,8 +184,29 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
       playButtonElement.current.style['margin-top'] = '2px';
       playButtonElement.current.innerText = runBtnClasses.ready;
       playButtonElement.current.className += ' material-icons';
+
+      editor._codemirror.doc.on(
+        'change',
+        debounce(() => {
+          eclRef.current.script = editor.ecl();
+        }, 500),
+      );
+
+      if (eclRef.current.workunitID) {
+        const _title = document.querySelector(`#${targetDomId} header .title-text`);
+        if (showLinkToECLWatch) {
+          const link = document.createElement('a');
+          link.href = `${clusterURL}?Wuid=${eclRef.current.workunitID}&Widget=WUDetailsWidget`;
+          link.target = '_blank';
+          link.innerText = eclRef.current.workunitID;
+          _title.appendChild(link);
+        } else {
+          _title.innerText = eclRef.current.workunitID;
+        }
+      }
+
       window.clearTimeout(t);
-    }, 100);
+    }, 300);
 
     const _dropdown = document.querySelector(`#${clusterDropdown._id}`);
     const lbl = document.createElement('label');
@@ -194,7 +217,19 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
     lbl.innerText = 'Target:';
     lbl.setAttribute('style', 'margin-right: 6px;');
     _dropdown.parentElement.insertBefore(lbl, _dropdown);
-  }, [clusterDropdown, editor, layout, mainSection, runBtnClasses.ready, runButton, targetDomId, titleBar]);
+  }, [
+    clusterDropdown,
+    clusterURL,
+    eclRef,
+    editor,
+    layout,
+    mainSection,
+    runBtnClasses.ready,
+    runButton,
+    showLinkToECLWatch,
+    targetDomId,
+    titleBar,
+  ]);
 
   useEffect(() => {
     if (clusterURL === '') {
