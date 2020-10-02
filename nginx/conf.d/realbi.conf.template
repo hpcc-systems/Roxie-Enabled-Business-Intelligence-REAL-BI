@@ -19,8 +19,8 @@ server {
 
   server_name $HOSTNAME;
 
-  ssl_certificate /etc/nginx/certs/realbi.hsl.noam.lnrm.net.pem;
-  ssl_certificate_key /etc/nginx/certs/realbi.hsl.noam.lnrm.net.key;
+  ssl_certificate /etc/nginx/certs/realbi.pem;
+  ssl_certificate_key /etc/nginx/certs/realbi.key;
 
   add_header Strict-Transport-Security "max-age=31536000;" always;
   add_header X-XSS-Protection "1; mode=block";

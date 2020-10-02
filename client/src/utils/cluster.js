@@ -1,14 +1,15 @@
 import axios from 'axios';
 
 export const getECLParams = async (clusterID, Wuid) => {
-  let params = [];
+  let response;
 
   try {
     // Make call to get info for variables defined in ecl script
-    params = await axios.post('/api/cluster/params', { clusterID, Wuid });
+    response = await axios.post('/api/cluster/params', { clusterID, Wuid });
   } catch (err) {
     console.error(err.response);
+    return [];
   }
 
-  return params;
+  return response.data;
 };

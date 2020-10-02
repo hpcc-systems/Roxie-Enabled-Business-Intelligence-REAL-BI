@@ -5,8 +5,9 @@ import { ECLEditor } from '@hpcc-js/codemirror';
 import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
-import { SplitPanel, TabPanel } from '@hpcc-js/phosphor';
+import { SplitPanel } from '@hpcc-js/phosphor';
 import { debounce } from 'lodash';
+
 // Utils
 import { getECLParams } from '../../../utils/cluster';
 
@@ -20,43 +21,38 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
   const titleBar = new TitleBar();
   const clusterDropdown = new SelectDropDown();
   const runButton = new Button();
-  const wuResults = new TabPanel();
   const mainSection = new SplitPanel('vertical');
   const layout = new Border2();
   const runBtnClasses = { ready: 'play_circle_outline', working: 'hourglass_empty' };
   const targetCluster = useRef(null);
   const playButtonElement = useRef(null);
-  const resultsShown = useRef(false);
   const clusterIndex = useRef(0);
-  const showResults = true;
   const targetDomId = 'ecleditor';
 
   const { eclWidgetStyle } = useStyles();
-
   let workunit;
 
-  if (script && script !== '') {
-    editor.ecl(script);
-  }
+  const displayWorkunitID = useCallback(
+    workunitID => {
+      const link = document.createElement('a');
+      link.href = `${clusterURL}?Wuid=${workunitID}&Widget=WUDetailsWidget`;
+      link.target = '_blank';
+      link.innerText = workunitID;
 
-  const displayWorkunitID = workunitID => {
-    const link = document.createElement('a');
-    link.href = `${clusterURL}?Wuid=${workunitID}&Widget=WUDetailsWidget`;
-    link.target = '_blank';
-    link.innerText = workunitID;
+      const _title = document.querySelector(`#ecleditor header .title-text`);
+      _title.innerHTML = '';
+      _title.appendChild(link);
+    },
+    [clusterURL],
+  );
 
-    const _title = document.querySelector(`#${targetDomId} header .title-text`);
-    _title.innerHTML = '';
-    _title.appendChild(link);
-  };
-
-  const resetPlayButton = () => {
+  const resetPlayButton = useCallback(() => {
     playButtonElement.current.classList.remove(runBtnClasses.working);
     playButtonElement.current.classList.add(runBtnClasses.ready);
     playButtonElement.current.innerText = runBtnClasses.ready;
     playButtonElement.current.setAttribute('title', 'Submit');
     runButton.disabled = false;
-  };
+  }, [runBtnClasses, runButton]);
 
   const displayErrors = useCallback(() => {
     workunit.fetchECLExceptions().then(errors => {
@@ -77,16 +73,11 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
           editor.highlightError(start, start + end);
         });
 
-        if (!resultsShown.current) {
-          mainSection.addWidget(wuResults);
-          resultsShown.current = true;
-        }
-
         displayWorkunitID(_espState.Wuid);
         resetPlayButton();
       }
     });
-  }, [displayWorkunitID, editor, mainSection, resetPlayButton, workunit, wuResults]);
+  }, [displayWorkunitID, editor, resetPlayButton, workunit]);
 
   const getResults = useCallback(() => {
     return workunit.fetchResults().then(() => {
@@ -119,10 +110,11 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
         // Update ref
         eclRef.current = eclConfig;
 
-        displayWorkunitID();
+        displayWorkunitID(Wuid);
+        resetPlayButton();
       });
     });
-  }, [clusterID, displayWorkunitID, eclRef, editor, workunit]);
+  }, [clusterID, displayWorkunitID, eclRef, editor, resetPlayButton, workunit]);
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
 
@@ -150,12 +142,9 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     if (workunit.isFailed()) {
       displayErrors();
     } else {
-      // WU did not fail
-      if (showResults) {
-        getResults();
-      }
-    } //end if WU is not failed
-  }); //end click callback for runButton
+      getResults();
+    }
+  });
 
   const addComponentsToWidget = useCallback(() => {
     mainSection.addWidget(editor);
@@ -201,12 +190,12 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     _dropdown.parentElement.insertBefore(lbl, _dropdown);
   }, [
     clusterDropdown,
-    clusterURL,
+    displayWorkunitID,
     eclRef,
     editor,
     layout,
     mainSection,
-    runBtnClasses.ready,
+    runBtnClasses,
     runButton,
     targetDomId,
     titleBar,
@@ -216,6 +205,10 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     if (clusterURL === '') {
       console.error('ECLWidget Error: Provide a valid "clusterURL" in the options object');
       return;
+    }
+
+    if (script && script !== '') {
+      editor.ecl(script);
     }
 
     (async () => {
@@ -238,7 +231,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
 
       addComponentsToWidget();
     })();
-  }, [addComponentsToWidget, cluster, clusterDropdown, clusterURL]);
+  }, [addComponentsToWidget, cluster, clusterDropdown, clusterURL, editor, script]);
 
   return <div id={targetDomId} className={eclWidgetStyle}></div>;
 };
