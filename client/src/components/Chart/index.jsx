@@ -36,6 +36,7 @@ const ChartComp = ({
   eclDataset = '',
   interactiveClick,
   interactiveObj = {},
+  sourceType,
 }) => {
   const { dataset, ecl = {}, groupBy = {}, horizontal, stacked, isStatic = false, type } = config;
   const { progress, typography, warningMsg } = useStyles();
@@ -229,7 +230,7 @@ const ChartComp = ({
       );
     })()
   ) : (
-    <NoData err={err} />
+    <NoData sourceType={sourceType} err={err} />
   );
 };
 
