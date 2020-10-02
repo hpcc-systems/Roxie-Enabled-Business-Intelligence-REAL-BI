@@ -76,7 +76,6 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
     meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
     point: { visible: true },
     seriesField: groupByValue,
-    smooth: true,
     xField: xValue,
     xAxis: {
       label: {

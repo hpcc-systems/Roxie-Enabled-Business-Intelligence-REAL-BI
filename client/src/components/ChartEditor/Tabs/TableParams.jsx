@@ -26,7 +26,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
   };
 
   const fieldsArr =
-    schema.length > 0 ? schema : !fields ? [{ name: getMessage(sourceType), value: '' }] : fields;
+    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
     <Grid item md={12}>

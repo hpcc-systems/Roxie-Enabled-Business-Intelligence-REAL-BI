@@ -1,4 +1,5 @@
 const axios = require('axios');
+const https = require('https');
 const parseStringPromise = require('xml2js').parseStringPromise;
 
 // DB Models
@@ -21,6 +22,9 @@ const {
 const { DEFAULT_ROW_COUNT_RETURN } = process.env;
 
 const logger = require('../config/logger');
+
+// Create axios instance that allows self-signed certificates
+const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 
 const getClusterByID = async id => {
   let [err, cluster] = await awaitHandler(clusterModel.findOne({ where: { id } }));
@@ -54,7 +58,7 @@ const getQueryDataFromCluster = async ({ id: clusterID, host, dataPort }, { para
   // Log API request
   logger.info(`Request made to ${url}`);
 
-  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -75,7 +79,7 @@ const getQueryDatasetsFromCluster = async ({ id: clusterID, host, dataPort }, { 
   // Log API request
   logger.info(`Request made to ${url}`);
 
-  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -104,7 +108,7 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
   logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(
-    axios.post(url, { DFUQueryRequest: { LogicalName: `*${keyword}*` } }, { auth: clusterAuth }),
+    instance.post(url, { DFUQueryRequest: { LogicalName: `*${keyword}*` } }, { auth: clusterAuth }),
   );
 
   // Return error
@@ -145,7 +149,7 @@ const getQueryListFromCluster = async ({ id: clusterID, host, infoPort }, keywor
   // Log API request
   logger.info(`Request made to ${url}`);
 
-  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.get(url, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -183,7 +187,7 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
   logger.info(`Request made to ${url}`);
 
   let [err, response] = await awaitHandler(
-    axios.post(url, { DFUGetFileMetaDataRequest: { LogicalFileName: filename } }, { auth: clusterAuth }),
+    instance.post(url, { DFUGetFileMetaDataRequest: { LogicalFileName: filename } }, { auth: clusterAuth }),
   );
 
   // Return error
@@ -192,7 +196,7 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
   // Check for exception
   if ('Exceptions' in response.data) {
     const { Code, Message } = response.data['Exceptions']['Exception'][0];
-    throw `${Code} -> ${Message}`;
+    throw { response: { message: `${Code} -> ${Message}` } };
   }
 
   // Update variable to nested depth
@@ -224,13 +228,13 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
   const { Count, formattedParams, Start } = createFileParams(params);
 
-  let requestBody = { LogicalName: filename, FilterBy: { NamedValue: formattedParams }, Start, Count };
+  const requestBody = { LogicalName: filename, FilterBy: { NamedValue: formattedParams }, Start, Count };
 
   // Log API request
   logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
 
   let [err, response] = await awaitHandler(
-    axios.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
+    instance.post(url, { WUResultRequest: requestBody }, { auth: clusterAuth }),
   );
 
   // Return error
@@ -239,7 +243,7 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   // Check for exception
   if ('Exceptions' in response.data) {
     const { Code, Message } = response.data['Exceptions']['Exception'][0];
-    throw `${Code} -> ${Message}`;
+    throw { response: { message: `${Code} -> ${Message}` } };
   }
 
   // Update variable to nested depth
@@ -268,7 +272,7 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
   // Log API request
   logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
 
-  let [err, response] = await awaitHandler(axios.post(url, requestBody, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.post(url, requestBody, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -276,7 +280,7 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
   // Check for exception
   if ('Exceptions' in response.data) {
     const { Code, Message } = response.data['Exceptions']['Exception'][0];
-    throw `${Code} -> ${Message}`;
+    throw { response: { message: `${Code} -> ${Message}` } };
   }
 
   // Update variable to nested depth
@@ -313,7 +317,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
   // Log API request
   logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
 
-  let [err, response] = await awaitHandler(axios.post(url, requestBody, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.post(url, requestBody, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -321,7 +325,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
   // Check for exception
   if ('Exceptions' in response.data) {
     const { Code, Message } = response.data['Exceptions']['Exception'][0];
-    throw `${Code} -> ${Message}`;
+    throw { response: { message: `${Code} -> ${Message}` } };
   }
 
   // Parse XML response to JSON
@@ -360,7 +364,7 @@ const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { na
   // Log API request
   logger.info(`Request made to ${url}`);
 
-  let [err, response] = await awaitHandler(axios.get(url, { auth: clusterAuth }));
+  let [err, response] = await awaitHandler(instance.get(url, { auth: clusterAuth }, { auth: clusterAuth }));
 
   // Return error
   if (err) throw err;
@@ -386,10 +390,42 @@ const createCluster = async clusterObj => {
   return newCluster;
 };
 
+const getECLParams = async (cluster, Wuid, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const clusterAuth = await getClusterAuth(clusterID, userID);
+
+  const url = `${host}:${infoPort}/WsWorkunits/WUInfo.json`;
+  const requestBody = { WUInfoRequest: { Wuid } };
+
+  // Log API request
+  logger.info(`Request made to ${url} with body '${JSON.stringify(requestBody)}'`);
+
+  let [err, response] = await awaitHandler(instance.post(url, requestBody, { auth: clusterAuth }));
+
+  // Return error
+  if (err) throw err;
+
+  // Check for exception
+  if ('Exceptions' in response.data) {
+    const { Code, Message } = response.data['Exceptions']['Exception'][0];
+    throw { response: { message: `${Code} -> ${Message}` } };
+  }
+
+  const variables = response.data.WUInfoResponse.Workunit.Variables;
+  let params = [];
+
+  if (variables) {
+    params = variables.ECLResult.map(({ Name }) => ({ name: Name, type: '', value: null }));
+  }
+
+  return params;
+};
+
 module.exports = {
   createCluster,
   getClusterByID,
   getClusters,
+  getECLParams,
   getFileMetaDataFromCluster,
   getFileDataFromCluster,
   getQueryDataFromCluster,
