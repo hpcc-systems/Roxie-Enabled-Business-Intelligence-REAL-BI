@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
 
 const ChartEditor = props => {
   const { dashboard, eclRef, handleChange, localState } = props;
-  const { clusterHost, clusterPort } = dashboard;
+  const { clusterHost, clusterID, clusterPort } = dashboard;
   const { chartID, config, dataObj, dataset, error, sourceType } = localState;
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
   let { isStatic, type } = config;
@@ -138,7 +138,7 @@ const ChartEditor = props => {
 
           switch (tabNum) {
             case 0:
-              return <ECLEditor clusterURL={clusterURL} eclRef={eclRef} />;
+              return <ECLEditor clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
             case 1:
               return <General {...props} updateAxisKey={updateAxisKey} />;
             case 2:

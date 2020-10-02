@@ -6,13 +6,15 @@ import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel, TabPanel } from '@hpcc-js/phosphor';
-import axios from 'axios';
+
+// Utils
+import { getECLParams } from '../../../utils/cluster';
 
 const useStyles = makeStyles(theme => ({
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
 }));
 
-const ECLEditorComp = ({ clusterURL, eclRef }) => {
+const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -26,7 +28,6 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
   const playButtonElement = useRef(null);
   const resultsShown = useRef(false);
   const clusterIndex = useRef(0);
-  const showLinkToECLWatch = true;
   const showResults = true;
   const targetDomId = 'ecleditor';
 
@@ -37,6 +38,23 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
   if (script && script !== '') {
     editor.ecl(script);
   }
+
+  const displayWorkunitID = useCallback(() => {
+    const link = document.createElement('a');
+    link.href = `${clusterURL}?Wuid=${workunit._espState.Wuid}&Widget=WUDetailsWidget`;
+    link.target = '_blank';
+    link.innerText = workunit._espState.Wuid;
+
+    const _title = document.querySelector(`#${targetDomId} header .title-text`);
+    _title.innerHTML = '';
+    _title.appendChild(link);
+
+    playButtonElement.current.classList.remove(runBtnClasses.working);
+    playButtonElement.current.classList.add(runBtnClasses.ready);
+    playButtonElement.current.innerText = runBtnClasses.ready;
+    playButtonElement.current.setAttribute('title', 'Submit');
+    runButton.disabled = false;
+  }, [clusterURL, runButton, runBtnClasses, targetDomId, workunit]);
 
   const displayErrors = useCallback(() => {
     workunit.fetchECLExceptions().then(errors => {
@@ -59,9 +77,11 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
           mainSection.addWidget(wuResults);
           resultsShown.current = true;
         }
+
+        displayWorkunitID();
       }
     });
-  }, [editor, mainSection, workunit, wuResults]);
+  }, [displayWorkunitID, editor, mainSection, workunit, wuResults]);
 
   const getResults = useCallback(() => {
     return workunit.fetchResults().then(() => {
@@ -70,18 +90,7 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
 
       _result.fetchRows().then(async response => {
         const { Count, ECLSchemas, ResultName, Wuid } = _result._espState;
-        const url = `${clusterURL}/WsWorkunits/WUInfo.json`;
-
-        // Make call to get info for variables defined in ecl script
-        const paramsResp = await axios.post(url, { WUInfoRequest: { Wuid } });
-        let params = [];
-
-        // If there is a data object
-        if (paramsResp.data && paramsResp.data.WUInfoResponse.Workunit.Variables) {
-          paramsResp.data.WUInfoResponse.Workunit.Variables.ECLResult.forEach(({ Name }) => {
-            params.push({ name: Name, type: '', value: null });
-          });
-        }
+        const params = await getECLParams(clusterID, Wuid);
 
         // Get script schema and format
         const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
@@ -103,16 +112,11 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
 
         // Update ref
         eclRef.current = eclConfig;
-      });
 
-      if (showResults) {
-        if (!resultsShown) {
-          mainSection.addWidget(wuResults);
-          resultsShown.current = true;
-        }
-      }
+        displayWorkunitID();
+      });
     });
-  }, [clusterURL, eclRef, editor, mainSection, showResults, workunit, wuResults]);
+  }, [clusterID, displayWorkunitID, eclRef, editor, workunit]);
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
 
@@ -130,27 +134,6 @@ const ECLEditorComp = ({ clusterURL, eclRef }) => {
 
     // Watch workunit until it completes
     await workunit.watchUntilComplete();
-
-    if (workunit && workunit._espState.Wuid) {
-      const _title = document.querySelector(`#${targetDomId} header .title-text`);
-      _title.innerHTML = '';
-
-      if (showLinkToECLWatch) {
-        const link = document.createElement('a');
-        link.href = `${clusterURL}?Wuid=${workunit._espState.Wuid}&Widget=WUDetailsWidget`;
-        link.target = '_blank';
-        link.innerText = workunit._espState.Wuid;
-        _title.appendChild(link);
-      } else {
-        _title.innerText = workunit._espState.Wuid;
-      }
-    }
-
-    playButtonElement.current.classList.remove(runBtnClasses.working);
-    playButtonElement.current.classList.add(runBtnClasses.ready);
-    playButtonElement.current.innerText = runBtnClasses.ready;
-    playButtonElement.current.setAttribute('title', 'Submit');
-    runButton.disabled = false;
 
     editor.removeAllHighlight();
 
