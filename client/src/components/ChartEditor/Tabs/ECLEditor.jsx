@@ -6,7 +6,7 @@ import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel, TabPanel } from '@hpcc-js/phosphor';
-
+import { debounce } from 'lodash';
 // Utils
 import { getECLParams } from '../../../utils/cluster';
 
@@ -39,26 +39,30 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     editor.ecl(script);
   }
 
-  const displayWorkunitID = useCallback(() => {
+  const displayWorkunitID = workunitID => {
     const link = document.createElement('a');
-    link.href = `${clusterURL}?Wuid=${workunit._espState.Wuid}&Widget=WUDetailsWidget`;
+    link.href = `${clusterURL}?Wuid=${workunitID}&Widget=WUDetailsWidget`;
     link.target = '_blank';
-    link.innerText = workunit._espState.Wuid;
+    link.innerText = workunitID;
 
     const _title = document.querySelector(`#${targetDomId} header .title-text`);
     _title.innerHTML = '';
     _title.appendChild(link);
+  };
 
+  const resetPlayButton = () => {
     playButtonElement.current.classList.remove(runBtnClasses.working);
     playButtonElement.current.classList.add(runBtnClasses.ready);
     playButtonElement.current.innerText = runBtnClasses.ready;
     playButtonElement.current.setAttribute('title', 'Submit');
     runButton.disabled = false;
-  }, [clusterURL, runButton, runBtnClasses, targetDomId, workunit]);
+  };
 
   const displayErrors = useCallback(() => {
     workunit.fetchECLExceptions().then(errors => {
-      if (workunit.ErrorCount > 0) {
+      const { _espState, ErrorCount = 0 } = workunit;
+
+      if (ErrorCount > 0) {
         errors.forEach(({ LineNo }) => {
           const lineError = LineNo;
           const lineErrorNum = lineError > 0 ? lineError - 1 : 0;
@@ -78,15 +82,17 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
           resultsShown.current = true;
         }
 
-        displayWorkunitID();
+        displayWorkunitID(_espState.Wuid);
+        resetPlayButton();
       }
     });
-  }, [displayWorkunitID, editor, mainSection, workunit, wuResults]);
+  }, [displayWorkunitID, editor, mainSection, resetPlayButton, workunit, wuResults]);
 
   const getResults = useCallback(() => {
     return workunit.fetchResults().then(() => {
-      const outputCount = workunit.CResults.length > 0 ? workunit.CResults.length : 1;
-      const _result = workunit.CResults[outputCount - 1];
+      const { CResults = 0 } = workunit;
+      const outputCount = CResults.length > 0 ? CResults.length : 1;
+      const _result = CResults[outputCount - 1];
 
       _result.fetchRows().then(async response => {
         const { Count, ECLSchemas, ResultName, Wuid } = _result._espState;
@@ -135,6 +141,10 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     // Watch workunit until it completes
     await workunit.watchUntilComplete();
 
+    if (workunit && workunit._espState.Wuid) {
+      eclRef.current.workunitID = workunit._espState.Wuid;
+    }
+
     editor.removeAllHighlight();
 
     if (workunit.isFailed()) {
@@ -165,8 +175,20 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
       playButtonElement.current.style['margin-top'] = '2px';
       playButtonElement.current.innerText = runBtnClasses.ready;
       playButtonElement.current.className += ' material-icons';
+
+      editor._codemirror.doc.on(
+        'change',
+        debounce(() => {
+          eclRef.current.script = editor.ecl();
+        }, 500),
+      );
+
+      if (eclRef.current.workunitID) {
+        displayWorkunitID(eclRef.current.workunitID);
+      }
+
       window.clearTimeout(t);
-    }, 100);
+    }, 300);
 
     const _dropdown = document.querySelector(`#${clusterDropdown._id}`);
     const lbl = document.createElement('label');
@@ -177,7 +199,18 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
     lbl.innerText = 'Target:';
     lbl.setAttribute('style', 'margin-right: 6px;');
     _dropdown.parentElement.insertBefore(lbl, _dropdown);
-  }, [clusterDropdown, editor, layout, mainSection, runBtnClasses.ready, runButton, targetDomId, titleBar]);
+  }, [
+    clusterDropdown,
+    clusterURL,
+    eclRef,
+    editor,
+    layout,
+    mainSection,
+    runBtnClasses.ready,
+    runButton,
+    targetDomId,
+    titleBar,
+  ]);
 
   useEffect(() => {
     if (clusterURL === '') {
