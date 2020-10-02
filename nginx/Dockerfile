@@ -8,5 +8,5 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 COPY certs/ /etc/nginx/certs
 
-ENV HOSTNAME ${HOSTNAME}
-ENV NODE_PORT ${NODE_PORT}
+COPY run_nginx.sh /etc/nginx/run_nginx.sh
+RUN ["chmod", "+x", "/etc/nginx/run_nginx.sh"]

@@ -9,7 +9,7 @@ upstream api {
 server {
     listen $EXTERNAL_HTTP_PORT;
 
-    server_name $HOSTNAME;
+    server_name $HOST_HOSTNAME;
 
     return 301 https://${DOLLAR}host${DOLLAR}request_uri;
 }
@@ -17,7 +17,7 @@ server {
 server {
   listen $EXTERNAL_HTTPS_PORT ssl;
 
-  server_name $HOSTNAME;
+  server_name $HOST_HOSTNAME;
 
   ssl_certificate /etc/nginx/certs/realbi.pem;
   ssl_certificate_key /etc/nginx/certs/realbi.key;
