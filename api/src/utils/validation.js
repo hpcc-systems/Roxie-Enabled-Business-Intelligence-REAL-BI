@@ -54,6 +54,39 @@ const validateRegistration = () => {
   ];
 };
 
+const validateForgotPassword = () => {
+  return [
+    body('username')
+      .exists({ checkFalsy: true })
+      .trim()
+      .escape()
+      .withMessage('Field Required'),
+  ];
+};
+
+const validateResetPassword = () => {
+  return [
+    body('id')
+      .isUUID(4)
+      .withMessage('Invalid Request'),
+    body('password')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('confirmPassword')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('confirmPassword').custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords Do Not Match');
+      }
+
+      return true;
+    }),
+  ];
+};
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -71,4 +104,10 @@ const validate = (req, res, next) => {
   return res.status(400).json({ errors: extractedErrors });
 };
 
-module.exports = { validate, validateLogin, validateRegistration };
+module.exports = {
+  validate,
+  validateForgotPassword,
+  validateLogin,
+  validateRegistration,
+  validateResetPassword,
+};

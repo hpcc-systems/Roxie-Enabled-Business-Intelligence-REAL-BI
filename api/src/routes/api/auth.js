@@ -4,13 +4,19 @@ const jwtDecode = require('jwt-decode');
 const logger = require('../../config/logger');
 const errHandler = require('../../utils/errHandler');
 
-const { AUTH_APP_ID, AUTH_PORT, AUTH_URL } = process.env;
+const { AUTH_APP_ID, AUTH_PORT, AUTH_URL, EXTERNAL_HTTP_PORT, HOST_HOSTNAME, NODE_ENV } = process.env;
 
 // Utils
 const { getUserByID } = require('../../utils/auth');
 const { createUser } = require('../../utils/user');
 const { getWorkspaces } = require('../../utils/workspace');
-const { validate, validateLogin, validateRegistration } = require('../../utils/validation');
+const {
+  validate,
+  validateLogin,
+  validateRegistration,
+  validateForgotPassword,
+  validateResetPassword,
+} = require('../../utils/validation');
 
 router.post('/login', [validateLogin(), validate], async (req, res) => {
   const { username, password } = req.body;
@@ -82,7 +88,15 @@ router.post('/register', [validateRegistration(), validate], async (req, res) =>
   };
 
   // Log API request
-  logger.info(`Request made to ${reqURL} with body '${JSON.stringify(reqBody)}'`);
+  logger.info(
+    `Request made to ${reqURL} with body '${JSON.stringify({
+      ...reqBody,
+      confirmpassword: '--REDACTED--',
+      email: '--REDACTED--',
+      password: '--REDACTED--',
+      username: '--REDACTED--',
+    })}'`,
+  );
 
   try {
     response = await axios.post(reqURL, reqBody);
@@ -95,6 +109,59 @@ router.post('/register', [validateRegistration(), validate], async (req, res) =>
   // Auth Service will send a 201 if it creates a new user account or a 202 if it modifies an existing account to grant permission to Real BI
   // Handle notification to user on the client side
   res.status(response.status).end();
+});
+
+router.post('/forgot-password', [validateForgotPassword(), validate], async (req, res) => {
+  const { username } = req.body;
+  const resetUrl =
+    NODE_ENV === 'production'
+      ? `https://${HOST_HOSTNAME}/reset-password`
+      : `http://${HOST_HOSTNAME}:${EXTERNAL_HTTP_PORT}/reset-password`;
+  let response;
+
+  // Create axios request objects
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/forgotPassword`;
+  const reqBody = {
+    applicationId: AUTH_APP_ID,
+    username,
+    resetUrl,
+  };
+
+  // Log API request
+  logger.info(`Request made to ${reqURL} with body '${JSON.stringify(reqBody)}'`);
+
+  try {
+    response = await axios.post(reqURL, reqBody);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  res.status(200).send(response.data);
+});
+
+router.post('/reset-password', [validateResetPassword(), validate], async (req, res) => {
+  const { id, password } = req.body;
+
+  // Create axios request objects
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/resetPassword`;
+  const reqBody = { id, password };
+
+  // Log API request
+  logger.info(
+    `Request made to ${reqURL} with body '${JSON.stringify({ ...reqBody, password: '--REDACTED--' })}'`,
+  );
+
+  try {
+    await axios.post(reqURL, reqBody);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  res.status(202).end();
 });
 
 module.exports = router;
