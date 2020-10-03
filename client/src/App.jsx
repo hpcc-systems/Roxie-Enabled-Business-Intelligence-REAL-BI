@@ -13,6 +13,8 @@ import Login from './components/Login';
 import Workspace from './components/Workspace';
 import ChangePwd from './components/ChangePwd';
 import Register from './components/Register';
+import ForgotPwd from './components/ForgotPwd';
+import ResetPwd from './components/ResetPwd';
 
 // Utils
 import { checkForToken } from './utils/auth';
@@ -56,6 +58,8 @@ const App = () => {
               <Route exact path='/' component={Login} />
               <Route exact path='/login' component={Login} />
               <Route exact path='/register' component={Register} />
+              <Route exact path='/forgot-password' component={ForgotPwd} />
+              <Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
               <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
               <PrivateRoute exact path='/changepwd' component={ChangePwd} />
             </Switch>

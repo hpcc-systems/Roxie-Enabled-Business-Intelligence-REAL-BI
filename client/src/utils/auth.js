@@ -68,3 +68,56 @@ export const registerUser = async stateObj => {
 
   return response.status;
 };
+
+export const forgotPassword = async stateObj => {
+  let response;
+
+  try {
+    response = await axios.post('/api/auth/forgot-password', { ...stateObj });
+  } catch (err) {
+    const { data } = err.response;
+    let error;
+
+    if (!data.errors) {
+      if (typeof data === 'object') {
+        error = [{ msg: JSON.stringify(data) }];
+        throw error;
+      }
+
+      error = [{ msg: data }];
+      throw error;
+    }
+
+    throw data.errors;
+  }
+
+  // Get UUID from reset url
+  const url = response.data.resetUrl;
+  const uuidIndex = url.lastIndexOf('/') + 1;
+  const uuid = url.substring(uuidIndex, url.length);
+
+  return uuid;
+};
+
+export const resetPassword = async stateObj => {
+  try {
+    await axios.post('/api/auth/reset-password', { ...stateObj });
+  } catch (err) {
+    const { data } = err.response;
+    let error;
+
+    if (!data.errors) {
+      if (typeof data === 'object') {
+        error = [{ msg: JSON.stringify(data) }];
+        throw error;
+      }
+
+      error = [{ msg: data }];
+      throw error;
+    }
+
+    throw data.errors;
+  }
+
+  return;
+};

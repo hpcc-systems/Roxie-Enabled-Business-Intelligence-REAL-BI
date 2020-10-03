@@ -191,7 +191,7 @@ const Login = () => {
                 <CardActions className={actions}>
                   <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
                     <Grid item>
-                      <Link className={options} onClick={() => console.log('Option not available')}>
+                      <Link className={options} onClick={() => history.push('/forgot-password')}>
                         Forgot password?
                       </Link>
                     </Grid>
