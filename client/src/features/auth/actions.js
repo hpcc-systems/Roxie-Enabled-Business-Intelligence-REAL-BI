@@ -16,7 +16,8 @@ export const loginUser = async ({ username, password }) => {
   try {
     response = await axios.post('/api/auth/login', { username, password });
   } catch (err) {
-    return { action: { type: SET_AUTH_ERRORS, payload: err.response.data.errors } };
+    const { errors = [{ msg: 'Server Error' }] } = err.response.data;
+    return { action: { type: SET_AUTH_ERRORS, payload: errors } };
   }
 
   // Destructure response
