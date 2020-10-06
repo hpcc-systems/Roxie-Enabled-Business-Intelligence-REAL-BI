@@ -21,7 +21,7 @@ import TextBox from './TextBox';
 const useStyles = makeStyles(theme => ({
   progress: { margin: '0 0 10px 10px' },
   warningMsg: {
-    backgroundColor: theme.palette.warning.dark,
+    backgroundColor: theme.palette.warning.main,
     borderRadius: '4px 4px 0 0',
     color: theme.palette.warning.contrastText,
     margin: '0 auto',
