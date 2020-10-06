@@ -13,6 +13,7 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
+    showDataLabels = false,
   } = config;
 
   const sortOrder = 'asc';
@@ -67,7 +68,7 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
       formatter: v => thousandsSeparator(v),
       position: 'middle',
       style: { fontSize: 12 },
-      visible: true,
+      visible: showDataLabels,
     },
     legend: {
       position: 'right-top',

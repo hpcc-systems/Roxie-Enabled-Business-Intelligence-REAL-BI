@@ -16,6 +16,7 @@ const PieComp = ({ data, config }) => {
   const {
     axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
     axis2: { label: valueLabel, type: valueType = 'string', value },
+    showDataLabels = false,
   } = config;
 
   const customNameLabel = nameLabel ? nameLabel : nameValue;
@@ -54,7 +55,7 @@ const PieComp = ({ data, config }) => {
       formatter: v => percentageOfPie(v, total),
       style: { fill: chartFillColor },
       type: 'outer-center',
-      visible: true,
+      visible: showDataLabels,
     },
     legend: {
       title: {
