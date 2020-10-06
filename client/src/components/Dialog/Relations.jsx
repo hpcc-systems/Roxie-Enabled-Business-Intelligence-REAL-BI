@@ -132,6 +132,12 @@ const Relations = ({ show, toggleDialog }) => {
     return { chartID, fields: newFields, params, sourceID, sourceName, title, type };
   });
 
+  // Remove charts that do not have params that relations can use
+  const targetCharts = charts.filter(chart => {
+    const { params = [] } = chart;
+    return params.length > 0;
+  });
+
   const updateField = (event, index) => {
     const { name, value } = event.target;
     const newRelationsArr = new Array(...relations);
@@ -228,7 +234,14 @@ const Relations = ({ show, toggleDialog }) => {
                     )}
                   </Grid>
                   <Grid item xs={3}>
-                    {chartDropdown('Target Chart', 'targetChart', charts, targetChart, index, updateField)}
+                    {chartDropdown(
+                      'Target Chart',
+                      'targetChart',
+                      targetCharts,
+                      targetChart,
+                      index,
+                      updateField,
+                    )}
                   </Grid>
                   <Grid item xs={3}>
                     {fieldDropdown(
