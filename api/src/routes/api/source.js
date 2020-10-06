@@ -190,7 +190,7 @@ router.get('/data', async (req, res) => {
         data = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
         break;
       case 'ecl':
-        if (newParam.length > 0) {
+        if (newParam.filter(({ name }) => name !== 'Count').length > 0) {
           data = await getWorkunitDataFromClusterWithParams(cluster, config, newParam, source, userID);
         } else {
           data = await getWorkunitDataFromCluster(cluster, config, source, userID);

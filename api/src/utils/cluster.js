@@ -18,9 +18,6 @@ const {
   unNestSequelizeObj,
 } = require('./misc');
 
-// Constants
-const { DEFAULT_ROW_COUNT_RETURN } = process.env;
-
 const logger = require('../config/logger');
 
 // Create axios instance that allows self-signed certificates
@@ -254,9 +251,10 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
 
 const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
   const { id: clusterID, host, infoPort } = cluster;
-  const { dataset } = config;
+  const { dataset, params } = config;
   const { hpccID: workunitID, target } = source;
   const clusterAuth = await getClusterAuth(clusterID, userID);
+  const { Count } = createWUParams(params);
 
   // Build URL from cluster details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
@@ -265,7 +263,7 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
       Wuid: workunitID,
       Cluster: target,
       ResultName: dataset,
-      Count: DEFAULT_ROW_COUNT_RETURN,
+      Count,
     },
   };
 
@@ -294,7 +292,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
   const { dataset, ecl } = config;
   const { hpccID: workunitID, target } = source;
   const clusterAuth = await getClusterAuth(clusterID, userID);
-  const formattedParams = createWUParams(params);
+  const { Count, formattedParams } = createWUParams(params);
   const schemaArr = ecl.schema.map(({ name }) => name);
 
   // Build URL from cluster details
@@ -351,7 +349,8 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
     });
   }
 
-  return { [dataset]: { Row: data } };
+  // Reduce data array to number of rows specified
+  return { [dataset]: { Row: data.slice(0, Count) } };
 };
 
 const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {

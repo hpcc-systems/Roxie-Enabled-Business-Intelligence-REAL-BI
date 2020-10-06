@@ -82,7 +82,7 @@ export const createChartObj = (localState, ecl) => {
   // Move ecl values to config object root
   if (sourceType === 'ecl') {
     const newDataset = !ecl.dataset ? dataset : ecl.dataset;
-    const newParams = !ecl.params ? params : ecl.params;
+    const newParams = !ecl.params ? params : [...ecl.params, ...params];
 
     newConfig = { ...newConfig, dataset: newDataset, params: newParams };
 
