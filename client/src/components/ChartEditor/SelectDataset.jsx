@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import {
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@material-ui/core';
 
 // Utils
 import { getSourceInfo } from '../../utils/source';
@@ -10,15 +17,16 @@ import { getSourceInfo } from '../../utils/source';
 const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: theme.spacing(2), marginTop: theme.spacing(1) },
   progress: { margin: `${theme.spacing(1)}px 0` },
+  errorText: { color: '#f44336' },
 }));
 
 const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
   const [loading, setLoading] = useState(false);
   const { charts } = useSelector(state => state.chart);
-  const { chartID, config, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
+  const { chartID, config, errors, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
   const { isStatic = false, type } = config;
   const { clusterID } = dashboard;
-  const { formControl, progress } = useStyles();
+  const { formControl, progress, errorText } = useStyles();
 
   // Get list of sources datasets from hpcc
   useEffect(() => {
@@ -66,7 +74,12 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
   ) : (
     <FormControl className={formControl} fullWidth>
       <InputLabel>Dataset</InputLabel>
-      <Select name='dataset' value={dataset} onChange={handleChange}>
+      <Select
+        name='dataset'
+        value={dataset}
+        onChange={handleChange}
+        error={errors.find(err => err['selectedDataset']) !== undefined}
+      >
         {datasets.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>
@@ -75,6 +88,11 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
           );
         })}
       </Select>
+      <FormHelperText className={errorText}>
+        {errors.find(err => err['selectedDataset']) !== undefined
+          ? errors.find(err => err['selectedDataset'])['selectedDataset']
+          : ''}
+      </FormHelperText>
     </FormControl>
   );
 };

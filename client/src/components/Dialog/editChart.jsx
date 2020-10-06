@@ -9,6 +9,7 @@ import { updateChart } from '../../features/chart/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
+import validate from './validateChart';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
@@ -55,6 +56,11 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
     // Remove unneccesary key for DB
     delete newECLObj.data;
+
+    let errors = validate(localState, eclRef);
+    if (Object.keys(errors).length > 0) {
+      return handleChange(null, { name: 'errors', value: errors });
+    }
 
     const chartObj = createChartObj(localState, eclRef.current);
 

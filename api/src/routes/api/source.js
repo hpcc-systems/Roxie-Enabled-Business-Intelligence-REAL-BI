@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const errHandler = require('../../utils/errHandler');
 
+const { body, validationResult } = require('express-validator/check');
+
 // Utils
 const {
   getClusterByID,
@@ -97,33 +99,47 @@ router.get('/editordata', async (req, res) => {
   return res.status(200).json(data);
 });
 
-router.post('/create', async (req, res) => {
-  const { dashboardID, source } = req.body;
-  let dashboardSource, dbSource;
+router.post(
+  '/create',
+  [
+    body('source.hpccID')
+      .not()
+      .isEmpty()
+      .withMessage('hpccID not found'),
+  ],
+  async (req, res) => {
+    const { dashboardID, source } = req.body;
+    let dashboardSource, dbSource;
 
-  try {
-    // Look for existing source in DB
-    dbSource = await getSourceByHpccID(source);
-
-    // Source not found
-    if (Object.keys(dbSource).length === 0) {
-      dbSource = await createSource(source);
-    } else {
-      // Look for existing dashboard source in DB
-      dashboardSource = await getDashboardSource(dashboardID, dbSource.id);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
     }
 
-    // Dashboard Source not already in DB
-    if (!dashboardSource || Object.keys(dashboardSource).length === 0) {
-      await createDashboardSource(dashboardID, dbSource.id);
-    }
-  } catch (err) {
-    const { errMsg, status } = errHandler(err);
-    return res.status(status).json(errMsg);
-  }
+    try {
+      // Look for existing source in DB
+      dbSource = await getSourceByHpccID(source);
 
-  return res.status(201).json(dbSource);
-});
+      // Source not found
+      if (Object.keys(dbSource).length === 0) {
+        dbSource = await createSource(source);
+      } else {
+        // Look for existing dashboard source in DB
+        dashboardSource = await getDashboardSource(dashboardID, dbSource.id);
+      }
+
+      // Dashboard Source not already in DB
+      if (!dashboardSource || Object.keys(dashboardSource).length === 0) {
+        await createDashboardSource(dashboardID, dbSource.id);
+      }
+    } catch (err) {
+      const { errMsg, status } = errHandler(err);
+      return res.status(status).json(errMsg);
+    }
+
+    return res.status(201).json(dbSource);
+  },
+);
 
 router.get('/data', async (req, res) => {
   const {
