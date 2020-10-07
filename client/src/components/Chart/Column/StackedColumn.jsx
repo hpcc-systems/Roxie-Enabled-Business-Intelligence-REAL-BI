@@ -13,6 +13,7 @@ const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiv
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
+    showDataLabels = false,
     sortBy = {},
   } = config;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
@@ -83,7 +84,7 @@ const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiv
       formatter: v => thousandsSeparator(v),
       position: 'middle',
       style: { fontSize: 12 },
-      visible: true,
+      visible: showDataLabels,
     },
     legend: {
       position: 'right-top',

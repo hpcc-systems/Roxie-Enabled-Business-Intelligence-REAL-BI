@@ -22,6 +22,7 @@ import useForm from '../../hooks/useForm';
 // Utils
 import { createSourceObj, addSource } from '../../utils/source';
 import { createFilterObj } from '../../utils/dashboard';
+import { validateSource } from '../../utils/validate';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -34,6 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 const initState = {
   error: '',
+  errors: [],
   keyword: '',
   name: '',
   selectedDataset: '',
@@ -78,7 +80,17 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
     }
   }, [filterIndex, filters, resetState]);
 
+  useEffect(() => {
+    handleChange(null, { name: 'errors', value: [] });
+  }, [handleChange, localState.sourceType]);
+
   const saveFilter = async () => {
+    let errors = validateSource(localState, eclRef);
+
+    if (Object.keys(errors).length > 0) {
+      return handleChange(null, { name: 'errors', value: errors });
+    }
+
     const sourceObj = createSourceObj(localState, eclRef.current);
     let newFilterObj = createFilterObj(localState, eclRef.current);
 

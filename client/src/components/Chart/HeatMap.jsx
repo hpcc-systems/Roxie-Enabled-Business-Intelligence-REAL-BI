@@ -15,6 +15,7 @@ const HeatMapComp = ({ data, config }) => {
     axis1: { label: xLabel, value: xValue },
     axis2: { label: yLabel, value: yValue },
     colorField,
+    showDataLabels = false,
     sortBy = {},
   } = config;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
@@ -59,7 +60,7 @@ const HeatMapComp = ({ data, config }) => {
     forceFit: true,
     label: {
       formatter: v => thousandsSeparator(v),
-      visible: true,
+      visible: showDataLabels,
     },
     meta: { [xValue]: { type: 'cat' } },
     shapeType: 'rect',

@@ -29,6 +29,7 @@ const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
   gridContainer: { overflowY: 'hidden' },
+  tab: { minWidth: 140 },
   typography: {
     ...theme.typography.button,
     backgroundColor: theme.palette.error.main,
@@ -47,7 +48,7 @@ const ChartEditor = props => {
   isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
 
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, formControl, gridContainer, typography } = useStyles();
+  const { appbar, formControl, gridContainer, tab, typography } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -113,14 +114,12 @@ const ChartEditor = props => {
             {tabOptions.map((option, index) => {
               /*
                 Do not show the 'ECL Script' tab if the source type is not 'ecl'
-                Do not show the Parameters' tab if the source type is 'ecl'
                 Do not show the 'Group By' tab if the chart selected doesn't support group by
                 Do not show the Parameters' or 'group by' tab if the chart type is a static textbox
                 Do not show the 'Sort By' tab if the chart selected doesn't support sort by
               */
               if (
                 (sourceType !== 'ecl' && option === 'ECL Script') ||
-                (sourceType === 'ecl' && option === 'Parameters') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
                 (type === 'textBox' && isStatic && option === 'Parameters') ||
                 (type === 'textBox' && option === 'Group By') ||
@@ -129,18 +128,18 @@ const ChartEditor = props => {
                 return null;
               }
 
-              return <Tab key={index} label={option} />;
+              return <Tab key={index} label={option} className={tab} />;
             })}
           </Tabs>
         </AppBar>
         {(() => {
           // Get correct position based on source type and tab index
           // If sourceType === 'ecl', skip parameters tab
-          const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex === 2 ? 3 : tabIndex;
+          const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex;
 
           switch (tabNum) {
             case 0:
-              return <ECLEditor clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
+              return <ECLEditor {...props} clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
             case 1:
               return <General {...props} updateAxisKey={updateAxisKey} />;
             case 2:
@@ -160,6 +159,7 @@ const ChartEditor = props => {
           dataObj={chartData}
           sourceType={sourceType}
           eclDataset={eclDataset}
+          inEditor={true}
         />
       </Grid>
     </Grid>

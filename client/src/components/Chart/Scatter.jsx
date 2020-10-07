@@ -3,7 +3,7 @@ import { Scatter } from '@ant-design/charts';
 import moment from 'moment';
 
 // Utils
-import { sortArr } from '../../utils/misc';
+import { sortArr, thousandsSeparator } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
@@ -13,6 +13,7 @@ const ScatterComp = ({ data, config }) => {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
+    showDataLabels = false,
     sortBy = {},
   } = config;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
@@ -69,6 +70,10 @@ const ScatterComp = ({ data, config }) => {
   const chartConfig = {
     data,
     colorField: groupByValue,
+    label: {
+      formatter: v => thousandsSeparator(v),
+      visible: showDataLabels,
+    },
     xField: xValue,
     xAxis: {
       label: {

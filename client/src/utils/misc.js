@@ -92,6 +92,13 @@ export const hasSortOptions = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
+export const hasDataLabelOption = chartType => {
+  const chartTypes = ['bar', 'dualline', 'heatmap', 'line', 'pie', 'scatter'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
 export const hasClickEventOption = chartType => {
   const chartTypes = ['bar', 'donut', 'line', 'table'];
 

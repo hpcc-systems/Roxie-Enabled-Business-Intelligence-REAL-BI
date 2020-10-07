@@ -7,9 +7,20 @@ upstream api {
 }
 
 server {
-  listen $EXTERNAL_HTTP_PORT;
+    listen $EXTERNAL_HTTP_PORT;
+
+    server_name $HOST_HOSTNAME;
+
+    return 301 https://${DOLLAR}host:$EXTERNAL_HTTPS_PORT${DOLLAR}request_uri;
+}
+
+server {
+  listen $EXTERNAL_HTTPS_PORT ssl;
 
   server_name $HOST_HOSTNAME;
+
+  ssl_certificate /etc/nginx/certs/realbi.pem;
+  ssl_certificate_key /etc/nginx/certs/realbi.key;
 
   add_header Strict-Transport-Security "max-age=31536000;" always;
   add_header X-XSS-Protection "1; mode=block";

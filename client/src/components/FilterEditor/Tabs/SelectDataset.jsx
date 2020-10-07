@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
+import {
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@material-ui/core';
 
 // Utils
 import { getSourceInfo } from '../../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
+  errorText: { color: theme.palette.error.dark },
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
 const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { datasets = [], sourceDataset, selectedSource = {}, sourceType } = localState;
+  const { datasets = [], errors, sourceDataset, selectedSource = {}, sourceType } = localState;
   const { clusterID } = dashboard;
-  const { progress } = useStyles();
+  const { errorText, progress } = useStyles();
 
   // Get list of sources datasets from hpcc
   useEffect(() => {
@@ -60,7 +69,12 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
       ) : (
         <FormControl fullWidth>
           <InputLabel>Dataset</InputLabel>
-          <Select name='sourceDataset' value={sourceDataset} onChange={handleChange}>
+          <Select
+            name='sourceDataset'
+            value={sourceDataset}
+            onChange={handleChange}
+            error={errors.find(err => err['selectedDataset']) !== undefined}
+          >
             {datasets.map(({ name }, index) => {
               return (
                 <MenuItem key={index} value={name}>
@@ -69,6 +83,11 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
               );
             })}
           </Select>
+          <FormHelperText className={errorText}>
+            {errors.find(err => err['selectedDataset']) !== undefined
+              ? errors.find(err => err['selectedDataset'])['selectedDataset']
+              : ''}
+          </FormHelperText>
         </FormControl>
       )}
     </Grid>

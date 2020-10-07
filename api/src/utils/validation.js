@@ -87,6 +87,15 @@ const validateResetPassword = () => {
   ];
 };
 
+const validateSourceCreation = () => {
+  return [
+    body('source.hpccID')
+      .not()
+      .isEmpty()
+      .withMessage('hpccID not found'),
+  ];
+};
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -110,4 +119,5 @@ module.exports = {
   validateLogin,
   validateRegistration,
   validateResetPassword,
+  validateSourceCreation,
 };

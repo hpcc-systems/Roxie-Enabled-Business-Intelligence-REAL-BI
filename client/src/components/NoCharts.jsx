@@ -10,8 +10,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NoCharts = () => {
-  const { lastWorkspace, workspaces } = useSelector(state => state.auth.user);
-  const { directory } = useSelector(state => state.workspace.workspace);
+  const { lastWorkspace, workspaces = [] } = useSelector(state => state.auth.user);
+  const { directory = [] } = useSelector(state => state.workspace.workspace);
   const { header, subheader } = useStyles();
 
   const subMessage =

@@ -12,8 +12,14 @@ import { deleteFilters, deleteRelations } from '../../utils/dashboard';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  cancelBtn: { backgroundColor: theme.palette.secondary.main, color: theme.palette.secondary.contrastText },
-  deleteBtn: { backgroundColor: theme.palette.error.dark, color: theme.palette.error.contrastText },
+  cancelBtn: {
+    backgroundColor: theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
+  },
+  deleteBtn: {
+    backgroundColor: theme.palette.error.dark,
+    color: theme.palette.error.contrastText,
+  },
 }));
 
 const DeleteChartDialog = ({ chartID, dashboard, sourceID, show, toggleDialog }) => {

@@ -12,6 +12,7 @@ const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, rela
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
+    showDataLabels = false,
     sortBy = {},
   } = config;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
@@ -72,7 +73,12 @@ const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, rela
     },
     data,
     forceFit: true,
-    label: { visible: false },
+    label: {
+      formatter: v => thousandsSeparator(v),
+      position: 'right',
+      style: { fontSize: 12 },
+      visible: showDataLabels,
+    },
     legend: {
       position: 'right-top',
       visible: true,

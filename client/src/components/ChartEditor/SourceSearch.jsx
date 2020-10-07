@@ -18,6 +18,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
   const {
     chartID,
     error,
+    errors,
     keyword,
     config: { isStatic = false, type },
     sources,
@@ -95,6 +96,12 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
           onChange={updateKeyword}
           label={sourceType === 'file' ? 'File Name' : 'Query Name'}
           fullWidth
+          error={errors.find(err => err['selectedSource']) !== undefined}
+          helperText={
+            errors.find(err => err['selectedSource']) !== undefined
+              ? errors.find(err => err['selectedSource'])['selectedSource']
+              : ''
+          }
           InputProps={{
             ...params.InputProps,
             endAdornment: (
