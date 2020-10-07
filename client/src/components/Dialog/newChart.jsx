@@ -9,6 +9,7 @@ import { addChart } from '../../features/chart/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
+import { validateSource } from '../../utils/validate';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
@@ -28,6 +29,7 @@ const initState = {
   dataset: '',
   datasets: [],
   error: '',
+  errors: [],
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
   relations: [{ originField: '', mappedChart: '', mappedField: '' }],
@@ -65,14 +67,20 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const datasetKeys = Object.keys(selectedDataset).length;
 
   useEffect(() => {
+    handleChange(null, { name: 'errors', value: [] });
     handleChange(null, { name: 'mappedParams', value: [{ name: '', value: '' }] });
-  }, [handleChange]);
+  }, [handleChange, sourceType]);
 
   // Add components to DB
   const newChart = async () => {
     const { config, dataset } = localState;
     const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
+
+    let errors = validateSource(localState, eclRef);
+    if (Object.keys(errors).length > 0) {
+      return handleChange(null, { name: 'errors', value: errors });
+    }
 
     if (type === 'textBox' && isStatic) {
       const chartObj = { ...config, dataset, ecl: {} };
@@ -89,18 +97,22 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       const newChartObj = createChartObj(localState, eclRef.current);
 
       try {
-        const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+        const { sourceID, sourceName, sourceType, error } = await addSource(dashboardID, sourceObj);
 
-        addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
-          dispatch(action);
-        });
+        if (sourceID !== null && sourceName !== null && sourceType !== null) {
+          addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
+            dispatch(action);
+          });
+
+          // Close dialog
+          return toggleDialog();
+        } else {
+          console.log(error);
+        }
       } catch (err) {
         console.error(err);
       }
     }
-
-    // Close dialog
-    return toggleDialog();
   };
 
   const updateChartPreview = () => {
