@@ -66,6 +66,12 @@ const FilterMapper = ({ handleChange, localState }) => {
 
   let { charts } = useSelector(state => state.chart);
 
+  // Remove charts that do not have params that dashboard filters can use
+  charts = charts.filter(chart => {
+    const { params = [] } = chart.config;
+    return params.length > 0;
+  });
+
   // Configure charts to get formatted array of objects
   charts = charts.map(chart => {
     const { id: chartID, config } = chart;
