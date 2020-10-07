@@ -18,6 +18,7 @@ const { getChartByID } = require('../../utils/chart');
 const { getDashboardByID } = require('../../utils/dashboard');
 const { createDashboardSource, getDashboardSource } = require('../../utils/dashboardSource');
 const { createSource, getSourceByHpccID, getSourceByID } = require('../../utils/source');
+const { validate, validateSourceCreation } = require('../../utils/validation');
 
 router.get('/search', async (req, res) => {
   const {
@@ -97,7 +98,7 @@ router.get('/editordata', async (req, res) => {
   return res.status(200).json(data);
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', [validateSourceCreation(), validate], async (req, res) => {
   const { dashboardID, source } = req.body;
   let dashboardSource, dbSource;
 

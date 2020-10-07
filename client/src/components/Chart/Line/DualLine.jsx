@@ -13,6 +13,7 @@ const DualLineComp = ({ data, config }) => {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     axis2: { type: yType1 = 'string', value: yValue1 },
     axis3: { type: yType2 = 'string', value: yValue2 },
+    showDataLabels = false,
   } = config;
 
   const sortOrder = 'asc';
@@ -56,7 +57,7 @@ const DualLineComp = ({ data, config }) => {
       formatter: v => thousandsSeparator(v),
       position: 'top',
       style: { fontSize: 12 },
-      visible: true,
+      visible: showDataLabels,
     },
     legend: {
       position: 'bottom',

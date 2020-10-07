@@ -137,7 +137,7 @@ const ChartEditor = props => {
 
           switch (tabNum) {
             case 0:
-              return <ECLEditor clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
+              return <ECLEditor {...props} clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
             case 1:
               return <General {...props} updateAxisKey={updateAxisKey} />;
             case 2:
