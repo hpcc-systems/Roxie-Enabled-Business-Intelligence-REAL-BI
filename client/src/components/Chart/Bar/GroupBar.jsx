@@ -49,7 +49,7 @@ const GroupBarComp = ({ chartID, data, config, interactiveClick, interactiveObj,
         : String(row[yValue]),
   }));
 
-  // Have to reverse sortOrder due to groupbar chart sorting inversely from other charts
+  // Have to reverse sortOrder due to chart sorting behavior inconsistent from other charts
   const reverseSort = sortOrder === 'asc' ? 'desc' : 'asc';
 
   // Determine how to sort data array
@@ -69,8 +69,6 @@ const GroupBarComp = ({ chartID, data, config, interactiveClick, interactiveObj,
 
     data = sortArr(data, sortValue, reverseSort);
   }
-
-  console.log(data);
 
   const chartConfig = {
     barStyle: d => {

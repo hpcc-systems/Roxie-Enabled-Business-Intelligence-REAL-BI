@@ -49,8 +49,6 @@ const StackedBarComp = ({ chartID, data, config, interactiveClick, interactiveOb
         : String(row[yValue]),
   }));
 
-  console.log(data);
-
   // Determine how to sort data array
   if (sortValue === '' || sortValue === yValue) {
     data = sortArr(data, yValue, sortOrder);
