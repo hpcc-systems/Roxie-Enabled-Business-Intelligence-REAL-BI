@@ -86,7 +86,7 @@ const FilterEditor = props => {
           case 0:
             return (
               <Grid item xs={12}>
-                <ECLEditor clusterURL={clusterURL} eclRef={eclRef} />
+                <ECLEditor {...props} clusterURL={clusterURL} eclRef={eclRef} />
               </Grid>
             );
           case 1:
