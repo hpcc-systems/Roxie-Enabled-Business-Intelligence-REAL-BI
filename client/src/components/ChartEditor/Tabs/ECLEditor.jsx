@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef } from 'react';
+import { FormHelperText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { ECLEditor } from '@hpcc-js/codemirror';
@@ -13,9 +14,10 @@ import { getECLParams } from '../../../utils/cluster';
 
 const useStyles = makeStyles(theme => ({
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
+  errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
+const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -25,11 +27,12 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
   const layout = new Border2();
   const runBtnClasses = { ready: 'play_circle_outline', working: 'hourglass_empty' };
   const targetCluster = useRef(null);
+  const { errors = [] } = localState;
   const playButtonElement = useRef(null);
   const clusterIndex = useRef(0);
   const targetDomId = 'ecleditor';
 
-  const { eclWidgetStyle } = useStyles();
+  const { eclWidgetStyle, errorText } = useStyles();
   let workunit;
 
   const displayWorkunitID = useCallback(
@@ -231,9 +234,16 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef }) => {
 
       addComponentsToWidget();
     })();
-  }, [addComponentsToWidget, cluster, clusterDropdown, clusterURL, editor, script]);
+  }, []);
 
-  return <div id={targetDomId} className={eclWidgetStyle}></div>;
+  return (
+    <Fragment>
+      <div id={targetDomId} className={eclWidgetStyle}></div>
+      <FormHelperText className={errorText}>
+        {errors.find(err => err['eclRef']) !== undefined ? errors.find(err => err['eclRef'])['eclRef'] : ''}
+      </FormHelperText>
+    </Fragment>
+  );
 };
 
 export default ECLEditorComp;

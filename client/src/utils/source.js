@@ -26,7 +26,7 @@ export const addSource = async (dashboardID, source) => {
     response = await axios.post('/api/source/create', { dashboardID, source });
   } catch (err) {
     console.error(err);
-    return;
+    return { sourceID: null, sourceName: null, sourceType: null, error: err.response.data };
   }
 
   const { id: sourceID, name: sourceName, type: sourceType } = response.data;

@@ -7,7 +7,7 @@ import { getSources } from '../../../utils/source';
 
 const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, error, keyword, sources, sourceType } = localState;
+  const { chartID, error, errors, keyword, sources, sourceType } = localState;
   const { clusterID } = dashboard;
 
   // Get list of sources from hpcc
@@ -74,6 +74,12 @@ const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
               onChange={updateKeyword}
               label={sourceType === 'file' ? 'File Name' : 'Query Name'}
               fullWidth
+              error={errors.find(err => err['selectedSource']) !== undefined}
+              helperText={
+                errors.find(err => err['selectedSource']) !== undefined
+                  ? errors.find(err => err['selectedSource'])['selectedSource']
+                  : ''
+              }
               InputProps={{
                 ...params.InputProps,
                 endAdornment: (
