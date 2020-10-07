@@ -158,12 +158,14 @@ router.get('/data', async (req, res) => {
       filters.forEach(filter => {
         const { params, value } = filter;
 
-        // Loop through and add params that match current chart
-        params.forEach(({ targetChart, targetParam }) => {
-          if (chartID === targetChart) {
-            dashboardFilters.push({ name: targetParam, value });
-          }
-        });
+        if (value !== '') {
+          // Loop through and add params that match current chart
+          params.forEach(({ targetChart, targetParam }) => {
+            if (chartID === targetChart) {
+              dashboardFilters.push({ name: targetParam, value });
+            }
+          });
+        }
       });
     }
 
