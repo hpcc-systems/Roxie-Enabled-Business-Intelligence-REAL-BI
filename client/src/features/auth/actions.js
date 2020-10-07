@@ -32,8 +32,9 @@ export const getLatestUserData = async () => {
   try {
     response = await axios.get('/api/user/getdata');
   } catch (err) {
-    console.error(err);
-    return { type: SET_AUTH_ERRORS, payload: err };
+    console.error(err.response);
+    const error = { type: SET_AUTH_ERRORS, payload: err.response };
+    throw error;
   }
 
   // Get last dashboard id from response

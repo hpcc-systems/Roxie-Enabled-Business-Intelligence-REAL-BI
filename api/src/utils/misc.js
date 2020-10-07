@@ -66,12 +66,17 @@ const createWUParams = (params = []) => {
   // Necessary ternary because default parameter value above is not applied to "null"
   params = params || [];
 
+  // Get static param
+  let Count = params.find(({ name }) => name === 'Count');
+
+  Count = Count ? (Count.value ? Count.value : DEFAULT_ROW_COUNT_RETURN) : DEFAULT_ROW_COUNT_RETURN;
+
   // Remove empty params
-  params = params.filter(({ value }) => name !== 'Count' && value !== null);
+  params = params.filter(({ name, value }) => name !== 'Count' && value !== null);
 
   const formattedParams = params.map(({ name, value }) => ({ Name: name, Value: value }));
 
-  return formattedParams;
+  return { Count, formattedParams };
 };
 
 const findQueryDatasets = (responseObj = {}) => {

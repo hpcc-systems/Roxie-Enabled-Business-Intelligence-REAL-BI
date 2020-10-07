@@ -158,12 +158,14 @@ router.get('/data', async (req, res) => {
       filters.forEach(filter => {
         const { params, value } = filter;
 
-        // Loop through and add params that match current chart
-        params.forEach(({ targetChart, targetParam }) => {
-          if (chartID === targetChart) {
-            dashboardFilters.push({ name: targetParam, value });
-          }
-        });
+        if (value !== '') {
+          // Loop through and add params that match current chart
+          params.forEach(({ targetChart, targetParam }) => {
+            if (chartID === targetChart) {
+              dashboardFilters.push({ name: targetParam, value });
+            }
+          });
+        }
       });
     }
 
@@ -191,7 +193,7 @@ router.get('/data', async (req, res) => {
         data = await getFileDataFromCluster(cluster, { params: newParam, source }, userID);
         break;
       case 'ecl':
-        if (newParam.length > 0) {
+        if (newParam.filter(({ name }) => name !== 'Count').length > 0) {
           data = await getWorkunitDataFromClusterWithParams(cluster, config, newParam, source, userID);
         } else {
           data = await getWorkunitDataFromCluster(cluster, config, source, userID);

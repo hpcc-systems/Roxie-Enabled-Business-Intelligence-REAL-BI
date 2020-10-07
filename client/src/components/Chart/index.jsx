@@ -21,39 +21,42 @@ import TextBox from './TextBox';
 const useStyles = makeStyles(theme => ({
   progress: { margin: '0 0 10px 10px' },
   warningMsg: {
-    backgroundColor: theme.palette.warning.dark,
+    backgroundColor: theme.palette.warning.main,
+    borderRadius: '4px 4px 0 0',
     color: theme.palette.warning.contrastText,
     margin: '0 auto',
     padding: theme.spacing(0.15, 0.75),
     textAlign: 'center',
   },
   typography: { maxWidth: '70%' },
+  typography2: { maxWidth: '50%' },
 }));
 
 const ChartComp = ({
   chart: { config = {}, id: chartID },
   dataObj: { data = {}, error, loading = true },
   eclDataset = '',
+  inEditor = false,
   interactiveClick,
   interactiveObj = {},
   sourceType,
 }) => {
   const { dataset, ecl = {}, groupBy = {}, horizontal, stacked, isStatic = false, type } = config;
-  const { progress, typography, warningMsg } = useStyles();
+  const { progress, typography, typography2, warningMsg } = useStyles();
   let { relations = {} } = useSelector(state => state.dashboard.dashboard);
   let chartData = [];
   let chartType = type;
   let err = null;
 
-  const newEclDataset = eclDataset === '' && ecl.dataset ? ecl.dataset : eclDataset;
+  eclDataset = eclDataset === '' && ecl.dataset ? ecl.dataset : eclDataset;
 
   // Determine if chart data is available
   if (Object.keys(data).length > 0) {
     if (data.Exception) {
       err = data.Exception.Message;
-    } else if (data[dataset] || newEclDataset !== '') {
-      if (newEclDataset !== '') {
-        chartData = data[newEclDataset].Row;
+    } else if (data[dataset] || eclDataset !== '') {
+      if (eclDataset !== '') {
+        chartData = data[eclDataset].Row;
       } else {
         chartData = data[dataset].Row;
       }
@@ -214,16 +217,23 @@ const ChartComp = ({
           chartComp = <Typography align='center'>Unknown chart type</Typography>;
       }
 
+      const countParamIndex = config.params.findIndex(
+        ({ name, value }) => name === 'Count' && value !== null && value !== '',
+      );
+      const countParamValue = countParamIndex > -1 ? Number(config.params[countParamIndex].value) : -1;
+
       return (
         <Fragment>
           {chartComp}
           {chartData.length >= 5000 && (
-            <Typography
-              className={classnames(warningMsg, { [typography]: eclDataset === '' })}
-              display='block'
-            >
+            <Typography className={classnames(warningMsg, { [typography]: !inEditor })} display='block'>
               Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further
               to improve app performance and chart render time.
+            </Typography>
+          )}
+          {chartData.length < 5000 && chartData.length === countParamValue && (
+            <Typography className={classnames(warningMsg, { [typography2]: !inEditor })} display='block'>
+              The dataset&apos;s number of returned rows is being altered by a chart level parameter.
             </Typography>
           )}
         </Fragment>

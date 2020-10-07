@@ -53,7 +53,7 @@ const useStyles = makeStyles(theme => ({
   },
   progress: { marginRight: theme.spacing(2) },
   success: {
-    backgroundColor: theme.palette.success.dark,
+    backgroundColor: theme.palette.success.main,
     color: theme.palette.success.contrastText,
   },
   textfield: { margin: theme.spacing(1, 0) },
