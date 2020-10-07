@@ -1,4 +1,4 @@
-export default function validateChart(state, eclRef) {
+export const validateSource = (state, eclRef) => {
   let errors = [];
 
   switch (state.sourceType) {
@@ -24,4 +24,4 @@ export default function validateChart(state, eclRef) {
   }
 
   return errors;
-}
+};

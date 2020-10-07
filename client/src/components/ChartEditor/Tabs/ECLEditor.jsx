@@ -13,8 +13,8 @@ import { debounce } from 'lodash';
 import { getECLParams } from '../../../utils/cluster';
 
 const useStyles = makeStyles(theme => ({
-  errorText: { color: '#f44336' },
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
+  errorText: { color: theme.palette.error.dark },
 }));
 
 const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
@@ -32,7 +32,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
   const clusterIndex = useRef(0);
   const targetDomId = 'ecleditor';
 
-  const { errorText, eclWidgetStyle } = useStyles();
+  const { eclWidgetStyle, errorText } = useStyles();
   let workunit;
 
   const displayWorkunitID = useCallback(

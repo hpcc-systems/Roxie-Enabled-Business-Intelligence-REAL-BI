@@ -9,7 +9,7 @@ import { addChart } from '../../features/chart/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
-import validate from './validateChart';
+import { validateSource } from '../../utils/validate';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
@@ -77,7 +77,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     const { isStatic, type } = config;
     const { id: dashboardID } = dashboard;
 
-    let errors = validate(localState, eclRef);
+    let errors = validateSource(localState, eclRef);
     if (Object.keys(errors).length > 0) {
       return handleChange(null, { name: 'errors', value: errors });
     }

@@ -17,7 +17,7 @@ import { getSourceInfo } from '../../utils/source';
 const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: theme.spacing(2), marginTop: theme.spacing(1) },
   progress: { margin: `${theme.spacing(1)}px 0` },
-  errorText: { color: '#f44336' },
+  errorText: { color: theme.palette.error.dark },
 }));
 
 const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
