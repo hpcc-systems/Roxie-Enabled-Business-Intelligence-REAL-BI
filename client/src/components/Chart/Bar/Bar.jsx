@@ -12,9 +12,10 @@ const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, rela
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
+    sortBy = {},
   } = config;
+  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
-  const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
 
@@ -40,8 +41,23 @@ const BarComp = ({ chartID, data, config, interactiveClick, interactiveObj, rela
         : String(row[yValue]),
   }));
 
-  // Sort data in ascending order
-  data = sortArr(data, xValue, sortOrder);
+  // Determine how to sort data array
+  if (sortValue === '' || sortValue === yValue) {
+    data = sortArr(data, yValue, sortOrder);
+  } else {
+    // Convert necessary values to specified data type
+    data = data.map(row => ({
+      ...row,
+      [sortValue]:
+        sortType === 'date'
+          ? moment(String(row[sortValue])).format('L')
+          : sortType === 'number'
+          ? Number(row[sortValue])
+          : String(row[sortValue]),
+    }));
+
+    data = sortArr(data, sortValue, sortOrder);
+  }
 
   const chartConfig = {
     barStyle: d => {

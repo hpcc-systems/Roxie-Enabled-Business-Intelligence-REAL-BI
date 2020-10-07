@@ -13,9 +13,10 @@ const DualLineComp = ({ data, config }) => {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     axis2: { type: yType1 = 'string', value: yValue1 },
     axis3: { type: yType2 = 'string', value: yValue2 },
+    sortBy = {},
   } = config;
+  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
-  const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
 
   // Confirm all necessary values are present before trying to render the chart
@@ -46,8 +47,23 @@ const DualLineComp = ({ data, config }) => {
         : String(row[yValue2]),
   }));
 
-  // Sort data in ascending order
-  data = sortArr(data, xValue, sortOrder);
+  // Determine how to sort data array
+  if (sortValue === '' || sortValue === xValue) {
+    data = sortArr(data, xValue, sortOrder);
+  } else {
+    // Convert necessary values to specified data type
+    data = data.map(row => ({
+      ...row,
+      [sortValue]:
+        sortType === 'date'
+          ? moment(String(row[sortValue])).format('L')
+          : sortType === 'number'
+          ? Number(row[sortValue])
+          : String(row[sortValue]),
+    }));
+
+    data = sortArr(data, sortValue, sortOrder);
+  }
 
   const chartConfig = {
     data: [data, data],

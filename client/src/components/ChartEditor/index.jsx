@@ -15,14 +15,14 @@ import {
 // React Components
 import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
-import { ECLEditor, General, GroupBy, Parameters } from './Tabs';
+import { ECLEditor, General, GroupBy, Parameters, SortBy } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
-import { hasGroupByOption } from '../../utils/misc';
+import { hasGroupByOption, hasSortOptions } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
 
-const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By'];
+const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'];
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -116,13 +116,15 @@ const ChartEditor = props => {
                 Do not show the Parameters' tab if the source type is 'ecl'
                 Do not show the 'Group By' tab if the chart selected doesn't support group by
                 Do not show the Parameters' or 'group by' tab if the chart type is a static textbox
+                Do not show the 'Sort By' tab if the chart selected doesn't support sort by
               */
               if (
                 (sourceType !== 'ecl' && option === 'ECL Script') ||
                 (sourceType === 'ecl' && option === 'Parameters') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
                 (type === 'textBox' && isStatic && option === 'Parameters') ||
-                (type === 'textBox' && option === 'Group By')
+                (type === 'textBox' && option === 'Group By') ||
+                (!hasSortOptions(type) && option === 'Sort By')
               ) {
                 return null;
               }
@@ -145,6 +147,8 @@ const ChartEditor = props => {
               return <Parameters {...props} />;
             case 3:
               return <GroupBy {...props} updateAxisKey={updateAxisKey} />;
+            case 4:
+              return <SortBy {...props} updateAxisKey={updateAxisKey} />;
             default:
               return 'Unknown Tab';
           }

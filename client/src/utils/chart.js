@@ -2,7 +2,13 @@ import axios from 'axios';
 import errHandler from './errHandler';
 
 // Constants
-import { hasGroupByOption, hasHorizontalOption, hasStackedOption, hasDynamicOption } from '../utils/misc';
+import {
+  hasGroupByOption,
+  hasHorizontalOption,
+  hasStackedOption,
+  hasDynamicOption,
+  hasSortOptions,
+} from '../utils/misc';
 
 export const getChartData = async (chartID, clusterID, interactiveObj, dashboardID) => {
   let response;
@@ -58,26 +64,13 @@ export const mergeArrays = (oldArr, newArr) => {
 
 export const createChartObj = (localState, ecl) => {
   const { config, dataset, mappedParams, sourceType } = localState;
-  const { groupBy = {}, horizontal, params = [], stacked, type } = config;
+  const { params = [] } = config;
   let newConfig = { ...config, dataset };
 
   // Merge param arrays to send to server
   newConfig.params = mergeArrays(params, mappedParams);
 
-  // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(type) && horizontal) || !('horizontal' in newConfig)) {
-    newConfig = { ...newConfig, horizontal: false };
-  }
-
-  // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(type) && stacked) || !('stacked' in newConfig)) {
-    newConfig = { ...newConfig, stacked: false };
-  }
-
-  // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(type) && groupBy.value) || !('groupBy' in newConfig)) {
-    newConfig = { ...newConfig, groupBy: {} };
-  }
+  newConfig = validateConfigOptions(newConfig);
 
   // Move ecl values to config object root
   if (sourceType === 'ecl') {
@@ -156,7 +149,7 @@ export const checkForChartParams = chartsArr => {
 
 export const changeChartType = (oldType, newType, config) => {
   let newConfig = { ...config, type: newType };
-  const { axis1 = {}, axis2 = {}, groupBy = {} } = newConfig;
+  const { axis1 = {}, axis2 = {} } = newConfig;
 
   //  Update values in config object to reflect the current chart type
   switch (oldType) {
@@ -188,23 +181,36 @@ export const changeChartType = (oldType, newType, config) => {
       break;
   }
 
+  newConfig = validateConfigOptions(newConfig);
+
+  return newConfig;
+};
+
+const validateConfigOptions = newConfig => {
+  const { groupBy = {}, horizontal, isStatic, sortBy = {}, stacked, type } = newConfig;
+
   // Change horizontal value if it doesn't apply to the chart type or is missing
-  if ((!hasHorizontalOption(newType) && newConfig.horizontal) || !('horizontal' in newConfig)) {
+  if ((!hasHorizontalOption(type) && horizontal) || !('horizontal' in newConfig)) {
     newConfig = { ...newConfig, horizontal: false };
   }
 
   // Change stacked value if it doesn't apply to the chart type or is missing
-  if ((!hasStackedOption(newType) && newConfig.stacked) || !('stacked' in newConfig)) {
+  if ((!hasStackedOption(type) && stacked) || !('stacked' in newConfig)) {
     newConfig = { ...newConfig, stacked: false };
   }
 
   // Change groupBy value if it doesn't apply to the chart type or is missing
-  if ((!hasGroupByOption(newType) && groupBy.value) || !('groupBy' in newConfig)) {
+  if ((!hasGroupByOption(type) && groupBy.value) || !('groupBy' in newConfig)) {
     newConfig = { ...newConfig, groupBy: {} };
   }
 
+  // Change sortBy value if it doesn't apply to the chart type or is missing
+  if ((!hasSortOptions(type) && sortBy.value) || !('sortBy' in newConfig)) {
+    newConfig = { ...newConfig, sortBy: {} };
+  }
+
   // Change static value if it doesn't apply to the chart type or is missing
-  if ((!hasDynamicOption(newType) && newConfig.isStatic) || !('isStatic' in newConfig)) {
+  if ((!hasDynamicOption(type) && isStatic) || !('isStatic' in newConfig)) {
     newConfig = { ...newConfig, isStatic: false };
   }
 
