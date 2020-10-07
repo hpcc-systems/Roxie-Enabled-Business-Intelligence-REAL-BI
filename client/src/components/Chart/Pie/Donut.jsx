@@ -41,9 +41,7 @@ const DonutComp = ({ chartID, data, config, interactiveClick, interactiveObj, re
     colorField: nameValue,
     data,
     forceFit: true,
-    label: {
-      visible: false,
-    },
+    label: { visible: false },
     legend: {
       title: {
         style: { fill: chartFillColor },
