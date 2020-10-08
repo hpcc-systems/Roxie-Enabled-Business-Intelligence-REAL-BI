@@ -41,7 +41,16 @@ const ChartComp = ({
   interactiveObj = {},
   sourceType,
 }) => {
-  const { dataset, ecl = {}, groupBy = {}, horizontal, stacked, isStatic = false, type } = config;
+  const {
+    dataset,
+    ecl = {},
+    groupBy = {},
+    horizontal,
+    params = [],
+    stacked,
+    isStatic = false,
+    type,
+  } = config;
   const { progress, typography, typography2, warningMsg } = useStyles();
   let { relations = {} } = useSelector(state => state.dashboard.dashboard);
   let chartData = [];
@@ -217,10 +226,10 @@ const ChartComp = ({
           chartComp = <Typography align='center'>Unknown chart type</Typography>;
       }
 
-      const countParamIndex = config.params.findIndex(
+      const countParamIndex = params.findIndex(
         ({ name, value }) => name === 'Count' && value !== null && value !== '',
       );
-      const countParamValue = countParamIndex > -1 ? Number(config.params[countParamIndex].value) : -1;
+      const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
 
       return (
         <Fragment>

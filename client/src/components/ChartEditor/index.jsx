@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -15,21 +15,20 @@ import {
 // React Components
 import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
-import { ECLEditor, General, GroupBy, Parameters } from './Tabs';
+import { ECLEditor, General, GroupBy, Parameters, SortBy } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
-import { hasGroupByOption } from '../../utils/misc';
+import { hasGroupByOption, hasSortOptions } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
 
-const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By'];
+const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'];
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
   gridContainer: { overflowY: 'hidden' },
-  tab: { minWidth: 140 },
   typography: {
     ...theme.typography.button,
     backgroundColor: theme.palette.error.main,
@@ -44,11 +43,12 @@ const ChartEditor = props => {
   const { clusterHost, clusterID, clusterPort } = dashboard;
   const { chartID, config, dataObj, dataset, error, sourceType } = localState;
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
-  let { isStatic, type } = config;
-  isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
+  const { isStatic = false, type } = config;
+  // isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
 
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, formControl, gridContainer, tab, typography } = useStyles();
+  const [tabPercentage, setTabPercentage] = useState('');
+  const { appbar, formControl, gridContainer, typography } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -79,6 +79,35 @@ const ChartEditor = props => {
   if (sourceType === 'ecl' && Object.keys(eclData).length > 0) {
     chartData = { data: eclData, error: '', loading: false };
   }
+
+  useEffect(() => {
+    // Get percentage of tab width
+    if (sourceType === 'ecl') {
+      if (!hasGroupByOption(type) && !hasSortOptions(type)) {
+        setTabPercentage('33.3%');
+      } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
+        setTabPercentage('25%');
+      } else {
+        setTabPercentage('20%');
+      }
+    } else {
+      if (type !== 'textBox') {
+        if (!hasGroupByOption(type) && !hasSortOptions(type)) {
+          setTabPercentage('50%');
+        } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
+          setTabPercentage('33.3%');
+        } else {
+          setTabPercentage('25%');
+        }
+      } else {
+        if (isStatic) {
+          setTabPercentage('100%');
+        } else {
+          setTabPercentage('50%');
+        }
+      }
+    }
+  }, [isStatic, sourceType, type]);
 
   return (
     <Grid container spacing={4} className={gridContainer}>
@@ -115,25 +144,49 @@ const ChartEditor = props => {
               /*
                 Do not show the 'ECL Script' tab if the source type is not 'ecl'
                 Do not show the 'Group By' tab if the chart selected doesn't support group by
-                Do not show the Parameters' or 'group by' tab if the chart type is a static textbox
+                Do not show the 'Parameters' tab if the chart type is a static textbox
+                Do not show the 'Sort By' tab if the chart selected doesn't support sort by
               */
               if (
                 (sourceType !== 'ecl' && option === 'ECL Script') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
                 (type === 'textBox' && isStatic && option === 'Parameters') ||
-                (type === 'textBox' && option === 'Group By')
+                (!hasSortOptions(type) && option === 'Sort By')
               ) {
                 return null;
               }
 
-              return <Tab key={index} label={option} className={tab} />;
+              return (
+                <Tab
+                  key={index}
+                  label={option}
+                  style={{ maxWidth: tabPercentage, minWidth: tabPercentage }}
+                />
+              );
             })}
           </Tabs>
         </AppBar>
         {(() => {
           // Get correct position based on source type and tab index
           // If sourceType === 'ecl', skip parameters tab
-          const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex;
+          // Skip groupby tab for sortby tab if necessary
+          let tabNum = tabIndex;
+
+          if (sourceType !== 'ecl') {
+            if (!hasGroupByOption(type) && hasSortOptions(type) && tabIndex > 1) {
+              tabNum = tabIndex + 2;
+            } else {
+              tabNum = tabIndex + 1;
+            }
+          } else {
+            if (!hasGroupByOption(type) && hasSortOptions(type) && tabIndex > 2) {
+              if (tabIndex > 3) {
+                tabNum = tabIndex + 2;
+              } else {
+                tabNum = tabIndex + 1;
+              }
+            }
+          }
 
           switch (tabNum) {
             case 0:
@@ -144,6 +197,8 @@ const ChartEditor = props => {
               return <Parameters {...props} />;
             case 3:
               return <GroupBy {...props} updateAxisKey={updateAxisKey} />;
+            case 4:
+              return <SortBy {...props} updateAxisKey={updateAxisKey} />;
             default:
               return 'Unknown Tab';
           }

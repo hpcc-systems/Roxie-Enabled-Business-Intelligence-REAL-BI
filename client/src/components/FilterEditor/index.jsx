@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -20,7 +20,7 @@ import { sourceOptions } from '../../constants';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  appbar: { margin: theme.spacing(2, 0, 1, 0) },
+  appbar: { margin: theme.spacing(2, 0.5, 1, 0.5), maxWidth: '99%' },
   grid: { overflowY: 'hidden' },
 }));
 
@@ -31,6 +31,7 @@ const FilterEditor = props => {
   const { clusterHost, clusterPort } = dashboard;
   const { name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
+  const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid } = useStyles();
 
   const changeSourceType = event => {
@@ -41,6 +42,15 @@ const FilterEditor = props => {
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
   };
+
+  useEffect(() => {
+    // Get percentage of tab width
+    if (sourceType === 'ecl') {
+      setTabPercentage('33.3%');
+    } else {
+      setTabPercentage('50%');
+    }
+  }, [sourceType]);
 
   const clusterURL = `${clusterHost}:${clusterPort}`;
 
@@ -73,7 +83,9 @@ const FilterEditor = props => {
               return null;
             }
 
-            return <Tab key={index} label={option} />;
+            return (
+              <Tab key={index} label={option} style={{ maxWidth: tabPercentage, minWidth: tabPercentage }} />
+            );
           })}
         </Tabs>
       </AppBar>

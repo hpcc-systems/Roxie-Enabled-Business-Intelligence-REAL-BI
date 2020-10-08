@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heatmap } from '@ant-design/charts';
+import moment from 'moment';
 
 // Utils
 import { thousandsSeparator, sortArr } from '../../utils/misc';
@@ -15,9 +16,10 @@ const HeatMapComp = ({ data, config }) => {
     axis2: { label: yLabel, value: yValue },
     colorField,
     showDataLabels = false,
+    sortBy = {},
   } = config;
+  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
-  const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
 
@@ -33,8 +35,23 @@ const HeatMapComp = ({ data, config }) => {
     [yValue]: String(row[yValue]),
   }));
 
-  // Sort data in ascending order
-  data = sortArr(data, xValue, sortOrder);
+  // Determine how to sort data array
+  if (sortValue === '' || sortValue === xValue) {
+    data = sortArr(data, xValue, sortOrder);
+  } else {
+    // Convert necessary values to specified data type
+    data = data.map(row => ({
+      ...row,
+      [sortValue]:
+        sortType === 'date'
+          ? moment(String(row[sortValue])).format('L')
+          : sortType === 'number'
+          ? Number(row[sortValue])
+          : String(row[sortValue]),
+    }));
+
+    data = sortArr(data, sortValue, sortOrder);
+  }
 
   const chartConfig = {
     color: colorList,

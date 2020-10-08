@@ -14,9 +14,10 @@ const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiv
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
     showDataLabels = false,
+    sortBy = {},
   } = config;
+  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
-  const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
 
@@ -48,8 +49,23 @@ const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiv
         : String(row[yValue]),
   }));
 
-  // Sort data in ascending order
-  data = sortArr(data, xValue, sortOrder);
+  // Determine how to sort data array
+  if (sortValue === '' || sortValue === xValue) {
+    data = sortArr(data, xValue, sortOrder);
+  } else {
+    // Convert necessary values to specified data type
+    data = data.map(row => ({
+      ...row,
+      [sortValue]:
+        sortType === 'date'
+          ? moment(String(row[sortValue])).format('L')
+          : sortType === 'number'
+          ? Number(row[sortValue])
+          : String(row[sortValue]),
+    }));
+
+    data = sortArr(data, sortValue, sortOrder);
+  }
 
   const chartConfig = {
     columnStyle: d => {
