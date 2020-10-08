@@ -84,7 +84,7 @@ const ChartEditor = props => {
     // Get percentage of tab width
     if (sourceType === 'ecl') {
       if (!hasGroupByOption(type) && !hasSortOptions(type)) {
-        setTabPercentage('33%');
+        setTabPercentage('33.3%');
       } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
         setTabPercentage('25%');
       } else {
@@ -95,7 +95,7 @@ const ChartEditor = props => {
         if (!hasGroupByOption(type) && !hasSortOptions(type)) {
           setTabPercentage('50%');
         } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
-          setTabPercentage('33%');
+          setTabPercentage('33.3%');
         } else {
           setTabPercentage('25%');
         }

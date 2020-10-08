@@ -46,7 +46,7 @@ const FilterEditor = props => {
   useEffect(() => {
     // Get percentage of tab width
     if (sourceType === 'ecl') {
-      setTabPercentage('33%');
+      setTabPercentage('33.3%');
     } else {
       setTabPercentage('50%');
     }
