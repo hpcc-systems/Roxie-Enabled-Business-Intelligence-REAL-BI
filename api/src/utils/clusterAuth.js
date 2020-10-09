@@ -53,13 +53,11 @@ const getClusterAuth = async (clusterID, userID) => {
   const { hash, username } = unNestSequelizeObj(clusterAuth);
 
   // Check for data
-  if (hash && username) {
-    clusterAuth = { password: decryptHash(hash), username };
-  } else {
-    clusterAuth = null;
+  if (!hash || !username) {
+    return { password: null, username: null };
   }
 
-  return clusterAuth;
+  return { password: decryptHash(hash), username };
 };
 
 const updateClusterAuth = async (clusterID, password, userID, username) => {

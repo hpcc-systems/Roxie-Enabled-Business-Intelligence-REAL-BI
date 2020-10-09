@@ -96,6 +96,22 @@ const validateSourceCreation = () => {
   ];
 };
 
+const validateEclEditorExecution = () => {
+  return [
+    body('clusterID')
+      .isUUID(4)
+      .withMessage('Invalid Request'),
+    body('targetCluster')
+      .not()
+      .isEmpty()
+      .withMessage('Target Not Selected'),
+    body('eclScript')
+      .not()
+      .isEmpty()
+      .withMessage('ECL Script Required'),
+  ];
+};
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -115,6 +131,7 @@ const validate = (req, res, next) => {
 
 module.exports = {
   validate,
+  validateEclEditorExecution,
   validateForgotPassword,
   validateLogin,
   validateRegistration,

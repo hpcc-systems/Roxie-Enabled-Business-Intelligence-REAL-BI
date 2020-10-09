@@ -3,18 +3,20 @@ import { FormHelperText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { ECLEditor } from '@hpcc-js/codemirror';
-import { Topology, Workunit } from '@hpcc-js/comms';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel } from '@hpcc-js/phosphor';
 import { debounce } from 'lodash';
+
+// Utils
+import { getTargetClusters, submitWorkunit } from '../../../utils/cluster';
 
 const useStyles = makeStyles(theme => ({
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
   errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
+const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -30,7 +32,6 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
   const targetDomId = 'ecleditor';
 
   const { eclWidgetStyle, errorText } = useStyles();
-  let workunit;
 
   const displayWorkunitID = useCallback(
     workunitID => {
@@ -54,64 +55,56 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
     runButton.disabled = false;
   }, [runBtnClasses, runButton]);
 
-  const displayErrors = useCallback(() => {
-    workunit.fetchECLExceptions().then(errors => {
-      const { _espState, ErrorCount = 0 } = workunit;
+  const displayErrors = useCallback(
+    (errors, workunit) => {
+      errors.forEach(({ LineNo }) => {
+        const lineError = LineNo;
+        const lineErrorNum = lineError > 0 ? lineError - 1 : 0;
 
-      if (ErrorCount > 0) {
-        errors.forEach(({ LineNo }) => {
-          const lineError = LineNo;
-          const lineErrorNum = lineError > 0 ? lineError - 1 : 0;
+        let start = 0;
+        const end = editor._codemirror.doc.getLine(lineErrorNum).length;
 
-          let start = 0;
-          const end = editor._codemirror.doc.getLine(lineErrorNum).length;
+        for (var i = 0; i < lineErrorNum; i++) {
+          start += editor._codemirror.doc.getLine(i).length + 1;
+        }
 
-          for (var i = 0; i < lineErrorNum; i++) {
-            start += editor._codemirror.doc.getLine(i).length + 1;
-          }
-
-          editor.highlightError(start, start + end);
-        });
-
-        displayWorkunitID(_espState.Wuid);
-        resetPlayButton();
-      }
-    });
-  }, [displayWorkunitID, editor, resetPlayButton, workunit]);
-
-  const getResults = useCallback(() => {
-    return workunit.fetchResults().then(() => {
-      const { CResults = 0 } = workunit;
-      const outputCount = CResults.length > 0 ? CResults.length : 1;
-      const _result = CResults[outputCount - 1];
-
-      _result.fetchRows().then(async response => {
-        const { ECLSchemas, ResultName, Wuid } = _result._espState;
-
-        // Get script schema and format
-        const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
-          name: ColumnName,
-          type: ColumnType,
-        }));
-
-        // Create config object
-        const eclConfig = {
-          cluster: targetCluster.current,
-          data: { [ResultName]: { Row: response } },
-          dataset: ResultName,
-          schema,
-          script: editor.ecl(),
-          workunitID: Wuid,
-        };
-
-        // Update ref
-        eclRef.current = eclConfig;
-
-        displayWorkunitID(Wuid);
-        resetPlayButton();
+        editor.highlightError(start, start + end);
       });
-    });
-  }, [displayWorkunitID, eclRef, editor, resetPlayButton, workunit]);
+
+      displayWorkunitID(workunit._espState.Wuid);
+      resetPlayButton();
+    },
+    [displayWorkunitID, editor, resetPlayButton],
+  );
+
+  const getResults = useCallback(
+    async (data, result) => {
+      const { ECLSchemas, ResultName, Wuid } = result._espState;
+
+      // Get script schema and format
+      const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
+        name: ColumnName,
+        type: ColumnType,
+      }));
+
+      // Create config object
+      const eclConfig = {
+        cluster: targetCluster.current,
+        data: { [ResultName]: { Row: data } },
+        dataset: ResultName,
+        schema,
+        script: editor.ecl(),
+        workunitID: Wuid,
+      };
+
+      // Update ref
+      eclRef.current = eclConfig;
+
+      displayWorkunitID(Wuid);
+      resetPlayButton();
+    },
+    [displayWorkunitID, eclRef, editor, resetPlayButton],
+  );
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
 
@@ -124,11 +117,18 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
     playButtonElement.current.classList.add(runBtnClasses.working);
     playButtonElement.current.setAttribute('title', 'Working...');
 
-    // Submit ECL Script to cluster
-    workunit = await Workunit.submit({ baseUrl: clusterURL }, targetCluster.current, editor.ecl());
+    let workunitObj;
 
-    // Watch workunit until it completes
-    await workunit.watchUntilComplete();
+    try {
+      // Submit ECL Script to cluster
+      workunitObj = await submitWorkunit(clusterID, targetCluster.current, editor.ecl());
+    } catch (err) {
+      console.error(err);
+      return resetPlayButton();
+    }
+
+    // Destructure response
+    const { data, errors, result, workunit } = workunitObj;
 
     if (workunit && workunit._espState.Wuid) {
       eclRef.current.workunitID = workunit._espState.Wuid;
@@ -136,10 +136,10 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
 
     editor.removeAllHighlight();
 
-    if (workunit.isFailed()) {
-      displayErrors();
+    if (errors.length > 0) {
+      displayErrors(errors, workunit);
     } else {
-      getResults();
+      getResults(data, result);
     }
   });
 
@@ -209,11 +209,16 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
     }
 
     (async () => {
-      const topology = new Topology({ baseUrl: clusterURL });
+      let clusters = [];
       let _clusters = {};
 
-      // Get available target clusters
-      const clusters = await topology.fetchTargetClusters();
+      try {
+        // Get available target clusters
+        clusters = await getTargetClusters(clusterID);
+      } catch (err) {
+        console.error(err);
+        return;
+      }
 
       // Populate _clusters object with cluster names
       clusters.forEach(({ _espState: { Name } }) => (_clusters[Name] = Name));
@@ -233,9 +238,9 @@ const ECLEditorComp = ({ clusterURL, eclRef, localState }) => {
   return (
     <Fragment>
       <div id={targetDomId} className={eclWidgetStyle}></div>
-      <FormHelperText className={errorText}>
-        {errors.find(err => err['eclRef']) !== undefined ? errors.find(err => err['eclRef'])['eclRef'] : ''}
-      </FormHelperText>
+      {errors.find(err => err['eclRef']) !== undefined && (
+        <FormHelperText className={errorText}>{errors.find(err => err['eclRef'])['eclRef']}</FormHelperText>
+      )}
     </Fragment>
   );
 };
