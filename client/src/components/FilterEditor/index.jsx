@@ -28,7 +28,7 @@ const tabOptions = ['ECL Script', 'Source', 'Targets'];
 
 const FilterEditor = props => {
   const { dashboard, eclRef, handleChange, localState } = props;
-  const { clusterHost, clusterPort } = dashboard;
+  const { clusterHost, clusterID, clusterPort } = dashboard;
   const { name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
@@ -98,7 +98,7 @@ const FilterEditor = props => {
           case 0:
             return (
               <Grid item xs={12}>
-                <ECLEditor {...props} clusterURL={clusterURL} eclRef={eclRef} />
+                <ECLEditor {...props} clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />
               </Grid>
             );
           case 1:

@@ -107,7 +107,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           // Close dialog
           return toggleDialog();
         } else {
-          console.log(error);
+          console.error(error);
         }
       } catch (err) {
         console.error(err);

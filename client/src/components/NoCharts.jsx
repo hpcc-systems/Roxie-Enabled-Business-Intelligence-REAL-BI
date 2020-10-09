@@ -15,7 +15,7 @@ const NoCharts = () => {
   const { header, subheader } = useStyles();
 
   const subMessage =
-    workspaces.length === 0
+    !workspaces || workspaces.length === 0
       ? "Click on the 'Help' section to access the user guide."
       : !lastWorkspace
       ? 'Choose a workspace to begin...'

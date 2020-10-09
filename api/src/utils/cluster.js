@@ -490,8 +490,6 @@ const submitWorkunit = async (cluster, targetCluster, eclScript, userID) => {
     const outputCount = CResults.length > 0 ? CResults.length : 1;
     const _result = CResults[outputCount - 1];
 
-    console.log(CResults, _result);
-
     let [, rows] = await awaitHandler(_result.fetchRows());
 
     return { data: rows, errors: [], result: _result, workunit: response };
