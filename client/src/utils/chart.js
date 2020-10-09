@@ -117,6 +117,7 @@ export const setEditorState = (charts, chartID) => {
     dataset,
     datasets: [],
     error: '',
+    errors: [],
     keyword: sourceName,
     mappedParams,
     selectedDataset: {},

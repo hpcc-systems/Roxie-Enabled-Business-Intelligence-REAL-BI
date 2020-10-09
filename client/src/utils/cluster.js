@@ -13,3 +13,29 @@ export const getECLParams = async (clusterID, Wuid) => {
 
   return response.data;
 };
+
+export const getTargetClusters = async clusterID => {
+  let response;
+
+  try {
+    // Make call to get list of available target clusters
+    response = await axios.post('/api/cluster/targetclusters', { clusterID });
+  } catch (err) {
+    throw err.response;
+  }
+
+  return response.data;
+};
+
+export const submitWorkunit = async (clusterID, targetCluster, eclScript) => {
+  let response;
+
+  try {
+    // Make call to execute script on cluster
+    response = await axios.post('/api/cluster/submitworkunit', { clusterID, targetCluster, eclScript });
+  } catch (err) {
+    throw err.response;
+  }
+
+  return response.data;
+};

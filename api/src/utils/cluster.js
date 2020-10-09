@@ -1,6 +1,7 @@
 const axios = require('axios');
 const https = require('https');
 const parseStringPromise = require('xml2js').parseStringPromise;
+const { Topology, Workunit } = require('@hpcc-js/comms');
 
 // DB Models
 const { cluster: clusterModel } = require('../models');
@@ -420,6 +421,81 @@ const getECLParams = async (cluster, Wuid, userID) => {
   return params;
 };
 
+const getTargetClusters = async (cluster, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const { password, username } = await getClusterAuth(clusterID, userID);
+
+  // Create base topology configuration object
+  const topologyObj = {
+    baseUrl: `${host}:${infoPort}`,
+    rejectUnauthorized: false,
+    type: 'POST',
+  };
+
+  // Check for credentials
+  if (username && password) {
+    topologyObj.userID = username;
+    topologyObj.password = password;
+  }
+
+  const topology = new Topology(topologyObj);
+
+  // Log API request
+  logger.info(`Request made to ${topologyObj.baseUrl} for target clusters.`);
+
+  let [err, response] = await awaitHandler(topology.fetchTargetClusters());
+
+  // Return error
+  if (err) throw err;
+
+  return response;
+};
+
+const submitWorkunit = async (cluster, targetCluster, eclScript, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const { password, username } = await getClusterAuth(clusterID, userID);
+
+  // Create base topology configuration object
+  const workunitObj = {
+    baseUrl: `${host}:${infoPort}`,
+    rejectUnauthorized: false,
+    type: 'POST',
+  };
+
+  // Check for credentials
+  if (username && password) {
+    workunitObj.userID = username;
+    workunitObj.password = password;
+  }
+
+  // Log API request
+  logger.info(`Request made to ${workunitObj.baseUrl} to execute ecl script.`);
+
+  let [err, response] = await awaitHandler(Workunit.submit(workunitObj, targetCluster, eclScript));
+
+  // Return error
+  if (err) throw err;
+
+  // Watch workunit until it completes
+  await response.watchUntilComplete();
+
+  // See if workunit failed
+  if (response.isFailed()) {
+    let [, errors] = await awaitHandler(response.fetchECLExceptions());
+    return { errors, workunit: response };
+  } else {
+    await awaitHandler(response.fetchResults());
+
+    const { CResults = 0 } = response;
+    const outputCount = CResults.length > 0 ? CResults.length : 1;
+    const _result = CResults[outputCount - 1];
+
+    let [, rows] = await awaitHandler(_result.fetchRows());
+
+    return { data: rows, errors: [], result: _result, workunit: response };
+  }
+};
+
 module.exports = {
   createCluster,
   getClusterByID,
@@ -429,9 +505,11 @@ module.exports = {
   getFileDataFromCluster,
   getQueryDataFromCluster,
   getLogicalFilesFromCluster,
+  getTargetClusters,
   getQueryDatasetsFromCluster,
   getQueryListFromCluster,
   getQueryParamsFromCluster,
   getWorkunitDataFromCluster,
   getWorkunitDataFromClusterWithParams,
+  submitWorkunit,
 };
