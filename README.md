@@ -19,6 +19,7 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 8. Run `docker exec -it realbi_api sh`.
 9. Run `npx sequelize db:migrate` to build database tables.
 10. If you have any seed files in **_api/src/seeders_**, run `npx sequelize db:seed:all`.
+    - At least one cluster will need to be added to the database to begin making dashboards. A sample seed file is provided in **_api/src/seeders_**.
 
 ### Production
 
