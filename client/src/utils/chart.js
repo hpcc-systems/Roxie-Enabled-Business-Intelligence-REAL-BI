@@ -18,13 +18,7 @@ export const getChartData = async (chartID, clusterID, interactiveObj, dashboard
       params: { chartID, clusterID, interactiveObj, dashboardID },
     });
   } catch (err) {
-    const { errMsg, status } = errHandler(err);
-
-    if (status === 401) {
-      return errMsg;
-    }
-
-    return {};
+    return err.response.data;
   }
 
   return response.data;

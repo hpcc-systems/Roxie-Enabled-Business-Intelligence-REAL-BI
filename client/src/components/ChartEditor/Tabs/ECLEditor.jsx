@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
+const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState }) => {
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -140,6 +140,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
     editor.removeAllHighlight();
 
     if (errors.length > 0) {
+      handleChange(null, { name: 'errors', value: errors });
       displayErrors(errors, workunit);
     } else {
       getResults(data, result);
@@ -243,6 +244,9 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
       <div id={targetDomId} className={eclWidgetStyle}></div>
       {errors.find(err => err['eclRef']) !== undefined && (
         <FormHelperText className={errorText}>{errors.find(err => err['eclRef'])['eclRef']}</FormHelperText>
+      )}
+      {errors.find(err => err['Message']) !== undefined && (
+        <FormHelperText className={errorText}>{errors.find(err => err['Message'])['Message']}</FormHelperText>
       )}
     </Fragment>
   );

@@ -73,21 +73,13 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     handleChange(null, { name: 'selectedSource', value: newValue });
   };
 
-  return chartID && (type !== 'textBox' || (type === 'textBox' && !isStatic)) ? (
-    // If chartID is present then component is being edited and this text box is just displaying the datasource name
-    <TextField
-      className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
-      disabled={true}
-      value={selectedSource.name || ' '}
-      label='Source'
-      fullWidth
-    />
-  ) : type !== 'textBox' || (type === 'textBox' && !isStatic) ? (
+  return type !== 'textBox' || (type === 'textBox' && !isStatic) ? (
     <Autocomplete
       className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
       onChange={handleOnChange}
       getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
       options={sources}
+      value={selectedSource}
       renderInput={params => (
         <TextField
           {...params}

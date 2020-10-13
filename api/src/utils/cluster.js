@@ -117,7 +117,7 @@ const getLogicalFilesFromCluster = async ({ id: clusterID, host, infoPort }, key
 
   // Error returned
   if (!response['DFULogicalFiles']) {
-    throw 'No Matching Filename Found';
+    throw { response: { message: 'No Matching Filename Found' } };
   }
 
   // Get array of columns from file
@@ -238,14 +238,17 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   // Return error
   if (err) throw err;
 
+  // Get nested object
+  response = response.data['WUResultResponse'];
+
   // Check for exception
-  if ('Exceptions' in response.data) {
-    const { Code, Message } = response.data['Exceptions']['Exception'][0];
+  if ('Exceptions' in response) {
+    const { Code, Message } = response['Exceptions']['Exception'][0];
     throw { response: { message: `${Code} -> ${Message}` } };
   }
 
   // Update variable to nested depth
-  const { Row = [] } = response.data['WUResultResponse']['Result'];
+  const { Row = [] } = response['Result'];
 
   return { [filename]: { Row } };
 };

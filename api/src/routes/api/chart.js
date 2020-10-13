@@ -74,7 +74,7 @@ router.put('/update', async (req, res) => {
         await updateSourceByID(sourceID, { hpccID: workunitID, name: workunitID });
       }
 
-      await updateChartByID(chart);
+      await updateChartByID(chart, sourceID);
     }
 
     charts = await getChartsByDashboardID(dashboardID);
