@@ -65,7 +65,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     const chartObj = createChartObj(localState, eclRef.current);
 
     // Update chart and global params in DB
-    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType).then(action => {
+    updateChart({ id: chartID, config: chartObj }, dashboard.id, sourceID, sourceType).then(action => {
       // Close dialog
       /*
         Closing the dialog happens here because React will attempt to update the component

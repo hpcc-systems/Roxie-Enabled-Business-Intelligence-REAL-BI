@@ -69,7 +69,7 @@ router.put('/update', async (req, res) => {
     // User is the owner of the chart
     if (permissionObj.role === 'Owner') {
       if (sourceType === 'ecl') {
-        const { workunitID } = chart.ecl;
+        const { workunitID } = chart.config.ecl;
 
         await updateSourceByID(sourceID, { hpccID: workunitID, name: workunitID });
       }

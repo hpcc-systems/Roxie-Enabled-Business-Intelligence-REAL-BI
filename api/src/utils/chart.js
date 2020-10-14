@@ -129,7 +129,7 @@ const getChartsByDashboardAndSourceID = async (dashboardID, sourceID) => {
 const updateChartByID = async chart => {
   const { id, ...chartFields } = chart;
 
-  let [err] = await awaitHandler(chartModel.update({ config: { ...chartFields } }, { where: { id } }));
+  let [err] = await awaitHandler(chartModel.update({ ...chartFields }, { where: { id } }));
 
   // Return error
   if (err) throw err;
