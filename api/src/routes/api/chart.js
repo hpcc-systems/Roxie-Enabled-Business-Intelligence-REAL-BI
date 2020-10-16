@@ -29,12 +29,12 @@ router.get('/all', async (req, res) => {
 router.post('/create', async (req, res) => {
   const {
     body: { chart, dashboardID, sourceID },
-    user: { id: userID },
   } = req;
-  let newChart;
+  let charts, newChart;
 
   try {
-    newChart = await createChart(chart, dashboardID, sourceID, userID);
+    charts = await getChartsByDashboardID(dashboardID);
+    newChart = await createChart(chart, dashboardID, sourceID, charts.length);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
