@@ -1,18 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Button,
-  FormControlLabel,
-  Grid,
-  MenuItem,
-  Select,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Zoom,
-} from '@material-ui/core';
-import { Close as CloseIcon, Edit as EditIcon, MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
+import { Grid, Typography } from '@material-ui/core';
+import { MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
 import classnames from 'classnames';
 
 // React Components
@@ -22,44 +12,26 @@ import ToolbarSubMenu from './ToolbarSubMenu';
 import { updateChart } from '../../features/chart/actions';
 
 // Utils
-import { canDeleteCharts, canEditCharts, createDateTimeStamp } from '../../utils/misc';
-
-// Constants
-import { chartSizes } from '../../constants';
+import { canEditCharts, createDateTimeStamp } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { minWidth: 40 },
-  description: { fontSize: '0.875rem', fontWeight: 'normal', margin: theme.spacing(1.5, 10, 1, 6.5) },
-  ellipseBtn: { marginTop: theme.spacing(1) },
-  formControl: { margin: theme.spacing(1, 2, 0, 0) },
-  outlined: { padding: 0 },
-  select: { marginLeft: theme.spacing(1), padding: theme.spacing(1, 0, 1, 1.5) },
+  description: { fontSize: '0.875rem', fontWeight: 'normal', margin: theme.spacing(1.5, 0, 1, 1) },
+  ellipseBtnXs: { margin: '0 40%', marginTop: theme.spacing(1) },
+  ellipseBtnMd: { margin: '0 50%', marginTop: theme.spacing(1) },
+  ellipseBtnLg: { margin: '0 70%', marginTop: theme.spacing(1) },
   tableDesc: { marginLeft: theme.spacing(1.5) },
-  toolbar: { position: 'absolute', top: '5px', right: '3px', padding: 0, minHeight: 'initial' },
-  toolbarNoTitle: { marginTop: theme.spacing(0) },
   typography: { fontSize: '1.15rem', fontWeight: 'bold', marginTop: theme.spacing(2) },
 }));
 
 const ChartToolbar = props => {
-  const { chart, dashboard, removeChart, toggleDialog } = props;
-  const { config, id: chartID, sourceID } = chart;
+  const { chart, dashboard } = props;
+  const { config } = chart;
   const { role } = dashboard;
   const { chartDescription = '', size = 12, title = '', type } = config;
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
-  const {
-    button,
-    description,
-    ellipseBtn,
-    formControl,
-    outlined,
-    select,
-    tableDesc,
-    toolbar,
-    toolbarNoTitle,
-    typography,
-  } = useStyles();
+  const { description, ellipseBtnLg, ellipseBtnMd, ellipseBtnXs, tableDesc, typography } = useStyles();
 
   const showMenu = event => {
     setAnchorEl(event.currentTarget);
@@ -83,84 +55,32 @@ const ChartToolbar = props => {
     dispatch(action);
   };
 
-  const toolbarComp = () => {
-    return (
-      <Toolbar className={classnames(toolbar, { [toolbarNoTitle]: title === '' })}>
-        {canEditCharts(role) && (
-          <FormControlLabel
-            className={formControl}
-            control={
-              <Select
-                autoWidth
-                className={select}
-                variant='outlined'
-                classes={{ outlined }}
-                value={size || 12}
-                onChange={updateChartWidth}
-              >
-                {chartSizes.map(({ label, value }, index) => {
-                  return (
-                    <MenuItem key={index} value={value}>
-                      {label}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            }
-            label='Chart Width:'
-            labelPlacement='start'
-          />
-        )}
-        {canEditCharts(role) && (
-          <Tooltip title='Edit Chart' TransitionComponent={Zoom} arrow placement='top'>
-            <Button className={button}>
-              <EditIcon onClick={() => toggleDialog(chartID)} />
-            </Button>
-          </Tooltip>
-        )}
-        {canDeleteCharts(role) && (
-          <Tooltip title='Delete Chart' TransitionComponent={Zoom} arrow placement='top'>
-            <Button className={button} onClick={() => removeChart(chartID, sourceID)}>
-              <CloseIcon />
-            </Button>
-          </Tooltip>
-        )}
-      </Toolbar>
-    );
-  };
-
   return (
     <Fragment>
-      {size <= 6 ? (
-        <Grid container spacing={1}>
-          <Grid item xs={1}></Grid>
-          <Grid item xs={10}>
-            <Typography className={typography} align='center'>
-              {title}
-            </Typography>
-          </Grid>
-          <Grid item xs={1}>
-            {canEditCharts(role) && (
-              <Fragment>
-                <MoreHorizIcon className={ellipseBtn} onClick={showMenu} />
-                <ToolbarSubMenu
-                  {...props}
-                  anchorEl={anchorEl}
-                  setAnchorEl={setAnchorEl}
-                  updateChartWidth={updateChartWidth}
-                />
-              </Fragment>
-            )}
-          </Grid>
-        </Grid>
-      ) : (
-        <Fragment>
+      <Grid container spacing={1}>
+        <Grid item xs={1}></Grid>
+        <Grid item xs={size > 4 ? 10 : 9}>
           <Typography className={typography} align='center'>
             {title}
           </Typography>
-          {toolbarComp()}
-        </Fragment>
-      )}
+        </Grid>
+        <Grid item xs={size > 4 ? 1 : 2}>
+          {canEditCharts(role) && (
+            <Fragment>
+              <MoreHorizIcon
+                className={classnames(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}
+                onClick={showMenu}
+              />
+              <ToolbarSubMenu
+                {...props}
+                anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
+                updateChartWidth={updateChartWidth}
+              />
+            </Fragment>
+          )}
+        </Grid>
+      </Grid>
 
       <Typography className={classnames(description, { [tableDesc]: type === 'table' })}>
         {/*
