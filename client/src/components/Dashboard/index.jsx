@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Container, Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -17,9 +17,6 @@ import Relations from '../Dialog/Relations';
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
-
-// Redux Action
-import { updateChart } from '../../features/chart/actions';
 
 // Utils
 import { getChartData } from '../../utils/chart';
@@ -43,7 +40,6 @@ const Dashboard = () => {
   const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
-  const dispatch = useDispatch();
   const { clearDiv } = useStyles();
 
   const editChart = chartID => {
@@ -90,23 +86,6 @@ const Dashboard = () => {
     setInteractiveObj({ chartID, field, value: clickValue });
   };
 
-  const updateChartWidth = async (event, chartObj) => {
-    const { value } = event.target;
-    const { sourceID, sourceType } = chartObj;
-    let action;
-
-    // Update size in chart config
-    chartObj.config.size = value;
-
-    try {
-      action = await updateChart(chartObj, dashboard.id, sourceID, sourceType);
-    } catch (error) {
-      return console.error(error);
-    }
-
-    dispatch(action);
-  };
-
   useEffect(() => {
     if ((dashboard.id || interactiveObj.value) && charts.length > 0) {
       dataCall();
@@ -140,7 +119,6 @@ const Dashboard = () => {
                     dashboard={dashboard}
                     removeChart={removeChart}
                     toggleDialog={editChart}
-                    updateChartWidth={updateChartWidth}
                   />
                   <div className={clearDiv}>
                     <Chart

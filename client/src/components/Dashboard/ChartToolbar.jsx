@@ -1,8 +1,10 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
   FormControlLabel,
+  Grid,
   MenuItem,
   Select,
   Toolbar,
@@ -10,8 +12,14 @@ import {
   Typography,
   Zoom,
 } from '@material-ui/core';
-import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
+import { Close as CloseIcon, Edit as EditIcon, MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
 import classnames from 'classnames';
+
+// React Components
+import ToolbarSubMenu from './ToolbarSubMenu';
+
+// Redux Actions
+import { updateChart } from '../../features/chart/actions';
 
 // Utils
 import { canDeleteCharts, canEditCharts, createDateTimeStamp } from '../../utils/misc';
@@ -23,7 +31,8 @@ import { chartSizes } from '../../constants';
 const useStyles = makeStyles(theme => ({
   button: { minWidth: 40 },
   description: { fontSize: '0.875rem', fontWeight: 'normal', margin: theme.spacing(1.5, 10, 1, 6.5) },
-  formControl: { margin: theme.spacing(0, 2, 0, 0) },
+  ellipseBtn: { marginTop: theme.spacing(1) },
+  formControl: { margin: theme.spacing(1, 2, 0, 0) },
   outlined: { padding: 0 },
   select: { marginLeft: theme.spacing(1), padding: theme.spacing(1, 0, 1, 1.5) },
   tableDesc: { marginLeft: theme.spacing(1.5) },
@@ -32,13 +41,17 @@ const useStyles = makeStyles(theme => ({
   typography: { fontSize: '1.15rem', fontWeight: 'bold', marginTop: theme.spacing(2) },
 }));
 
-const ChartToolbar = ({ chart, dashboard, removeChart, toggleDialog, updateChartWidth }) => {
+const ChartToolbar = props => {
+  const { chart, dashboard, removeChart, toggleDialog } = props;
   const { config, id: chartID, sourceID } = chart;
   const { role } = dashboard;
   const { chartDescription = '', size = 12, title = '', type } = config;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
   const {
     button,
     description,
+    ellipseBtn,
     formControl,
     outlined,
     select,
@@ -48,20 +61,30 @@ const ChartToolbar = ({ chart, dashboard, removeChart, toggleDialog, updateChart
     typography,
   } = useStyles();
 
-  return (
-    <Fragment>
-      <Typography className={typography} align='center'>
-        {title}
-      </Typography>
-      <Typography className={classnames(description, { [tableDesc]: type === 'table' })}>
-        {/*
-          Conditionally render the chart description and <br /> only if a description is provided
-          Always render the datetime stamp
-        */}
-        {chartDescription !== '' ? chartDescription : null}
-        {chartDescription !== '' ? <br /> : null}
-        <small>{createDateTimeStamp()}</small>
-      </Typography>
+  const showMenu = event => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const updateChartWidth = async event => {
+    const { value } = event.target;
+    const newChartObj = { ...chart };
+    const { sourceID, sourceType } = newChartObj;
+    let action;
+
+    // Update size in chart config
+    newChartObj.config.size = value;
+
+    try {
+      action = await updateChart(newChartObj, dashboard.id, sourceID, sourceType);
+    } catch (error) {
+      return console.error(error);
+    }
+
+    dispatch(action);
+  };
+
+  const toolbarComp = () => {
+    return (
       <Toolbar className={classnames(toolbar, { [toolbarNoTitle]: title === '' })}>
         {canEditCharts(role) && (
           <FormControlLabel
@@ -73,7 +96,7 @@ const ChartToolbar = ({ chart, dashboard, removeChart, toggleDialog, updateChart
                 variant='outlined'
                 classes={{ outlined }}
                 value={size || 12}
-                onChange={event => updateChartWidth(event, chart)}
+                onChange={updateChartWidth}
               >
                 {chartSizes.map(({ label, value }, index) => {
                   return (
@@ -103,6 +126,51 @@ const ChartToolbar = ({ chart, dashboard, removeChart, toggleDialog, updateChart
           </Tooltip>
         )}
       </Toolbar>
+    );
+  };
+
+  return (
+    <Fragment>
+      {size <= 6 ? (
+        <Grid container spacing={1}>
+          <Grid item xs={1}></Grid>
+          <Grid item xs={10}>
+            <Typography className={typography} align='center'>
+              {title}
+            </Typography>
+          </Grid>
+          <Grid item xs={1}>
+            {canEditCharts(role) && (
+              <Fragment>
+                <MoreHorizIcon className={ellipseBtn} onClick={showMenu} />
+                <ToolbarSubMenu
+                  {...props}
+                  anchorEl={anchorEl}
+                  setAnchorEl={setAnchorEl}
+                  updateChartWidth={updateChartWidth}
+                />
+              </Fragment>
+            )}
+          </Grid>
+        </Grid>
+      ) : (
+        <Fragment>
+          <Typography className={typography} align='center'>
+            {title}
+          </Typography>
+          {toolbarComp()}
+        </Fragment>
+      )}
+
+      <Typography className={classnames(description, { [tableDesc]: type === 'table' })}>
+        {/*
+          Conditionally render the chart description and <br /> only if a description is provided
+          Always render the datetime stamp
+        */}
+        {chartDescription !== '' ? chartDescription : null}
+        {chartDescription !== '' ? <br /> : null}
+        <small>{createDateTimeStamp()}</small>
+      </Typography>
     </Fragment>
   );
 };
