@@ -40,6 +40,7 @@ node_modules/
 !example.sql
 /api/src/seeders/*
 !/api/src/seeders/.gitkeep
+!/api/src/seeders/*example*
 /db/*
 !/db/.gitkeep
 
