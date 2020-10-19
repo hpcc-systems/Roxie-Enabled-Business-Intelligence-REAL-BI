@@ -62,7 +62,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     }
 
     if (type === 'textBox' && isStatic) {
-      const chartObj = { id: chartID, ...config, dataset, ecl: {} };
+      const chartObj = { id: chartID, config: { ...config, dataset, ecl: {} } };
 
       try {
         updateChart(chartObj, dashboardID, null, null).then(action => {
@@ -79,7 +79,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         const { sourceID, sourceName, sourceType, error } = await addSource(dashboardID, sourceObj);
 
         if (sourceID !== null && sourceName !== null && sourceType !== null) {
-          updateChart({ id: chartID, ...chartObj }, dashboardID, sourceID, sourceName, sourceType).then(
+          updateChart({ id: chartID, config: chartObj }, dashboardID, sourceID, sourceName, sourceType).then(
             action => {
               dispatch(action);
             },
