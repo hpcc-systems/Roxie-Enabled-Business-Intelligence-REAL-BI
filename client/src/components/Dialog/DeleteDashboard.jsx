@@ -20,12 +20,13 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.error.dark,
     color: theme.palette.error.contrastText,
   },
+  dialog: { maxWidth: 515 },
 }));
 
 const DeleteDashboardDialog = ({ dashboardID, show, toggleDialog, workspace }) => {
   const { directory, directoryDepth, id: workspaceID } = workspace;
   const dispatch = useDispatch();
-  const { cancelBtn, deleteBtn } = useStyles();
+  const { cancelBtn, deleteBtn, dialog } = useStyles();
 
   const confirmDelete = async () => {
     const newDirectory = removeObjFromDirectory(directory, dashboardID);
@@ -45,7 +46,7 @@ const DeleteDashboardDialog = ({ dashboardID, show, toggleDialog, workspace }) =
   };
 
   return (
-    <Dialog onClose={toggleDialog} open={show} fullWidth>
+    <Dialog onClose={toggleDialog} open={show} fullWidth classes={{ paper: dialog }}>
       <DialogTitle>Delete Dashboard?</DialogTitle>
       <DialogContent>
         <Typography>You are about to delete this dashboard. Do you wish to proceed?</Typography>

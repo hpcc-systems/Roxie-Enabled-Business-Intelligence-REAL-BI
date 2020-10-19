@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Typography } from '@material-ui/core';
 import { TreeItem, TreeView } from '@material-ui/lab';
@@ -96,38 +96,28 @@ const RecursiveTreeView = props => {
           {isFolder ? children.map(node => renderTree(node)) : null}
         </TreeItem>
         <div>
-          {isFolder ? (
-            <Fragment>
-              <IconButton onClick={event => showMenu(event, directoryObj)}>
-                <MoreHorizIcon className={iconColor} />
-              </IconButton>
-              {directoryObj.name === anchorName && (
-                <FolderSubMenu
-                  {...props}
-                  anchorEl={anchorEl}
-                  directoryObj={directoryObj}
-                  root={false}
-                  setAnchorEl={setAnchorEl}
-                  setAnchorName={setAnchorName}
-                />
-              )}
-            </Fragment>
-          ) : (
-            <Fragment>
-              <IconButton onClick={event => showMenu(event, directoryObj)}>
-                <MoreHorizIcon className={iconColor} />
-              </IconButton>
-              {directoryObj.name === anchorName && (
-                <DashboardSubMenu
-                  {...props}
-                  anchorEl={anchorEl}
-                  directoryObj={directoryObj}
-                  setAnchorEl={setAnchorEl}
-                  setAnchorName={setAnchorName}
-                />
-              )}
-            </Fragment>
-          )}
+          <IconButton onClick={event => showMenu(event, directoryObj)}>
+            <MoreHorizIcon className={iconColor} />
+          </IconButton>
+          {directoryObj.name === anchorName &&
+            (isFolder ? (
+              <FolderSubMenu
+                {...props}
+                anchorEl={anchorEl}
+                directoryObj={directoryObj}
+                root={false}
+                setAnchorEl={setAnchorEl}
+                setAnchorName={setAnchorName}
+              />
+            ) : (
+              <DashboardSubMenu
+                {...props}
+                anchorEl={anchorEl}
+                directoryObj={directoryObj}
+                setAnchorEl={setAnchorEl}
+                setAnchorName={setAnchorName}
+              />
+            ))}
         </div>
       </div>
     );
