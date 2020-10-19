@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
 
 const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
+  const { chartID, config, error = '', selectedDataset = {}, sourceType } = localState;
   const { axis1 = {}, axis2 = {} } = config;
   const { fields = [] } = selectedDataset;
   const { formControl, progress, checkbox } = useStyles();
@@ -41,7 +41,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
         <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>X Axis</InputLabel>
-            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 && error === '' ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis1:value' value={axis1.value || ''} onChange={updateAxisKey}>
@@ -98,7 +98,7 @@ const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated
         <Grid item md={3}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Y Axis</InputLabel>
-            {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
+            {chartID && messages.indexOf(fieldsArr[0].name) > -1 && error === '' ? (
               <CircularProgress className={progress} size={20} />
             ) : (
               <Select name='axis2:value' value={axis2.value || ''} onChange={updateAxisKey}>

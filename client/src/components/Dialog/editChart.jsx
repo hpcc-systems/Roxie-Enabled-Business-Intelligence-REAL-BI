@@ -16,6 +16,7 @@ import useForm from '../../hooks/useForm';
 
 // Utils
 import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
+import { addSource, createSourceObj } from '../../utils/source';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -50,32 +51,49 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
-  const editChart = () => {
-    const { chartID, sourceID, sourceType } = localState;
-    const newECLObj = { ...eclRef.current };
-
-    // Remove unneccesary key for DB
-    delete newECLObj.data;
+  const editChart = async () => {
+    const { chartID, config, dataset } = localState;
+    const { isStatic, type } = config;
+    const { id: dashboardID } = dashboard;
 
     let errors = validateSource(localState, eclRef);
     if (Object.keys(errors).length > 0) {
       return handleChange(null, { name: 'errors', value: errors });
     }
 
-    const chartObj = createChartObj(localState, eclRef.current);
+    if (type === 'textBox' && isStatic) {
+      const chartObj = { id: chartID, ...config, dataset, ecl: {} };
 
-    // Update chart and global params in DB
-    updateChart({ id: chartID, ...chartObj }, dashboard.id, sourceID, sourceType).then(action => {
-      // Close dialog
-      /*
-        Closing the dialog happens here because React will attempt to update the component
-        after the action updates the Redux store, causing a memory leak error because the component
-        will already be un-mounted.
-      */
-      toggleDialog();
+      try {
+        updateChart(chartObj, dashboardID, null, null).then(action => {
+          dispatch(action);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      const sourceObj = createSourceObj(localState, eclRef.current);
+      const chartObj = createChartObj(localState, eclRef.current);
 
-      return dispatch(action);
-    });
+      try {
+        const { sourceID, sourceName, sourceType, error } = await addSource(dashboardID, sourceObj);
+
+        if (sourceID !== null && sourceName !== null && sourceType !== null) {
+          updateChart({ id: chartID, ...chartObj }, dashboardID, sourceID, sourceName, sourceType).then(
+            action => {
+              dispatch(action);
+            },
+          );
+
+          // Close dialog
+          return toggleDialog();
+        } else {
+          console.error(error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
   };
 
   const updateChartPreview = () => {
