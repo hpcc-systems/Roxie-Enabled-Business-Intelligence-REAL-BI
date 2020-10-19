@@ -1,18 +1,16 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { Container, Grid, Paper } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { batch, useDispatch, useSelector } from 'react-redux';
+import { Container, Grid } from '@material-ui/core';
 
 // React Components
 import Toolbar from './Toolbar';
-import ChartToolbar from './ChartToolbar';
-import Chart from '../Chart';
 import NewChartDialog from '../Dialog/newChart';
 import ShareLinkDialog from '../Dialog/shareLink';
 import EditChartDialog from '../Dialog/editChart';
 import FilterDrawer from '../Drawers/Filters';
 import DeleteChartDialog from '../Dialog/DeleteChart';
 import Relations from '../Dialog/Relations';
+import ChartTile from './ChartTile';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -21,15 +19,12 @@ import useDrawer from '../../hooks/useDrawer';
 // Utils
 import { getChartData } from '../../utils/chart';
 import { sortArr } from '../../utils/misc';
-
-const useStyles = makeStyles(() => ({
-  clearDiv: { clear: 'both' },
-}));
+import { updateChart } from '../../features/chart/actions';
 
 const Dashboard = () => {
-  const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
   const [sourceID, setSourceID] = useState(null);
+  const [compData, setCompData] = useState({});
   const [interactiveObj, setInteractiveObj] = useState({});
   const { dashboard } = useSelector(state => state.dashboard);
   const { clusterID, id: dashboardID } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
@@ -40,7 +35,12 @@ const Dashboard = () => {
   const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
-  const { clearDiv } = useStyles();
+  const dragItemID = useRef(null);
+  const dragNode = useRef(null);
+  const targetItemID = useRef(null);
+  const isDifferentNode = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const dispatch = useDispatch();
 
   const editChart = chartID => {
     setChartID(chartID);
@@ -92,6 +92,57 @@ const Dashboard = () => {
     }
   }, [charts, dashboard, dataCall, interactiveObj.value]);
 
+  const handleDragStart = (event, chartID) => {
+    dragItemID.current = chartID;
+    dragNode.current = event.target;
+    dragNode.current.addEventListener('dragend', handleDragEnd);
+
+    // Create minor asynchronous delay before changing state and 'draggedDiv' style getting applied
+    // This allows us to have the ghost image being dragged around but the component not display as a duplicate
+    setTimeout(() => {
+      setDragging(true);
+    }, 0);
+  };
+
+  const handleDragEnter = (event, chartID) => {
+    if (chartID !== dragItemID.current) {
+      isDifferentNode.current = true;
+      targetItemID.current = chartID;
+    } else {
+      isDifferentNode.current = false;
+      targetItemID.current = null;
+    }
+  };
+
+  const handleDragEnd = () => {
+    dragNode.current.removeEventListener('dragend', handleDragEnd);
+
+    if (isDifferentNode.current) {
+      // Get chart objects and sort values
+      const draggedChart = charts.find(({ id }) => id === dragItemID.current);
+      const targetChart = charts.find(({ id }) => id === targetItemID.current);
+      const dragSortVal = draggedChart.config.sort;
+      const targetSortVal = targetChart.config.sort;
+
+      // Switch sort values in chart objects
+      draggedChart.config.sort = targetSortVal;
+      targetChart.config.sort = dragSortVal;
+
+      Promise.all([
+        updateChart(draggedChart, dashboard.id, draggedChart.sourceID, draggedChart.sourceType),
+        updateChart(targetChart, dashboard.id, targetChart.sourceID, targetChart.sourceType),
+      ]).then(actions => {
+        batch(() => {
+          actions.forEach(action => dispatch(action));
+        });
+      });
+    }
+
+    dragItemID.current = null;
+    dragNode.current = null;
+    setDragging(false);
+  };
+
   return (
     <Fragment>
       <Toolbar
@@ -104,34 +155,22 @@ const Dashboard = () => {
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
-          {sortArr(charts, 'id').map((chart, index) => {
-            const { id: chartID, config, sourceID, sourceName } = chart;
-            const { dataset, ecl = {} } = config;
-            const eclDataset = ecl.dataset || '';
-            const dataObj =
-              compData[chartID] || compData[sourceName] || compData[dataset] || compData[eclDataset] || {};
-
+          {sortArr(charts, 'config::sort').map((chart, index) => {
             return (
-              <Grid key={index} item md={12}>
-                <Paper variant='outlined' style={{ position: 'relative' }}>
-                  <ChartToolbar
-                    chartID={chartID}
-                    config={config}
-                    dashboard={dashboard}
-                    sourceID={sourceID}
-                    removeChart={removeChart}
-                    toggleDialog={editChart}
-                  />
-                  <div className={clearDiv}>
-                    <Chart
-                      chart={chart}
-                      dataObj={dataObj}
-                      interactiveClick={interactiveClick}
-                      interactiveObj={interactiveObj}
-                    />
-                  </div>
-                </Paper>
-              </Grid>
+              <ChartTile
+                key={index}
+                chart={chart}
+                compData={compData}
+                dashboard={dashboard}
+                dragging={dragging}
+                dragItemID={dragItemID}
+                handleDragEnter={handleDragEnter}
+                handleDragStart={handleDragStart}
+                interactiveClick={interactiveClick}
+                interactiveObj={interactiveObj}
+                removeChart={removeChart}
+                toggleDialog={editChart}
+              />
             );
           })}
         </Grid>

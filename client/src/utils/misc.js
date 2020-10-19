@@ -4,8 +4,17 @@ export const sortArr = (arr, field = '', order = 'asc') => {
   if (!field) return arr;
 
   arr.sort((a, b) => {
-    let aField = a[field] == null ? '' : a[field];
-    let bField = b[field] == null ? '' : b[field];
+    let aField, bField, nestedObj, nestedField;
+
+    // Sort by a nested objects field
+    if (field.includes('::')) {
+      [nestedObj, nestedField] = field.split('::');
+      aField = a[nestedObj][nestedField] == null ? '' : a[nestedObj][nestedField];
+      bField = b[nestedObj][nestedField] == null ? '' : b[nestedObj][nestedField];
+    } else {
+      aField = a[field] == null ? '' : a[field];
+      bField = b[field] == null ? '' : b[field];
+    }
 
     // Format value
     aField = isNaN(Number(aField)) ? aField.trim().toLowerCase() : Number(aField);

@@ -1,32 +1,87 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Toolbar, Tooltip, Typography, Zoom } from '@material-ui/core';
-import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
+import { Grid, Typography } from '@material-ui/core';
+import { MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
 import classnames from 'classnames';
 
+// React Components
+import ToolbarSubMenu from './ToolbarSubMenu';
+
+// Redux Actions
+import { updateChart } from '../../features/chart/actions';
+
 // Utils
-import { canDeleteCharts, canEditCharts, createDateTimeStamp } from '../../utils/misc';
+import { canEditCharts, createDateTimeStamp } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { minWidth: 40 },
-  description: { fontSize: '0.875rem', fontWeight: 'normal', margin: theme.spacing(1.5, 10, 1, 6.5) },
+  description: { fontSize: '0.875rem', fontWeight: 'normal', margin: theme.spacing(1.5, 0, 1, 1) },
+  ellipseBtnXs: { margin: '0 40%', marginTop: theme.spacing(1) },
+  ellipseBtnMd: { margin: '0 50%', marginTop: theme.spacing(1) },
+  ellipseBtnLg: { margin: '0 70%', marginTop: theme.spacing(1) },
   tableDesc: { marginLeft: theme.spacing(1.5) },
-  toolbar: { position: 'absolute', top: '5px', right: '3px', padding: 0, minHeight: 'initial' },
-  toolbarNoTitle: { marginTop: theme.spacing(0) },
   typography: { fontSize: '1.15rem', fontWeight: 'bold', marginTop: theme.spacing(2) },
 }));
 
-const ChartToolbar = ({ chartID, dashboard, config, sourceID, removeChart, toggleDialog }) => {
+const ChartToolbar = props => {
+  const { chart, dashboard } = props;
+  const { config } = chart;
   const { role } = dashboard;
-  const { chartDescription = '', title = '', type } = config;
-  const { button, description, tableDesc, toolbar, toolbarNoTitle, typography } = useStyles();
+  const { chartDescription = '', size = 12, title = '', type } = config;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+  const { description, ellipseBtnLg, ellipseBtnMd, ellipseBtnXs, tableDesc, typography } = useStyles();
+
+  const showMenu = event => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const updateChartWidth = async event => {
+    const { value } = event.target;
+    const newChartObj = { ...chart };
+    const { sourceID, sourceType } = newChartObj;
+    let action;
+
+    // Update size in chart config
+    newChartObj.config.size = value;
+
+    try {
+      action = await updateChart(newChartObj, dashboard.id, sourceID, sourceType);
+    } catch (error) {
+      return console.error(error);
+    }
+
+    dispatch(action);
+  };
 
   return (
     <Fragment>
-      <Typography className={typography} align='center'>
-        {title}
-      </Typography>
+      <Grid container spacing={1}>
+        <Grid item xs={1}></Grid>
+        <Grid item xs={size > 4 ? 10 : 9}>
+          <Typography className={typography} align='center'>
+            {title}
+          </Typography>
+        </Grid>
+        <Grid item xs={size > 4 ? 1 : 2}>
+          {canEditCharts(role) && (
+            <Fragment>
+              <MoreHorizIcon
+                className={classnames(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}
+                onClick={showMenu}
+              />
+              <ToolbarSubMenu
+                {...props}
+                anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
+                updateChartWidth={updateChartWidth}
+              />
+            </Fragment>
+          )}
+        </Grid>
+      </Grid>
+
       <Typography className={classnames(description, { [tableDesc]: type === 'table' })}>
         {/*
           Conditionally render the chart description and <br /> only if a description is provided
@@ -36,22 +91,6 @@ const ChartToolbar = ({ chartID, dashboard, config, sourceID, removeChart, toggl
         {chartDescription !== '' ? <br /> : null}
         <small>{createDateTimeStamp()}</small>
       </Typography>
-      <Toolbar className={classnames(toolbar, { [toolbarNoTitle]: title === '' })}>
-        {canEditCharts(role) && (
-          <Tooltip title='Edit Chart' TransitionComponent={Zoom} arrow placement='top'>
-            <Button className={button}>
-              <EditIcon onClick={() => toggleDialog(chartID)} />
-            </Button>
-          </Tooltip>
-        )}
-        {canDeleteCharts(role) && (
-          <Tooltip title='Delete Chart' TransitionComponent={Zoom} arrow placement='top'>
-            <Button className={button} onClick={() => removeChart(chartID, sourceID)}>
-              <CloseIcon />
-            </Button>
-          </Tooltip>
-        )}
-      </Toolbar>
     </Fragment>
   );
 };

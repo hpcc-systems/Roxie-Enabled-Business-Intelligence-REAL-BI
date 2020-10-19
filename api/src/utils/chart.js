@@ -47,8 +47,10 @@ const getChartsByDashboardID = async dashboardID => {
   return charts;
 };
 
-const createChart = async (chart, dashboardID, sourceID) => {
-  let [err, newChart] = await awaitHandler(chartModel.create({ config: chart, dashboardID, sourceID }));
+const createChart = async (chart, dashboardID, sourceID, sort) => {
+  let [err, newChart] = await awaitHandler(
+    chartModel.create({ config: { ...chart, sort }, dashboardID, sourceID }),
+  );
 
   // Return error
   if (err) throw err;
@@ -127,11 +129,9 @@ const getChartsByDashboardAndSourceID = async (dashboardID, sourceID) => {
 };
 
 const updateChartByID = async (chart, sourceID) => {
-  const { id, ...chartFields } = chart;
+  const { id, config } = chart;
 
-  let [err] = await awaitHandler(
-    chartModel.update({ config: { ...chartFields }, sourceID }, { where: { id } }),
-  );
+  let [err] = await awaitHandler(chartModel.update({ config, sourceID }, { where: { id } }));
 
   // Return error
   if (err) throw err;
