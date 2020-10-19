@@ -147,6 +147,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       handleChange(null, { name: 'errors', value: errors });
       displayErrors(errors, workunit);
     } else {
+      handleChange(null, { name: 'errors', value: [] });
       getResults(data, result);
     }
   });
