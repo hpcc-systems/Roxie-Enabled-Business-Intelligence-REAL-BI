@@ -1,5 +1,4 @@
 import axios from 'axios';
-import errHandler from './errHandler';
 
 export const getSources = async (clusterID, keyword, sourceType) => {
   let response;
@@ -7,13 +6,7 @@ export const getSources = async (clusterID, keyword, sourceType) => {
   try {
     response = await axios.get('/api/source/search', { params: { clusterID, keyword, sourceType } });
   } catch (err) {
-    const { errMsg, status } = errHandler(err);
-
-    if (status === 401) {
-      return errMsg;
-    }
-
-    return [];
+    return err.response.data;
   }
 
   return response.data;

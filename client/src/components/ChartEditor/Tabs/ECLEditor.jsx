@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
+const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState }) => {
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -41,8 +41,12 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
       link.innerText = workunitID;
 
       const _title = document.querySelector(`#ecleditor header .title-text`);
-      _title.innerHTML = '';
-      _title.appendChild(link);
+
+      // Confirm element exists in DOM before modifying
+      if (_title) {
+        _title.innerHTML = '';
+        _title.appendChild(link);
+      }
     },
     [clusterURL],
   );
@@ -140,6 +144,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
     editor.removeAllHighlight();
 
     if (errors.length > 0) {
+      handleChange(null, { name: 'errors', value: errors });
       displayErrors(errors, workunit);
     } else {
       getResults(data, result);
@@ -157,13 +162,22 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
       .target(targetDomId)
       .render();
 
-    document.querySelector(`#${targetDomId} header`).style.margin = '0 0 5px 0';
+    const header = document.querySelector(`#${targetDomId} header`);
+
+    // Confirm element exists in DOM before modifying
+    if (header) {
+      header.setAttribute('style', 'margin: 0 0 5px 0;');
+    }
 
     let t = window.setTimeout(() => {
       playButtonElement.current = document.querySelector(`#${targetDomId} header .${runBtnClasses.ready}`);
-      playButtonElement.current.style['margin-top'] = '2px';
-      playButtonElement.current.innerText = runBtnClasses.ready;
-      playButtonElement.current.className += ' material-icons';
+
+      // Confirm element exists in DOM before modifying
+      if (playButtonElement.current) {
+        playButtonElement.current.setAttribute('style', 'margin-top: 2px;');
+        playButtonElement.current.innerText = runBtnClasses.ready;
+        playButtonElement.current.className += ' material-icons';
+      }
 
       editor._codemirror.doc.on(
         'change',
@@ -180,14 +194,17 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
     }, 300);
 
     const _dropdown = document.querySelector(`#${clusterDropdown._id}`);
+
     const lbl = document.createElement('label');
-
-    // Set _dropdown initial selection
-    _dropdown.selectedIndex = clusterIndex.current;
-
     lbl.innerText = 'Target:';
     lbl.setAttribute('style', 'margin-right: 6px;');
-    _dropdown.parentElement.insertBefore(lbl, _dropdown);
+
+    // Confirm element exists in DOM before modifying
+    if (_dropdown) {
+      _dropdown.setAttribute('style', 'margin-right: 4px;');
+      _dropdown.selectedIndex = clusterIndex.current;
+      _dropdown.parentElement.insertBefore(lbl, _dropdown);
+    }
   }, [
     clusterDropdown,
     displayWorkunitID,
@@ -207,6 +224,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
       return;
     }
 
+    // Script already defined, update editor
     if (script && script !== '') {
       editor.ecl(script);
     }
@@ -243,6 +261,9 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
       <div id={targetDomId} className={eclWidgetStyle}></div>
       {errors.find(err => err['eclRef']) !== undefined && (
         <FormHelperText className={errorText}>{errors.find(err => err['eclRef'])['eclRef']}</FormHelperText>
+      )}
+      {errors.find(err => err['Message']) !== undefined && (
+        <FormHelperText className={errorText}>{errors.find(err => err['Message'])['Message']}</FormHelperText>
       )}
     </Fragment>
   );
