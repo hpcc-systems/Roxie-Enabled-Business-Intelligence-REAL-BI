@@ -73,6 +73,8 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
     handleChange(null, { name: 'selectedSource', value: newValue });
   };
 
+  const selectedSourceErr = errors.find(err => err['selectedSource']);
+
   return type !== 'textBox' || (type === 'textBox' && !isStatic) ? (
     <Autocomplete
       className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
@@ -88,12 +90,8 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
           onChange={updateKeyword}
           label={sourceType === 'file' ? 'File Name' : 'Query Name'}
           fullWidth
-          error={errors.find(err => err['selectedSource']) !== undefined}
-          helperText={
-            errors.find(err => err['selectedSource']) !== undefined
-              ? errors.find(err => err['selectedSource'])['selectedSource']
-              : ''
-          }
+          error={selectedSourceErr !== undefined}
+          helperText={selectedSourceErr !== undefined ? selectedSourceErr['selectedSource'] : ''}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

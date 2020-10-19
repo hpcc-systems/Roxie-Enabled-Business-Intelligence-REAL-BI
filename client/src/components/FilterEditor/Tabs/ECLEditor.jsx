@@ -255,11 +255,13 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, localState }) => {
     })();
   }, []);
 
+  const eclRefErr = errors.find(err => err['eclRef']);
+
   return (
     <Fragment>
       <div id={targetDomId} className={eclWidgetStyle}></div>
-      {errors.find(err => err['eclRef']) !== undefined && (
-        <FormHelperText className={errorText}>{errors.find(err => err['eclRef'])['eclRef']}</FormHelperText>
+      {eclRefErr !== undefined && (
+        <FormHelperText className={errorText}>{eclRefErr['eclRef']}</FormHelperText>
       )}
     </Fragment>
   );

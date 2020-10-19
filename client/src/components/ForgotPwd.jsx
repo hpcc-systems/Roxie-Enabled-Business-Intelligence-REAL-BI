@@ -123,6 +123,8 @@ const ForgotPwd = () => {
   };
 
   const { errors, loading, successMsg, username } = localState;
+  const msgErr = errors.find(err => err.msg);
+  const usernameErr = errors.find(err => err['username']);
 
   return (
     <Fragment>
@@ -147,9 +149,9 @@ const ForgotPwd = () => {
                 />
                 <CardContent className={content}>
                   {/* Error Message */}
-                  {errors.find(err => err.msg) !== undefined && (
+                  {msgErr !== undefined && (
                     <Typography className={classnames(message, errMsg)} align='center'>
-                      {errors.find(err => err.msg).msg}
+                      {msgErr.msg}
                     </Typography>
                   )}
                   {/* Success Message */}
@@ -175,12 +177,8 @@ const ForgotPwd = () => {
                         type={'text'}
                         onChange={handleChange}
                         fullWidth
-                        error={errors.find(err => err['username']) !== undefined}
-                        helperText={
-                          errors.find(err => err['username']) !== undefined
-                            ? errors.find(err => err['username'])['username']
-                            : ''
-                        }
+                        error={usernameErr !== undefined}
+                        helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
                       />
                     </Grid>
                   </Grid>
