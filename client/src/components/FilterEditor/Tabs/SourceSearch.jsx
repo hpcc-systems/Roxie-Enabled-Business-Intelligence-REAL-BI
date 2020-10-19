@@ -7,7 +7,7 @@ import { getSources } from '../../../utils/source';
 
 const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { chartID, error, errors, keyword, sources, sourceType } = localState;
+  const { chartID, error, errors, keyword, selectedSource = {}, sources, sourceType } = localState;
   const { clusterID } = dashboard;
 
   // Get list of sources from hpcc
@@ -55,44 +55,38 @@ const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
     handleChange(null, { name: 'selectedSource', value: newValue });
   };
 
+  const selectedSourceErr = errors.find(err => err['selectedSource']);
+
   return (
     <Grid item xs={12}>
-      {filterIndex > -1 ? (
-        // Component is being edited and this text box is just displaying the datasource name
-        <TextField disabled={true} value={keyword} label='Source' fullWidth />
-      ) : (
-        <Autocomplete
-          onChange={handleOnChange}
-          getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
-          options={sources}
-          fullWidth
-          renderInput={params => (
-            <TextField
-              {...params}
-              name='keyword'
-              value={keyword}
-              onChange={updateKeyword}
-              label={sourceType === 'file' ? 'File Name' : 'Query Name'}
-              fullWidth
-              error={errors.find(err => err['selectedSource']) !== undefined}
-              helperText={
-                errors.find(err => err['selectedSource']) !== undefined
-                  ? errors.find(err => err['selectedSource'])['selectedSource']
-                  : ''
-              }
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <Fragment>
-                    {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </Fragment>
-                ),
-              }}
-            />
-          )}
-        />
-      )}
+      <Autocomplete
+        onChange={handleOnChange}
+        getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
+        options={sources}
+        value={selectedSource}
+        fullWidth
+        renderInput={params => (
+          <TextField
+            {...params}
+            name='keyword'
+            value={keyword}
+            onChange={updateKeyword}
+            label={sourceType === 'file' ? 'File Name' : 'Query Name'}
+            fullWidth
+            error={selectedSourceErr !== undefined}
+            helperText={selectedSourceErr !== undefined ? selectedSourceErr['selectedSource'] : ''}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
+          />
+        )}
+      />
     </Grid>
   );
 };
