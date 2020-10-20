@@ -60,14 +60,14 @@ const ChartComp = ({
   eclDataset = eclDataset === '' && ecl.dataset ? ecl.dataset : eclDataset;
 
   // Determine if chart data is available
-  if (Object.keys(data).length > 0) {
+  if (data.Results && Object.keys(data.Results).length > 0) {
     if (data.Exception) {
-      err = data.Exception.Message;
-    } else if (data[dataset] || eclDataset !== '') {
+      err = data.Results.Exception.Message;
+    } else if (data.Results[dataset] || eclDataset !== '') {
       if (eclDataset !== '') {
-        chartData = data[eclDataset].Row;
+        chartData = data.Results[eclDataset].Row;
       } else {
-        chartData = data[dataset].Row;
+        chartData = data.Results[dataset].Row;
       }
 
       // Confirm chart type

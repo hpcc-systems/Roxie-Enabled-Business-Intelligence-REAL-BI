@@ -25,8 +25,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartToolbar = props => {
-  const { chart, dashboard } = props;
-  const { config } = chart;
+  const { chart, dashboard, datetimeStamp } = props;
+  const { config, sourceType } = chart;
   const { role } = dashboard;
   const { chartDescription = '', size = 12, title = '', type } = config;
   const [anchorEl, setAnchorEl] = useState(null);
@@ -89,7 +89,7 @@ const ChartToolbar = props => {
         */}
         {chartDescription !== '' ? chartDescription : null}
         {chartDescription !== '' ? <br /> : null}
-        <small>{createDateTimeStamp()}</small>
+        <small>{createDateTimeStamp(datetimeStamp, sourceType)}</small>
       </Typography>
     </Fragment>
   );
