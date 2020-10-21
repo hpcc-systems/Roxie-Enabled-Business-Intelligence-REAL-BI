@@ -122,6 +122,7 @@ const ResetPwd = () => {
   };
 
   const { errors, loading, successMsg } = localState;
+  const msgErr = errors.find(err => err.msg);
 
   return (
     <Fragment>
@@ -143,9 +144,9 @@ const ResetPwd = () => {
                 />
                 <CardContent className={content}>
                   {/* Error Message */}
-                  {errors.find(err => err.msg) !== undefined && (
+                  {msgErr !== undefined && (
                     <Typography className={classnames(message, errMsg)} align='center'>
-                      {errors.find(err => err.msg).msg}
+                      {msgErr.msg}
                     </Typography>
                   )}
                   {/* Success Message */}
@@ -157,6 +158,8 @@ const ResetPwd = () => {
 
                   <Grid container spacing={1}>
                     {fields.map(({ label, name, type }, index) => {
+                      const err = errors.find(err => err[name]);
+
                       return (
                         <Grid key={index} item xs={6}>
                           <TextField
@@ -167,12 +170,8 @@ const ResetPwd = () => {
                             type={type}
                             onChange={handleChange}
                             fullWidth
-                            error={errors.find(err => err[name]) !== undefined}
-                            helperText={
-                              errors.find(err => err[name]) !== undefined
-                                ? errors.find(err => err[name])[name]
-                                : ''
-                            }
+                            error={err !== undefined}
+                            helperText={err !== undefined ? err[name] : ''}
                           />
                         </Grid>
                       );

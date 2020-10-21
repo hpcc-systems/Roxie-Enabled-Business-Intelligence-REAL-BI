@@ -29,7 +29,7 @@ const tabOptions = ['ECL Script', 'Source', 'Targets'];
 const FilterEditor = props => {
   const { dashboard, eclRef, handleChange, localState } = props;
   const { clusterHost, clusterID, clusterPort } = dashboard;
-  const { name, sourceType } = localState;
+  const { errors = [], name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid } = useStyles();
@@ -53,11 +53,20 @@ const FilterEditor = props => {
   }, [sourceType]);
 
   const clusterURL = `${clusterHost}:${clusterPort}`;
+  const nameErr = errors.find(err => err['name']);
 
   return (
     <Grid container direction='row' spacing={1} className={grid}>
       <Grid item xs={12}>
-        <TextField fullWidth label='Filter Name' name='name' value={name} onChange={handleChange} />
+        <TextField
+          fullWidth
+          label='Filter Name'
+          name='name'
+          value={name}
+          onChange={handleChange}
+          error={nameErr !== undefined}
+          helperText={nameErr !== undefined ? nameErr['name'] : ''}
+        />
       </Grid>
       <Grid item xs={12}>
         <FormControl fullWidth>

@@ -134,6 +134,10 @@ const Login = () => {
     }
   };
 
+  const msgErr = errors.find(err => err.msg);
+  const usernameErr = errors.find(err => err['username']);
+  const passwordErr = errors.find(err => err['password']);
+
   return (
     <Fragment>
       <Header />
@@ -144,9 +148,9 @@ const Login = () => {
               <Card>
                 <CardHeader className={header} title='Login' />
                 <CardContent className={content}>
-                  {errors.find(err => err.msg) !== undefined && (
+                  {msgErr !== undefined && (
                     <Typography className={errMsg} align='center'>
-                      {errors.find(err => err.msg).msg}
+                      {msgErr.msg}
                     </Typography>
                   )}
                   <TextField
@@ -156,12 +160,8 @@ const Login = () => {
                     value={username}
                     onChange={handleChange}
                     fullWidth
-                    error={errors.find(err => err['username']) !== undefined}
-                    helperText={
-                      errors.find(err => err['username']) !== undefined
-                        ? errors.find(err => err['username'])['username']
-                        : ''
-                    }
+                    error={usernameErr !== undefined}
+                    helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
                   />
                   <TextField
                     className={textfield}
@@ -172,12 +172,8 @@ const Login = () => {
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
-                    error={errors.find(err => err['password']) !== undefined}
-                    helperText={
-                      errors.find(err => err['password']) !== undefined
-                        ? errors.find(err => err['password'])['password']
-                        : ''
-                    }
+                    error={passwordErr !== undefined}
+                    helperText={passwordErr !== undefined ? passwordErr['password'] : ''}
                   />
                   <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>

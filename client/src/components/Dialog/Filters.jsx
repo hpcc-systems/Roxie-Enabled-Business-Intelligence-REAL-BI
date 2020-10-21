@@ -22,7 +22,7 @@ import useForm from '../../hooks/useForm';
 // Utils
 import { createSourceObj, addSource } from '../../utils/source';
 import { createFilterObj } from '../../utils/dashboard';
-import { validateSource } from '../../utils/validate';
+import { validateFilter } from '../../utils/validate';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -85,7 +85,7 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
   }, [handleChange, localState.sourceType]);
 
   const saveFilter = async () => {
-    let errors = validateSource(localState, eclRef);
+    let errors = validateFilter(localState, eclRef);
 
     if (Object.keys(errors).length > 0) {
       return handleChange(null, { name: 'errors', value: errors });

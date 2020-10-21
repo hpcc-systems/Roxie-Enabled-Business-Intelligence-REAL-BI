@@ -147,6 +147,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       handleChange(null, { name: 'errors', value: errors });
       displayErrors(errors, workunit);
     } else {
+      handleChange(null, { name: 'errors', value: [] });
       getResults(data, result);
     }
   });
@@ -256,15 +257,16 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
     })();
   }, []);
 
+  const eclRefErr = errors.find(err => err['eclRef']);
+  const msgErr = errors.find(err => err['Message']);
+
   return (
     <Fragment>
       <div id={targetDomId} className={eclWidgetStyle}></div>
-      {errors.find(err => err['eclRef']) !== undefined && (
-        <FormHelperText className={errorText}>{errors.find(err => err['eclRef'])['eclRef']}</FormHelperText>
+      {eclRefErr !== undefined && (
+        <FormHelperText className={errorText}>{eclRefErr['eclRef']}</FormHelperText>
       )}
-      {errors.find(err => err['Message']) !== undefined && (
-        <FormHelperText className={errorText}>{errors.find(err => err['Message'])['Message']}</FormHelperText>
-      )}
+      {msgErr !== undefined && <FormHelperText className={errorText}>{msgErr['Message']}</FormHelperText>}
     </Fragment>
   );
 };
