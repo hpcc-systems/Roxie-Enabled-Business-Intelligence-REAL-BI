@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer, Typography } from '@material-ui/core';
 
@@ -10,6 +10,8 @@ import NewDashboardDialog from '../Dialog/newDashboard';
 import EditDashboardDialog from '../Dialog/editDashboard';
 import NewFolderDialog from '../Dialog/newFolder';
 import EditFolderDialog from '../Dialog/editFolder';
+import DeleteDashboardDialog from '../Dialog/DeleteDashboard';
+import DeleteFolderDialog from '../Dialog/DeleteFolder';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -17,21 +19,15 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { getDashboard, updateDashboard } from '../../features/dashboard/actions';
-import {
-  closeDashboardInWorkspace,
-  closeMultipleOpenDashboards,
-  openDashboardInWorkspace,
-  updateWorkspaceDirectory,
-} from '../../features/workspace/actions';
+import { openDashboardInWorkspace, updateWorkspaceDirectory } from '../../features/workspace/actions';
 
 // Utils
-import { createDashboard, deleteExistingDashboard } from '../../utils/dashboard';
+import { createDashboard } from '../../utils/dashboard';
 import {
   addObjectToDirectory,
   getDashboardsFromDirectory,
   getFavoriteDashboards,
   getObjectNames,
-  removeObjFromDirectory,
   updateDashboardObj,
   updateObjectInDirectory,
 } from '../../utils/directory';
@@ -69,6 +65,8 @@ const useStyles = makeStyles(theme => ({
 const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
   const [loading, setLoading] = useState(false);
+  const [dashboardID, setDashboardID] = useState(null);
+  const [folderObj, setFolderObj] = useState(null);
   const { workspace } = useSelector(state => state.workspace);
   const { directory, directoryDepth, id: workspaceID, openDashboards } = workspace;
   const dispatch = useDispatch();
@@ -76,6 +74,10 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const { showDialog: showEditDashboardDialog, toggleDialog: toggleEditDashboardDialog } = useDialog(false);
   const { showDialog: showNewFolderDialog, toggleDialog: toggleNewFolderDialog } = useDialog(false);
   const { showDialog: showEditFolderDialog, toggleDialog: toggleEditFolderDialog } = useDialog(false);
+  const { showDialog: showDeleteFolderDialog, toggleDialog: toggleDeleteFolderDialog } = useDialog(false);
+  const { showDialog: showDeleteDashboardDialog, toggleDialog: toggleDeleteDashboardDialog } = useDialog(
+    false,
+  );
   const { drawer, drawerPaper, typography } = useStyles();
 
   // Update directory depth localState
@@ -287,34 +289,9 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     toggleEditFolderDialog();
   };
 
-  const deleteFolder = directoryObj => {
-    const { children = false, id: folderID } = directoryObj;
-
-    const newDirectory = removeObjFromDirectory(directory, folderID);
-    updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID).then(action => dispatch(action));
-
-    // Delete dashboards from DB if in folder
-    if (children) {
-      const deletedDashboardIDs = deleteNestedDashboards(children, []);
-      closeMultipleOpenDashboards(deletedDashboardIDs, workspaceID).then(action => dispatch(action));
-    }
-  };
-
-  const deleteNestedDashboards = (arr, dashboards) => {
-    const deletedDashboards = new Array(...dashboards);
-
-    arr.forEach(row => {
-      const { children = false, id = false } = row;
-
-      if (id && !children) {
-        deleteExistingDashboard(id);
-        deletedDashboards.push(id);
-      } else if (children) {
-        deleteNestedDashboards(children, deletedDashboards);
-      }
-    });
-
-    return deletedDashboards;
+  const removeFolder = directoryObj => {
+    setFolderObj(directoryObj);
+    toggleDeleteFolderDialog();
   };
 
   const editDashboard = directoryObj => {
@@ -331,19 +308,9 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     });
   };
 
-  const deleteDashboard = dashboardID => {
-    const newDirectory = removeObjFromDirectory(directory, dashboardID);
-    deleteExistingDashboard(dashboardID);
-
-    // Update directory and remove dashboard from tab bar, if it was open
-    Promise.all([
-      updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID),
-      closeDashboardInWorkspace(dashboardID, workspaceID),
-    ]).then(actions => {
-      batch(() => {
-        actions.forEach(action => dispatch(action));
-      });
-    });
+  const removeDashboard = dashboardID => {
+    setDashboardID(dashboardID);
+    toggleDeleteDashboardDialog();
   };
 
   // Directory references
@@ -363,13 +330,13 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
             <DirectoryTree
               addNewDashboard={addNewDashboard}
               addNewFolder={addNewFolder}
-              deleteDashboard={deleteDashboard}
-              deleteFolder={deleteFolder}
               directory={directory}
               directoryDepth={directoryDepth}
               editDashboard={editDashboard}
               editFolder={editFolder}
               openDashboard={openDashboard}
+              removeDashboard={removeDashboard}
+              removeFolder={removeFolder}
               updateDirectoryObj={updateDirectoryObj}
               updateDirectoryDepth={updateDirectoryDepth}
             />
@@ -417,6 +384,22 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
           show={showEditFolderDialog}
           toggleDialog={toggleEditFolderDialog}
           updateFolder={updateFolder}
+        />
+      )}
+      {showDeleteFolderDialog && (
+        <DeleteFolderDialog
+          directoryObj={folderObj}
+          show={showDeleteFolderDialog}
+          toggleDialog={toggleDeleteFolderDialog}
+          workspace={workspace}
+        />
+      )}
+      {showDeleteDashboardDialog && (
+        <DeleteDashboardDialog
+          dashboardID={dashboardID}
+          show={showDeleteDashboardDialog}
+          toggleDialog={toggleDeleteDashboardDialog}
+          workspace={workspace}
         />
       )}
     </Drawer>

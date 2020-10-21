@@ -17,9 +17,9 @@ const FolderSubMenu = ({
   addNewDashboard,
   addNewFolder,
   anchorEl,
-  deleteFolder,
   directoryObj,
   editFolder,
+  removeFolder,
   root,
   setAnchorEl,
   setAnchorName,
@@ -71,7 +71,7 @@ const FolderSubMenu = ({
       {!root && (
         <MenuItem
           onClick={() => {
-            deleteFolder(directoryObj);
+            removeFolder(directoryObj);
             closeMenu();
           }}
         >
