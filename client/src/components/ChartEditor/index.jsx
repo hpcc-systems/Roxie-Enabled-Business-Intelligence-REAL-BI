@@ -210,7 +210,6 @@ const ChartEditor = props => {
           dataObj={chartData}
           sourceType={sourceType}
           eclDataset={eclDataset}
-          inEditor={true}
         />
       </Grid>
     </Grid>

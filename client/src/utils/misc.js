@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export const sortArr = (arr, field = '', order = 'asc') => {
   if (!field) return arr;
 
@@ -136,21 +134,24 @@ export const canDeleteCharts = role => {
   return roles.indexOf(role) > -1;
 };
 
-export const createDateTimeStamp = chartDesc => {
-  // Create Time Stamp
-  let datetimeStamp = moment().format('MM/DD/YYYY hh:mm:ss a');
-  datetimeStamp = `Last Refreshed: ${datetimeStamp}`; // Format label in front of datetime stamp
+export const createDateTimeStamp = (datetimeStamp, sourceType) => {
+  if (!datetimeStamp) return '';
 
-  // Get user input description
-  const newDesc = chartDesc ? chartDesc : '';
+  let text;
 
-  if (newDesc) {
-    // Append datetime stamp to description
-    return `${newDesc}\n${datetimeStamp}`;
+  // Get text for source type
+  switch (sourceType) {
+    case 'file':
+      text = 'Last Modified:';
+      break;
+    case 'ecl':
+    case 'query':
+    default:
+      text = 'Last Executed:';
+      break;
   }
 
-  // No description, return the datetime stamp
-  return datetimeStamp;
+  return `${text} ${datetimeStamp}`;
 };
 
 export const existsInArray = (arr, string) => {

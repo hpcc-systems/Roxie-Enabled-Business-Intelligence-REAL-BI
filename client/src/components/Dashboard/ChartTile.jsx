@@ -39,6 +39,7 @@ const ChartTile = props => {
 
   const dataObj =
     compData[chartID] || compData[sourceName] || compData[dataset] || compData[eclDataset] || {};
+  const lastModifiedDate = dataObj.data ? dataObj.data.lastModifiedDate : null;
 
   return (
     <Grid item md={size}>
@@ -49,7 +50,7 @@ const ChartTile = props => {
         onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}
       >
         <Paper variant='outlined' style={{ position: 'relative' }}>
-          <ChartToolbar {...props} />
+          <ChartToolbar {...props} datetimeStamp={lastModifiedDate} />
           <div className={clearDiv}>
             <Chart
               chart={chart}

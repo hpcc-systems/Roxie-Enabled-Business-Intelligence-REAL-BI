@@ -16,9 +16,9 @@ const useStyles = makeStyles(() => ({
 
 const DashboardSubMenu = ({
   anchorEl,
-  deleteDashboard,
   directoryObj,
   editDashboard,
+  removeDashboard,
   setAnchorEl,
   setAnchorName,
   updateDirectoryObj,
@@ -57,7 +57,7 @@ const DashboardSubMenu = ({
       </MenuItem>
       <MenuItem
         onClick={() => {
-          deleteDashboard(id);
+          removeDashboard(id);
           closeMenu();
         }}
       >
