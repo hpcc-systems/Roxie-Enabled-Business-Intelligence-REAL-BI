@@ -242,7 +242,7 @@ const ChartComp = ({
           )}
           {chartData.length < 5000 && chartData.length === countParamValue && (
             <Typography className={classnames(warningMsg, { [typography2]: !inEditor })} display='block'>
-              The dataset&apos;s number of returned rows is being altered by a chart level parameter.
+              The number of returned rows is being altered by a chart level parameter.
             </Typography>
           )}
         </Fragment>

@@ -10,10 +10,12 @@ const {
   updateDirectory,
   updateDirectoryDepth,
   updateOpenDashboards,
+  updateWorkspaceByID,
+  deleteWorkspaceByID,
 } = require('../../utils/workspace');
 
 router.get('/all', async (req, res) => {
-  const { userID } = req.user;
+  const { id: userID } = req.user;
   let workspaces;
 
   try {
@@ -44,6 +46,44 @@ router.post('/', async (req, res) => {
   }
 
   res.status(201).send({ workspaces, workspaceID: newWorkspace.id });
+});
+
+router.put('/', async (req, res) => {
+  const {
+    body,
+    user: { id: userID },
+  } = req;
+  let workspaces;
+
+  try {
+    await updateWorkspaceByID(body);
+    workspaces = await getWorkspaces(userID);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  return res.status(202).send(workspaces);
+});
+
+router.delete('/', async (req, res) => {
+  const {
+    query: { workspaceID },
+    user: { id: userID },
+  } = req;
+  let workspaces;
+
+  try {
+    await deleteWorkspaceByID(workspaceID);
+    workspaces = await getWorkspaces(userID);
+  } catch (err) {
+    const { errMsg, status } = errHandler(err);
+
+    return res.status(status).send(errMsg);
+  }
+
+  return res.status(202).send(workspaces);
 });
 
 router.put('/last', async (req, res) => {

@@ -88,11 +88,31 @@ const updateOpenDashboards = async (openDashboards, workspaceID) => {
   return;
 };
 
+const updateWorkspaceByID = async ({ name, workspaceID }) => {
+  let [err] = await awaitHandler(workspaceModel.update({ name }, { where: { id: workspaceID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
+const deleteWorkspaceByID = async workspaceID => {
+  let [err] = await awaitHandler(workspaceModel.destroy({ where: { id: workspaceID } }));
+
+  // Return error
+  if (err) throw err;
+
+  return;
+};
+
 module.exports = {
   createWorkspace,
+  deleteWorkspaceByID,
   getWorkspaceByID,
   getWorkspaces,
   updateDirectory,
   updateDirectoryDepth,
   updateOpenDashboards,
+  updateWorkspaceByID,
 };

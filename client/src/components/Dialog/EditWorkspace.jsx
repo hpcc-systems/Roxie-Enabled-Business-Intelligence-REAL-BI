@@ -1,6 +1,5 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { useDispatch, batch } from 'react-redux';
+import React, { useState } from 'react';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -12,17 +11,8 @@ import {
   Typography,
 } from '@material-ui/core';
 
-// React Hooks
-import useForm from '../../hooks/useForm';
-
 // Redux Actions
-import { updateLastWorkspace } from '../../features/auth/actions';
-import { createNewWorkspace } from '../../features/workspace/actions';
-
-const initState = {
-  error: '',
-  name: '',
-};
+import { updateWorkspace } from '../../features/workspace/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -35,50 +25,47 @@ const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: 24 },
 }));
 
-const NewWorkspaceDialog = ({ show, toggleDialog }) => {
-  const { values: localState, handleChange } = useForm(initState);
+const EditWorkspace = ({ show, toggleDialog }) => {
+  const { errors, workspace } = useSelector(state => state.workspace);
+  const { id: workspaceID, name } = workspace;
+  const [workspaceName, setWorkspaceName] = useState(name);
   const dispatch = useDispatch();
-  const history = useHistory();
   const { button, errMsg, formControl } = useStyles();
 
-  const createWorkspace = async () => {
-    const { action, workspaceID } = await createNewWorkspace(localState);
-    const action2 = await updateLastWorkspace(workspaceID);
+  const editWorkspace = async () => {
+    updateWorkspace(workspaceName, workspaceID)
+      .then(actions => {
+        batch(() => {
+          actions.forEach(action => dispatch(action));
+        });
 
-    batch(() => {
-      dispatch(action);
-      dispatch(action2);
-    });
-
-    history.push(`/workspace/${workspaceID}`);
-    toggleDialog();
+        toggleDialog();
+      })
+      .catch(err => dispatch(err));
   };
-
-  const { error, name } = localState;
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
-      <DialogTitle>New Workspace</DialogTitle>
+      <DialogTitle>Edit Workspace</DialogTitle>
       <DialogContent>
-        {error !== '' && (
+        {errors.msg && (
           <Typography className={errMsg} align='center'>
-            {error}
+            {errors.msg}
           </Typography>
         )}
         <TextField
           className={formControl}
           fullWidth
           label='Workspace Name'
-          name='name'
-          value={name}
-          onChange={handleChange}
+          value={workspaceName}
+          onChange={e => setWorkspaceName(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button className={button} variant='contained' onClick={createWorkspace}>
+        <Button className={button} variant='contained' onClick={editWorkspace}>
           Save
         </Button>
       </DialogActions>
@@ -86,4 +73,4 @@ const NewWorkspaceDialog = ({ show, toggleDialog }) => {
   );
 };
 
-export default NewWorkspaceDialog;
+export default EditWorkspace;

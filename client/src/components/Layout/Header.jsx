@@ -1,48 +1,21 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Link, useHistory, useLocation } from 'react-router-dom';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  AppBar,
-  Button,
-  ClickAwayListener,
-  Grow,
-  IconButton,
-  ListItemIcon,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-  Toolbar,
-  Typography,
-} from '@material-ui/core';
-import {
-  ArrowDropDown as ArrowDropDownIcon,
-  ExitToApp as ExitToAppIcon,
-  Help as HelpIcon,
-  Menu as MenuIcon,
-  MenuBook as MenuBookIcon,
-  Person as PersonIcon,
-  VpnKey as VpnKeyIcon,
-} from '@material-ui/icons';
+import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
+import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
 import classnames from 'classnames';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
 // React Components
+import UserDropDown from './UserDropdown';
 import WorkspaceSelector from './WorkspaceSelector';
 import NewWorkspace from '../Dialog/newWorkspace';
-
-// Redux Axtions
-import { logoutUser } from '../../features/auth/actions';
-import { clearWorkspaceRef } from '../../features/workspace/actions';
-
-// Utils
-import setAuthHeader from '../../utils/axiosConfig';
-
-// Constants
-import { tokenName } from '../../constants';
+import HelpDropDown from './HelpDropdown';
+import EditWorkspace from '../Dialog/EditWorkspace';
+import DeleteWorkspace from '../Dialog/DeleteWorkpace';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -54,6 +27,7 @@ const useStyles = makeStyles(theme => ({
   },
   buttonIcon: { marginRight: theme.spacing(0.5) },
   buttonLabel: { marginTop: theme.spacing(0.25) },
+  iconBtn: { marginTop: theme.spacing(1) },
   menuIcon: { minWidth: 35, maxWidth: 35 },
   menuItem: {
     paddingTop: theme.spacing(0.75),
@@ -61,7 +35,6 @@ const useStyles = makeStyles(theme => ({
     '& > a': { color: 'inherit', display: 'inherit', textDecoration: 'none' },
   },
   menuLabel: { marginTop: theme.spacing(0.25) },
-  newBtn: { marginTop: theme.spacing(1.5) },
   toolbar: { minHeight: 65, maxHeight: 65 },
   typography: {
     margin: theme.spacing(0, 3, 0, 1.5),
@@ -73,29 +46,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Header = ({ toggleDrawer }) => {
-  const { user } = useSelector(state => state.auth);
-  const { id: userID, username } = user;
-  const dispatch = useDispatch();
-  const history = useHistory();
+  const { user = {} } = useSelector(state => state.auth);
+  const { id: userID, lastWorkspace, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
-  const { showDialog, toggleDialog } = useDialog(false);
-  const {
-    button,
-    buttonIcon,
-    buttonLabel,
-    menuIcon,
-    menuItem,
-    menuLabel,
-    newBtn,
-    toolbar,
-    typography,
-    typography2,
-    workspaceDiv,
-  } = useStyles();
+  const { showDialog: showNewWorkspace, toggleDialog: toggleNewWorkspace } = useDialog(false);
+  const { showDialog: showEditWorkspace, toggleDialog: toggleEditWorkspace } = useDialog(false);
+  const { showDialog: showDeleteWorkspace, toggleDialog: toggleDeleteWorkspace } = useDialog(false);
+  const { iconBtn, toolbar, typography, typography2, workspaceDiv } = useStyles();
 
   const handleToggle = dropdownNum => {
     if (dropdownNum === 1) {
@@ -134,20 +95,6 @@ const Header = ({ toggleDrawer }) => {
     prevOpen2.current = open2;
   }, [open, open2]);
 
-  const logout = async () => {
-    localStorage.removeItem(tokenName);
-    setAuthHeader();
-
-    Promise.all([logoutUser(), clearWorkspaceRef()]).then(actions => {
-      batch(() => {
-        dispatch(actions[0]);
-        dispatch(actions[1]);
-      });
-    });
-
-    history.push('/login');
-  };
-
   const isChangePwdScreen = location.pathname === '/changepwd';
 
   return (
@@ -171,91 +118,60 @@ const Header = ({ toggleDrawer }) => {
               {/* Workspace Dropdown */}
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
-                  <WorkspaceSelector dispatch={dispatch} user={user} />
-                  <Button className={newBtn} variant='contained' onClick={toggleDialog}>
-                    New +
-                  </Button>
+                  <WorkspaceSelector />
+                  {lastWorkspace && (
+                    <Fragment>
+                      <IconButton
+                        edge='start'
+                        color='inherit'
+                        onClick={toggleEditWorkspace}
+                        className={iconBtn}
+                      >
+                        <EditIcon fontSize='small' />
+                      </IconButton>
+                      <IconButton
+                        edge='start'
+                        color='inherit'
+                        onClick={toggleDeleteWorkspace}
+                        className={iconBtn}
+                      >
+                        <DeleteIcon fontSize='small' />
+                      </IconButton>
+                    </Fragment>
+                  )}
+                  <IconButton edge='start' color='inherit' onClick={toggleNewWorkspace} className={iconBtn}>
+                    <AddCircle fontSize='small' />
+                  </IconButton>
                 </div>
               ) : (
                 <div style={{ flexGrow: 1 }}></div>
               )}
 
-              {/* Help Button */}
-              <IconButton className={button} color='inherit' onClick={() => handleToggle(1)} ref={anchorRef}>
-                <HelpIcon className={buttonIcon} />
-                <Typography variant='body1' color='inherit' className={buttonLabel}>
-                  Help
-                </Typography>
-                <ArrowDropDownIcon />
-              </IconButton>
+              <HelpDropDown
+                anchorRef={anchorRef}
+                handleClose={handleClose}
+                handleToggle={handleToggle}
+                open={open}
+                useStyles={useStyles}
+              />
 
-              {/* Help Dropdown */}
-              <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
-                {({ TransitionProps }) => (
-                  <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
-                    <Paper>
-                      <ClickAwayListener onClickAway={event => handleClose(event, 1)}>
-                        <MenuList autoFocusItem={open} id='helpMenu'>
-                          <MenuItem className={menuItem} onClick={event => handleClose(event, 1)}>
-                            <Link to={'/docs/User_Guide.pdf'} target='_blank'>
-                              <ListItemIcon className={menuIcon}>
-                                <MenuBookIcon />
-                              </ListItemIcon>
-                              <Typography color='inherit' className={menuLabel}>
-                                User Guide
-                              </Typography>
-                            </Link>
-                          </MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-
-              {/* User Button */}
-              <IconButton className={button} color='inherit' onClick={() => handleToggle(2)} ref={anchorRef2}>
-                <PersonIcon className={buttonIcon} />
-                <Typography variant='body1' color='inherit' className={buttonLabel}>
-                  {username}
-                </Typography>
-                <ArrowDropDownIcon />
-              </IconButton>
-
-              {/* User Dropdown */}
-              <Popper open={open2} anchorEl={anchorRef2.current} role={undefined} transition>
-                {({ TransitionProps }) => (
-                  <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
-                    <Paper>
-                      <ClickAwayListener onClickAway={event => handleClose(event, 2)}>
-                        <MenuList autoFocusItem={open} id='userMenu'>
-                          <MenuItem className={menuItem} onClick={() => history.push('/changepwd')}>
-                            <ListItemIcon className={menuIcon}>
-                              <VpnKeyIcon />
-                            </ListItemIcon>
-                            <Typography color='inherit' className={menuLabel}>
-                              Change Password
-                            </Typography>
-                          </MenuItem>
-                          <MenuItem className={menuItem} onClick={() => logout()}>
-                            <ListItemIcon className={menuIcon}>
-                              <ExitToAppIcon />
-                            </ListItemIcon>
-                            <Typography color='inherit' className={menuLabel}>
-                              Logout
-                            </Typography>
-                          </MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
+              <UserDropDown
+                anchorRef={anchorRef2}
+                handleClose={handleClose}
+                handleToggle={handleToggle}
+                open={open2}
+                username={username}
+                useStyles={useStyles}
+              />
             </Fragment>
           )}
         </Toolbar>
       </AppBar>
-      {showDialog && <NewWorkspace show={showDialog} toggleDialog={toggleDialog} />}
+      {showNewWorkspace && <NewWorkspace show={showNewWorkspace} toggleDialog={toggleNewWorkspace} />}
+      {showEditWorkspace && <EditWorkspace show={showEditWorkspace} toggleDialog={toggleEditWorkspace} />}
+      {showDeleteWorkspace && (
+        <DeleteWorkspace show={showDeleteWorkspace} toggleDialog={toggleDeleteWorkspace} />
+      )}
     </Fragment>
   );
 };

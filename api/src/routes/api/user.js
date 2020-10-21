@@ -5,25 +5,23 @@ const axios = require('axios');
 const { getUserByID } = require('../../utils/auth');
 const { getAllUsers, getSuperUserToken } = require('../../utils/user');
 const errHandler = require('../../utils/errHandler');
-const { getWorkspaces } = require('../../utils/workspace');
 
 // Constants
 const { AUTH_PORT, AUTH_URL } = process.env;
 
 router.get('/getdata', async (req, res) => {
   const { id: userID, username } = req.user;
-  let user, workspaces;
+  let user;
 
   try {
     user = await getUserByID(userID);
-    workspaces = await getWorkspaces(userID);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
   }
 
   // Add auth service username to user object
-  user = { ...user, username, workspaces };
+  user = { ...user, username };
 
   return res.status(200).json(user);
 });
