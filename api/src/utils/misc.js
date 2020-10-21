@@ -52,10 +52,12 @@ const createFileParams = (params = []) => {
   let Start = params.find(({ name }) => name === 'Start');
 
   Count = Count ? (Count.value ? Count.value : DEFAULT_ROW_COUNT_RETURN) : DEFAULT_ROW_COUNT_RETURN;
-  Start = Start ? Start.value - 1 : 0; // Convert start value back to 0 index
+  Start = Start > 0 ? Start.value - 1 : 0; // Convert start value back to 0 index
 
   // Remove Start and Count params
-  params = params.filter(({ name, value }) => name !== 'Start' && name !== 'Count' && value !== null);
+  params = params.filter(
+    ({ name, value }) => name !== 'Start' && name !== 'Count' && value !== null && value !== '',
+  );
 
   const formattedParams = params.map(({ name, value }) => ({ Name: name, Value: value }));
 
