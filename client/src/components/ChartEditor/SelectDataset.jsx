@@ -69,17 +69,14 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
     return null;
   }
 
+  const selectedDatasetErr = errors.find(err => err['selectedDataset']);
+
   return loading ? (
     <CircularProgress className={progress} />
   ) : (
     <FormControl className={formControl} fullWidth>
       <InputLabel>Dataset</InputLabel>
-      <Select
-        name='dataset'
-        value={dataset}
-        onChange={handleChange}
-        error={errors.find(err => err['selectedDataset']) !== undefined}
-      >
+      <Select name='dataset' value={dataset} onChange={handleChange} error={selectedDatasetErr !== undefined}>
         {datasets.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>
@@ -88,11 +85,9 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
           );
         })}
       </Select>
-      <FormHelperText className={errorText}>
-        {errors.find(err => err['selectedDataset']) !== undefined
-          ? errors.find(err => err['selectedDataset'])['selectedDataset']
-          : ''}
-      </FormHelperText>
+      {selectedDatasetErr !== undefined && (
+        <FormHelperText className={errorText}>{selectedDatasetErr['selectedDataset']}</FormHelperText>
+      )}
     </FormControl>
   );
 };

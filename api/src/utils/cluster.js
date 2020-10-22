@@ -18,6 +18,9 @@ const {
   getType,
   unNestSequelizeObj,
 } = require('./misc');
+const { createQueryLastModifiedDate } = require('./roxieQueries');
+const { getFileLastModifiedDate } = require('./logicalFiles');
+const { createEclScriptLastModifiedDate } = require('./eclScripts');
 
 const logger = require('../config/logger');
 
@@ -50,6 +53,8 @@ const getQueryDataFromCluster = async ({ id: clusterID, host, dataPort }, { para
   const paramsList = createParamString(params);
   const clusterAuth = await getClusterAuth(clusterID, userID);
 
+  const lastModifiedDate = createQueryLastModifiedDate();
+
   // Build URL from cluster and query details
   const url = `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`;
 
@@ -64,7 +69,7 @@ const getQueryDataFromCluster = async ({ id: clusterID, host, dataPort }, { para
   // Get data array from response
   const { Results = [] } = response.data[`${name}Response`];
 
-  return Results;
+  return { lastModifiedDate, Results };
 };
 
 const getQueryDatasetsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {
@@ -221,6 +226,7 @@ const getFileMetaDataFromCluster = async ({ id: clusterID, host, infoPort }, { n
 const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { source, params }, userID) => {
   const { name: filename } = source;
   const clusterAuth = await getClusterAuth(clusterID, userID);
+  const lastModifiedDate = await getFileLastModifiedDate({ id: clusterID, host, infoPort }, filename, userID);
 
   // Build URL from cluster and file details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
@@ -250,7 +256,7 @@ const getFileDataFromCluster = async ({ id: clusterID, host, infoPort }, { sourc
   // Update variable to nested depth
   const { Row = [] } = response['Result'];
 
-  return { [filename]: { Row } };
+  return { Results: { [filename]: { Row } }, lastModifiedDate };
 };
 
 const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
@@ -259,6 +265,7 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
   const { hpccID: workunitID, target } = source;
   const clusterAuth = await getClusterAuth(clusterID, userID);
   const { Count } = createWUParams(params);
+  const lastModifiedDate = createEclScriptLastModifiedDate();
 
   // Build URL from cluster details
   const url = `${host}:${infoPort}/WsWorkunits/WUResult.json`;
@@ -288,7 +295,7 @@ const getWorkunitDataFromCluster = async (cluster, config, source, userID) => {
   // Update variable to nested depth
   const { Row = [] } = response.data['WUResultResponse']['Result'][dataset];
 
-  return { [dataset]: { Row } };
+  return { lastModifiedDate, Results: { [dataset]: { Row } } };
 };
 
 const getWorkunitDataFromClusterWithParams = async (cluster, config, params, source, userID) => {
@@ -298,6 +305,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
   const clusterAuth = await getClusterAuth(clusterID, userID);
   const { Count, formattedParams } = createWUParams(params);
   const schemaArr = ecl.schema.map(({ name }) => name);
+  const lastModifiedDate = createEclScriptLastModifiedDate();
 
   // Build URL from cluster details
   const url = `${host}:${infoPort}/WsWorkunits/WURun.json`;
@@ -354,7 +362,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, config, params, sou
   }
 
   // Reduce data array to number of rows specified
-  return { [dataset]: { Row: data.slice(0, Count) } };
+  return { lastModifiedDate, Results: { [dataset]: { Row: data.slice(0, Count) } } };
 };
 
 const getQueryParamsFromCluster = async ({ id: clusterID, host, dataPort }, { name, target }, userID) => {

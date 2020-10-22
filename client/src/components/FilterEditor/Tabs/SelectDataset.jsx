@@ -62,6 +62,8 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
     return null;
   }
 
+  const sourceDatasetErr = errors.find(err => err['selectedDataset']);
+
   return (
     <Grid item xs={12}>
       {loading ? (
@@ -73,7 +75,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
             name='sourceDataset'
             value={sourceDataset}
             onChange={handleChange}
-            error={errors.find(err => err['selectedDataset']) !== undefined}
+            error={sourceDatasetErr !== undefined}
           >
             {datasets.map(({ name }, index) => {
               return (
@@ -83,11 +85,9 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
               );
             })}
           </Select>
-          <FormHelperText className={errorText}>
-            {errors.find(err => err['selectedDataset']) !== undefined
-              ? errors.find(err => err['selectedDataset'])['selectedDataset']
-              : ''}
-          </FormHelperText>
+          {sourceDatasetErr !== undefined && (
+            <FormHelperText className={errorText}>{sourceDatasetErr['selectedDataset']}</FormHelperText>
+          )}
         </FormControl>
       )}
     </Grid>

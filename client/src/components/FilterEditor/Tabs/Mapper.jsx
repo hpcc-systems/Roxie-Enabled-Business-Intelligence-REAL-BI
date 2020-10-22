@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { Remove as RemoveIcon } from '@material-ui/icons';
 
 // Create styles
@@ -11,14 +11,22 @@ const useStyles = makeStyles(theme => ({
     minWidth: 30,
     padding: 0,
   },
+  errorText: { color: theme.palette.error.dark },
 }));
 
 // Dropdown component to choose from a list of charts on the dashboard
-const chartDropdown = (arr, field, index, updateArr) => {
+const chartDropdown = (arr, field, index, updateArr, errors, errStyle) => {
+  const targetChartError = errors.find(err => err[`targetChart${index}`]);
+
   return (
     <FormControl fullWidth>
       <InputLabel>Target Chart</InputLabel>
-      <Select name='targetChart' value={field || ''} onChange={event => updateArr(event, index)}>
+      <Select
+        name='targetChart'
+        value={field || ''}
+        onChange={event => updateArr(event, index)}
+        error={targetChartError !== undefined}
+      >
         {arr.map(({ chartID, title }, index) => {
           title = !title ? 'No Chart Title' : title;
 
@@ -29,12 +37,16 @@ const chartDropdown = (arr, field, index, updateArr) => {
           );
         })}
       </Select>
+      {targetChartError !== undefined && (
+        <FormHelperText className={errStyle}>{targetChartError[`targetChart${index}`]}</FormHelperText>
+      )}
     </FormControl>
   );
 };
 
 // Dropdown component to select field for a particular chart
-const fieldDropdown = (arr, chartID, field, index, updateArr) => {
+const fieldDropdown = (arr, chartID, field, index, updateArr, errors, errStyle) => {
+  const targetParamError = errors.find(err => err[`targetParam${index}`]);
   let fieldsArr = [];
 
   // Confirm chart was chosen, array exists, and fields exist in first object
@@ -47,7 +59,12 @@ const fieldDropdown = (arr, chartID, field, index, updateArr) => {
   return (
     <FormControl fullWidth>
       <InputLabel>Target Parameter</InputLabel>
-      <Select name='targetParam' value={field || ''} onChange={event => updateArr(event, index)}>
+      <Select
+        name='targetParam'
+        value={field || ''}
+        onChange={event => updateArr(event, index)}
+        error={targetParamError !== undefined}
+      >
         {fieldsArr.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>
@@ -56,13 +73,16 @@ const fieldDropdown = (arr, chartID, field, index, updateArr) => {
           );
         })}
       </Select>
+      {targetParamError !== undefined && (
+        <FormHelperText className={errStyle}>{targetParamError[`targetParam${index}`]}</FormHelperText>
+      )}
     </FormControl>
   );
 };
 
 const FilterMapper = ({ handleChange, localState }) => {
-  const { params } = localState;
-  const { button } = useStyles();
+  const { errors = [], params } = localState;
+  const { button, errorText } = useStyles();
 
   let { charts } = useSelector(state => state.chart);
 
@@ -121,10 +141,10 @@ const FilterMapper = ({ handleChange, localState }) => {
           </Grid>
         )}
         <Grid item xs={isPopulated ? 5 : 6}>
-          {chartDropdown(charts, targetChart, index, updateField)}
+          {chartDropdown(charts, targetChart, index, updateField, errors, errorText)}
         </Grid>
         <Grid item xs={6}>
-          {fieldDropdown(charts, targetChart, targetParam, index, updateField)}
+          {fieldDropdown(charts, targetChart, targetParam, index, updateField, errors, errorText)}
         </Grid>
       </Fragment>
     );
