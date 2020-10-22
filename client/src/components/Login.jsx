@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -21,6 +21,7 @@ import Header from './Layout/Header';
 
 // Redux Actions
 import { getLatestUserData, loginUser } from '../features/auth/actions';
+import { getWorkspaces } from '../features/workspace/actions';
 
 // React Hooks
 import useForm from '../hooks/useForm';
@@ -91,9 +92,13 @@ const Login = () => {
 
         (async () => {
           const { action, lastWorkspace } = await getLatestUserData();
+          const action2 = await getWorkspaces();
 
           // Send data to redux store
-          dispatch(action);
+          batch(() => {
+            dispatch(action);
+            dispatch(action2);
+          });
 
           // Generate new url and navigate there
           const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';

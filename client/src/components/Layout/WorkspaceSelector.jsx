@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
@@ -29,9 +30,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const WorkspaceSelector = ({ dispatch, user }) => {
-  const { lastWorkspace, workspaces = [] } = user;
+const WorkspaceSelector = () => {
+  const { user = {} } = useSelector(state => state.auth);
+  const { workspaces = [] } = useSelector(state => state.workspace);
+  const { lastWorkspace } = user;
   const history = useHistory();
+  const dispatch = useDispatch();
   const { formControl, icon, inputLabel, select } = useStyles();
 
   useEffect(() => {
@@ -64,9 +68,12 @@ const WorkspaceSelector = ({ dispatch, user }) => {
     }
   };
 
+  const selectorLabel =
+    workspaces.length === 0 ? 'Create a workspace' : !lastWorkspace ? 'Choose a workspace' : 'Workspace';
+
   return (
     <FormControl className={formControl}>
-      <InputLabel className={inputLabel}>Workspace</InputLabel>
+      <InputLabel className={inputLabel}>{selectorLabel}</InputLabel>
       <Select
         className={select}
         value={lastWorkspace || ''}

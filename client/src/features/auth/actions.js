@@ -8,7 +8,6 @@ export const SET_AUTH_ERRORS = 'SET_AUTH_ERRORS';
 export const SET_AUTH_USER = 'SET_AUTH_USER';
 export const SET_DIRECTORY_DEPTH = 'SET_DIRECTORY_DEPTH';
 export const SET_LAST_WORKSPACE = 'SET_LAST_WORKSPACE';
-export const GET_WORKSPACES = 'GET_WORKSPACES';
 
 export const loginUser = async ({ username, password }) => {
   let response;
@@ -27,10 +26,10 @@ export const loginUser = async ({ username, password }) => {
 };
 
 export const getLatestUserData = async () => {
-  let response;
+  let user;
 
   try {
-    response = await axios.get('/api/user/getdata');
+    user = await axios.get('/api/user/getdata');
   } catch (err) {
     console.error(err.response);
     const error = { type: SET_AUTH_ERRORS, payload: err.response };
@@ -38,24 +37,9 @@ export const getLatestUserData = async () => {
   }
 
   // Get last dashboard id from response
-  const { lastWorkspace } = response.data;
+  const { lastWorkspace } = user.data;
 
-  return { action: { type: SET_AUTH_USER, payload: response.data }, lastWorkspace };
-};
-
-export const createNewWorkspace = async localState => {
-  let response;
-
-  try {
-    response = await axios.post('/api/workspace/', { ...localState });
-  } catch (err) {
-    console.error(err);
-    return { type: SET_AUTH_ERRORS, payload: err };
-  }
-
-  const { workspaces, workspaceID } = response.data;
-
-  return { action: { type: GET_WORKSPACES, payload: workspaces }, workspaceID };
+  return { action: { type: SET_AUTH_USER, payload: user.data }, lastWorkspace };
 };
 
 export const updateLastWorkspace = async workspaceID => {

@@ -9,7 +9,6 @@ const { AUTH_APP_ID, AUTH_PORT, AUTH_URL, EXTERNAL_HTTP_PORT, HOST_HOSTNAME, NOD
 // Utils
 const { getUserByID } = require('../../utils/auth');
 const { createUser } = require('../../utils/user');
-const { getWorkspaces } = require('../../utils/workspace');
 const {
   validate,
   validateLogin,
@@ -20,7 +19,7 @@ const {
 
 router.post('/login', [validateLogin(), validate], async (req, res) => {
   const { username, password } = req.body;
-  let response, user, workspaces;
+  let response, user;
 
   // Log attempt
   logger.info(`User ${username} attempted to login.`);
@@ -59,15 +58,13 @@ router.post('/login', [validateLogin(), validate], async (req, res) => {
     if (!user) {
       await createUser(id);
       user = { lastWorkspace: null };
-    } else {
-      workspaces = await getWorkspaces(id);
     }
   } catch (err) {
     const { errMsg, status } = errHandler(err);
     return res.status(status).send(errMsg);
   }
 
-  res.status(200).json({ id, token, username: tokenUsername, ...user, workspaces });
+  res.status(200).json({ id, token, username: tokenUsername, ...user });
 });
 
 router.post('/register', [validateRegistration(), validate], async (req, res) => {

@@ -233,12 +233,12 @@ const ChartComp = ({
           {chartData.length >= 5000 && (
             <Typography className={warningMsg} display='block'>
               Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further
-              to improve app performance and chart render time.
+              to improve chart render time.
             </Typography>
           )}
           {chartData.length < 5000 && chartData.length === countParamValue && (
             <Typography className={warningMsg} display='block'>
-              The dataset&apos;s number of returned rows is being altered by a chart level parameter.
+              The number of returned rows is being altered by a chart level parameter.
             </Typography>
           )}
         </Fragment>
