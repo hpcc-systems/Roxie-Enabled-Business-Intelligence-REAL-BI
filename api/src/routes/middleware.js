@@ -18,7 +18,7 @@ const authenticateToken = () => {
 
     // Create auth service request instance
     const requestInstance = axios.create({
-      url: `${AUTH_URL}:${AUTH_PORT}/auth/verify`,
+      url: `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`,
       method: 'POST',
       headers: { authorization: token },
     });
@@ -32,7 +32,7 @@ const authenticateToken = () => {
 
     // Destructure response to get user data
     const { id, role, username: tokenUsername } = response.data.verified;
-    const hasPermission = role.some(({ ApplicationId }) => ApplicationId == AUTH_APP_ID); // Used == instead of === for flexibility and type coercion.
+    const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === for flexibility and type coercion.
 
     // User doesn't have permission to use this app
     if (!hasPermission) {
@@ -41,11 +41,7 @@ const authenticateToken = () => {
     }
 
     // Update request object
-    req.user = {
-      id,
-      role: role.filter(({ ApplicationId }) => ApplicationId == AUTH_APP_ID), // Used == instead of === for flexibility and type coercion.
-      username: tokenUsername,
-    };
+    req.user = { id, username: tokenUsername };
 
     // Move to next method
     next();

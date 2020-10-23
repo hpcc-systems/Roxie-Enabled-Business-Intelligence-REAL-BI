@@ -13,7 +13,7 @@ const createUser = async userID => {
 };
 
 const getSuperUserToken = async () => {
-  const url = `${AUTH_URL}:${AUTH_PORT}/auth/login`;
+  const url = `${AUTH_URL}:${AUTH_PORT}/api/auth/login`;
 
   let [err, response] = await awaitHandler(
     axios.post(url, { username: SHARE_USERNAME, password: SHARE_PASSWORD }),
@@ -27,7 +27,7 @@ const getSuperUserToken = async () => {
 
 const getAllUsers = async (token, userID) => {
   const requestInstance = axios.create({
-    url: `${AUTH_URL}:${AUTH_PORT}/users/all`,
+    url: `${AUTH_URL}:${AUTH_PORT}/api/users/all`,
     method: 'GET',
     headers: { Cookie: `auth=${token}` }, // Middleware in auth service expects token in req.cookie.auth
   });

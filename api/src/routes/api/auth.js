@@ -25,7 +25,7 @@ router.post('/login', [validateLogin(), validate], async (req, res) => {
   logger.info(`User ${username} attempted to login.`);
 
   // Create auth service url
-  const url = `${AUTH_URL}:${AUTH_PORT}/auth/login`;
+  const url = `${AUTH_URL}:${AUTH_PORT}/api/auth/login`;
 
   try {
     response = await axios.post(url, { username, password });
@@ -42,7 +42,7 @@ router.post('/login', [validateLogin(), validate], async (req, res) => {
   // Decode and destructure jwt token
   const token = response.data.accessToken;
   const { id, role, username: tokenUsername } = jwtDecode(token);
-  const hasPermission = role.some(({ ApplicationId }) => ApplicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
+  const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
 
   // User doesn't have permission to use this app
   if (!hasPermission) {
@@ -72,7 +72,7 @@ router.post('/register', [validateRegistration(), validate], async (req, res) =>
   let response;
 
   // Create axios request objects
-  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/registerUser`;
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/api/auth/registerUser`;
   const reqBody = {
     applicationId: AUTH_APP_ID,
     confirmpassword: confirmPassword,
@@ -117,7 +117,7 @@ router.post('/forgot-password', [validateForgotPassword(), validate], async (req
   let response;
 
   // Create axios request objects
-  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/forgotPassword`;
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/api/auth/forgotPassword`;
   const reqBody = {
     applicationId: AUTH_APP_ID,
     username,
@@ -142,7 +142,7 @@ router.post('/reset-password', [validateResetPassword(), validate], async (req, 
   const { id, password } = req.body;
 
   // Create axios request objects
-  const reqURL = `${AUTH_URL}:${AUTH_PORT}/auth/resetPassword`;
+  const reqURL = `${AUTH_URL}:${AUTH_PORT}/api/auth/resetPassword`;
   const reqBody = { id, password };
 
   // Log API request

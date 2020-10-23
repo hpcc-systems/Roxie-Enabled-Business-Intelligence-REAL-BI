@@ -49,7 +49,7 @@ router.post('/changepwd', async (req, res) => {
   let token = req.headers.authorization;
 
   // Create axios request objects
-  const url = `${AUTH_URL}:${AUTH_PORT}/users/changepwd`;
+  const url = `${AUTH_URL}:${AUTH_PORT}/api/users/changepwd`;
   const options = { headers: { Cookie: `auth=${token}` } };
   const reqBody = { username, oldpassword: oldPwd, newpassword: newPwd, confirmpassword: newPwd2 };
 
