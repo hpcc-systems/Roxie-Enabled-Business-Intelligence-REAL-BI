@@ -122,18 +122,27 @@ const Login = () => {
     // Attempt to login user
     const { action, lastWorkspace, token } = await loginUser(localState);
 
-    // Send data to redux store
-    dispatch(action);
-
     if (token) {
       // Set local storage and auth header
       localStorage.setItem(tokenName, token);
       setAuthHeader(token);
 
+      // Get workspaces for user
+      const action2 = await getWorkspaces();
+
+      // Send data to redux store
+      batch(() => {
+        dispatch(action);
+        dispatch(action2);
+      });
+
       // Generate new url and navigate there
       const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';
       history.push(location);
     } else {
+      // Send data to redux store
+      dispatch(action);
+
       // No token means an error occured
       handleChange(null, { name: 'loading', value: false });
     }
