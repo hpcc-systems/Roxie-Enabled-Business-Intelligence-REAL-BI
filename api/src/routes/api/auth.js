@@ -1,3 +1,4 @@
+const https = require('https');
 const router = require('express').Router();
 const axios = require('axios');
 const jwtDecode = require('jwt-decode');
@@ -17,6 +18,10 @@ const {
   validateResetPassword,
 } = require('../../utils/validation');
 
+// Create axios instance that allows self-signed certificates
+// WARNING: This disables client verification
+const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+
 router.post('/login', [validateLogin(), validate], async (req, res) => {
   const { username, password } = req.body;
   let response, user;
@@ -28,8 +33,9 @@ router.post('/login', [validateLogin(), validate], async (req, res) => {
   const url = `${AUTH_URL}:${AUTH_PORT}/api/auth/login`;
 
   try {
-    response = await axios.post(url, { username, password });
+    response = await instance.post(url, { username, password });
   } catch (err) {
+    console.error(err);
     const { errMsg, status } = errHandler(err);
 
     if (typeof errMsg !== 'object') {
@@ -96,7 +102,7 @@ router.post('/register', [validateRegistration(), validate], async (req, res) =>
   );
 
   try {
-    response = await axios.post(reqURL, reqBody);
+    response = await instance.post(reqURL, reqBody);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
@@ -128,7 +134,7 @@ router.post('/forgot-password', [validateForgotPassword(), validate], async (req
   logger.info(`Request made to ${reqURL} with body '${JSON.stringify(reqBody)}'`);
 
   try {
-    response = await axios.post(reqURL, reqBody);
+    response = await instance.post(reqURL, reqBody);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 
@@ -151,7 +157,7 @@ router.post('/reset-password', [validateResetPassword(), validate], async (req, 
   );
 
   try {
-    await axios.post(reqURL, reqBody);
+    await instance.post(reqURL, reqBody);
   } catch (err) {
     const { errMsg, status } = errHandler(err);
 

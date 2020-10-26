@@ -1,3 +1,4 @@
+const https = require('https');
 const axios = require('axios');
 const logger = require('../config/logger');
 const errHandler = require('../utils/errHandler');
@@ -21,6 +22,7 @@ const authenticateToken = () => {
       url: `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`,
       method: 'POST',
       headers: { authorization: token },
+      httpsAgent: new https.Agent({ rejectUnauthorized: false }), // WARNING: This disables client verification
     });
 
     try {

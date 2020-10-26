@@ -25,6 +25,7 @@ const { createEclScriptLastModifiedDate } = require('./eclScripts');
 const logger = require('../config/logger');
 
 // Create axios instance that allows self-signed certificates
+// WARNING: This disables client verification
 const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 
 const getClusterByID = async id => {
