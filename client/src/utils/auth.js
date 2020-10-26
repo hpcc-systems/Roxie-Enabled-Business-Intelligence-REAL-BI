@@ -32,13 +32,13 @@ export const updatePassword = async stateObj => {
   try {
     response = await axios.post('/api/user/changepwd', { ...stateObj });
   } catch (err) {
-    const errReason = err.response.data.reason;
+    const { data } = err.response;
 
-    if (errReason) {
-      throw errReason;
+    if (data.reason) {
+      throw new Error(data.reason);
     }
 
-    throw err.response.data;
+    throw new Error(data);
   }
 
   return response.data;
@@ -51,16 +51,13 @@ export const registerUser = async stateObj => {
     response = await axios.post('/api/auth/register', { ...stateObj });
   } catch (err) {
     const { data } = err.response;
-    let error;
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
+        throw new Error([{ msg: JSON.stringify(data) }]);
       }
 
-      error = [{ msg: data }];
-      throw error;
+      throw new Error([{ msg: data }]);
     }
 
     throw data.errors;
@@ -76,16 +73,13 @@ export const forgotPassword = async stateObj => {
     response = await axios.post('/api/auth/forgot-password', { ...stateObj });
   } catch (err) {
     const { data } = err.response;
-    let error;
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
+        throw new Error([{ msg: JSON.stringify(data) }]);
       }
 
-      error = [{ msg: data }];
-      throw error;
+      throw new Error([{ msg: data }]);
     }
 
     throw data.errors;
@@ -104,16 +98,13 @@ export const resetPassword = async stateObj => {
     await axios.post('/api/auth/reset-password', { ...stateObj });
   } catch (err) {
     const { data } = err.response;
-    let error;
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
+        throw new Error([{ msg: JSON.stringify(data) }]);
       }
 
-      error = [{ msg: data }];
-      throw error;
+      throw new Error([{ msg: data }]);
     }
 
     throw data.errors;

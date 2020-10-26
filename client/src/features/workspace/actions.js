@@ -52,8 +52,7 @@ export const updateWorkspace = async (name, workspaceID) => {
   try {
     response = await axios.put('/api/workspace/', { name, workspaceID });
   } catch (err) {
-    let error = { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
-    throw error;
+    throw new Error({ type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } });
   }
 
   const actions = [
@@ -70,8 +69,7 @@ export const deleteWorkspace = async workspaceID => {
   try {
     response = await axios.delete('/api/workspace/', { params: { workspaceID } });
   } catch (err) {
-    let error = { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
-    throw error;
+    throw new Error({ type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } });
   }
 
   const actions = [
