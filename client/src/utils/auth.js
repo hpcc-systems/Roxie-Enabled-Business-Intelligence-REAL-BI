@@ -35,10 +35,10 @@ export const updatePassword = async stateObj => {
     const { data } = err.response;
 
     if (data.reason) {
-      throw new Error(data.reason);
+      throw data.reason;
     }
 
-    throw new Error(data);
+    throw data;
   }
 
   return response.data;
@@ -54,10 +54,10 @@ export const registerUser = async stateObj => {
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        throw new Error([{ msg: JSON.stringify(data) }]);
+        throw [{ msg: JSON.stringify(data) }];
       }
 
-      throw new Error([{ msg: data }]);
+      throw [{ msg: data }];
     }
 
     throw data.errors;
@@ -76,10 +76,10 @@ export const forgotPassword = async stateObj => {
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        throw new Error([{ msg: JSON.stringify(data) }]);
+        throw [{ msg: JSON.stringify(data) }];
       }
 
-      throw new Error([{ msg: data }]);
+      throw [{ msg: data }];
     }
 
     throw data.errors;
@@ -101,10 +101,10 @@ export const resetPassword = async stateObj => {
 
     if (!data.errors) {
       if (typeof data === 'object') {
-        throw new Error([{ msg: JSON.stringify(data) }]);
+        throw [{ msg: JSON.stringify(data) }];
       }
 
-      throw new Error([{ msg: data }]);
+      throw [{ msg: data }];
     }
 
     throw data.errors;

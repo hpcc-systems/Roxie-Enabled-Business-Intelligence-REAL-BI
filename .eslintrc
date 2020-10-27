@@ -22,7 +22,8 @@
   },
   "plugins": ["react", "prettier"],
   "rules": {
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "no-throw-literal": "off"
   },
   "settings": {
     "react": {
