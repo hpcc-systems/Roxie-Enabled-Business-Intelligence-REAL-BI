@@ -7,8 +7,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography }
 import { closeMultipleOpenDashboards, updateWorkspaceDirectory } from '../../features/workspace/actions';
 
 // Utils
-import { deleteExistingDashboard } from '../../utils/dashboard';
-import { removeObjFromDirectory } from '../../utils/directory';
+import { getDashboardIDsFromFolder, removeObjFromDirectory } from '../../utils/directory';
+import { deleteMultipleExistingDashboard } from '../../utils/dashboard';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -24,47 +24,26 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteFolderDialog = ({ directoryObj, show, toggleDialog, workspace }) => {
-  const { directory, directoryDepth, id: workspaceID } = workspace;
+  const { directory, id: workspaceID } = workspace;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn, dialog } = useStyles();
 
   const confirmDelete = async () => {
-    const { children = false, id: folderID } = directoryObj;
-    const promises = [];
+    try {
+      const dashboardIDArray = getDashboardIDsFromFolder(directoryObj, []);
+      const newDirectory = removeObjFromDirectory(directory, directoryObj.id);
+      await deleteMultipleExistingDashboard(dashboardIDArray);
 
-    const newDirectory = removeObjFromDirectory(directory, folderID);
-    promises.push(updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID));
+      const actions = await Promise.all([
+        closeMultipleOpenDashboards(dashboardIDArray, workspaceID),
+        updateWorkspaceDirectory(newDirectory, workspaceID),
+      ]);
 
-    // Delete dashboards from DB if in folder
-    if (children) {
-      const deletedDashboardIDs = deleteNestedDashboards(children, []);
-      promises.push(closeMultipleOpenDashboards(deletedDashboardIDs, workspaceID));
-    }
-
-    Promise.all(promises).then(actions => {
-      batch(() => {
-        actions.forEach(action => dispatch(action));
-      });
-
+      batch(() => actions.forEach(action => dispatch(action)));
       toggleDialog();
-    });
-  };
-
-  const deleteNestedDashboards = (arr, dashboards) => {
-    const deletedDashboards = new Array(...dashboards);
-
-    arr.forEach(row => {
-      const { children = false, id = false } = row;
-
-      if (id && !children) {
-        deleteExistingDashboard(id);
-        deletedDashboards.push(id);
-      } else if (children) {
-        deleteNestedDashboards(children, deletedDashboards);
-      }
-    });
-
-    return deletedDashboards;
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   return (

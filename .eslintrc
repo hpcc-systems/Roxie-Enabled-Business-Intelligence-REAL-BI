@@ -20,9 +20,10 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": ["react", "prettier"],
+  "plugins": ["react", "react-hooks", "prettier"],
   "rules": {
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "no-throw-literal": "off"
   },
   "settings": {
     "react": {

@@ -24,8 +24,8 @@ const useStyles = makeStyles(theme => ({
 
 const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, binNumber } = config;
+  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, binNumber } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
   const binNumTooltipText = `The number of bins, or buckets, the dataset should be split into.
@@ -88,7 +88,7 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
               <TextField
                 fullWidth
                 label='Number of Bins'
-                name='config:binNumber'
+                name='configuration:binNumber'
                 value={binNumber || ''}
                 onChange={handleChangeObj}
                 autoComplete='off'

@@ -23,8 +23,8 @@ const useStyles = makeStyles(theme => ({
 
 const DualLineParams = ({ eclRef, localState, updateAxisKey }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, axis2 = {}, axis3 = {} } = config;
+  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {}, axis3 = {} } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
 

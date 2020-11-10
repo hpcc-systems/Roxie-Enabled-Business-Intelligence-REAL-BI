@@ -9,14 +9,15 @@ import { SplitPanel } from '@hpcc-js/phosphor';
 import { debounce } from 'lodash';
 
 // Utils
-import { getECLParams, getTargetClusters, submitWorkunit } from '../../../utils/cluster';
+import { getECLParams, getTargetClustersForEditor, submitWorkunit } from '../../../utils/hpcc';
 
 const useStyles = makeStyles(theme => ({
   eclWidgetStyle: { margin: theme.spacing(2.5, 0), minHeight: 300 },
   errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState }) => {
+const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
+  const { id: clusterID, host, infoPort } = dashboard.cluster;
   const { cluster, script } = eclRef.current;
   const editor = new ECLEditor();
   const titleBar = new TitleBar();
@@ -26,7 +27,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
   const layout = new Border2();
   const runBtnClasses = { ready: 'play_circle_outline', working: 'hourglass_empty' };
   const targetCluster = useRef(null);
-  const { errors = [] } = localState;
+  const { error, errors = [] } = localState;
   const playButtonElement = useRef(null);
   const clusterIndex = useRef(0);
   const targetDomId = 'ecleditor';
@@ -36,7 +37,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
   const displayWorkunitID = useCallback(
     workunitID => {
       const link = document.createElement('a');
-      link.href = `${clusterURL}?Wuid=${workunitID}&Widget=WUDetailsWidget`;
+      link.href = `${host}:${infoPort}?Wuid=${workunitID}&Widget=WUDetailsWidget`;
       link.target = '_blank';
       link.innerText = workunitID;
 
@@ -48,7 +49,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
         _title.appendChild(link);
       }
     },
-    [clusterURL],
+    [host, infoPort],
   );
 
   const resetPlayButton = useCallback(() => {
@@ -84,7 +85,14 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
   const getResults = useCallback(
     async (data, result) => {
       const { Count, ECLSchemas, ResultName, Wuid } = result._espState;
-      const params = await getECLParams(clusterID, Wuid);
+      let params;
+
+      try {
+        params = await getECLParams(clusterID, Wuid);
+      } catch (error) {
+        handleChange(null, { name: 'error', value: error.message });
+        return resetPlayButton();
+      }
 
       // Get script schema and format
       const schema = ECLSchemas.ECLSchemaItem.map(({ ColumnName, ColumnType }) => ({
@@ -95,7 +103,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       // Create config object
       const eclConfig = {
         cluster: targetCluster.current,
-        data: { [ResultName]: { Row: data } },
+        data,
         dataset: ResultName,
         params,
         recordCount: Count,
@@ -110,7 +118,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       displayWorkunitID(Wuid);
       resetPlayButton();
     },
-    [clusterID, displayWorkunitID, eclRef, editor, resetPlayButton],
+    [clusterID, displayWorkunitID, eclRef, editor, handleChange, resetPlayButton],
   );
 
   runButton.faChar(runBtnClasses.ready).tooltip('Submit');
@@ -127,10 +135,9 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
     let workunitObj;
 
     try {
-      // Submit ECL Script to cluster
       workunitObj = await submitWorkunit(clusterID, targetCluster.current, editor.ecl());
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      handleChange(null, { name: 'error', value: error.message });
       return resetPlayButton();
     }
 
@@ -219,10 +226,10 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
     titleBar,
   ]);
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (clusterURL === '') {
-      console.error('ECLWidget Error: Provide a valid "clusterURL" in the options object');
-      return;
+    if (!clusterID) {
+      return handleChange(null, { name: 'error', value: 'No cluster information found' });
     }
 
     // Script already defined, update editor
@@ -235,11 +242,9 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       let _clusters = {};
 
       try {
-        // Get available target clusters
-        clusters = await getTargetClusters(clusterID);
-      } catch (err) {
-        console.error(err);
-        return;
+        clusters = await getTargetClustersForEditor(clusterID);
+      } catch (error) {
+        return handleChange(null, { name: 'error', value: error.message });
       }
 
       // Populate _clusters object with cluster names
@@ -256,6 +261,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
       addComponentsToWidget();
     })();
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const eclRefErr = errors.find(err => err['eclRef']);
   const msgErr = errors.find(err => err['Message']);
@@ -267,6 +273,7 @@ const ECLEditorComp = ({ clusterID, clusterURL, eclRef, handleChange, localState
         <FormHelperText className={errorText}>{eclRefErr['eclRef']}</FormHelperText>
       )}
       {msgErr !== undefined && <FormHelperText className={errorText}>{msgErr['Message']}</FormHelperText>}
+      {error !== undefined && <FormHelperText className={errorText}>{error}</FormHelperText>}
     </Fragment>
   );
 };

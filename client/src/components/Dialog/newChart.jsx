@@ -5,7 +5,7 @@ import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } fro
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { addChart } from '../../features/chart/actions';
+import { createChart } from '../../features/dashboard/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
@@ -15,11 +15,12 @@ import { validateSource } from '../../utils/validate';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, getPreviewData, mergeArrays } from '../../utils/chart';
-import { addSource, createSourceObj } from '../../utils/source';
+import { createChartObj, mergeArrays } from '../../utils/chart';
+import { createSource, createSourceObj } from '../../utils/source';
+import { getChartPreviewData } from '../../utils/hpcc';
 
 const initState = {
-  config: {
+  configuration: {
     axis1: { showTickLabels: true },
     axis2: { showTickLabels: true },
     axis3: { showTickLabels: true },
@@ -32,7 +33,7 @@ const initState = {
   errors: [],
   keyword: '',
   mappedParams: [{ name: '', value: '' }],
-  relations: [{ originField: '', mappedChart: '', mappedField: '' }],
+  // relations: [{ originField: '', mappedChart: '', mappedField: '' }],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -58,7 +59,6 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   // Reference values
   const {
     dataObj: { loading },
-    error,
     selectedDataset = {},
     selectedSource = {},
     sourceType,
@@ -73,73 +73,69 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   // Add components to DB
   const newChart = async () => {
-    const { config, dataset } = localState;
-    const { isStatic, type } = config;
+    const { configuration, dataset } = localState;
+    const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
+    let sourceID, sourceName, sourceType;
 
-    let errors = validateSource(localState, eclRef);
-    if (Object.keys(errors).length > 0) {
+    try {
+      validateSource(localState, eclRef);
+    } catch (errors) {
       return handleChange(null, { name: 'errors', value: errors });
     }
 
     if (type === 'textBox' && isStatic) {
-      const chartObj = { ...config, dataset, ecl: {} };
+      const chartObj = { ...configuration, dataset, ecl: {} };
 
       try {
-        addChart(chartObj, dashboardID, null, null, null).then(action => {
-          dispatch(action);
-        });
-      } catch (err) {
-        console.error(err);
+        const action = await createChart(chartObj, dashboardID, null, null, null);
+        dispatch(action);
+      } catch (error) {
+        return dispatch(error);
       }
     } else {
       const sourceObj = createSourceObj(localState, eclRef.current);
       const newChartObj = createChartObj(localState, eclRef.current);
 
       try {
-        const { sourceID, sourceName, sourceType, error } = await addSource(dashboardID, sourceObj);
+        const newSource = await createSource(sourceObj);
+        sourceID = newSource.id;
+        sourceName = newSource.name;
+        sourceType = newSource.type;
+      } catch (error) {
+        return handleChange(null, { name: 'error', value: error.message });
+      }
 
-        if (sourceID !== null && sourceName !== null && sourceType !== null) {
-          addChart(newChartObj, dashboardID, sourceID, sourceName, sourceType).then(action => {
-            dispatch(action);
-          });
-
-          // Close dialog
-          return toggleDialog();
-        } else {
-          console.error(error);
-        }
-      } catch (err) {
-        console.error(err);
+      try {
+        const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
+        dispatch(action);
+        return toggleDialog();
+      } catch (error) {
+        return dispatch(error);
       }
     }
   };
 
   const updateChartPreview = () => {
-    const { config, mappedParams, selectedSource: source, sourceType } = localState;
-    const { params = [] } = config;
-
-    // Merge param arrays to send to server
-    const usedParams = mergeArrays(params, mappedParams);
+    const { configuration, dataset, mappedParams, selectedSource: source, sourceType } = localState;
+    const { params = [] } = configuration;
 
     if (sourceKeys > 0 && datasetKeys > 0) {
-      // Set loading
-      handleChange(null, { name: 'dataObj', value: { loading: true } });
+      (async () => {
+        handleChange(null, { name: 'dataObj', value: { loading: true } });
 
-      // Fetch data for selectedSource
-      getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
-        if (typeof data !== 'object') {
-          return handleChange(null, { name: 'error', value: data });
-        }
+        try {
+          const usedParams = mergeArrays(params, mappedParams);
+          const options = { dataset, params: usedParams, source };
+          const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
 
-        // Clear previous error
-        if (error !== '') {
           handleChange(null, { name: 'error', value: '' });
+          handleChange(null, { name: 'dataObj', value: { data, loading: false } });
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
+          handleChange(null, { name: 'dataObj', value: { error: error.message, loading: false } });
         }
-
-        // Set data in local state object with source name as key
-        handleChange(null, { name: 'dataObj', value: { data, loading: false } });
-      });
+      })();
     }
   };
 

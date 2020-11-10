@@ -8,13 +8,13 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const ColumnComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
+const ColumnComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     showDataLabels = false,
     sortBy = {},
-  } = config;
+  } = configuration;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;
@@ -118,7 +118,7 @@ const ColumnComp = ({ chartID, data, config, interactiveClick, interactiveObj, r
   };
 
   // Add click events
-  if (relations[chartID]) {
+  if (hasClickEvent) {
     chartConfig.events = {
       onColumnClick: ({ data }) => interactiveClick(chartID, customXLabel, data[xValue]),
     };

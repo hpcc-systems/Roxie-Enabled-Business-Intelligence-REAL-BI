@@ -1,5 +1,4 @@
 import axios from 'axios';
-import errHandler from './errHandler';
 
 // Constants
 import {
@@ -10,36 +9,15 @@ import {
   hasSortOptions,
 } from '../utils/misc';
 
-export const getChartData = async (chartID, clusterID, interactiveObj, dashboardID) => {
-  let response;
-
+export const getChartData = async (chartID, clusterID, dashboardID, interactiveObj) => {
   try {
-    response = await axios.get('/api/source/data', {
-      params: { chartID, clusterID, interactiveObj, dashboardID },
+    const response = await axios.get('/api/v1/chart/data', {
+      params: { chartID, clusterID, dashboardID, interactiveObj },
     });
+    return response.data;
   } catch (err) {
-    return err.response.data;
+    throw err.response.data;
   }
-
-  return response.data;
-};
-
-export const getPreviewData = async (clusterID, dataOptions, sourceType) => {
-  let response;
-
-  try {
-    response = await axios.get('/api/source/editordata', { params: { clusterID, dataOptions, sourceType } });
-  } catch (err) {
-    const { errMsg, status } = errHandler(err);
-
-    if (status === 401) {
-      return errMsg;
-    }
-
-    return {};
-  }
-
-  return response.data;
 };
 
 // Updates value field of objects in old array with ones updated in new array
@@ -57,16 +35,16 @@ export const mergeArrays = (oldArr, newArr) => {
 };
 
 export const createChartObj = (localState, ecl) => {
-  const { config, dataset, mappedParams, sourceType } = localState;
-  const { params = [] } = config;
-  let newConfig = { ...config, dataset };
+  const { configuration, dataset, mappedParams, sourceType } = localState;
+  const { params = [] } = configuration;
+  let newConfig = { ...configuration, dataset };
 
   // Merge param arrays to send to server
   newConfig.params = mergeArrays(params, mappedParams);
 
   newConfig = validateConfigOptions(newConfig);
 
-  // Move ecl values to config object root
+  // Move ecl values to configuration object root
   if (sourceType === 'ecl') {
     const newDataset = !ecl.dataset ? dataset : ecl.dataset;
     const newParams = !ecl.params ? params : [...ecl.params, ...params];
@@ -84,8 +62,8 @@ export const createChartObj = (localState, ecl) => {
 export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { config, id, sourceName, sourceType, ...chartKeys } = charts[chartIndex];
-  const { axis1, axis2, dataset, ecl = {}, params = [] } = config;
+  const { configuration, id, source, ...chartKeys } = charts[chartIndex];
+  const { axis1, axis2, dataset, ecl = {}, params = [] } = configuration;
 
   // // Show only certain params
   const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
@@ -93,31 +71,31 @@ export const setEditorState = (charts, chartID) => {
 
   let mappedParams;
 
-  if (sourceType === 'file' && paramWithValueArr.length > 0) {
+  if (source.type === 'file' && paramWithValueArr.length > 0) {
     mappedParams = paramWithValueArr;
   } else {
     mappedParams = [{ name: '', value: '' }];
   }
 
   // Confirm values are present to prevent error
-  config.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
-  config.axis2.showTickLabels = !('showTickLabels' in axis2) ? true : axis2.showTickLabels;
+  configuration.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
+  configuration.axis2.showTickLabels = !('showTickLabels' in axis2) ? true : axis2.showTickLabels;
 
   // Create initial state object
   let initState = {
     chartID: id,
-    config,
+    configuration,
     dataObj: { loading: false },
     dataset,
     datasets: [],
     error: '',
     errors: [],
-    keyword: sourceName,
+    keyword: source.name,
     mappedParams,
     selectedDataset: {},
     selectedSource: {},
     sources: [],
-    sourceType,
+    sourceType: source.type,
     ...chartKeys,
   };
 
@@ -129,7 +107,7 @@ export const checkForChartParams = chartsArr => {
 
   // use for-loop to allow for "break"
   for (let i = 0; i < chartsArr.length; i++) {
-    const { params = [] } = chartsArr[i].config;
+    const { params = [] } = chartsArr[i].configuration;
 
     const hasParamValue = params.some(({ value }) => value !== null && value !== '');
 
@@ -142,11 +120,11 @@ export const checkForChartParams = chartsArr => {
   return exists;
 };
 
-export const changeChartType = (oldType, newType, config) => {
-  let newConfig = { ...config, type: newType };
+export const changeChartType = (oldType, newType, configuration) => {
+  let newConfig = { ...configuration, type: newType };
   const { axis1 = {}, axis2 = {} } = newConfig;
 
-  //  Update values in config object to reflect the current chart type
+  //  Update values in configuration object to reflect the current chart type
   switch (oldType) {
     case 'pie':
       if (newType === 'table' && axis1.value && axis2.value) {

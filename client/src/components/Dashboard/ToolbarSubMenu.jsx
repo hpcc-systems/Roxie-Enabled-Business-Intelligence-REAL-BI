@@ -13,8 +13,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ToolbarSubMenu = ({ anchorEl, chart, setAnchorEl, toggleDialog, removeChart, updateChartWidth }) => {
-  const { config, id: chartID, sourceID } = chart;
-  const { size = 12 } = config;
+  const { configuration, id: chartID, sourceID } = chart;
+  const { size = 12 } = configuration;
   const { menuIcon } = useStyles();
   const { outlined, select } = useStyles();
 

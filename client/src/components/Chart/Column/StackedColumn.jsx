@@ -8,14 +8,21 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
+const StackedColumnComp = ({
+  chartID,
+  data,
+  configuration,
+  hasClickEvent,
+  interactiveClick,
+  interactiveObj,
+}) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
     showDataLabels = false,
     sortBy = {},
-  } = config;
+  } = configuration;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;
@@ -126,7 +133,7 @@ const StackedColumnComp = ({ chartID, data, config, interactiveClick, interactiv
   };
 
   // Add click events
-  if (relations[chartID]) {
+  if (hasClickEvent) {
     chartConfig.events = {
       onColumnClick: ({ data }) => interactiveClick(chartID, groupByValue, data[groupByValue]),
     };

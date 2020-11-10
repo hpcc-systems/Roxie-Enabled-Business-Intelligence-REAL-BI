@@ -28,8 +28,8 @@ const useStyles = makeStyles(theme => ({
 
 const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
   const { dataset: eclDataset, schema = [] } = eclRef.current;
-  const { chartID, config, dataset, selectedDataset = {}, sourceType } = localState;
-  const { groupBy = {}, stacked, type } = config;
+  const { chartID, configuration, dataset, selectedDataset = {}, sourceType } = localState;
+  const { groupBy = {}, stacked, type } = configuration;
   const { fields = [] } = selectedDataset;
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
@@ -77,7 +77,7 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
             className={checkbox}
             control={
               <Checkbox
-                name='config:stacked'
+                name='configuration:stacked'
                 checked={stacked || false}
                 onChange={handleCheckbox}
                 color='primary'

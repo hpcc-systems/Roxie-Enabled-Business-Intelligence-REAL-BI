@@ -1,11 +1,10 @@
 import axios from 'axios';
-import errHandler from './errHandler';
 
-const shareChart = async (email, dashboardID) => {
+export const shareChart = async (email, dashboardID) => {
   console.log('API ', email);
 
   try {
-    await axios.post('/api/chart/share', { email, dashboardID });
+    await axios.post('/api/v1/chart/share', { email, dashboardID });
   } catch (err) {
     console.error(err);
   }
@@ -13,18 +12,11 @@ const shareChart = async (email, dashboardID) => {
   return;
 };
 
-const getUsers = async () => {
-  let response;
-
+export const getUsers = async () => {
   try {
-    response = await axios.get('/api/user/all');
-  } catch (err) {
-    const { errMsg } = errHandler(err);
-
-    return errMsg;
+    const response = await axios.get('/api/v1/user/all');
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
   }
-
-  return response.data;
 };
-
-export { shareChart, getUsers };

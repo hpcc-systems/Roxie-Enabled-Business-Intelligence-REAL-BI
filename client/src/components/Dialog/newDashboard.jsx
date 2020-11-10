@@ -21,7 +21,7 @@ import { getClusters } from '../../features/cluster/actions';
 
 // Utils
 import { sortArr } from '../../utils/misc';
-import { checkForClusterAuth } from '../../utils/clusterAuth';
+import { checkForClusterCreds } from '../../utils/clusterCredentials';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState, show, toggleDialog }) => {
-  const { clusterID, error, password, username, hasClusterAuth, name } = localState;
+  const { clusterID, error, password, username, hasClusterCreds, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
   const { button, errMsg, formControl, progress } = useStyles();
@@ -45,24 +45,26 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
     // Clear name and cluster ID
     handleChange(null, { name: 'name', value: '' });
     handleChange(null, { name: 'clusterID', value: '' });
-    handleChange(null, { name: 'hasClusterAuth', value: null });
+    handleChange(null, { name: 'hasClusterCreds', value: null });
     handleChange(null, { name: 'username', value: '' });
     handleChange(null, { name: 'password', value: '' });
     handleChange(null, { name: 'error', value: '' });
 
-    // Get list of clusters
-    getClusters().then(action => dispatch(action));
+    getClusters()
+      .then(action => dispatch(action))
+      .catch(error => dispatch(error));
   }, [dispatch, handleChange]);
 
   const checkForAuth = async event => {
-    // Update cluster ID in local state
-    handleChange(event);
+    try {
+      // Update clusterID in local state
+      handleChange(event);
 
-    // Check for cluster auth already in database
-    let hasAuth = await checkForClusterAuth(event.target.value);
-
-    // Update local state
-    handleChange(null, { name: 'hasClusterAuth', value: hasAuth });
+      const hasAuth = await checkForClusterCreds(event.target.value);
+      handleChange(null, { name: 'hasClusterCreds', value: hasAuth });
+    } catch (error) {
+      return handleChange(null, { name: 'error', value: error });
+    }
   };
 
   return (
@@ -95,7 +97,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
           onChange={handleChange}
           autoComplete='off'
         />
-        {hasClusterAuth !== null && !hasClusterAuth && (
+        {hasClusterCreds !== null && !hasClusterCreds && (
           <Fragment>
             <TextField
               className={formControl}

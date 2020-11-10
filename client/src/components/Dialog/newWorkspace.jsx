@@ -42,16 +42,20 @@ const NewWorkspaceDialog = ({ show, toggleDialog }) => {
   const { button, errMsg, formControl } = useStyles();
 
   const createWorkspace = async () => {
-    const { action, workspaceID } = await createNewWorkspace(localState);
-    const action2 = await updateLastWorkspace(workspaceID);
+    try {
+      const { action, workspaceID } = await createNewWorkspace(localState);
+      const action2 = await updateLastWorkspace(workspaceID);
 
-    batch(() => {
-      dispatch(action);
-      dispatch(action2);
-    });
+      batch(() => {
+        dispatch(action);
+        dispatch(action2);
+      });
 
-    history.push(`/workspace/${workspaceID}`);
-    toggleDialog();
+      history.push(`/workspace/${workspaceID}`);
+      toggleDialog();
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   const { error, name } = localState;

@@ -124,9 +124,12 @@ const validate = (req, res, next) => {
   errors.array().forEach(({ msg, param }) => extractedErrors.push({ [param]: msg }));
 
   // Record errors in log file
-  logger.error(JSON.stringify({ errors: extractedErrors }));
+  logger.error({ errors: extractedErrors });
 
-  return res.status(400).json({ errors: extractedErrors });
+  return res.status(400).json({
+    message: 'Validation Failed',
+    errors: extractedErrors,
+  });
 };
 
 module.exports = {

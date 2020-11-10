@@ -26,31 +26,32 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const EditWorkspace = ({ show, toggleDialog }) => {
-  const { errors, workspace } = useSelector(state => state.workspace);
+  const { errorObj, workspace } = useSelector(state => state.workspace);
+  const { message: errMessage = '' } = errorObj;
   const { id: workspaceID, name } = workspace;
   const [workspaceName, setWorkspaceName] = useState(name);
   const dispatch = useDispatch();
   const { button, errMsg, formControl } = useStyles();
 
   const editWorkspace = async () => {
-    updateWorkspace(workspaceName, workspaceID)
-      .then(actions => {
-        batch(() => {
-          actions.forEach(action => dispatch(action));
-        });
-
+    try {
+      const actions = await updateWorkspace(workspaceName, workspaceID);
+      batch(() => {
+        actions.forEach(action => dispatch(action));
         toggleDialog();
-      })
-      .catch(err => dispatch(err));
+      });
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
       <DialogTitle>Edit Workspace</DialogTitle>
       <DialogContent>
-        {errors.msg && (
+        {errMessage && (
           <Typography className={errMsg} align='center'>
-            {errors.msg}
+            {errMessage}
           </Typography>
         )}
         <TextField

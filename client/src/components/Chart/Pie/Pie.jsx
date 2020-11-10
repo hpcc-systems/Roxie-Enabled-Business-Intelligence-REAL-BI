@@ -12,12 +12,12 @@ import { chartFillColor } from '../../../constants';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
-const PieComp = ({ data, config }) => {
+const PieComp = ({ data, configuration }) => {
   const {
     axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
     axis2: { label: valueLabel, type: valueType = 'string', value },
     showDataLabels = false,
-  } = config;
+  } = configuration;
 
   const customNameLabel = nameLabel ? nameLabel : nameValue;
   const customValueLabel = valueLabel ? valueLabel : value;

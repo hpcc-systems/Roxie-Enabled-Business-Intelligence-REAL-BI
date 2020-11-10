@@ -39,19 +39,6 @@ export const sortArr = (arr, field = '', order = 'asc') => {
   return arr;
 };
 
-export const checkForNumber = value => {
-  // Convert value to NaN or convert to number
-  const num = value == null && value !== 0 ? NaN : Number(value);
-
-  // Value is not a number, return the original value
-  if (isNaN(num)) {
-    return value;
-  }
-
-  // Return the converted number
-  return num;
-};
-
 // Convert a number to a string with a thousands place separator
 export const thousandsSeparator = num => {
   // Number contains a decimal
@@ -113,45 +100,25 @@ export const hasClickEventOption = chartType => {
   return chartTypes.indexOf(chartType) > -1;
 };
 
-export const canAddCharts = role => {
-  const roles = ['Owner'];
+export const canAddCharts = permission => {
+  const permissions = ['Owner'];
 
   // Return boolean
-  return roles.indexOf(role) > -1;
+  return permissions.indexOf(permission) > -1;
 };
 
-export const canEditCharts = role => {
-  const roles = ['Owner'];
+export const canEditCharts = permission => {
+  const permissions = ['Owner'];
 
   // Return boolean
-  return roles.indexOf(role) > -1;
+  return permissions.indexOf(permission) > -1;
 };
 
-export const canDeleteCharts = role => {
-  const roles = ['Owner'];
+export const canDeleteCharts = permission => {
+  const permissions = ['Owner'];
 
   // Return boolean
-  return roles.indexOf(role) > -1;
-};
-
-export const createDateTimeStamp = (datetimeStamp, sourceType) => {
-  if (!datetimeStamp) return '';
-
-  let text;
-
-  // Get text for source type
-  switch (sourceType) {
-    case 'file':
-      text = 'Last Modified:';
-      break;
-    case 'ecl':
-    case 'query':
-    default:
-      text = 'Last Executed:';
-      break;
-  }
-
-  return `${text} ${datetimeStamp}`;
+  return permissions.indexOf(permission) > -1;
 };
 
 export const existsInArray = (arr, string) => {

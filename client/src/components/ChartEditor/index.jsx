@@ -39,12 +39,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { dashboard, eclRef, handleChange, localState } = props;
-  const { clusterHost, clusterID, clusterPort } = dashboard;
-  const { chartID, config, dataObj, dataset, error, sourceType } = localState;
+  const { eclRef, handleChange, localState } = props;
+  const { chartID, configuration, dataObj, dataset, error, sourceType } = localState;
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
-  const { isStatic = false, type } = config;
-  // isStatic = type !== 'textBox' || isStatic === 'undefined' ? false : isStatic;
+  const { isStatic = false, type } = configuration;
 
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
@@ -62,18 +60,17 @@ const ChartEditor = props => {
   const updateAxisKey = event => {
     const { name, value } = event.target;
     const [state, key] = name.split(':');
-    let newConfig = localState.config;
+    let newConfig = localState.configuration;
 
     // Update object key
     newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: value } };
 
-    return handleChange(null, { name: 'config', value: newConfig });
+    return handleChange(null, { name: 'configuration', value: newConfig });
   };
 
   // Create object of information to pass to chart components
-  const newConfig = { ...config, dataset };
-  const clusterURL = `${clusterHost}:${clusterPort}`;
-  let chartData = dataObj;
+  const newConfig = { ...configuration, dataset };
+  let chartData = dataObj.data || [];
 
   // If ECL Ref has data, use that array
   if (sourceType === 'ecl' && Object.keys(eclData).length > 0) {
@@ -190,7 +187,7 @@ const ChartEditor = props => {
 
           switch (tabNum) {
             case 0:
-              return <ECLEditor {...props} clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />;
+              return <ECLEditor {...props} />;
             case 1:
               return <General {...props} updateAxisKey={updateAxisKey} />;
             case 2:
@@ -206,7 +203,7 @@ const ChartEditor = props => {
       </Grid>
       <Grid item xs={6}>
         <Chart
-          chart={{ config: newConfig }}
+          chart={{ configuration: newConfig }}
           dataObj={chartData}
           sourceType={sourceType}
           eclDataset={eclDataset}

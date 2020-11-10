@@ -9,9 +9,9 @@ const useStyles = makeStyles(theme => ({
   textDesc: { color: 'grey', fontFamily: 'auto', fontSize: 12 },
 }));
 
-const TextBox = ({ data, config }) => {
-  const { description } = config;
-  let { textBoxContent = '' } = config;
+const TextBox = ({ data, configuration }) => {
+  const { description } = configuration;
+  let { textBoxContent = '' } = configuration;
   const { div, textDesc } = useStyles();
 
   if (data && data.length > 0) {

@@ -15,9 +15,9 @@ const useStyles = makeStyles(theme => ({
 
 const TableParams = ({ eclRef, handleChangeObj, localState }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
+  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
   const { fields = [] } = selectedDataset;
-  const { fields: configFields = [] } = config;
+  const { fields: configFields = [] } = configuration;
   const { formControl, progress } = useStyles();
 
   const updateArr = ({ target }) => {
@@ -35,7 +35,13 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
         {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
           <CircularProgress className={progress} size={20} />
         ) : (
-          <Select multiple name='config:fields' value={configFields} input={<Input />} onChange={updateArr}>
+          <Select
+            multiple
+            name='configuration:fields'
+            value={configFields}
+            input={<Input />}
+            onChange={updateArr}
+          >
             {fieldsArr.map(({ name }, index) => {
               return (
                 <MenuItem key={index} value={name}>

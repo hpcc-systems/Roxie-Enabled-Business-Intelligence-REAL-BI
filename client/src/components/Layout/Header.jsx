@@ -47,7 +47,8 @@ const useStyles = makeStyles(theme => ({
 
 const Header = ({ toggleDrawer }) => {
   const { user = {} } = useSelector(state => state.auth);
-  const { id: userID, lastWorkspace, username } = user;
+  const { workspaces } = useSelector(state => state.workspace);
+  const { id: userID, lastViewedWorkspace, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -113,13 +114,13 @@ const Header = ({ toggleDrawer }) => {
           >
             REAL BI
           </Typography>
-          {userID && (
+          {userID && workspaces && (
             <Fragment>
               {/* Workspace Dropdown */}
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
                   <WorkspaceSelector />
-                  {lastWorkspace && (
+                  {lastViewedWorkspace && (
                     <Fragment>
                       <IconButton
                         edge='start'

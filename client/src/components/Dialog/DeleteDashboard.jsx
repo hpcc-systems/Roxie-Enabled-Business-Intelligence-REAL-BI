@@ -24,25 +24,27 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteDashboardDialog = ({ dashboardID, show, toggleDialog, workspace }) => {
-  const { directory, directoryDepth, id: workspaceID } = workspace;
+  const { directory, id: workspaceID } = workspace;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn, dialog } = useStyles();
 
   const confirmDelete = async () => {
-    const newDirectory = removeObjFromDirectory(directory, dashboardID);
-    await deleteExistingDashboard(dashboardID);
+    try {
+      const newDirectory = removeObjFromDirectory(directory, dashboardID);
+      await deleteExistingDashboard(dashboardID);
 
-    // Update directory and remove dashboard from tab bar, if it was open
-    Promise.all([
-      updateWorkspaceDirectory(newDirectory, directoryDepth, workspaceID),
-      closeDashboardInWorkspace(dashboardID, workspaceID),
-    ]).then(actions => {
+      const actions = await Promise.all([
+        closeDashboardInWorkspace(dashboardID, workspaceID),
+        updateWorkspaceDirectory(newDirectory, workspaceID),
+      ]);
+
       batch(() => {
         actions.forEach(action => dispatch(action));
+        toggleDialog();
       });
-    });
-
-    toggleDialog();
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   return (

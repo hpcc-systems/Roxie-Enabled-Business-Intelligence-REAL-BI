@@ -1,10 +1,14 @@
-module.exports = {
-  auth: require('./api/auth'),
-  chart: require('./api/chart'),
-  cluster: require('./api/cluster'),
-  clusterAuth: require('./api/clusterAuth'),
-  dashboard: require('./api/dashboard'),
-  source: require('./api/source'),
-  user: require('./api/user'),
-  workspace: require('./api/workspace'),
-};
+const router = require('express').Router();
+const v1 = require('./v1');
+const { logRequest, notFound, errorHandler } = require('./middleware');
+
+// Log the request
+router.use(logRequest);
+
+router.use('/v1', v1);
+
+// Enable middleware for undefined routes and error handler
+router.use(notFound);
+router.use(errorHandler);
+
+module.exports = router;

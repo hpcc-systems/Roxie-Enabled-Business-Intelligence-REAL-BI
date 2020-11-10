@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const initState = {
-  errorMsg: '',
+  error: '',
   loading: false,
   newPwd: '',
   newPwd2: '',
@@ -95,25 +95,20 @@ const ChangePwd = () => {
   } = useStyles();
 
   const handleSubmit = async event => {
-    // Prevent form from reloading page
     event.preventDefault();
-
     handleChange(null, { name: 'loading', value: true });
 
-    let response;
-
     try {
-      response = await updatePassword(localState);
-    } catch (err) {
+      const response = await updatePassword(localState);
       resetState(initState);
-      return handleChange(null, { name: 'errorMsg', value: err });
+      return handleChange(null, { name: 'successMsg', value: response });
+    } catch (error) {
+      resetState(initState);
+      return handleChange(null, { name: 'error', value: error.message });
     }
-
-    resetState(initState);
-    return handleChange(null, { name: 'successMsg', value: response });
   };
 
-  const { errorMsg, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
+  const { error, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
 
   return (
     <Fragment>
@@ -138,9 +133,9 @@ const ChangePwd = () => {
                 />
                 <CardContent className={content}>
                   {/* Error message */}
-                  {errorMsg && errorMsg !== '' && (
+                  {error && error !== '' && (
                     <Typography className={classnames(message, err)} align='center'>
-                      {errorMsg}
+                      {error}
                     </Typography>
                   )}
 

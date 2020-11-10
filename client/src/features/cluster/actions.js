@@ -8,7 +8,7 @@ export const getClusters = async () => {
   let response;
 
   try {
-    response = await axios.get('/api/cluster/all');
+    response = await axios.get('/api/v1/cluster/all');
   } catch (err) {
     console.error(err);
     return { type: SET_CLUSTER_ERRORS, payload: err };
