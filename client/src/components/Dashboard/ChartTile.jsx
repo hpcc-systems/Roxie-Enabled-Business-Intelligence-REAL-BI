@@ -32,14 +32,13 @@ const ChartTile = props => {
     interactiveClick,
     interactiveObj,
   } = props;
-  const { id: chartID, config, sourceName } = chart;
-  const { dataset, ecl = {}, size = 12 } = config;
+  const { id: chartID, configuration } = chart;
+  const { ecl = {}, size = 12 } = configuration;
   const eclDataset = ecl.dataset || '';
   const { clearDiv, div, draggedDiv } = useStyles();
 
-  const dataObj =
-    compData[chartID] || compData[sourceName] || compData[dataset] || compData[eclDataset] || {};
-  const lastModifiedDate = dataObj.data ? dataObj.data.lastModifiedDate : null;
+  const dataObj = compData[chartID] || compData[eclDataset] || {};
+  const lastModifiedDate = dataObj.lastModifiedDate ? dataObj.lastModifiedDate : null;
 
   return (
     <Grid item md={size}>
@@ -50,7 +49,7 @@ const ChartTile = props => {
         onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}
       >
         <Paper variant='outlined' style={{ position: 'relative' }}>
-          <ChartToolbar {...props} datetimeStamp={lastModifiedDate} />
+          <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
           <div className={clearDiv}>
             <Chart
               chart={chart}

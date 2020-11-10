@@ -18,7 +18,6 @@ const PrivateRoute = ({ component, ...options }) => {
   const { id } = useSelector(state => state.auth.user);
   const token = localStorage.getItem(tokenName);
 
-  // No token present, return to Login page
   if (!token) {
     setAuthHeader();
 
@@ -26,7 +25,6 @@ const PrivateRoute = ({ component, ...options }) => {
     return null;
   }
 
-  // Token is present but user isn't loaded yet
   if (token && !id) {
     setAuthHeader(token);
 

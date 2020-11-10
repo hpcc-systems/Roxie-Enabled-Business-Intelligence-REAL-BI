@@ -12,4 +12,8 @@ module.exports = {
   host: DB_HOST,
   port: 3306,
   dialect: 'mysql',
+  migrationStorage: 'sequelize',
+  migrationStorageTableName: 'SequelizeMeta',
+  seederStorage: 'sequelize',
+  seederStorageTableName: 'SequelizeData',
 };

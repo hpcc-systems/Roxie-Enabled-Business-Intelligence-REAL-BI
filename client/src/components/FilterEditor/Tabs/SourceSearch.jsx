@@ -3,38 +3,37 @@ import { CircularProgress, Grid, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 
 // Utils
-import { getSources } from '../../../utils/source';
+import { getKeywordSearchResults } from '../../../utils/hpcc';
 
-const SourceSearch = ({ dashboard, filterIndex, handleChange, localState }) => {
+const SourceSearch = ({ dashboard, filter, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { chartID, error, errors, keyword, selectedSource = {}, sources, sourceType } = localState;
-  const { clusterID } = dashboard;
+  const { id: clusterID } = dashboard.cluster;
 
   // Get list of sources from hpcc
   useEffect(() => {
     if (keyword) {
-      setLoading(true);
+      (async () => {
+        setLoading(true);
 
-      getSources(clusterID, keyword, sourceType).then(data => {
-        // Error received from server
-        if (!Array.isArray(data)) {
-          setLoading(false);
-          return handleChange(null, { name: 'error', value: data });
-        } else if (error !== '') {
+        try {
+          const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
+
           handleChange(null, { name: 'error', value: '' });
-        }
+          handleChange(null, { name: 'sources', value: data });
 
-        handleChange(null, { name: 'sources', value: data });
-
-        if (filterIndex > -1) {
-          const selectedSource = data.find(({ name }) => name === keyword);
-          handleChange(null, { name: 'selectedSource', value: selectedSource });
+          if (filter) {
+            const selectedSource = data.find(({ name }) => name === keyword);
+            handleChange(null, { name: 'selectedSource', value: selectedSource });
+          }
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
         }
 
         setLoading(false);
-      });
+      })();
     }
-  }, [chartID, clusterID, error, filterIndex, handleChange, keyword, sourceType]);
+  }, [chartID, clusterID, error, filter, handleChange, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {

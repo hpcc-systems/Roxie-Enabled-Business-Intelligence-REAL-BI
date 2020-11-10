@@ -26,8 +26,8 @@ const useStyles = makeStyles(theme => ({
 
 const SortBy = ({ eclRef, localState, updateAxisKey }) => {
   const { dataset: eclDataset, schema = [] } = eclRef.current;
-  const { chartID, config, dataset, selectedDataset = {}, sourceType } = localState;
-  const { sortBy = {} } = config;
+  const { chartID, configuration, dataset, selectedDataset = {}, sourceType } = localState;
+  const { sortBy = {} } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress, topFormControl, typography } = useStyles();
 

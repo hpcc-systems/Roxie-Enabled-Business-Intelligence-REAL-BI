@@ -4,12 +4,12 @@ import { Gauge } from '@ant-design/charts';
 // Constants
 import { chartFillColor } from '../../constants';
 
-const GaugeComp = ({ data, config }) => {
+const GaugeComp = ({ data, configuration }) => {
   const {
     axis1: { type: valueType = 'string', value = null },
     axis2: { value: val2 = null },
     axis3: { value: val3 = null },
-  } = config;
+  } = configuration;
 
   const minVal = Number(val2);
   const maxVal = Number(val3);

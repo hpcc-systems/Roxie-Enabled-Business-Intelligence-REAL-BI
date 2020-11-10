@@ -1,6 +1,6 @@
 export const validateSource = (state, eclRef) => {
   const { selectedDataset = {}, selectedSource = {}, sourceType } = state;
-  let errors = [];
+  const errors = [];
 
   switch (sourceType) {
     case 'ecl':
@@ -28,12 +28,15 @@ export const validateSource = (state, eclRef) => {
       break;
   }
 
-  return errors;
+  if (errors.length > 0) throw errors;
+  return;
 };
 
 export const validateFilter = (state, eclRef) => {
-  let errors = validateSource(state, eclRef);
+  validateSource(state, eclRef);
+
   const { name, params, sourceField } = state;
+  const errors = [];
 
   if (!sourceField) {
     errors.push({ sourceField: 'Select a field of values' });
@@ -57,5 +60,6 @@ export const validateFilter = (state, eclRef) => {
     }
   });
 
-  return errors;
+  if (errors.length > 0) throw errors;
+  return;
 };

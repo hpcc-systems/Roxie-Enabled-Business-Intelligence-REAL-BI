@@ -5,9 +5,8 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const config = require(path.join(__dirname, '..', 'config', 'database.js'));
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
 const db = {};
-
-let sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs.readdirSync(__dirname)
   .filter(file => {

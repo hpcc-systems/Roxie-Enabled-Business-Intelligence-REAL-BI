@@ -44,6 +44,8 @@ services:
     container_name: realbi_client
     depends_on:
       - api
+    env_file:
+      - .env
     networks:
       - realbi_network
     restart: always

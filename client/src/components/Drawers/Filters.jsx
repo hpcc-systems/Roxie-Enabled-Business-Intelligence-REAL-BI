@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -16,7 +16,7 @@ import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } fr
 import { grey } from '@material-ui/core/colors';
 
 // Redux Actions
-import { updateDashboard } from '../../features/dashboard/actions.js';
+import { deleteExistingFilter, updateFilterValue } from '../../features/dashboard/actions.js';
 
 // React Components
 import Filters from '../Dialog/Filters.jsx';
@@ -25,8 +25,8 @@ import Filters from '../Dialog/Filters.jsx';
 import useDialog from '../../hooks/useDialog';
 
 // Utils
-import { getSourceData } from '../../utils/source';
 import { sortArr } from '../../utils/misc';
+import { getFilterData, getFilterValue, getFilterValueType } from '../../utils/dashboardFilter.js';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -52,8 +52,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
-  const { filters = [] } = dashboard;
-  const [filterIndex, setFilterIndex] = useState(-1);
+  const { filters = [], id: dashboardID } = dashboard;
+  const [filter, setFilter] = useState(null);
   const [compData, setCompData] = useState({});
   const { showDialog: showFilter, toggleDialog: toggleFilter } = useDialog(false);
   const dispatch = useDispatch();
@@ -72,68 +72,68 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
     typography,
   } = useStyles();
 
-  useEffect(() => {
-    const { clusterID, filters = [] } = dashboard;
-
+  const dataCall = useCallback(() => {
     // Set initial object keys and loading
-    filters.forEach(({ sourceID }) => {
-      setCompData(prevState => ({ ...prevState, [sourceID]: { loading: true } }));
+    filters.forEach(({ id: filterID }) => {
+      setCompData(prevState => ({ ...prevState, [filterID]: { loading: true } }));
     });
 
-    // Fetch data for each chart
-    filters.forEach(({ sourceDataset, sourceID }) => {
-      getSourceData(clusterID, sourceDataset, sourceID).then(data => {
-        if (typeof data !== 'object') {
-          return setCompData(prevState => ({
+    // Fetch data for each filter
+    filters.forEach(({ cluster, id: filterID }) => {
+      (async () => {
+        try {
+          const results = await getFilterData(cluster.id, filterID);
+          setCompData(prevState => ({
             ...prevState,
-            [sourceID]: { data: [], error: data, loading: false },
+            [filterID]: { data: results.data, error: '', loading: false },
           }));
+        } catch (error) {
+          setCompData(prevState => ({ ...prevState, [filterID]: { error: error.message, loading: false } }));
         }
-
-        // Set data in local state object with sourceID as key
-        setCompData(prevState => ({ ...prevState, [sourceID]: { data, error: '', loading: false } }));
-      });
+      })();
     });
-  }, [dashboard]);
+  }, [filters]);
 
-  const setFilterValue = (event, index) => {
-    let { value } = event.target;
-
-    // If array of values, join together as string
-    if (Array.isArray(value)) {
-      value = value.sort().join(',');
+  useEffect(() => {
+    if (filters.length > 0) {
+      dataCall();
     }
-
-    // Create new dashboard object
-    const newDashboardObj = { ...dashboard };
-
-    // Alter filter
-    newDashboardObj.filters[index] = { ...newDashboardObj.filters[index], value };
-
-    updateDashboard(newDashboardObj).then(action => dispatch(action));
-  };
+  }, [dataCall, filters]);
 
   const newFilter = () => {
-    setFilterIndex(-1);
+    setFilter(null);
     toggleFilter();
   };
 
-  const setCurrentFilter = index => {
-    setFilterIndex(index);
+  const setCurrentFilter = filterID => {
+    const filter = filters.find(({ id }) => id === filterID);
+    setFilter(filter);
     toggleFilter();
   };
 
-  const deleteFilter = index => {
-    // Create new dashboard object
-    const dashboardObj = { ...dashboard };
+  const setFilterValue = async (event, valueObj) => {
+    let { value } = event.target;
 
-    // Update dashboard object
-    dashboardObj.filters.splice(index, 1);
+    if (Array.isArray(value)) {
+      value = value.join();
+    }
 
-    // Update DB and Redux store
-    updateDashboard(dashboardObj).then(action => {
+    try {
+      const dataType = getFilterValueType(value);
+      const action = await updateFilterValue({ ...valueObj, dataType, value }, dashboardID);
       dispatch(action);
-    });
+    } catch (error) {
+      dispatch(error);
+    }
+  };
+
+  const deleteFilter = async id => {
+    try {
+      const action = await deleteExistingFilter(dashboardID, id);
+      dispatch(action);
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   return (
@@ -154,84 +154,56 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
           </Button>
         </div>
         <Grid container direction='row' justify='space-between'>
-          {filters.length > 0 &&
-            filters.map(({ name, sourceDataset, sourceField, sourceID, sourceName, value }, index) => {
-              if (value) {
-                if (value.indexOf(',') > -1) {
-                  value = value.split(',').sort();
-                } else {
-                  value = [value];
-                }
-              } else {
-                value = [];
-              }
+          {filters.map(({ configuration, id, name, value }) => {
+            const dataObj = compData[id] || {};
+            const { data = [], loading = false } = dataObj;
+            const filterVal = getFilterValue(value);
 
-              const loading = compData[sourceID] ? compData[sourceID].loading : false;
-
-              return loading ? (
-                <Grid item key={index} xs={12} className={progress}>
-                  <CircularProgress color='secondary' size={30} />
+            return loading ? (
+              <Grid item key={id} xs={12} className={progress}>
+                <CircularProgress color='secondary' size={30} />
+              </Grid>
+            ) : (
+              <Fragment key={id}>
+                <Grid item xs={8}>
+                  <FormControl className={formControl} fullWidth>
+                    <InputLabel className={fontColor}>{name}</InputLabel>
+                    <Select
+                      multiple
+                      value={filterVal}
+                      onChange={event => setFilterValue(event, value)}
+                      className={fontColor}
+                    >
+                      {(() => {
+                        return sortArr(data, configuration.field).map((object, index) => {
+                          const value = object[configuration.field];
+                          return (
+                            <MenuItem key={index} value={value}>
+                              {value}
+                            </MenuItem>
+                          );
+                        });
+                      })()}
+                    </Select>
+                  </FormControl>
                 </Grid>
-              ) : (
-                <Fragment key={index}>
-                  <Grid item xs={8}>
-                    <FormControl className={formControl} fullWidth>
-                      <InputLabel className={fontColor}>{name}</InputLabel>
-                      <Select
-                        multiple
-                        value={value}
-                        onChange={event => setFilterValue(event, index)}
-                        className={fontColor}
-                      >
-                        {(() => {
-                          let data = [];
-
-                          if (compData[sourceID]) {
-                            let dataObj = compData[sourceID].data || {};
-
-                            if (Object.keys(dataObj).length > 0) {
-                              if (!dataObj.Exception) {
-                                data = dataObj[sourceName] || dataObj[sourceDataset] || {};
-                                data = data.Row;
-                              }
-                            }
-
-                            return sortArr(data, sourceField).map((object, index) => {
-                              const value = object[sourceField];
-
-                              return (
-                                <MenuItem key={index} value={value}>
-                                  {value}
-                                </MenuItem>
-                              );
-                            });
-                          }
-                        })()}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Button className={editBtn} onClick={() => setCurrentFilter(index)}>
-                      <EditIcon className={iconColor} />
-                    </Button>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Button className={deleteBtn} onClick={() => deleteFilter(index)}>
-                      <DeleteIcon className={iconColor} />
-                    </Button>
-                  </Grid>
-                </Fragment>
-              );
-            })}
+                <Grid item xs={2}>
+                  <Button className={editBtn} onClick={() => setCurrentFilter(id)}>
+                    <EditIcon className={iconColor} />
+                  </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button className={deleteBtn} onClick={() => deleteFilter(id)}>
+                    <DeleteIcon className={iconColor} />
+                  </Button>
+                </Grid>
+              </Fragment>
+            );
+          })}
         </Grid>
       </div>
       {showFilter && (
-        <Filters
-          dashboard={dashboard}
-          filterIndex={filterIndex}
-          show={showFilter}
-          toggleDialog={toggleFilter}
-        />
+        <Filters dashboard={dashboard} filter={filter} show={showFilter} toggleDialog={toggleFilter} />
       )}
     </Drawer>
   );

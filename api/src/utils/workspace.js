@@ -1,118 +1,102 @@
-const { workspace: workspaceModel } = require('../models');
+const {
+  dashboard: Dashboard,
+  open_dashboard: openDashboard,
+  role: Role,
+  workspace: Workspace,
+  workspace_directory: workspaceDirectory,
+  workspace_permission: workspacePermission,
+} = require('../models');
+const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
-// Utils
-const { awaitHandler, unNestSequelizeObj } = require('./misc');
-
-const createWorkspace = async (name, userID) => {
-  const workspaceConfig = {
-    name,
-    directory: [],
-    directoryDepth: [],
-    openDashboards: [],
-    userID,
-  };
-
-  let [err, newWorkspace] = await awaitHandler(workspaceModel.create({ ...workspaceConfig }));
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
-  newWorkspace = unNestSequelizeObj(newWorkspace);
-
-  return newWorkspace;
-};
-
-const getWorkspaces = async userID => {
-  let [err, workspaces] = await awaitHandler(
-    workspaceModel.findAll({
-      attributes: { exclude: ['deleted', 'deletedDate', 'userID'] },
-      where: { userID, deleted: false },
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  if (workspaces.length > 0) {
-    // Get nested objects
-    workspaces = workspaces.map(workspace => unNestSequelizeObj(workspace));
-  } else {
-    workspaces = [];
-  }
-
-  return workspaces;
-};
-
-const getWorkspaceByID = async workspaceID => {
-  let [err, workspace] = await awaitHandler(
-    workspaceModel.findOne({
-      attributes: { exclude: ['deleted', 'deletedDate', 'userID'] },
-      where: { id: workspaceID },
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
+const createWorkspace = async (name, ownerID) => {
+  let workspace = await Workspace.create({ name, ownerID });
+  await workspaceDirectory.create({ workspaceID: workspace.id, userID: ownerID });
   workspace = unNestSequelizeObj(workspace);
 
   return workspace;
 };
 
-const updateDirectory = async (directory, workspaceID) => {
-  let [err] = await awaitHandler(workspaceModel.update({ directory }, { where: { id: workspaceID } }));
+const getWorkspacesByUserID = async userID => {
+  let workspaces = await Workspace.findAll({
+    ...removeFields([], true),
+    include: {
+      model: workspacePermission,
+      as: 'permission',
+      attributes: [],
+      where: { userID },
+      required: true,
+      include: {
+        model: Role,
+        attributes: [],
+        required: true,
+      },
+    },
+  });
+  workspaces = workspaces.map(workspace => unNestSequelizeObj(workspace));
 
-  // Return error
-  if (err) throw err;
-
-  return;
+  return workspaces;
 };
 
-const updateDirectoryDepth = async (directoryDepth, workspaceID) => {
-  let [err] = await awaitHandler(workspaceModel.update({ directoryDepth }, { where: { id: workspaceID } }));
+const getWorkspaceByID = async (id, userID) => {
+  let workspace = await Workspace.findOne({
+    ...removeFields([], true),
+    where: { id },
+    include: [
+      {
+        model: workspaceDirectory,
+        as: 'directory',
+        where: { userID },
+        required: true,
+      },
+      {
+        model: workspacePermission,
+        as: 'permission',
+        where: { userID },
+        required: true,
+        include: {
+          model: Role,
+          attributes: ['name'],
+          required: true,
+        },
+      },
+      {
+        model: openDashboard,
+        as: 'openDashboards',
+        attributes: [['dashboardID', 'id']],
+        include: {
+          model: Dashboard,
+          attributes: ['name'],
+          required: true,
+        },
+      },
+    ],
+  });
+  workspace = unNestSequelizeObj(workspace);
+  workspace.directory = workspace.directory[0].directory;
+  workspace.permission = workspace.permission[0].role.name;
+  workspace.openDashboards = workspace.openDashboards.map(openDashboard => {
+    openDashboard = unNestSequelizeObj(openDashboard);
+    openDashboard.name = openDashboard.dashboard.name;
+    delete openDashboard.dashboard;
 
-  // Return error
-  if (err) throw err;
+    return openDashboard;
+  });
 
-  return;
+  return workspace;
 };
 
-const updateOpenDashboards = async (openDashboards, workspaceID) => {
-  let [err] = await awaitHandler(workspaceModel.update({ openDashboards }, { where: { id: workspaceID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
+const updateWorkspaceByID = async (name, id) => {
+  return await Workspace.update({ name }, { where: { id } });
 };
 
-const updateWorkspaceByID = async ({ name, workspaceID }) => {
-  let [err] = await awaitHandler(workspaceModel.update({ name }, { where: { id: workspaceID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
-};
-
-const deleteWorkspaceByID = async workspaceID => {
-  let [err] = await awaitHandler(workspaceModel.destroy({ where: { id: workspaceID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
+const deleteWorkspaceByID = async id => {
+  return await Workspace.destroy({ where: { id } });
 };
 
 module.exports = {
   createWorkspace,
   deleteWorkspaceByID,
   getWorkspaceByID,
-  getWorkspaces,
-  updateDirectory,
-  updateDirectoryDepth,
-  updateOpenDashboards,
+  getWorkspacesByUserID,
   updateWorkspaceByID,
 };

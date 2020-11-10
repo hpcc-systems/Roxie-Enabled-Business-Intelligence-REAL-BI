@@ -83,19 +83,18 @@ const fieldDropdown = (arr, chartID, field, index, updateArr, errors, errStyle) 
 const FilterMapper = ({ handleChange, localState }) => {
   const { errors = [], params } = localState;
   const { button, errorText } = useStyles();
-
-  let { charts } = useSelector(state => state.chart);
+  let { charts } = useSelector(state => state.dashboard.dashboard);
 
   // Remove charts that do not have params that dashboard filters can use
   charts = charts.filter(chart => {
-    const { params = [] } = chart.config;
+    const { params = [] } = chart.configuration;
     return params.length > 0;
   });
 
   // Configure charts to get formatted array of objects
   charts = charts.map(chart => {
-    const { id: chartID, config } = chart;
-    const { params, title } = config;
+    const { id: chartID, configuration } = chart;
+    const { params, title } = configuration;
 
     return { chartID, params, title };
   });

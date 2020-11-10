@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
 
 const StaticFileParams = ({ localState, setParamObj }) => {
   const {
-    config: { params = [] },
+    configuration: { params = [] },
     sourceType,
   } = localState;
   const { formControl } = useStyles();

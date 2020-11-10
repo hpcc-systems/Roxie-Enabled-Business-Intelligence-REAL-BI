@@ -27,96 +27,43 @@ export const checkForToken = () => {
 };
 
 export const updatePassword = async stateObj => {
-  let response;
-
   try {
-    response = await axios.post('/api/user/changepwd', { ...stateObj });
-  } catch (err) {
-    const errReason = err.response.data.reason;
-
-    if (errReason) {
-      throw errReason;
-    }
-
-    throw err.response.data;
+    const response = await axios.post('/api/v1/user/update_password', { ...stateObj });
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
   }
-
-  return response.data;
 };
 
 export const registerUser = async stateObj => {
-  let response;
-
   try {
-    response = await axios.post('/api/auth/register', { ...stateObj });
-  } catch (err) {
-    const { data } = err.response;
-    let error;
-
-    if (!data.errors) {
-      if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
-      }
-
-      error = [{ msg: data }];
-      throw error;
-    }
-
-    throw data.errors;
+    const response = await axios.post('/api/v1/auth/register', { ...stateObj });
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
   }
-
-  return response.status;
 };
 
 export const forgotPassword = async stateObj => {
-  let response;
-
   try {
-    response = await axios.post('/api/auth/forgot-password', { ...stateObj });
-  } catch (err) {
-    const { data } = err.response;
-    let error;
+    const response = await axios.post('/api/v1/auth/forgot_password', { ...stateObj });
 
-    if (!data.errors) {
-      if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
-      }
+    // Get UUID from reset url
+    const url = response.data.resetUrl;
+    const uuidIndex = url.lastIndexOf('/') + 1;
+    const uuid = url.substring(uuidIndex, url.length);
 
-      error = [{ msg: data }];
-      throw error;
-    }
-
-    throw data.errors;
+    return uuid;
+  } catch (error) {
+    throw error.response.data;
   }
-
-  // Get UUID from reset url
-  const url = response.data.resetUrl;
-  const uuidIndex = url.lastIndexOf('/') + 1;
-  const uuid = url.substring(uuidIndex, url.length);
-
-  return uuid;
 };
 
 export const resetPassword = async stateObj => {
   try {
-    await axios.post('/api/auth/reset-password', { ...stateObj });
-  } catch (err) {
-    const { data } = err.response;
-    let error;
-
-    if (!data.errors) {
-      if (typeof data === 'object') {
-        error = [{ msg: JSON.stringify(data) }];
-        throw error;
-      }
-
-      error = [{ msg: data }];
-      throw error;
-    }
-
-    throw data.errors;
+    await axios.post('/api/v1/auth/reset_password', { ...stateObj });
+  } catch (error) {
+    throw error.response.data;
   }
 
   return;

@@ -9,10 +9,10 @@ import classnames from 'classnames';
 import ToolbarSubMenu from './ToolbarSubMenu';
 
 // Redux Actions
-import { updateChart } from '../../features/chart/actions';
+import { updateChart } from '../../features/dashboard/actions';
 
 // Utils
-import { canEditCharts, createDateTimeStamp } from '../../utils/misc';
+import { canEditCharts } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -25,10 +25,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartToolbar = props => {
-  const { chart, dashboard, datetimeStamp } = props;
-  const { config, sourceType } = chart;
-  const { role } = dashboard;
-  const { chartDescription = '', size = 12, title = '', type } = config;
+  const { chart, dashboard, lastModifiedDate } = props;
+  const { configuration, sourceType } = chart;
+  const { permission } = dashboard;
+  const { chartDescription = '', size = 12, title = '', type } = configuration;
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const { description, ellipseBtnLg, ellipseBtnMd, ellipseBtnXs, tableDesc, typography } = useStyles();
@@ -40,20 +40,19 @@ const ChartToolbar = props => {
   const updateChartWidth = async event => {
     const { value } = event.target;
     const newChartObj = { ...chart };
-    const { sourceID, sourceType } = newChartObj;
-    let action;
 
-    // Update size in chart config
-    newChartObj.config.size = value;
+    // Update size in chart configuration
+    newChartObj.configuration.size = value;
 
     try {
-      action = await updateChart(newChartObj, dashboard.id, sourceID, sourceType);
+      const action = await updateChart(newChartObj, dashboard.id);
+      dispatch(action);
     } catch (error) {
-      return console.error(error);
+      dispatch(error);
     }
-
-    dispatch(action);
   };
+
+  const datetimeStamp = `${sourceType === 'file' ? 'Last Modified:' : 'Last Executed:'} ${lastModifiedDate}`;
 
   return (
     <Fragment>
@@ -65,7 +64,7 @@ const ChartToolbar = props => {
           </Typography>
         </Grid>
         <Grid item xs={size > 4 ? 1 : 2}>
-          {canEditCharts(role) && (
+          {canEditCharts(permission) && (
             <Fragment>
               <MoreHorizIcon
                 className={classnames(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}
@@ -89,7 +88,7 @@ const ChartToolbar = props => {
         */}
         {chartDescription !== '' ? chartDescription : null}
         {chartDescription !== '' ? <br /> : null}
-        <small>{createDateTimeStamp(datetimeStamp, sourceType)}</small>
+        <small>{datetimeStamp}</small>
       </Typography>
     </Fragment>
   );

@@ -16,8 +16,8 @@ const useStyles = makeStyles(theme => ({
 
 const ParametersTab = ({ eclRef, handleChangeArr, handleChangeObj, localState }) => {
   const { dataset: eclDataset } = eclRef.current;
-  const { config, dataset, sourceType } = localState;
-  const { params = [] } = config;
+  const { configuration, dataset, sourceType } = localState;
+  const { params = [] } = configuration;
   const { formControl, typography } = useStyles();
 
   // Updates param array in state
@@ -42,7 +42,7 @@ const ParametersTab = ({ eclRef, handleChangeArr, handleChangeObj, localState })
     // Replace object in array
     arr[index] = newObj;
 
-    handleChangeObj(null, { name: 'config:params', value: arr });
+    handleChangeObj(null, { name: 'configuration:params', value: arr });
   };
 
   return dataset || eclDataset ? (

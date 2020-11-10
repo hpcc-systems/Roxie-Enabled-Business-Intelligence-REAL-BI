@@ -23,8 +23,8 @@ const useStyles = makeStyles(theme => ({
 
 const PieParams = ({ eclRef, localState, updateAxisKey }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, axis2 = {} } = config;
+  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
 

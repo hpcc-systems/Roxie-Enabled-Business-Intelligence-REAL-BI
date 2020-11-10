@@ -62,19 +62,19 @@ const useStyles = makeStyles(theme => ({
 
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
-  const { config } = localState;
-  const { axis1, axis2, chartDescription, horizontal, isStatic, showDataLabels, title, type } = config;
+  const { configuration } = localState;
+  const { axis1, axis2, chartDescription, horizontal, isStatic, showDataLabels, title, type } = configuration;
   const { dataLabelsCheckbox, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
     const [state, key] = name.split(':');
-    let newConfig = config;
+    let newConfig = configuration;
 
     switch (key) {
       case 'showTickLabels':
         newConfig = { ...newConfig, [state]: { ...newConfig[state], [key]: checked } };
-        handleChange(null, { name: 'config', value: newConfig });
+        handleChange(null, { name: 'configuration', value: newConfig });
         break;
       case 'horizontal':
         newConfig = { ...newConfig, [key]: checked };
@@ -86,7 +86,7 @@ const GeneralTab = props => {
           newConfig.axis2 = axis1;
         }
 
-        handleChange(null, { name: 'config', value: newConfig });
+        handleChange(null, { name: 'configuration', value: newConfig });
         break;
       default:
         // Update local state
@@ -95,9 +95,9 @@ const GeneralTab = props => {
   };
 
   const handleTypeChange = event => {
-    const newConfig = changeChartType(type, event.target.value, config);
+    const newConfig = changeChartType(type, event.target.value, configuration);
 
-    handleChange(null, { name: 'config', value: newConfig });
+    handleChange(null, { name: 'configuration', value: newConfig });
   };
 
   return (
@@ -105,7 +105,7 @@ const GeneralTab = props => {
       <Grid item md={hasHorizontalOption(type) || hasDynamicOption(type) ? 9 : 12} className={topFormControl}>
         <FormControl fullWidth>
           <InputLabel>Chart Type</InputLabel>
-          <Select name='config:type' value={type} onChange={handleTypeChange}>
+          <Select name='configuration:type' value={type} onChange={handleTypeChange}>
             {charts.map(({ name, value }, index) => {
               return (
                 <MenuItem key={index} value={value}>
@@ -150,7 +150,7 @@ const GeneralTab = props => {
             className={horizontalCheckbox}
             control={
               <Checkbox
-                name='config:horizontal'
+                name='configuration:horizontal'
                 checked={horizontal || false}
                 onChange={checkboxUpdated}
                 color='primary'
@@ -167,7 +167,7 @@ const GeneralTab = props => {
             className={staticCheckbox}
             control={
               <Checkbox
-                name='config:isStatic'
+                name='configuration:isStatic'
                 checked={isStatic || false}
                 onChange={checkboxUpdated}
                 color='primary'
@@ -182,7 +182,7 @@ const GeneralTab = props => {
         <TextField
           fullWidth
           label='Chart Title'
-          name='config:title'
+          name='configuration:title'
           value={title || ''}
           onChange={handleChangeObj}
           autoComplete='off'
@@ -194,7 +194,7 @@ const GeneralTab = props => {
             className={dataLabelsCheckbox}
             control={
               <Checkbox
-                name='config:showDataLabels'
+                name='configuration:showDataLabels'
                 checked={showDataLabels || false}
                 onChange={checkboxUpdated}
                 color='primary'
@@ -209,7 +209,7 @@ const GeneralTab = props => {
         <TextField
           fullWidth
           label='Chart Description (Optional)'
-          name='config:chartDescription'
+          name='configuration:chartDescription'
           value={chartDescription || ''}
           onChange={handleChangeObj}
           autoComplete='off'

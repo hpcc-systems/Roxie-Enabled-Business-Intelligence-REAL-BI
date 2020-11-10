@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 
 // Utils
-import { getSourceInfo } from '../../../utils/source';
+import { getDatasetsFromSource } from '../../../utils/hpcc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -19,31 +19,36 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
-const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
+const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
   const { datasets = [], errors, sourceDataset, selectedSource = {}, sourceType } = localState;
-  const { clusterID } = dashboard;
+  const { id: clusterID } = dashboard.cluster;
   const { errorText, progress } = useStyles();
 
   // Get list of sources datasets from hpcc
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
-      setLoading(true);
+      (async () => {
+        setLoading(true);
 
-      getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
-        const { datasets, fields, name } = data;
+        try {
+          const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
+          const { datasets, fields, name } = data;
 
-        if (sourceType === 'file') {
-          handleChange(null, { name: 'selectedDataset', value: { name, fields } });
-          handleChange(null, { name: 'dataset', value: name });
-        } else {
-          handleChange(null, { name: 'datasets', value: datasets });
+          if (sourceType === 'file') {
+            handleChange(null, { name: 'selectedDataset', value: { name, fields } });
+            handleChange(null, { name: 'dataset', value: name });
+          } else {
+            handleChange(null, { name: 'datasets', value: datasets });
+          }
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
         }
 
         setLoading(false);
-      });
+      })();
     }
-  }, [clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
+  }, [clusterID, handleChange, selectedSource, sourceType]);
 
   useEffect(() => {
     if (datasets.length > 0 && sourceDataset) {
@@ -52,7 +57,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
 
       handleChange(null, { name: 'selectedDataset', value: selectedDataset });
     }
-  }, [datasets, handleChange, handleChangeObj, sourceDataset]);
+  }, [datasets, handleChange, sourceDataset]);
 
   /*
     Don't render component to screen

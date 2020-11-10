@@ -19,7 +19,7 @@ import useDrawer from '../../hooks/useDrawer';
 // Utils
 import { getChartData } from '../../utils/chart';
 import { sortArr } from '../../utils/misc';
-import { updateChart } from '../../features/chart/actions';
+import { updateChart } from '../../features/dashboard/actions';
 
 const Dashboard = () => {
   const [chartID, setChartID] = useState(null);
@@ -27,8 +27,7 @@ const Dashboard = () => {
   const [compData, setCompData] = useState({});
   const [interactiveObj, setInteractiveObj] = useState({});
   const { dashboard } = useSelector(state => state.dashboard);
-  const { clusterID, id: dashboardID } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
-  const { charts } = useSelector(state => state.chart);
+  const { charts = [], cluster, id: dashboardID } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
@@ -62,19 +61,24 @@ const Dashboard = () => {
 
     // Fetch data for each chart
     charts.forEach(({ id: chartID }) => {
-      getChartData(chartID, clusterID, interactiveObj, dashboardID).then(data => {
-        if (typeof data !== 'object') {
-          return setCompData(prevState => ({
+      (async () => {
+        try {
+          const results = await getChartData(chartID, cluster.id, dashboardID, interactiveObj);
+          setCompData(prevState => ({
             ...prevState,
-            [chartID]: { data: [], error: data, loading: false },
+            [chartID]: {
+              data: results.data,
+              error: '',
+              lastModifiedDate: results.lastModifiedDate,
+              loading: false,
+            },
           }));
+        } catch (error) {
+          setCompData(prevState => ({ ...prevState, [chartID]: { error: error.message, loading: false } }));
         }
-
-        // Set data in local state object with chartID as key
-        setCompData(prevState => ({ ...prevState, [chartID]: { data, error: '', loading: false } }));
-      });
+      })();
     });
-  }, [charts, clusterID, dashboardID, interactiveObj]);
+  }, [charts, cluster.id, dashboardID, interactiveObj]);
 
   const interactiveClick = (chartID, field, clickValue) => {
     // Click same value twice, clear interactive click value
@@ -121,21 +125,20 @@ const Dashboard = () => {
       // Get chart objects and sort values
       const draggedChart = charts.find(({ id }) => id === dragItemID.current);
       const targetChart = charts.find(({ id }) => id === targetItemID.current);
-      const dragSortVal = draggedChart.config.sort;
-      const targetSortVal = targetChart.config.sort;
+      const dragSortVal = draggedChart.configuration.sort;
+      const targetSortVal = targetChart.configuration.sort;
 
       // Switch sort values in chart objects
-      draggedChart.config.sort = targetSortVal;
-      targetChart.config.sort = dragSortVal;
+      draggedChart.configuration.sort = targetSortVal;
+      targetChart.configuration.sort = dragSortVal;
 
-      Promise.all([
-        updateChart(draggedChart, dashboard.id, draggedChart.sourceID, draggedChart.sourceType),
-        updateChart(targetChart, dashboard.id, targetChart.sourceID, targetChart.sourceType),
-      ]).then(actions => {
-        batch(() => {
-          actions.forEach(action => dispatch(action));
-        });
-      });
+      Promise.all([updateChart(draggedChart, dashboard.id), updateChart(targetChart, dashboard.id)]).then(
+        actions => {
+          batch(() => {
+            actions.forEach(action => dispatch(action));
+          });
+        },
+      );
     }
 
     dragItemID.current = null;
@@ -155,7 +158,7 @@ const Dashboard = () => {
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
-          {sortArr(charts, 'config::sort').map((chart, index) => {
+          {sortArr(charts, 'configuration::sort').map((chart, index) => {
             return (
               <ChartTile
                 key={index}

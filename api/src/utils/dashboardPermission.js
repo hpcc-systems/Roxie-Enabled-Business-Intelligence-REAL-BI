@@ -1,27 +1,9 @@
-const { dashboardPermission: dashboardPermissionModel } = require('../models');
-const { awaitHandler, unNestSequelizeObj } = require('../utils/misc');
+const { dashboard_permission: dashboardPermission } = require('../models');
+const { getRoleByName } = require('./role');
 
 const createDashboardPermission = async (dashboardID, userID, role) => {
-  let [err] = await awaitHandler(dashboardPermissionModel.create({ dashboardID, userID, role }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
+  const { id: roleID } = await getRoleByName(role);
+  return await dashboardPermission.create({ dashboardID, userID, roleID });
 };
 
-const getDashboardPermission = async (dashboardID, userID) => {
-  let [err, permissionObj] = await awaitHandler(
-    dashboardPermissionModel.findOne({ attributes: ['role'], where: { dashboardID, userID } }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Un-nest value
-  permissionObj = unNestSequelizeObj(permissionObj);
-
-  return permissionObj;
-};
-
-module.exports = { createDashboardPermission, getDashboardPermission };
+module.exports = { createDashboardPermission };

@@ -30,62 +30,36 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartComp = ({
-  chart: { config = {}, id: chartID },
-  dataObj: { data = {}, error, loading = true },
-  eclDataset = '',
+  chart: { configuration = {}, id: chartID },
+  dataObj,
   interactiveClick,
   interactiveObj = {},
   sourceType,
 }) => {
-  const {
-    dataset,
-    ecl = {},
-    groupBy = {},
-    horizontal,
-    params = [],
-    stacked,
-    isStatic = false,
-    type,
-  } = config;
+  const { groupBy = {}, horizontal, params = [], stacked, isStatic = false, type } = configuration;
   const { progress, warningMsg } = useStyles();
-  let { relations = {} } = useSelector(state => state.dashboard.dashboard);
-  let chartData = [];
+  let { relations } = useSelector(state => state.dashboard.dashboard);
   let chartType = type;
-  let err = null;
 
-  eclDataset = eclDataset === '' && ecl.dataset ? ecl.dataset : eclDataset;
+  const { data = [], error, loading } = dataObj;
 
-  // Determine if chart data is available
-  if (data.Results && Object.keys(data.Results).length > 0) {
-    if (data.Exception) {
-      err = data.Results.Exception.Message;
-    } else if (data.Results[dataset] || eclDataset !== '') {
-      if (eclDataset !== '') {
-        chartData = data.Results[eclDataset].Row;
+  if (!error && data) {
+    // Confirm chart type
+    if (chartType === 'bar') {
+      if (horizontal) {
+        chartType = stacked ? 'bar-stacked' : groupBy.value ? 'bar-group' : 'bar';
       } else {
-        chartData = data.Results[dataset].Row;
-      }
-
-      // Confirm chart type
-      if (chartType === 'bar') {
-        if (horizontal) {
-          chartType = stacked ? 'bar-stacked' : groupBy.value ? 'bar-group' : 'bar';
-        } else {
-          chartType = stacked ? 'column-stacked' : groupBy.value ? 'column-group' : 'column';
-        }
+        chartType = stacked ? 'column-stacked' : groupBy.value ? 'column-group' : 'column';
       }
     }
-  } else if (error !== '') {
-    err = error;
   }
 
-  // Confirm relations exist else default to {}
-  relations = relations || {};
+  const hasClickEvent = relations.findIndex(({ sourceID }) => sourceID === chartID) > -1;
 
   // Don't render the progress wheel if the chart is a static textbox
   return loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (
     <CircularProgress className={progress} />
-  ) : (chartData.length > 0 || (chartType === 'textBox' && isStatic)) && !err ? (
+  ) : (data.length > 0 || (chartType === 'textBox' && isStatic)) && !error ? (
     (() => {
       let chartComp;
       switch (chartType) {
@@ -93,11 +67,11 @@ const ChartComp = ({
           chartComp = (
             <BarChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -105,11 +79,11 @@ const ChartComp = ({
           chartComp = (
             <GroupBarChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -117,11 +91,11 @@ const ChartComp = ({
           chartComp = (
             <StackedBarChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -129,11 +103,11 @@ const ChartComp = ({
           chartComp = (
             <ColumnChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -141,11 +115,11 @@ const ChartComp = ({
           chartComp = (
             <GroupColumnChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -153,11 +127,11 @@ const ChartComp = ({
           chartComp = (
             <StackedColumnChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -165,11 +139,11 @@ const ChartComp = ({
           chartComp = (
             <DonutChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -177,44 +151,44 @@ const ChartComp = ({
           chartComp = (
             <LineChart
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
         case 'histogram':
-          chartComp = <HistogramChart data={chartData} config={config} />;
+          chartComp = <HistogramChart data={data} configuration={configuration} />;
           break;
         case 'dualline':
-          chartComp = <DualLineChart data={chartData} config={config} />;
+          chartComp = <DualLineChart data={data} configuration={configuration} />;
           break;
         case 'pie':
-          chartComp = <PieChart data={chartData} config={config} />;
+          chartComp = <PieChart data={data} configuration={configuration} />;
           break;
         case 'scatter':
-          chartComp = <ScatterChart data={chartData} config={config} />;
+          chartComp = <ScatterChart data={data} configuration={configuration} />;
           break;
         case 'textBox':
-          chartComp = <TextBox data={chartData} config={config} />;
+          chartComp = <TextBox data={data} configuration={configuration} />;
           break;
         case 'heatmap':
-          chartComp = <HeatMap data={chartData} config={config} />;
+          chartComp = <HeatMap data={data} configuration={configuration} />;
           break;
         case 'gauge':
-          chartComp = <Gauge data={chartData} config={config} />;
+          chartComp = <Gauge data={data} configuration={configuration} />;
           break;
         case 'table':
           chartComp = (
             <Table
               chartID={chartID}
-              config={config}
-              data={chartData}
+              configuration={configuration}
+              data={data}
+              hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              relations={relations}
             />
           );
           break;
@@ -230,13 +204,13 @@ const ChartComp = ({
       return (
         <Fragment>
           {chartComp}
-          {chartData.length >= 5000 && (
+          {data.length >= 5000 && (
             <Typography className={warningMsg} display='block'>
               Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further
               to improve chart render time.
             </Typography>
           )}
-          {chartData.length < 5000 && chartData.length === countParamValue && (
+          {data.length < 5000 && data.length === countParamValue && (
             <Typography className={warningMsg} display='block'>
               The number of returned rows is being altered by a chart level parameter.
             </Typography>
@@ -245,7 +219,7 @@ const ChartComp = ({
       );
     })()
   ) : (
-    <NoData sourceType={sourceType} err={err} />
+    <NoData sourceType={sourceType} error={error} />
   );
 };
 

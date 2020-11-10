@@ -27,8 +27,7 @@ const useStyles = makeStyles(theme => ({
 const tabOptions = ['ECL Script', 'Source', 'Targets'];
 
 const FilterEditor = props => {
-  const { dashboard, eclRef, handleChange, localState } = props;
-  const { clusterHost, clusterID, clusterPort } = dashboard;
+  const { handleChange, localState } = props;
   const { errors = [], name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
@@ -52,7 +51,6 @@ const FilterEditor = props => {
     }
   }, [sourceType]);
 
-  const clusterURL = `${clusterHost}:${clusterPort}`;
   const nameErr = errors.find(err => err['name']);
 
   return (
@@ -107,7 +105,7 @@ const FilterEditor = props => {
           case 0:
             return (
               <Grid item xs={12}>
-                <ECLEditor {...props} clusterID={clusterID} clusterURL={clusterURL} eclRef={eclRef} />
+                <ECLEditor {...props} />
               </Grid>
             );
           case 1:

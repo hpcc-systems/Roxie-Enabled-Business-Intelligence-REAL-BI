@@ -17,10 +17,13 @@ import {
 import { Remove as RemoveIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { updateDashboard } from '../../features/dashboard/actions';
+import {
+  createRelations,
+  deleteExistingRelations,
+  updateExistingRelations,
+} from '../../features/dashboard/actions';
 
 // Utils
-import { formatRelations } from '../../utils/dashboard';
 import { hasClickEventOption } from '../../utils/misc';
 
 // Create styles
@@ -39,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 // Dropdown component to choose from a list of charts on the dashboard
-const chartDropdown = (label, name, arr, field, index, updateArr) => {
+const chartDropdown = (label, name, arr, field, index, updateArr, relationID) => {
   if (name === 'sourceChart') {
     // Filter list of charts to ones that support click events
     arr = arr.filter(chart => hasClickEventOption(chart.type));
@@ -48,7 +51,7 @@ const chartDropdown = (label, name, arr, field, index, updateArr) => {
   return (
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
-      <Select name={name} value={field || ''} onChange={event => updateArr(event, index)}>
+      <Select name={name} value={field || ''} onChange={event => updateArr(event, index, relationID)}>
         {arr.map(({ chartID, title }, index) => {
           title = !title ? 'No Chart Title' : title;
 
@@ -64,7 +67,7 @@ const chartDropdown = (label, name, arr, field, index, updateArr) => {
 };
 
 // Dropdown component to select field for a particular chart
-const fieldDropdown = (label, name, arr, chartID, field, index, updateArr) => {
+const fieldDropdown = (label, name, arr, chartID, field, index, updateArr, relationID) => {
   let fieldsArr = [];
 
   // Confirm chart was chosen, array exists, and fields exist in first object
@@ -81,7 +84,7 @@ const fieldDropdown = (label, name, arr, chartID, field, index, updateArr) => {
   return (
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
-      <Select name={name} value={field || ''} onChange={event => updateArr(event, index)}>
+      <Select name={name} value={field || ''} onChange={event => updateArr(event, index, relationID)}>
         {fieldsArr.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>
@@ -94,20 +97,22 @@ const fieldDropdown = (label, name, arr, chartID, field, index, updateArr) => {
   );
 };
 
+const newRelationEntry = { sourceID: '', sourceField: '', targetID: '', targetField: '' };
+
 const Relations = ({ show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
-  const relationsArr = formatRelations(dashboard.relations);
+  const { charts, id: dashboardID, relations: dashboardRelations } = dashboard;
 
-  const [relations, setRelations] = useState(relationsArr);
+  const [relations, setRelations] = useState([...dashboardRelations, newRelationEntry]);
+  const [updatedRelations, setUpdatedRelations] = useState([]);
+  const [deletedRelations, setDeletedRelations] = useState([]);
   const dispatch = useDispatch();
   const { button, button2, dialog, grid } = useStyles();
 
-  let { charts } = useSelector(state => state.chart);
-
   // Configure charts to get formatted array of objects
-  charts = charts.map(chart => {
-    const { id: chartID, config, sourceID, sourceName } = chart;
-    const { axis1, axis2, fields = [], groupBy = {}, params, title, type } = config;
+  const formattedCharts = charts.map(chart => {
+    const { id: chartID, configuration, source } = chart;
+    const { axis1, axis2, fields = [], groupBy = {}, params, title, type } = configuration;
     const newFields = [];
 
     // Get fields from chart config
@@ -129,67 +134,69 @@ const Relations = ({ show, toggleDialog }) => {
       newFields.push({ name: groupBy.value });
     }
 
-    return { chartID, fields: newFields, params, sourceID, sourceName, title, type };
+    return { chartID, fields: newFields, params, sourceID: source.id, sourceName: source.name, title, type };
   });
 
   // Remove charts that do not have params that relations can use
-  const targetCharts = charts.filter(chart => {
+  const targetCharts = formattedCharts.filter(chart => {
     const { params = [] } = chart;
     return params.length > 0;
   });
 
-  const updateField = (event, index) => {
+  const updateField = (event, index, relationID) => {
     const { name, value } = event.target;
     const newRelationsArr = new Array(...relations);
-
-    // Update index
     newRelationsArr[index] = { ...newRelationsArr[index], [name]: value };
 
     // Add new object to end of array for next entry
     if (newRelationsArr.length - 1 === index) {
-      newRelationsArr.push({ sourceChart: '', sourceField: '', targetChart: '', targetField: '' });
+      newRelationsArr.push(newRelationEntry);
+    }
+
+    if (relationID && updatedRelations.indexOf(relationID) === -1) {
+      setUpdatedRelations(prevState => [...prevState, relationID]);
     }
 
     setRelations(newRelationsArr);
   };
 
-  const removeRelation = index => {
+  const removeRelation = (index, relationID) => {
     const newRelationsArr = new Array(...relations);
 
     newRelationsArr.splice(index, 1);
 
     // Array is empty, add an empty object
     if (newRelationsArr.length === 0) {
-      newRelationsArr.push({ sourceChart: '', sourceField: '', targetChart: '', targetField: '' });
+      newRelationsArr.push(newRelationEntry);
+    }
+
+    if (deletedRelations.indexOf(relationID) === -1) {
+      setDeletedRelations(prevState => [...prevState, relationID]);
     }
 
     return setRelations(newRelationsArr);
   };
 
-  const saveRelations = () => {
+  const saveRelations = async () => {
     // Get array of objects that are complete
-    const filteredRelations = relations.filter(({ sourceChart, sourceField, targetChart, targetField }) => {
-      return sourceChart !== '' && sourceField !== '' && targetChart !== '' && targetField !== '';
-    });
-    // Get list of unique source chart ID's
-    const sourceCharts = [...new Set(filteredRelations.map(({ sourceChart }) => sourceChart))];
-    const formattedRelations = {};
-
-    sourceCharts.forEach(chartID => {
-      const foundRelations = filteredRelations.filter(({ sourceChart }) => sourceChart === chartID);
-      const formattedObjects = foundRelations.map(({ sourceField, targetChart, targetField }) => ({
-        sourceField,
-        targetChart,
-        targetField,
-      }));
-
-      return (formattedRelations[chartID] = formattedObjects);
+    const filteredRelations = relations.filter(({ sourceID, sourceField, targetID, targetField }) => {
+      return sourceID !== '' && sourceField !== '' && targetID !== '' && targetField !== '';
     });
 
-    updateDashboard({ ...dashboard, relations: formattedRelations }).then(action => {
-      toggleDialog();
+    const newRelationsArr = filteredRelations.filter(({ id }) => !id);
+    const updatedRelationsArr = filteredRelations.filter(({ id }) => updatedRelations.indexOf(id) > -1);
+    const deletedRelationsArr = dashboardRelations.filter(({ id }) => deletedRelations.indexOf(id) > -1);
+
+    try {
+      await createRelations(dashboardID, newRelationsArr);
+      await updateExistingRelations(dashboardID, updatedRelationsArr);
+      const action = await deleteExistingRelations(dashboardID, deletedRelationsArr);
+
       dispatch(action);
-    });
+      toggleDialog();
+    } catch (error) {
+      dispatch(error);
+    }
   };
 
   return (
@@ -201,57 +208,68 @@ const Relations = ({ show, toggleDialog }) => {
     >
       <DialogTitle>Chart Relations</DialogTitle>
       <DialogContent>
-        {charts.length <= 1 ? (
+        {formattedCharts.length <= 1 ? (
           <Typography variant='h6' color='inherit' align='center'>
             Insufficient Number of Charts
           </Typography>
         ) : (
           <Grid container direction='row' spacing={1} className={grid}>
-            {relations.map(({ sourceChart, sourceField, targetChart, targetField }, index) => {
-              const isPopulated = Boolean(sourceChart || sourceField || targetChart || targetField);
+            {relations.map(({ id, sourceID, sourceField, targetID, targetField }, index) => {
+              const isPopulated = Boolean(sourceID || sourceField || targetID || targetField);
 
               return (
                 <Fragment key={index}>
                   {isPopulated && (
                     <Grid item xs={1}>
-                      <Button className={button2} onClick={() => removeRelation(index)}>
+                      <Button className={button2} onClick={() => removeRelation(index, id)}>
                         <RemoveIcon />
                       </Button>
                     </Grid>
                   )}
                   <Grid item xs={isPopulated ? 2 : 3}>
-                    {chartDropdown('Source Chart', 'sourceChart', charts, sourceChart, index, updateField)}
+                    {chartDropdown(
+                      'Source Chart',
+                      'sourceID',
+                      formattedCharts,
+                      sourceID,
+                      index,
+                      updateField,
+                      id,
+                    )}
                   </Grid>
                   <Grid item xs={3}>
                     {fieldDropdown(
                       'Source Chart Field',
                       'sourceField',
-                      charts,
-                      sourceChart,
+                      formattedCharts,
+                      sourceID,
                       sourceField,
                       index,
                       updateField,
+                      id,
                     )}
                   </Grid>
                   <Grid item xs={3}>
                     {chartDropdown(
                       'Target Chart',
-                      'targetChart',
+                      'targetID',
                       targetCharts,
-                      targetChart,
+                      targetID,
                       index,
                       updateField,
+                      id,
                     )}
                   </Grid>
                   <Grid item xs={3}>
                     {fieldDropdown(
                       'Target Chart Field',
                       'targetField',
-                      charts,
-                      targetChart,
+                      formattedCharts,
+                      targetID,
                       targetField,
                       index,
                       updateField,
+                      id,
                     )}
                   </Grid>
                 </Fragment>

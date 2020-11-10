@@ -8,11 +8,11 @@ import { sortArr } from '../../utils/misc';
 // Constants
 import { chartFillColor } from '../../constants';
 
-const HistogramComp = ({ data, config }) => {
+const HistogramComp = ({ data, configuration }) => {
   const {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     binNumber,
-  } = config;
+  } = configuration;
 
   const sortOrder = 'asc';
   const customXLabel = xLabel ? xLabel : xValue;
