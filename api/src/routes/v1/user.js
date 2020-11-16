@@ -4,6 +4,7 @@ const axios = require('axios');
 
 // Utils
 const { getUserDetails } = require('../../utils/user');
+const { validateChangePassword, validate } = require('../../utils/validation');
 
 // Constants
 const { AUTH_PORT, AUTH_URL } = process.env;
@@ -21,7 +22,7 @@ router.get('/get_data', async (req, res, next) => {
   }
 });
 
-router.post('/update_password', async (req, res, next) => {
+router.post('/update_password', [validateChangePassword(), validate], async (req, res, next) => {
   const {
     body: { oldPwd, newPwd, newPwd2 },
     headers: { authorization },
@@ -32,13 +33,13 @@ router.post('/update_password', async (req, res, next) => {
     await instance.post(
       `${AUTH_URL}:${AUTH_PORT}/api/users/changepwd`,
       { username, oldpassword: oldPwd, newpassword: newPwd, confirmpassword: newPwd2 },
-      { headers: { Cookie: `auth=${authorization}` } },
+      { headers: { authorization } },
     );
 
     res.status(200).json({ message: 'Password Updated' });
   } catch (err) {
     res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data.message : 'Unknown error'}`);
+    const error = new Error(err.response.data.errors);
     return next(error);
   }
 });

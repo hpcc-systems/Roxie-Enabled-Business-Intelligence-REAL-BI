@@ -122,11 +122,11 @@ const Register = () => {
       handleChange(null, { name: 'errors', value: [] });
       handleChange(null, { name: 'successMsg', value: response.message });
 
-      setTimeout(() => history.push('/login'), 3000);
+      setTimeout(() => history.push('/login'), 1500); // Wait 1.5 seconds then redirect to login page
     } catch (error) {
       handleChange(null, { name: 'loading', value: false });
 
-      if (Array.isArray(error.errors)) {
+      if (error.errors) {
         return handleChange(null, { name: 'errors', value: error.errors });
       } else {
         return handleChange(null, { name: 'error', value: error.message });

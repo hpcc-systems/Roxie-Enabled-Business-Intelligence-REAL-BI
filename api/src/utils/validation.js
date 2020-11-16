@@ -1,4 +1,4 @@
-const { body, validationResult } = require('express-validator');
+const { body, header, validationResult } = require('express-validator');
 const logger = require('../config/logger');
 
 const validateLogin = () => {
@@ -61,6 +61,33 @@ const validateForgotPassword = () => {
       .trim()
       .escape()
       .withMessage('Field Required'),
+  ];
+};
+
+const validateChangePassword = () => {
+  return [
+    header('authorization')
+      .exists({ checkFalsy: true })
+      .withMessage('Invalid Request'),
+    body('oldPwd')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd2')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd2').custom((value, { req }) => {
+      if (value !== req.body.newPwd) {
+        throw new Error('Passwords Do Not Match');
+      }
+
+      return true;
+    }),
   ];
 };
 
@@ -134,6 +161,7 @@ const validate = (req, res, next) => {
 
 module.exports = {
   validate,
+  validateChangePassword,
   validateEclEditorExecution,
   validateForgotPassword,
   validateLogin,
