@@ -70,6 +70,7 @@ const useStyles = makeStyles(theme => ({
 
 const initState = {
   error: '',
+  errors: [],
   loading: false,
   newPwd: '',
   newPwd2: '',
@@ -101,14 +102,25 @@ const ChangePwd = () => {
     try {
       const response = await updatePassword(localState);
       resetState(initState);
-      return handleChange(null, { name: 'successMsg', value: response });
+      handleChange(null, { name: 'successMsg', value: response.message });
+
+      setTimeout(() => history.goBack(), 1500); // Wait 1.5 seconds then redirect back to previous page
     } catch (error) {
       resetState(initState);
+
+      if (error.errors) {
+        return handleChange(null, { name: 'errors', value: error.errors });
+      }
+
       return handleChange(null, { name: 'error', value: error.message });
     }
   };
 
-  const { error, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
+  const { error, errors, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
+
+  const oldPwdErr = errors.find(err => err['oldPwd']);
+  const newPwdErr = errors.find(err => err['newPwd']);
+  const newPwd2Err = errors.find(err => err['newPwd2']);
 
   return (
     <Fragment>
@@ -155,6 +167,8 @@ const ChangePwd = () => {
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
+                    error={oldPwdErr !== undefined}
+                    helperText={oldPwdErr !== undefined ? oldPwdErr['oldPwd'] : ''}
                   />
                   <TextField
                     className={textfield}
@@ -165,6 +179,8 @@ const ChangePwd = () => {
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
+                    error={newPwdErr !== undefined}
+                    helperText={newPwdErr !== undefined ? newPwdErr['newPwd'] : ''}
                   />
                   <TextField
                     className={textfield}
@@ -175,6 +191,8 @@ const ChangePwd = () => {
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
+                    error={newPwd2Err !== undefined}
+                    helperText={newPwd2Err !== undefined ? newPwd2Err['newPwd2'] : ''}
                   />
                   <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>

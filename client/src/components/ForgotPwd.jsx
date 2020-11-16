@@ -117,11 +117,11 @@ const ForgotPwd = () => {
     } catch (error) {
       handleChange(null, { name: 'loading', value: false });
 
-      if (Array.isArray(error.errors)) {
+      if (error.errors) {
         return handleChange(null, { name: 'errors', value: error.errors });
-      } else {
-        return handleChange(null, { name: 'error', value: error.message });
       }
+
+      return handleChange(null, { name: 'error', value: error.message });
     }
   };
 
