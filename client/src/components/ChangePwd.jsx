@@ -118,9 +118,9 @@ const ChangePwd = () => {
 
   const { error, errors, loading, oldPwd, newPwd, newPwd2, successMsg } = localState;
 
-  const oldPwdErr = errors.find(err => err.oldPwd);
-  const newPwdErr = errors.find(err => err.newPwd);
-  const newPwd2Err = errors.find(err => err.newPwd2);
+  const oldPwdErr = errors.find(err => err['oldPwd']);
+  const newPwdErr = errors.find(err => err['newPwd']);
+  const newPwd2Err = errors.find(err => err['newPwd2']);
 
   return (
     <Fragment>
@@ -168,7 +168,7 @@ const ChangePwd = () => {
                     autoComplete='false'
                     fullWidth
                     error={oldPwdErr !== undefined}
-                    helperText={oldPwdErr !== undefined ? oldPwdErr.oldPwd : ''}
+                    helperText={oldPwdErr !== undefined ? oldPwdErr['oldPwd'] : ''}
                   />
                   <TextField
                     className={textfield}
@@ -180,7 +180,7 @@ const ChangePwd = () => {
                     autoComplete='false'
                     fullWidth
                     error={newPwdErr !== undefined}
-                    helperText={newPwdErr !== undefined ? newPwdErr.newPwd : ''}
+                    helperText={newPwdErr !== undefined ? newPwdErr['newPwd'] : ''}
                   />
                   <TextField
                     className={textfield}
@@ -192,7 +192,7 @@ const ChangePwd = () => {
                     autoComplete='false'
                     fullWidth
                     error={newPwd2Err !== undefined}
-                    helperText={newPwd2Err !== undefined ? newPwd2Err.newPwd2 : ''}
+                    helperText={newPwd2Err !== undefined ? newPwd2Err['newPwd2'] : ''}
                   />
                   <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
                     <Grid item>

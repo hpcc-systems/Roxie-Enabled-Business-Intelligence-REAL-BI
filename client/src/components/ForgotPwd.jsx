@@ -126,7 +126,7 @@ const ForgotPwd = () => {
   };
 
   const { error, errors, loading, successMsg, username } = localState;
-  const usernameErr = errors.find(err => err.username);
+  const usernameErr = errors.find(err => err['username']);
 
   return (
     <Fragment>
@@ -180,7 +180,7 @@ const ForgotPwd = () => {
                         onChange={handleChange}
                         fullWidth
                         error={usernameErr !== undefined}
-                        helperText={usernameErr !== undefined ? usernameErr.username : ''}
+                        helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
                       />
                     </Grid>
                   </Grid>
