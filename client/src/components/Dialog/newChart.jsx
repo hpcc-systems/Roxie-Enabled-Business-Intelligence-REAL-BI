@@ -15,7 +15,7 @@ import { validateSource } from '../../utils/validate';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, mergeArrays } from '../../utils/chart';
+import { createChartObj } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 
@@ -32,8 +32,7 @@ const initState = {
   error: '',
   errors: [],
   keyword: '',
-  mappedParams: [{ name: '', value: '' }],
-  // relations: [{ originField: '', mappedChart: '', mappedField: '' }],
+  params: [],
   sources: [],
   selectedDataset: {},
   selectedSource: {},
@@ -68,7 +67,6 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
   useEffect(() => {
     handleChange(null, { name: 'errors', value: [] });
-    handleChange(null, { name: 'mappedParams', value: [{ name: '', value: '' }] });
   }, [handleChange, sourceType]);
 
   // Add components to DB
@@ -117,16 +115,16 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { configuration, dataset, mappedParams, selectedSource: source, sourceType } = localState;
-    const { params = [] } = configuration;
+    const { dataset, params, selectedSource: source, sourceType } = localState;
+
+    const populatedParams = params.filter(({ value }) => value !== '');
 
     if (sourceKeys > 0 && datasetKeys > 0) {
       (async () => {
         handleChange(null, { name: 'dataObj', value: { loading: true } });
 
         try {
-          const usedParams = mergeArrays(params, mappedParams);
-          const options = { dataset, params: usedParams, source };
+          const options = { dataset, params: populatedParams, source };
           const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
 
           handleChange(null, { name: 'error', value: '' });

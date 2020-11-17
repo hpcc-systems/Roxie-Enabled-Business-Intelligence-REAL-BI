@@ -27,6 +27,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
     errors,
     dataset,
     datasets = [],
+    params,
     selectedSource = {},
     sourceType,
   } = localState;
@@ -41,7 +42,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
 
         try {
           const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
-          const { datasets, fields, name, params = [] } = data;
+          const { datasets, fields, name, params: dataParams = [] } = data;
 
           handleChange(null, { name: 'error', value: '' });
 
@@ -53,7 +54,19 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
           }
 
           if (!chartID) {
-            handleChangeObj(null, { name: 'configuration:params', value: params });
+            handleChange(null, { name: 'params', value: dataParams });
+          } else {
+            const newParams = dataParams.map(obj => {
+              const foundIndex = params.findIndex(({ name }) => name === obj.name);
+
+              if (foundIndex > -1) {
+                obj = { ...obj, value: params[foundIndex].value, show: true };
+              }
+
+              return obj;
+            });
+
+            handleChange(null, { name: 'params', value: newParams });
           }
         } catch (error) {
           handleChange(null, { name: 'error', value: error.message });
