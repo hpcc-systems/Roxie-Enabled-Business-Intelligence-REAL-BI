@@ -1,27 +1,22 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
-import { AddCircle as AddCircleIcon, Remove as RemoveIcon } from '@material-ui/icons';
+import { Remove as RemoveIcon } from '@material-ui/icons';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: {
-    margin: 0,
-    marginTop: theme.spacing(3),
+    margin: theme.spacing(2.5, 0, 0, 1),
     minWidth: 30,
     padding: 0,
   },
 }));
 
-// React Components
-const clearSelection = () => <MenuItem value=''>Clear Selection</MenuItem>;
-
-// Dropdown component to choose from a list of charts on the dashboard
+// Dropdown component to choose from a list of fields in the file
 const fieldDropdown = (arr, field, index, updateArr) => (
   <FormControl fullWidth>
     <InputLabel>Field</InputLabel>
-    <Select name='name' value={field || ''} onChange={event => updateArr(event, index)}>
-      {field !== '' ? clearSelection() : null}
+    <Select name='name' value={field || ''} onChange={updateArr}>
       {arr.map(({ name }, index) => {
         return (
           <MenuItem key={index} value={name}>
@@ -34,123 +29,79 @@ const fieldDropdown = (arr, field, index, updateArr) => (
 );
 
 // Textfield component to update parameter value
-const paramValueField = (value, index, updateValue) => {
+const paramValueField = (name, value, index, updateValue) => {
   return (
     <TextField
       label='Value'
       name='value'
       value={value || ''}
-      onChange={event => updateValue(event, index)}
+      onChange={event => updateValue(event, name)}
       fullWidth
     />
   );
 };
 
 // Constants
-const templateObj = { name: '', value: '' };
+const newParamEntry = { name: '', value: '' };
 
-const DynamicFileParams = ({ handleChangeArr, localState }) => {
-  const { configuration, mappedParams = [] } = localState;
-  const { params = [] } = configuration;
+const DynamicFileParams = ({ handleChange, localState }) => {
+  const { params } = localState;
   const { button } = useStyles();
 
-  const addField = () => {
-    // Adds additional template object to array
-    handleChangeArr('mappedParams', [...mappedParams, templateObj]);
+  const removeField = paramName => {
+    const newArr = [...params];
+    const index = newArr.findIndex(({ name }) => name === paramName);
+
+    newArr[index] = { ...newArr[index], show: false, value: '' };
+
+    handleChange(null, { name: 'params', value: newArr });
   };
 
-  const removeField = index => {
-    const newArr = mappedParams;
+  const updateField = event => {
+    const newArr = [...params];
+    const index = newArr.findIndex(({ name }) => name === event.target.value);
 
-    // Remove index
-    newArr.splice(index, 1);
+    newArr[index] = { ...newArr[index], show: true };
 
-    // Update local state
-    handleChangeArr('mappedParams', newArr);
+    handleChange(null, { name: 'params', value: newArr });
   };
 
-  const updateFieldDropdown = ({ target }, index) => {
-    const { value: fieldName } = target;
-    const newArr = mappedParams;
+  const updateValueField = (event, paramName) => {
+    const newArr = [...params];
+    const index = newArr.findIndex(({ name }) => name === paramName);
 
-    // Field selection cleared
-    if (fieldName === '') {
-      // Remove index
-      newArr.splice(index, 1);
+    newArr[index] = { ...newArr[index], value: event.target.value };
 
-      if (newArr.length === 0) {
-        newArr.push([templateObj]);
-      }
-
-      return handleChangeArr('mappedParams', newArr);
-    }
-
-    // Get matched parameter object from original array
-    const { name, ...otherKeys } = params.find(({ name }) => name === fieldName); // Add source info to new array
-
-    // Update copied array at necessary index
-    newArr[index] = { name, value: '', ...otherKeys };
-
-    // Update local state
-    handleChangeArr('mappedParams', newArr);
-  };
-
-  const updateValueField = ({ target }, index) => {
-    const { value } = target;
-    const newArr = mappedParams;
-
-    // Update copied array at necessary index
-    newArr[index] = { ...newArr[index], value };
-
-    // Update local state
-    handleChangeArr('mappedParams', newArr);
+    handleChange(null, { name: 'params', value: newArr });
   };
 
   // Show only certain params
   const partialParamsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
+  let selectedParams = partialParamsArr.filter(({ show = false }) => show);
+
+  selectedParams = [...selectedParams, newParamEntry];
 
   return (
     <Fragment>
-      {mappedParams.length === 1
-        ? (() => {
-            const index = 0;
-            const { name, value } = mappedParams[index];
-
-            return (
-              <Fragment>
-                <Grid item xs={1}>
-                  <Button className={button} onClick={addField}>
-                    <AddCircleIcon />
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  {fieldDropdown(partialParamsArr, name, index, updateFieldDropdown)}
-                </Grid>
-                <Grid item xs={5}>
-                  {paramValueField(value, index, updateValueField)}
-                </Grid>
-              </Fragment>
-            );
-          })()
-        : mappedParams.map((obj, index) => {
-            const { name, value } = obj;
-
-            return (
-              <Fragment key={index}>
-                <Grid item xs={1}>
-                  <Button className={button} onClick={index === 0 ? addField : () => removeField(index)}>
-                    {index === 0 ? <AddCircleIcon /> : <RemoveIcon />}
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  {fieldDropdown(partialParamsArr, name, index, updateFieldDropdown)}
-                </Grid>
-                <Grid item xs={5}>
-                  {paramValueField(value, index, updateValueField)}
-                </Grid>
-              </Fragment>
-            );
-          })}
+      {selectedParams.map(({ name, show = false, value }, index) => {
+        return (
+          <Fragment key={index}>
+            {show && (
+              <Grid item xs={1}>
+                <Button className={button} onClick={() => removeField(name)}>
+                  <RemoveIcon />
+                </Button>
+              </Grid>
+            )}
+            <Grid item xs={6}>
+              {fieldDropdown(partialParamsArr, name, index, updateField)}
+            </Grid>
+            <Grid item xs={show ? 5 : 6}>
+              {paramValueField(name, value, index, show ? updateValueField : () => {})}
+            </Grid>
+          </Fragment>
+        );
+      })}
     </Fragment>
   );
 };
