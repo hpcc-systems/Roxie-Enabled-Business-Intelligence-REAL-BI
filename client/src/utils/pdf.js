@@ -5,21 +5,20 @@ import moment from 'moment';
 export const printDashboard = async ({ fileName, orientation }) => {
   const input = document.getElementById('pdfPreview');
   const canvas = await html2canvas(input);
+  const imgData = canvas.toDataURL('image/png');
 
-  const leftMargin = 12.7;
-  let topMargin = 12.7;
+  const pdf = new jsPDF(orientation, 'in', 'letter');
 
-  let imgWidth = 184.6;
+  const leftMargin = 0.5;
+  const topMargin = 0.5;
+
+  let imgWidth = 7.5;
   let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   if (orientation === 'landscape') {
-    topMargin /= 1.5;
-    imgWidth = 271.6;
+    imgWidth = 10;
     imgHeight = (canvas.height * (imgWidth / 1.5)) / canvas.width;
   }
-
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF(orientation, 'mm', 'a4');
 
   pdf.addImage(imgData, 'JPEG', leftMargin, topMargin, imgWidth, imgHeight);
   addFooters(pdf, orientation);
@@ -30,10 +29,10 @@ export const printDashboard = async ({ fileName, orientation }) => {
 const addFooters = (doc, orientation) => {
   const pageCount = doc.internal.getNumberOfPages();
 
-  let bottomOfPage = 287;
+  let bottomOfPage = 10.5;
 
   if (orientation === 'landscape') {
-    bottomOfPage = 200;
+    bottomOfPage = 7.5;
   }
 
   doc.setFont('helvetica', 'italic');
@@ -41,10 +40,10 @@ const addFooters = (doc, orientation) => {
 
   for (var i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.text('Page ' + String(i) + ' of ' + String(pageCount), 12.7, bottomOfPage, { align: 'left' });
+    doc.text('Page ' + String(i) + ' of ' + String(pageCount), 0.5, bottomOfPage, { align: 'left' });
     doc.text(
       `${moment().format('MM/DD/YYYY hh:mm:ss A Z')}`,
-      doc.internal.pageSize.width - 12.7,
+      doc.internal.pageSize.width - 0.5,
       bottomOfPage,
       {
         align: 'right',

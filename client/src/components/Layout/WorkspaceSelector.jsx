@@ -96,7 +96,7 @@ const WorkspaceSelector = () => {
             </MenuItem>
           );
         })}
-        {workspaces.length === 0 && <MenuItem value={''}>Create a workspace</MenuItem>}
+        {workspaces.length === 0 && <MenuItem value=''>Create a workspace</MenuItem>}
       </Select>
     </FormControl>
   );

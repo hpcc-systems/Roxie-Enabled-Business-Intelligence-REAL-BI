@@ -17,15 +17,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const PdfPreview = ({ charts, compData, dashboard }) => {
+const PdfPreview = ({ charts, compData, dashboard, localState }) => {
+  const { headerURI } = localState;
   const { typography } = useStyles();
 
   return (
     <div id='pdfPreview'>
       <Container maxWidth='xl'>
-        <Typography align={'center'} variant={'h4'} color={'inherit'} className={typography}>
-          {dashboard.name}
-        </Typography>
+        {headerURI ? (
+          <img src={headerURI} style={{ width: '100%' }} alt='header' />
+        ) : (
+          <Typography align='center' variant='h4' color='inherit' className={typography}>
+            {dashboard.name}
+          </Typography>
+        )}
+
         <Grid container direction='row' spacing={3}>
           {sortArr(charts, 'configuration::sort').map((chart, index) => {
             return (

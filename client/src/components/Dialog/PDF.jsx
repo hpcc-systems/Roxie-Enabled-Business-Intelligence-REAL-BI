@@ -25,6 +25,8 @@ const useStyles = makeStyles(theme => ({
 
 const initState = {
   fileName: 'dashboard',
+  headerImg: '',
+  headerURI: '',
   orientation: 'portrait',
 };
 
@@ -53,7 +55,7 @@ const PdfDialog = ({ compData, show, toggleDialog }) => {
       <DialogContent>
         <PdfEditor handleChange={handleChange} localState={localState} />
         <Paper variant='outlined' className={paper}>
-          <PdfPreview charts={charts} compData={compData} dashboard={dashboard} handleChange={handleChange} />
+          <PdfPreview charts={charts} compData={compData} dashboard={dashboard} localState={localState} />
         </Paper>
       </DialogContent>
       <DialogActions>

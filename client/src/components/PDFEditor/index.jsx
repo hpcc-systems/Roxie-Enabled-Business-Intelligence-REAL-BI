@@ -1,5 +1,14 @@
 import React from 'react';
-import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  Input,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -8,8 +17,28 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const PdfEditor = ({ handleChange, localState }) => {
-  const { fileName, orientation } = localState;
+  const { fileName, headerImg, orientation } = localState;
   const { formControl, grid } = useStyles();
+
+  const handleImage = async event => {
+    event.persist();
+    const reader = new FileReader();
+    const file = event.target.files[0];
+
+    try {
+      if (file.size > 2048) {
+        throw new Error('File size too large!');
+      }
+
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        handleChange(null, { name: 'headerURI', value: reader.result });
+      };
+    } catch (error) {
+      reader.onerror = err => console.error(err);
+      console.error(error);
+    }
+  };
 
   return (
     <Grid container spacing={3} className={grid}>
@@ -17,7 +46,7 @@ const PdfEditor = ({ handleChange, localState }) => {
         <FormControl className={formControl} fullWidth>
           <TextField
             fullWidth
-            label='File Name'
+            label='Output File Name'
             name='fileName'
             value={fileName}
             onChange={handleChange}
@@ -29,12 +58,28 @@ const PdfEditor = ({ handleChange, localState }) => {
         <FormControl className={formControl} fullWidth>
           <InputLabel>Orientation</InputLabel>
           <Select name='orientation' value={orientation} onChange={handleChange}>
-            <MenuItem value={'portrait'}>Portrait</MenuItem>
-            <MenuItem value={'landscape'}>Landscape</MenuItem>
+            <MenuItem value='portrait'>Portrait</MenuItem>
+            <MenuItem value='landscape'>Landscape</MenuItem>
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={8}></Grid>
+      <Grid item xs={3}>
+        <FormControl className={formControl} fullWidth>
+          <InputLabel>Header Image</InputLabel>
+          <Input
+            fullWidth
+            name='headerImg'
+            value={headerImg || ''}
+            onChange={event => {
+              handleChange(event);
+              handleImage(event);
+            }}
+            type='file'
+          />
+          <FormHelperText>Maximum file size: 2MB</FormHelperText>
+        </FormControl>
+      </Grid>
+      <Grid item xs></Grid>
     </Grid>
   );
 };
