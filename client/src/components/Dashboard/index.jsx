@@ -11,15 +11,18 @@ import FilterDrawer from '../Drawers/Filters';
 import DeleteChartDialog from '../Dialog/DeleteChart';
 import Relations from '../Dialog/Relations';
 import ChartTile from './ChartTile';
+import PdfDialog from '../Dialog/PDF';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
+// Redux Action
+import { updateChart } from '../../features/dashboard/actions';
+
 // Utils
 import { getChartData } from '../../utils/chart';
 import { sortArr } from '../../utils/misc';
-import { updateChart } from '../../features/dashboard/actions';
 
 const Dashboard = () => {
   const [chartID, setChartID] = useState(null);
@@ -33,6 +36,7 @@ const Dashboard = () => {
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
   const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
+  const { showDialog: pdfShow, toggleDialog: pdfToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dragItemID = useRef(null);
   const dragNode = useRef(null);
@@ -118,7 +122,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = async () => {
     dragNode.current.removeEventListener('dragend', handleDragEnd);
 
     if (isDifferentNode.current) {
@@ -132,13 +136,15 @@ const Dashboard = () => {
       draggedChart.configuration.sort = targetSortVal;
       targetChart.configuration.sort = dragSortVal;
 
-      Promise.all([updateChart(draggedChart, dashboard.id), updateChart(targetChart, dashboard.id)]).then(
-        actions => {
-          batch(() => {
-            actions.forEach(action => dispatch(action));
-          });
-        },
-      );
+      try {
+        const actions = await Promise.all([
+          updateChart(draggedChart, dashboard.id),
+          updateChart(targetChart, dashboard.id),
+        ]);
+        batch(() => actions.forEach(action => dispatch(action)));
+      } catch (error) {
+        dispatch(error);
+      }
     }
 
     dragItemID.current = null;
@@ -154,6 +160,7 @@ const Dashboard = () => {
         toggleNewChartDialog={newChartToggle}
         toggleRelationsDialog={relationsToggle}
         toggleDrawer={toggleFilterDrawer}
+        togglePDF={pdfToggle}
         toggleShare={shareLinkToggle}
       />
       <Container maxWidth='xl'>
@@ -201,6 +208,7 @@ const Dashboard = () => {
           />
         )}
         {relationsShow && <Relations show={relationsShow} toggleDialog={relationsToggle} />}
+        {pdfShow && <PdfDialog compData={compData} show={pdfShow} toggleDialog={pdfToggle} />}
       </Container>
     </Fragment>
   );

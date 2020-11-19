@@ -5,7 +5,15 @@ import moment from 'moment';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const DonutComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
+const DonutComp = ({
+  chartID,
+  data,
+  configuration,
+  hasClickEvent,
+  interactiveClick,
+  interactiveObj,
+  pdfPreview,
+}) => {
   const {
     axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
     axis2: { label: valueLabel, type: valueType = 'string', value },
@@ -66,6 +74,7 @@ const DonutComp = ({ chartID, data, configuration, hasClickEvent, interactiveCli
     statistic: {
       totalLabel: customValueLabel,
     },
+    tooltip: { visible: !pdfPreview },
   };
 
   // Add click events

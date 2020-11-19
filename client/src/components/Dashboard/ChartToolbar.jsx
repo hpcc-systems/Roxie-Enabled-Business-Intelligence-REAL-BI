@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartToolbar = props => {
-  const { chart, dashboard, lastModifiedDate } = props;
+  const { chart, dashboard, lastModifiedDate, pdfPreview } = props;
   const { configuration, sourceType } = chart;
   const { permission } = dashboard;
   const { chartDescription = '', size = 12, title = '', type } = configuration;
@@ -64,7 +64,7 @@ const ChartToolbar = props => {
           </Typography>
         </Grid>
         <Grid item xs={size > 4 ? 1 : 2}>
-          {canEditCharts(permission) && (
+          {canEditCharts(permission) && !pdfPreview && (
             <Fragment>
               <MoreHorizIcon
                 className={classnames(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}

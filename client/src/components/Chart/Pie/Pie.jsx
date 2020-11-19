@@ -12,7 +12,7 @@ import { chartFillColor } from '../../../constants';
 const percentageOfPie = (num, total) => `${((Number(num) / total) * 100).toFixed(2)}%`; // Convert num and total to pie slice percentage
 const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
 
-const PieComp = ({ data, configuration }) => {
+const PieComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
     axis2: { label: valueLabel, type: valueType = 'string', value },
@@ -74,6 +74,7 @@ const PieComp = ({ data, configuration }) => {
       }),
       style: { fill: chartFillColor },
       title: ' ', // Have to pass in a space or it will duplicate information
+      visible: !pdfPreview,
     },
   };
 

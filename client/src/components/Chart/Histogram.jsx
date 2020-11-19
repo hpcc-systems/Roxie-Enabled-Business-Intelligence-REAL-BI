@@ -8,7 +8,7 @@ import { sortArr } from '../../utils/misc';
 // Constants
 import { chartFillColor } from '../../constants';
 
-const HistogramComp = ({ data, configuration }) => {
+const HistogramComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     binNumber,
@@ -37,6 +37,8 @@ const HistogramComp = ({ data, configuration }) => {
   data = sortArr(data, xValue, sortOrder);
 
   const chartConfig = {
+    binField: xValue,
+    binNumber: binNumber,
     data,
     forceFit: true,
     label: { visible: false },
@@ -44,6 +46,7 @@ const HistogramComp = ({ data, configuration }) => {
       position: 'right-top',
       visible: true,
     },
+    tooltip: { visible: !pdfPreview },
     xAxis: {
       label: {
         style: { fill: chartFillColor },
@@ -56,8 +59,6 @@ const HistogramComp = ({ data, configuration }) => {
         visible: true,
       },
     },
-    binField: xValue,
-    binNumber: binNumber,
     yAxis: {
       grid: { visible: true },
       label: {

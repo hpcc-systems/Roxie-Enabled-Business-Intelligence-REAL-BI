@@ -8,7 +8,15 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const LineComp = ({ data, chartID, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
+const LineComp = ({
+  data,
+  chartID,
+  configuration,
+  hasClickEvent,
+  interactiveClick,
+  interactiveObj,
+  pdfPreview,
+}) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
@@ -93,6 +101,7 @@ const LineComp = ({ data, chartID, configuration, hasClickEvent, interactiveClic
     meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
     point: { visible: true },
     seriesField: groupByValue,
+    tooltip: { visible: !pdfPreview },
     xField: xValue,
     xAxis: {
       label: {

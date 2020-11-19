@@ -33,35 +33,25 @@ const ShareLinkDialog = ({ show, toggleShare }) => {
 
   // Get list of available users
   useEffect(() => {
-    getUsers().then(data => {
-      if (!Array.isArray(data)) {
-        return handleChange(null, { name: 'error', value: data });
-      } else if (localState.error !== '') {
+    (async () => {
+      try {
+        const data = await getUsers();
+
         handleChange(null, { name: 'error', value: '' });
+        handleChange(null, { name: 'users', value: data });
+      } catch (error) {
+        return handleChange(null, { name: 'error', value: error.message });
       }
-
-      handleChange(null, { name: 'users', value: data });
-    });
-  }, [handleChange, localState.error]);
-
-  const shareDashboard = async email => {
-    try {
-      shareChart(email, dashboardID);
-    } catch (err) {
-      console.error(err);
-    }
-
-    return toggleShare();
-  };
+    })();
+  }, [handleChange]);
 
   const handleInputChange = value => {
-    // Only attempt to update state if a value is present
     if (value) {
       handleChange(null, { name: 'user', value });
     }
   };
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     const { user } = localState;
     event.preventDefault();
 
@@ -79,7 +69,12 @@ const ShareLinkDialog = ({ show, toggleShare }) => {
       return handleChange(null, { name: 'error', value: 'Email is not valid!' });
     }
 
-    shareDashboard(email);
+    try {
+      await shareChart(email, dashboardID);
+      return toggleShare();
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   const formatDropdownOption = option => {
