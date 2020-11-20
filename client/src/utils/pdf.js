@@ -23,7 +23,7 @@ export const printDashboard = async ({ fileName, orientation }) => {
   pdf.addImage(imgData, 'JPEG', leftMargin, topMargin, imgWidth, imgHeight);
   addFooters(pdf, orientation);
 
-  pdf.save(`${fileName}_${moment().format('YYYY-MM-DDTHHmmssZZ')}.pdf`);
+  pdf.save(`${fileName}_${moment().format('YYYYMMDDTHHmmssZZ')}.pdf`);
 };
 
 const addFooters = (doc, orientation) => {
