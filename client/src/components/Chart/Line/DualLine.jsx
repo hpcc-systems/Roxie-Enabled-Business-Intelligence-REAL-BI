@@ -8,14 +8,14 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const DualLineComp = ({ data, config }) => {
+const DualLineComp = ({ data, configuration }) => {
   const {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     axis2: { type: yType1 = 'string', value: yValue1 },
     axis3: { type: yType2 = 'string', value: yValue2 },
     showDataLabels = false,
     sortBy = {},
-  } = config;
+  } = configuration;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;

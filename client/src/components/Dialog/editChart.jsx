@@ -5,7 +5,7 @@ import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } fro
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 // Redux Actions
-import { updateChart } from '../../features/chart/actions';
+import { updateChart } from '../../features/dashboard/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
@@ -15,8 +15,9 @@ import { validateSource } from '../../utils/validate';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, getPreviewData, mergeArrays, setEditorState } from '../../utils/chart';
-import { addSource, createSourceObj } from '../../utils/source';
+import { createChartObj, setEditorState } from '../../utils/chart';
+import { createSource, createSourceObj } from '../../utils/source';
+import { getChartPreviewData } from '../../utils/hpcc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -28,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 
 const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
-  const { charts } = useSelector(state => state.chart);
+  const { charts = [] } = dashboard;
   const { eclObj, initState } = setEditorState(charts, chartID);
 
   // Set initial state
@@ -41,8 +42,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Reference values
   const {
-    dataObj: { loading: previewLoading },
-    error,
+    dataObj: { loading },
     selectedDataset = {},
     selectedSource = {},
     sourceType,
@@ -52,71 +52,65 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
 
   // Update chart in DB and store
   const editChart = async () => {
-    const { chartID, config, dataset } = localState;
-    const { isStatic, type } = config;
+    const { chartID, configuration, dataset } = localState;
+    const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
 
-    let errors = validateSource(localState, eclRef);
-    if (Object.keys(errors).length > 0) {
+    try {
+      validateSource(localState, eclRef);
+    } catch (errors) {
       return handleChange(null, { name: 'errors', value: errors });
     }
 
     if (type === 'textBox' && isStatic) {
-      const chartObj = { id: chartID, config: { ...config, dataset, ecl: {} } };
+      const chartObj = { id: chartID, configuration: { ...configuration, dataset, ecl: {} } };
 
       try {
-        updateChart(chartObj, dashboardID, null, null).then(action => {
-          dispatch(action);
-        });
-      } catch (err) {
-        console.error(err);
+        const action = updateChart(chartObj, dashboardID);
+        return dispatch(action);
+      } catch (error) {
+        return dispatch(error);
       }
     } else {
       const sourceObj = createSourceObj(localState, eclRef.current);
       const chartObj = createChartObj(localState, eclRef.current);
+      let newSource;
 
       try {
-        const { sourceID, sourceName, sourceType, error } = await addSource(dashboardID, sourceObj);
+        newSource = await createSource(sourceObj);
+      } catch (error) {
+        return handleChange(null, { name: 'error', value: error.message });
+      }
 
-        if (sourceID !== null && sourceName !== null && sourceType !== null) {
-          updateChart({ id: chartID, config: chartObj }, dashboardID, sourceID, sourceName, sourceType).then(
-            action => {
-              dispatch(action);
-            },
-          );
-
-          // Close dialog
-          return toggleDialog();
-        } else {
-          console.error(error);
-        }
-      } catch (err) {
-        console.error(err);
+      try {
+        const updatedChartObj = { id: chartID, configuration: chartObj, source: newSource };
+        const action = await updateChart(updatedChartObj, dashboardID);
+        dispatch(action);
+        return toggleDialog();
+      } catch (error) {
+        return dispatch(error);
       }
     }
   };
 
   const updateChartPreview = () => {
-    const { config, mappedParams, selectedSource: source, sourceType } = localState;
-
-    // Merge param arrays to send to server
-    const usedParams = mergeArrays(config.params, mappedParams);
+    const { dataset, params, selectedSource: source, sourceType } = localState;
 
     if (sourceKeys > 0 && datasetKeys > 0) {
-      // Set loading
-      handleChange(null, { name: 'dataObj', value: { loading: true } });
+      (async () => {
+        handleChange(null, { name: 'dataObj', value: { loading: true } });
 
-      // Fetch data for selectedSource
-      getPreviewData(dashboard.clusterID, { params: usedParams, source }, sourceType).then(data => {
-        if (typeof data !== 'object') {
-          return handleChange(null, { name: 'error', value: data });
-        } else if (error !== '') {
+        try {
+          const options = { dataset, params, source };
+          const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
+
           handleChange(null, { name: 'error', value: '' });
+          handleChange(null, { name: 'dataObj', value: { data, loading: false } });
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
+          handleChange(null, { name: 'dataObj', value: { loading: false } });
         }
-
-        // Set data in local state object with source name as key
-        handleChange(null, { name: 'dataObj', value: { data, loading: false } });
-      });
+      })();
     }
   };
 
@@ -127,10 +121,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
           Edit Chart
         </Typography>
         {sourceType !== 'ecl' && (
-          <Button
-            disabled={sourceKeys === 0 || datasetKeys === 0 || previewLoading}
-            onClick={updateChartPreview}
-          >
+          <Button disabled={sourceKeys === 0 || datasetKeys === 0 || loading} onClick={updateChartPreview}>
             <RefreshIcon />
           </Button>
         )}

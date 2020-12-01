@@ -18,7 +18,7 @@ const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
   const { schema = [] } = eclRef.current;
   const {
     chartID,
-    config: { dataFields, isStatic = false, textBoxContent },
+    configuration: { dataFields, isStatic = false, textBoxContent },
     selectedDataset = {},
     sourceType,
   } = localState;
@@ -51,7 +51,7 @@ const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
               fullWidth
               label='Text Box Content'
               multiline
-              name='config:textBoxContent'
+              name='configuration:textBoxContent'
               value={textBoxContent || ''}
               rows={4}
               onChange={handleChangeObj}
@@ -69,7 +69,7 @@ const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
                 <CircularProgress className={progress} size={20} />
               ) : (
                 <Select
-                  name='config:dataFields'
+                  name='configuration:dataFields'
                   value={dataFields || []}
                   onChange={updateArr}
                   multiple

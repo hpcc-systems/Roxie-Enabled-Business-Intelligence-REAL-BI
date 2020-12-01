@@ -22,8 +22,8 @@ const useStyles = makeStyles(() => ({
   tableCell: { '&:hover': { cursor: 'pointer' } },
 }));
 
-const TableComp = ({ chartID, config, data, interactiveClick, interactiveObj }) => {
-  const { fields = [] } = config;
+const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
+  const { fields = [] } = configuration;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(fields[0]);

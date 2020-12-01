@@ -42,7 +42,7 @@ const ToolbarComp = ({
   toggleDrawer,
   toggleShare,
 }) => {
-  const { name, role } = dashboard;
+  const { name, permission } = dashboard;
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const { button, menuItem, toolbar, typography } = useStyles();
@@ -81,7 +81,7 @@ const ToolbarComp = ({
             <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
               <RefreshIcon />
             </Button>
-            {canAddCharts(role) ? (
+            {canAddCharts(permission) ? (
               <Fragment>
                 <Button
                   className={button}

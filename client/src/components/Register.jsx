@@ -73,6 +73,7 @@ const useStyles = makeStyles(theme => ({
 const initState = {
   confirmPassword: '',
   email: '',
+  error: '',
   errors: [],
   firstName: '',
   lastName: '',
@@ -114,30 +115,26 @@ const Register = () => {
 
     handleChange(null, { name: 'loading', value: true });
 
-    let response, successMsg;
-
     try {
-      response = await registerUser(localState);
-    } catch (err) {
+      const response = await registerUser(localState);
+
       handleChange(null, { name: 'loading', value: false });
-      return handleChange(null, { name: 'errors', value: err });
+      handleChange(null, { name: 'errors', value: [] });
+      handleChange(null, { name: 'successMsg', value: response.message });
+
+      setTimeout(() => history.push('/login'), 1500); // Wait 1.5 seconds then redirect to login page
+    } catch (error) {
+      handleChange(null, { name: 'loading', value: false });
+
+      if (error.errors) {
+        return handleChange(null, { name: 'errors', value: error.errors });
+      } else {
+        return handleChange(null, { name: 'error', value: error.message });
+      }
     }
-
-    handleChange(null, { name: 'loading', value: false });
-    handleChange(null, { name: 'errors', value: [] });
-
-    if (response === 201) {
-      successMsg = 'User Account Created';
-    } else {
-      successMsg = 'Real BI Permissions Added to Existing Tombolo Account';
-    }
-
-    handleChange(null, { name: 'successMsg', value: successMsg });
-    setTimeout(() => history.push('/login'), 3000); // Wait 3 seconds then redirect to login page
   };
 
-  const { errors, loading, successMsg } = localState;
-  const msgErr = errors.find(err => err.msg);
+  const { error, errors, loading, successMsg } = localState;
 
   return (
     <Fragment>
@@ -162,9 +159,9 @@ const Register = () => {
                 />
                 <CardContent className={content}>
                   {/* Error Message */}
-                  {msgErr !== undefined && (
+                  {error && (
                     <Typography className={errMsg} align='center'>
-                      {msgErr.msg}
+                      {error}
                     </Typography>
                   )}
                   {/* Success Message */}

@@ -1,3 +1,4 @@
+/* eslint-disable no-throw-literal */
 import axios from 'axios';
 
 // Action Types
@@ -9,123 +10,117 @@ export const UPDATE_WORKSPACE_DASHBOARDS = 'UPDATE_WORKSPACE_DASHBOARDS';
 export const UPDATE_WORKSPACE_DIRECTORY = 'UPDATE_WORKSPACE_DIRECTORY';
 
 export const getWorkspaces = async () => {
-  let response;
-
   try {
-    response = await axios.get('/api/workspace/all');
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.get('/api/v1/workspace/all');
+    return { type: GET_WORKSPACES, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  return { type: GET_WORKSPACES, payload: response.data };
 };
 
 export const getWorkspace = async workspaceID => {
-  let response;
-
   try {
-    response = await axios.get('/api/workspace/find', { params: { workspaceID } });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.get('/api/v1/workspace/find', { params: { workspaceID } });
+    return { type: GET_WORKSPACE, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  return { type: GET_WORKSPACE, payload: response.data };
 };
 
 export const createNewWorkspace = async localState => {
-  let response;
-
   try {
-    response = await axios.post('/api/workspace/', { ...localState });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.post('/api/v1/workspace/', { ...localState });
+    const { workspaces, workspaceID } = response.data;
+
+    return { action: { type: GET_WORKSPACES, payload: workspaces }, workspaceID };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  const { workspaces, workspaceID } = response.data;
-
-  return { action: { type: GET_WORKSPACES, payload: workspaces }, workspaceID };
 };
 
 export const updateWorkspace = async (name, workspaceID) => {
-  let response;
-
   try {
-    response = await axios.put('/api/workspace/', { name, workspaceID });
-  } catch (err) {
-    throw { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.put('/api/v1/workspace/', { name, workspaceID });
+
+    const actions = [
+      { type: GET_WORKSPACES, payload: response.data },
+      { type: GET_WORKSPACE, payload: response.data.find(({ id }) => id === workspaceID) },
+    ];
+
+    return actions;
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  const actions = [
-    { type: GET_WORKSPACES, payload: response.data },
-    { type: GET_WORKSPACE, payload: response.data.find(({ id }) => id === workspaceID) },
-  ];
-
-  return actions;
 };
 
 export const deleteWorkspace = async workspaceID => {
-  let response;
-
   try {
-    response = await axios.delete('/api/workspace/', { params: { workspaceID } });
-  } catch (err) {
-    throw { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.delete('/api/v1/workspace/', { params: { workspaceID } });
+
+    const actions = [
+      { type: GET_WORKSPACES, payload: response.data },
+      { type: CLEAR_WORKSPACE, payload: {} },
+    ];
+
+    return actions;
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  const actions = [
-    { type: GET_WORKSPACES, payload: response.data },
-    { type: CLEAR_WORKSPACE, payload: {} },
-  ];
-
-  return actions;
 };
 
-export const updateWorkspaceDirectory = async (directory, directoryDepth, workspaceID) => {
+export const updateWorkspaceDirectory = async (directory, workspaceID) => {
   try {
-    await axios.put('/api/workspace/directory', { directory, directoryDepth, workspaceID });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.put('/api/v1/workspace_directory/', { directory, workspaceID });
+    return { type: UPDATE_WORKSPACE_DIRECTORY, payload: response.data.directory };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  return { type: UPDATE_WORKSPACE_DIRECTORY, payload: { directory, directoryDepth } };
 };
 
 export const clearWorkspaceRef = () => {
   return { type: CLEAR_WORKSPACE, payload: {} };
 };
 
-export const openDashboardInWorkspace = async (dashboardObj, workspaceID) => {
-  let response;
-
+export const getOpenDashboardsInWorkspace = async workspaceID => {
   try {
-    response = await axios.post('/api/workspace/dashboard', { dashboardObj, workspaceID });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.get('/api/v1/workspace/open_dashboard', { params: { workspaceID } });
+    return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
+};
 
-  return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+export const openDashboardInWorkspace = async (dashboardID, workspaceID) => {
+  try {
+    const response = await axios.post('/api/v1/workspace/open_dashboard', { dashboardID, workspaceID });
+    return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
+  }
 };
 
 export const closeDashboardInWorkspace = async (dashboardID, workspaceID) => {
-  let response;
-
   try {
-    response = await axios.put('/api/workspace/dashboard', { dashboardID, workspaceID });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.delete('/api/v1/workspace/open_dashboard', {
+      params: { dashboardID, workspaceID },
+    });
+    return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
 };
 
 export const closeMultipleOpenDashboards = async (dashboardIDArray, workspaceID) => {
-  let response;
-
   try {
-    response = await axios.put('/api/workspace/dashboard/multiple', { dashboardIDArray, workspaceID });
-  } catch (err) {
-    return { type: SET_WORKSPACE_ERROR, payload: { msg: err.response.data } };
+    const response = await axios.delete('/api/v1/workspace/open_dashboard/multiple', {
+      params: {
+        dashboardIDArray,
+        workspaceID,
+      },
+    });
+    return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
-
-  return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
 };
+/* eslint-enable no-throw-literal */

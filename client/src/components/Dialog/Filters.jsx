@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   Button,
   CircularProgress,
@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 
 // Redux Actions
-import { updateDashboard } from '../../features/dashboard/actions';
+import { createFilter, updateExistingFilter } from '../../features/dashboard/actions';
 
 // React Components
 import FilterEditor from '../FilterEditor';
@@ -20,8 +20,8 @@ import FilterEditor from '../FilterEditor';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createSourceObj, addSource } from '../../utils/source';
-import { createFilterObj } from '../../utils/dashboard';
+import { createSource, createSourceObj } from '../../utils/source';
+import { createFilterObj } from '../../utils/dashboardFilter';
 import { validateFilter } from '../../utils/validate';
 
 // Create styles
@@ -48,79 +48,80 @@ const initState = {
   params: [{ targetChart: '', targetParam: '' }],
 };
 
-const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
+const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const [loading, setLoading] = useState(false);
-  const { charts } = useSelector(state => state.chart);
-  const { filters = [], id: dashboardID } = dashboard;
+  const { charts = [], cluster, id: dashboardID } = dashboard;
   const eclRef = useRef({});
   const dispatch = useDispatch();
   const { button, dialog, progress, typography } = useStyles();
 
   useEffect(() => {
-    if (filterIndex >= 0) {
-      const filter = filters[filterIndex];
-      const { ecl = {}, params, sourceDataset, sourceName, sourceType } = filter;
-
-      const newParams = [...params, { targetChart: '', targetParam: '' }];
+    if (filter) {
+      const {
+        configuration: { dataset, field, name: filterName, params = [] },
+        ecl = {},
+        source: { id, name, type },
+      } = filter;
 
       const newState = {
-        ...filter,
+        datasets: [],
         error: '',
-        keyword: sourceName,
-        params: newParams,
-        selectedDataset: sourceDataset,
+        keyword: name,
+        name: filterName,
+        params: [...params, { targetChart: '', targetParam: '' }],
+        sourceDataset: dataset,
         selectedSource: {},
         sources: [],
-        sourceType,
+        sourceField: field,
+        sourceID: id,
+        sourceType: type,
       };
 
       resetState(newState);
       eclRef.current = ecl;
     }
-  }, [filterIndex, filters, resetState]);
+  }, [filter, resetState]);
 
   useEffect(() => {
     handleChange(null, { name: 'errors', value: [] });
   }, [handleChange, localState.sourceType]);
 
   const saveFilter = async () => {
-    let errors = validateFilter(localState, eclRef);
+    let sourceID;
 
-    if (Object.keys(errors).length > 0) {
+    try {
+      validateFilter(localState, eclRef);
+    } catch (errors) {
       return handleChange(null, { name: 'errors', value: errors });
     }
 
     const sourceObj = createSourceObj(localState, eclRef.current);
-    let newFilterObj = createFilterObj(localState, eclRef.current);
+    const newFilterObj = createFilterObj(localState, eclRef.current);
 
     setLoading(true);
 
     try {
-      const { sourceID, sourceName, sourceType } = await addSource(dashboardID, sourceObj);
+      const newSource = await createSource(sourceObj);
+      sourceID = newSource.id;
+    } catch (error) {
+      setLoading(false);
+      return handleChange(null, { name: 'error', value: error.message });
+    }
 
-      // Append source information to new filter object
-      newFilterObj = { ...newFilterObj, sourceID, sourceName, sourceType };
+    try {
+      let action;
 
-      // Create new dashboard object
-      const dashboardObj = { ...dashboard };
-
-      // Update dashboard object
-      if (filterIndex >= 0) {
-        dashboardObj.filters[filterIndex] = newFilterObj;
+      if (filter) {
+        action = await updateExistingFilter(dashboardID, { id: filter.id, ...newFilterObj }, sourceID);
       } else {
-        dashboardObj.filters.push(newFilterObj);
+        action = await createFilter(newFilterObj, cluster.id, dashboardID, sourceID);
       }
 
-      // Update DB and Redux store
-      updateDashboard(dashboardObj).then(action => {
-        dispatch(action);
-
-        // Close dialog
-        return toggleDialog();
-      });
-    } catch (err) {
-      console.error(err);
+      dispatch(action);
+      return toggleDialog();
+    } catch (error) {
+      dispatch(error);
       return setLoading(false);
     }
   };
@@ -135,7 +136,7 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
           charts={charts}
           dashboard={dashboard}
           eclRef={eclRef}
-          filterIndex={filterIndex}
+          filter={filter}
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
           localState={localState}
@@ -154,4 +155,4 @@ const NewFilter = ({ dashboard, filterIndex, show, toggleDialog }) => {
   );
 };
 
-export default NewFilter;
+export default Filters;

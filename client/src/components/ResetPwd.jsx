@@ -66,6 +66,7 @@ const useStyles = makeStyles(theme => ({
 
 const initState = {
   confirmPassword: '',
+  error: '',
   errors: [],
   loading: false,
   password: '',
@@ -109,20 +110,25 @@ const ResetPwd = () => {
 
     try {
       await resetPassword({ ...localState, id: resetUUID });
-    } catch (err) {
+    } catch (error) {
       handleChange(null, { name: 'loading', value: false });
-      return handleChange(null, { name: 'errors', value: err });
+
+      if (error.errors) {
+        return handleChange(null, { name: 'errors', value: error.errors });
+      } else {
+        return handleChange(null, { name: 'error', value: error.message });
+      }
     }
 
     handleChange(null, { name: 'loading', value: false });
     handleChange(null, { name: 'errors', value: [] });
+    handleChange(null, { name: 'error', value: '' });
     handleChange(null, { name: 'successMsg', value: 'Password Reset' });
 
-    setTimeout(() => history.push('/login'), 3000); // Wait 3 seconds then redirect to login page
+    setTimeout(() => history.push('/login'), 1500); // Wait 1.5 seconds then redirect to login page
   };
 
-  const { errors, loading, successMsg } = localState;
-  const msgErr = errors.find(err => err.msg);
+  const { error, errors, loading, successMsg } = localState;
 
   return (
     <Fragment>
@@ -144,9 +150,9 @@ const ResetPwd = () => {
                 />
                 <CardContent className={content}>
                   {/* Error Message */}
-                  {msgErr !== undefined && (
+                  {error && (
                     <Typography className={classnames(message, errMsg)} align='center'>
-                      {msgErr.msg}
+                      {error}
                     </Typography>
                   )}
                   {/* Success Message */}

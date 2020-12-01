@@ -77,7 +77,8 @@ const initState = {
 const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
-  const { errors } = useSelector(state => state.auth);
+  const { errorObj } = useSelector(state => state.auth);
+  const { errors = [], message: errMessage = '' } = errorObj;
   const dispatch = useDispatch();
   const history = useHistory();
   const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
@@ -91,18 +92,22 @@ const Login = () => {
         setAuthHeader(token);
 
         (async () => {
-          const { action, lastWorkspace } = await getLatestUserData();
-          const action2 = await getWorkspaces();
+          try {
+            const { action, lastViewedWorkspace } = await getLatestUserData();
+            const action2 = await getWorkspaces();
 
-          // Send data to redux store
-          batch(() => {
-            dispatch(action);
-            dispatch(action2);
-          });
+            // Send data to redux store
+            batch(() => {
+              dispatch(action);
+              dispatch(action2);
 
-          // Generate new url and navigate there
-          const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';
-          history.push(location);
+              // Generate new url and navigate there
+              const location = lastViewedWorkspace ? `/workspace/${lastViewedWorkspace}` : '/workspace';
+              history.push(location);
+            });
+          } catch (error) {
+            dispatch(error);
+          }
         })();
       } else {
         // There is an invalid token in storage
@@ -113,42 +118,23 @@ const Login = () => {
   });
 
   const loginUserFn = async event => {
-    // Prevent page from reloading
     event.preventDefault();
-
-    // Enable loading animation
     handleChange(null, { name: 'loading', value: true });
 
-    // Attempt to login user
-    const { action, lastWorkspace, token } = await loginUser(localState);
+    try {
+      const { action, token } = await loginUser(localState);
 
-    if (token) {
       // Set local storage and auth header
       localStorage.setItem(tokenName, token);
       setAuthHeader(token);
 
-      // Get workspaces for user
-      const action2 = await getWorkspaces();
-
-      // Send data to redux store
-      batch(() => {
-        dispatch(action);
-        dispatch(action2);
-      });
-
-      // Generate new url and navigate there
-      const location = lastWorkspace ? `/workspace/${lastWorkspace}` : '/workspace';
-      history.push(location);
-    } else {
-      // Send data to redux store
       dispatch(action);
-
-      // No token means an error occured
+    } catch (error) {
       handleChange(null, { name: 'loading', value: false });
+      dispatch(error);
     }
   };
 
-  const msgErr = errors.find(err => err.msg);
   const usernameErr = errors.find(err => err['username']);
   const passwordErr = errors.find(err => err['password']);
 
@@ -162,9 +148,9 @@ const Login = () => {
               <Card>
                 <CardHeader className={header} title='Login' />
                 <CardContent className={content}>
-                  {msgErr !== undefined && (
+                  {errMessage && (
                     <Typography className={errMsg} align='center'>
-                      {msgErr.msg}
+                      {errMessage}
                     </Typography>
                   )}
                   <TextField

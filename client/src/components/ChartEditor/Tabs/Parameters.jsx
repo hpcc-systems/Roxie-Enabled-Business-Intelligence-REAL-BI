@@ -14,44 +14,28 @@ const useStyles = makeStyles(theme => ({
   typography: { marginTop: 20 },
 }));
 
-const ParametersTab = ({ eclRef, handleChangeArr, handleChangeObj, localState }) => {
+const ParametersTab = props => {
+  const { eclRef, handleChange, localState } = props;
   const { dataset: eclDataset } = eclRef.current;
-  const { config, dataset, sourceType } = localState;
-  const { params = [] } = config;
+  const { dataset, params, sourceType } = localState;
   const { formControl, typography } = useStyles();
 
   // Updates param array in state
   const setParamObj = (event, paramName) => {
-    const arr = params;
-    const { value } = event.target;
+    const newArr = [...params];
 
     // Get param object at index and update it
-    let index = params.findIndex(({ name }) => name === paramName);
-    let indexObj;
+    const index = params.findIndex(({ name }) => name === paramName);
+    newArr[index] = { ...newArr[index], value: event.target.value };
 
-    // Add param if not already in array
-    if (index === -1) {
-      index = arr.length;
-      indexObj = { name: paramName, value: '', type: '' };
-    } else {
-      indexObj = params[index];
-    }
-
-    const newObj = { ...indexObj, value };
-
-    // Replace object in array
-    arr[index] = newObj;
-
-    handleChangeObj(null, { name: 'config:params', value: arr });
+    handleChange(null, { name: 'params', value: newArr });
   };
 
   return dataset || eclDataset ? (
     sourceType !== 'query' ? (
       <Grid container direction='row' justify='space-between' spacing={2}>
-        <StaticFileParams localState={localState} setParamObj={setParamObj} />
-        {sourceType === 'file' && (
-          <DynamicFileParams handleChangeArr={handleChangeArr} localState={localState} />
-        )}
+        <StaticFileParams {...props} setParamObj={setParamObj} />
+        {sourceType === 'file' && <DynamicFileParams {...props} />}
       </Grid>
     ) : (
       <FormControl className={formControl} fullWidth>

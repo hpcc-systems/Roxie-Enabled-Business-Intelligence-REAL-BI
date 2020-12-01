@@ -1,174 +1,49 @@
-// DB Models
-const { chart: chartModel, source: sourceModel, Sequelize } = require('../models');
+const { chart: Chart, source: Source, source_type: SourceType } = require('../models');
+const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
-//Node mailer for emails
-const nodemailer = require('nodemailer');
+const getChartByID = async id => {
+  let chart = await Chart.findOne({
+    ...removeFields(['dashboardID', 'sourceID'], true),
+    where: { id },
+    include: {
+      model: Source,
+      as: 'source',
+      ...removeFields(['typeID'], true),
+      include: {
+        model: SourceType,
+        as: 'type',
+        attributes: ['name'],
+      },
+    },
+  });
+  chart = unNestSequelizeObj(chart);
+  chart.source = unNestSequelizeObj(chart.source);
+  chart.source.type = chart.source.type.name;
 
-// Utils
-const { awaitHandler, unNestSequelizeObj } = require('./misc');
-
-const { SHARE_EMAIL, SHARE_URL } = process.env;
+  return chart;
+};
 
 const getChartsByDashboardID = async dashboardID => {
-  let [err, charts] = await awaitHandler(
-    chartModel.findAll({
-      attributes: { exclude: ['dashboardID'] },
-      where: { dashboardID },
-      include: [
-        {
-          model: sourceModel,
-          attributes: [
-            ['name', 'sourceName'],
-            ['type', 'sourceType'],
-          ],
-        },
-      ],
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Create new array of flattened objects
-  charts = charts.map(chart => {
-    // Get nested objects
-    chart = unNestSequelizeObj(chart);
-    const { sourceName, sourceType } = unNestSequelizeObj(chart.source); // Equivalent of chart.source.dataValues.sourceName
-
-    // Create new chart object
-    const newObj = { ...chart, sourceName, sourceType };
-
-    // Remove original nested object
-    delete newObj.source;
-
-    return newObj;
-  });
+  let charts = await Chart.findAll({ where: { dashboardID }, paranoid: false });
+  charts = charts.map(chart => unNestSequelizeObj(chart));
 
   return charts;
 };
 
 const createChart = async (chart, dashboardID, sourceID, sort) => {
-  let [err, newChart] = await awaitHandler(
-    chartModel.create({ config: { ...chart, sort }, dashboardID, sourceID }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
+  let newChart = await Chart.create({ configuration: { ...chart, sort }, dashboardID, sourceID });
   newChart = unNestSequelizeObj(newChart);
 
   return newChart;
 };
 
-const shareChart = async (email, dashboardID) => {
-  const url = `${SHARE_URL}/dashboard/${dashboardID}`;
-  const subject = 'Dashboard Chart Share';
-  const text = `Please click on the link to add the chart to your dashboard. ${url}`;
-
-  const transporter = nodemailer.createTransport({
-    host: 'appmail.choicepoint.net',
-    port: 25,
-    secure: false,
-    auth: {},
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-
-  // email options
-  let mailOptions = {
-    from: SHARE_EMAIL,
-    to: email,
-    subject: subject,
-    text: text,
-  };
-
-  // send email
-  transporter.sendMail(mailOptions, (error, response) => {
-    console.log('Email Trigered');
-    if (error) {
-      return error.message;
-    }
-    console.log(response);
-  });
-  return 'Chart shared successfully';
-};
-
-const getChartByID = async chartID => {
-  let [err, chart] = await awaitHandler(
-    chartModel.findOne({
-      where: { id: chartID },
-      include: { model: sourceModel },
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested objects
-  chart = unNestSequelizeObj(chart);
-  let source = unNestSequelizeObj(chart.source);
-
-  return { ...chart, source };
-};
-
-const getChartsByDashboardAndSourceID = async (dashboardID, sourceID) => {
-  let err, charts;
-
-  if (!dashboardID) {
-    [err, charts] = await awaitHandler(chartModel.findAll({ where: { sourceID } }));
-  } else {
-    [err, charts] = await awaitHandler(chartModel.findAll({ where: { dashboardID, sourceID } }));
-  }
-
-  // Return error
-  if (err) throw err;
-
-  return charts.length;
-};
-
 const updateChartByID = async (chart, sourceID) => {
-  const { id, config } = chart;
-
-  let [err] = await awaitHandler(chartModel.update({ config, sourceID }, { where: { id } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
+  const { id, configuration } = chart;
+  return await Chart.update({ configuration, sourceID }, { where: { id } });
 };
 
-const deleteChartByID = async chartID => {
-  let [err] = await awaitHandler(chartModel.destroy({ where: { id: chartID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
+const deleteChartByID = async id => {
+  return await Chart.destroy({ where: { id } });
 };
 
-const getEclOptionsByWuID = async workunitID => {
-  let [err, chart] = await awaitHandler(
-    chartModel.findOne({ where: { config: { [Sequelize.Op.substring]: workunitID } } }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested objects
-  chart = unNestSequelizeObj(chart);
-
-  return chart;
-};
-
-module.exports = {
-  createChart,
-  deleteChartByID,
-  getChartsByDashboardAndSourceID,
-  getChartByID,
-  getChartsByDashboardID,
-  getEclOptionsByWuID,
-  updateChartByID,
-  shareChart,
-};
+module.exports = { createChart, deleteChartByID, getChartByID, getChartsByDashboardID, updateChartByID };

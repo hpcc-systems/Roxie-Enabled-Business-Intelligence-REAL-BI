@@ -1,3 +1,20 @@
-const directoryObjNameRegexp = new RegExp(/^[a-zA-Z].{1,}$/);
+const tableNames = {
+  user: 'user',
+  chart: 'chart',
+  cluster: 'cluster',
+  clusterCredentials: 'cluster_credentials',
+  dashboard: 'dashboard',
+  dashboardFilter: 'dashboard_filter',
+  dashboardFilterValue: 'dashboard_filter_value',
+  dashboardPermission: 'dashboard_permission',
+  dashboardRelation: 'dashboard_relation',
+  openDashboard: 'open_dashboard',
+  role: 'role',
+  source: 'source',
+  sourceType: 'source_type',
+  workspace: 'workspace',
+  workspaceDirectory: 'workspace_directory',
+  workspacePermission: 'workspace_permission',
+};
 
-module.exports = { directoryObjNameRegexp };
+module.exports = { tableNames };

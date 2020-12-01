@@ -1,4 +1,4 @@
-const { body, validationResult } = require('express-validator');
+const { body, header, validationResult } = require('express-validator');
 const logger = require('../config/logger');
 
 const validateLogin = () => {
@@ -64,6 +64,33 @@ const validateForgotPassword = () => {
   ];
 };
 
+const validateChangePassword = () => {
+  return [
+    header('authorization')
+      .exists({ checkFalsy: true })
+      .withMessage('Invalid Request'),
+    body('oldPwd')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd2')
+      .exists({ checkFalsy: true })
+      .escape()
+      .withMessage('Field Required'),
+    body('newPwd2').custom((value, { req }) => {
+      if (value !== req.body.newPwd) {
+        throw new Error('Passwords Do Not Match');
+      }
+
+      return true;
+    }),
+  ];
+};
+
 const validateResetPassword = () => {
   return [
     body('id')
@@ -124,13 +151,17 @@ const validate = (req, res, next) => {
   errors.array().forEach(({ msg, param }) => extractedErrors.push({ [param]: msg }));
 
   // Record errors in log file
-  logger.error(JSON.stringify({ errors: extractedErrors }));
+  logger.error({ errors: extractedErrors });
 
-  return res.status(400).json({ errors: extractedErrors });
+  return res.status(400).json({
+    message: 'Validation Failed',
+    errors: extractedErrors,
+  });
 };
 
 module.exports = {
   validate,
+  validateChangePassword,
   validateEclEditorExecution,
   validateForgotPassword,
   validateLogin,

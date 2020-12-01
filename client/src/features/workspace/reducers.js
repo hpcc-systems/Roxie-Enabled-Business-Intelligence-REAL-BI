@@ -7,27 +7,24 @@ import {
   UPDATE_WORKSPACE_DIRECTORY,
 } from './actions';
 
-const initState = { errors: {}, workspace: {}, workspaces: [] };
-
-export default (state = initState, { type, payload }) => {
+export default (state = {}, { type, payload }) => {
   switch (type) {
     case GET_WORKSPACES:
-      return { ...state, errors: {}, workspaces: payload };
+      return { ...state, errorObj: {}, workspaces: payload };
     case GET_WORKSPACE:
     case CLEAR_WORKSPACE:
-      return { ...state, errors: {}, workspace: payload };
+      return { ...state, errorObj: {}, workspace: payload };
     case SET_WORKSPACE_ERROR:
-      return { ...state, errors: payload };
+      return { ...state, errorObj: payload };
     case UPDATE_WORKSPACE_DASHBOARDS:
-      return { ...state, errors: {}, workspace: { ...state.workspace, openDashboards: payload } };
+      return { ...state, errorObj: {}, workspace: { ...state.workspace, openDashboards: payload } };
     case UPDATE_WORKSPACE_DIRECTORY:
       return {
         ...state,
-        errors: {},
+        errorObj: {},
         workspace: {
           ...state.workspace,
-          directory: payload.directory,
-          directoryDepth: payload.directoryDepth,
+          directory: payload,
         },
       };
     default:

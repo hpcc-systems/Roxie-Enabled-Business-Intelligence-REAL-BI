@@ -1,6 +1,21 @@
 // Utils
 import { sortArr } from './misc';
 
+export const getDashboardIDsFromFolder = (directoryObj, dashboardIDs) => {
+  directoryObj.children.forEach(child => {
+    const { children = false, id } = child;
+
+    // Recurse through the children []
+    if (children) {
+      return getDashboardsFromDirectory(children, dashboardIDs);
+    } else {
+      dashboardIDs.push(id);
+    }
+  });
+
+  return dashboardIDs;
+};
+
 export const getDashboardsFromDirectory = (directory, dashboards) => {
   if (!directory) {
     return [];
@@ -9,7 +24,6 @@ export const getDashboardsFromDirectory = (directory, dashboards) => {
   directory.forEach(obj => {
     const { children = false } = obj;
 
-    // Has a nested children []
     // Recurse through the children []
     if (children) {
       return getDashboardsFromDirectory(children, dashboards);
@@ -23,6 +37,20 @@ export const getDashboardsFromDirectory = (directory, dashboards) => {
   dashboards = sortArr(dashboards, 'name');
 
   return dashboards;
+};
+
+export const getDirectoryDepth = (directory, depth) => {
+  directory.forEach(obj => {
+    const { children = false, name, open } = obj;
+
+    // Recurse through the children []
+    if (children) {
+      if (open) depth.push(name);
+      return getDirectoryDepth(children, depth);
+    }
+  });
+
+  return depth;
 };
 
 export const getFavoriteDashboards = dashboards => {
@@ -87,6 +115,35 @@ export const updateDashboardObj = (directory, searchID, key, value) => {
   return newDirectory;
 };
 
+export const updateFolderOpen = (directory, searchArr) => {
+  // Get new reference to directory []
+  const newDirectory = directory;
+
+  // Loop through the array for each index
+  // Used over a forEach() to allow for break;
+  for (const obj of newDirectory) {
+    const { children = false, id: objID } = obj;
+    const foundID = searchArr.indexOf(objID) > -1;
+
+    if (!children) break;
+
+    if (foundID) {
+      obj.open = true;
+    } else {
+      obj.open = false;
+    }
+
+    // Has a nested children []
+    // Recurse through the children []
+    if (children) {
+      updateFolderOpen(children, searchArr);
+    }
+  }
+
+  // Return the new updated directory
+  return newDirectory;
+};
+
 export const updateObjectInDirectory = (directory, searchID, directoryObj) => {
   // Set new array variable
   const newDirectory = new Array(...directory);
@@ -115,13 +172,11 @@ export const updateObjectInDirectory = (directory, searchID, directoryObj) => {
 
 export const addObjectToDirectory = (directory, searchID, newObj) => {
   // Get new reference to directory []
-  const newDirectory = directory;
+  const newDirectory = [...directory];
 
   if (searchID === 'root') {
-    // Push new object into the directory []
     newDirectory.push(newObj);
 
-    // Return the new updated directory
     return newDirectory;
   }
 

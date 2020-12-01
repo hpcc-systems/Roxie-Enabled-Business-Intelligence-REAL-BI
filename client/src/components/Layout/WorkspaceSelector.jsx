@@ -33,50 +33,59 @@ const useStyles = makeStyles(theme => ({
 const WorkspaceSelector = () => {
   const { user = {} } = useSelector(state => state.auth);
   const { workspaces = [] } = useSelector(state => state.workspace);
-  const { lastWorkspace } = user;
+  const { lastViewedWorkspace } = user;
   const history = useHistory();
   const dispatch = useDispatch();
   const { formControl, icon, inputLabel, select } = useStyles();
 
   useEffect(() => {
     // Check if user has looked at a workspace previously
-    if (lastWorkspace) {
-      // Get index of last viewed workspace
-      const workspaceIndex = workspaces.findIndex(({ id }) => lastWorkspace === id);
+    if (lastViewedWorkspace) {
+      (async () => {
+        const workspaceIndex = workspaces.findIndex(({ id }) => lastViewedWorkspace === id);
 
-      // If workspace no longer exists in DB, update last workspace to null
-      if (workspaceIndex === -1) {
-        updateLastWorkspace(null).then(action => {
-          dispatch(action);
-
-          history.push('/workspace');
-        });
-      }
+        if (workspaceIndex === -1) {
+          try {
+            const action = await updateLastWorkspace(null);
+            dispatch(action);
+            history.push('/workspace');
+          } catch (error) {
+            dispatch(error);
+          }
+        }
+      })();
     }
-  }, [dispatch, history, lastWorkspace, workspaces]);
+  }, [dispatch, history, lastViewedWorkspace, workspaces]);
 
   const selectWorkspace = async event => {
     const { value } = event.target;
 
-    // User clicked on a workspace in dropdown
     if (value !== '') {
-      updateLastWorkspace(value).then(action => {
-        dispatch(action);
-
-        history.push(`/workspace/${value}`);
-      });
+      (async () => {
+        try {
+          const action = await updateLastWorkspace(value);
+          dispatch(action);
+          history.push(`/workspace/${value}`);
+        } catch (error) {
+          dispatch(error);
+        }
+      })();
     }
   };
 
   const selectorLabel =
-    workspaces.length === 0 ? 'Create a workspace' : !lastWorkspace ? 'Choose a workspace' : 'Workspace';
+    workspaces.length === 0
+      ? 'Create a workspace'
+      : !lastViewedWorkspace
+      ? 'Choose a workspace'
+      : 'Workspace';
 
   return (
     <FormControl className={formControl}>
       <InputLabel className={inputLabel}>{selectorLabel}</InputLabel>
       <Select
         className={select}
-        value={lastWorkspace || ''}
+        value={lastViewedWorkspace || ''}
         onChange={selectWorkspace}
         inputProps={{ classes: { icon: icon } }}
       >

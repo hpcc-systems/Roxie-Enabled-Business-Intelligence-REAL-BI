@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -11,7 +10,7 @@ import {
 } from '@material-ui/core';
 
 // Utils
-import { getSourceInfo } from '../../utils/source';
+import { getDatasetsFromSource } from '../../utils/hpcc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -22,35 +21,61 @@ const useStyles = makeStyles(theme => ({
 
 const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { charts } = useSelector(state => state.chart);
-  const { chartID, config, errors, dataset, datasets = [], selectedSource = {}, sourceType } = localState;
-  const { isStatic = false, type } = config;
-  const { clusterID } = dashboard;
+  const {
+    chartID,
+    configuration,
+    errors,
+    dataset,
+    datasets = [],
+    params,
+    selectedSource = {},
+    sourceType,
+  } = localState;
+  const { isStatic = false, type } = configuration;
+  const { id: clusterID } = dashboard.cluster;
   const { formControl, progress, errorText } = useStyles();
 
-  // Get list of sources datasets from hpcc
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
-      setLoading(true);
+      (async () => {
+        setLoading(true);
 
-      getSourceInfo(clusterID, selectedSource, sourceType).then(data => {
-        const { datasets, fields, name, params = [] } = data;
+        try {
+          const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
+          const { datasets, fields, name, params: dataParams = [] } = data;
 
-        if (sourceType === 'file') {
-          handleChange(null, { name: 'selectedDataset', value: { name, fields } });
-          handleChange(null, { name: 'dataset', value: name });
-        } else {
-          handleChange(null, { name: 'datasets', value: datasets });
-        }
+          handleChange(null, { name: 'error', value: '' });
 
-        if (!chartID) {
-          handleChangeObj(null, { name: 'config:params', value: params });
+          if (sourceType === 'file') {
+            handleChange(null, { name: 'selectedDataset', value: { name, fields } });
+            handleChange(null, { name: 'dataset', value: name });
+          } else {
+            handleChange(null, { name: 'datasets', value: datasets });
+          }
+
+          if (!chartID) {
+            handleChange(null, { name: 'params', value: dataParams });
+          } else {
+            const newParams = dataParams.map(obj => {
+              const foundIndex = params.findIndex(({ name }) => name === obj.name);
+
+              if (foundIndex > -1) {
+                obj = { ...obj, value: params[foundIndex].value, show: true };
+              }
+
+              return obj;
+            });
+
+            handleChange(null, { name: 'params', value: newParams });
+          }
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
         }
 
         setLoading(false);
-      });
+      })();
     }
-  }, [chartID, charts, clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
+  }, [chartID, clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
 
   useEffect(() => {
     if (datasets.length > 0 && dataset) {

@@ -23,8 +23,8 @@ const useStyles = makeStyles(theme => ({
 
 const HeatMapParams = ({ eclRef, handleChangeObj, localState, updateAxisKey }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, axis2 = {} } = config;
+  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
 
@@ -100,7 +100,11 @@ const HeatMapParams = ({ eclRef, handleChangeObj, localState, updateAxisKey }) =
             {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
               <CircularProgress className={progress} size={20} />
             ) : (
-              <Select name='config:colorField' value={config.colorField || ''} onChange={handleChangeObj}>
+              <Select
+                name='configuration:colorField'
+                value={configuration.colorField || ''}
+                onChange={handleChangeObj}
+              >
                 {fieldsArr.map(({ name, value = name }, index) => {
                   return (
                     <MenuItem key={index} value={value}>

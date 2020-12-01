@@ -91,7 +91,7 @@ const RecursiveTreeView = props => {
           className={treeItem}
           nodeId={String(id)}
           label={label}
-          onClick={!isFolder ? () => openDashboard({ id, name }) : null}
+          onClick={!isFolder ? () => openDashboard(id) : null}
         >
           {isFolder ? children.map(node => renderTree(node)) : null}
         </TreeItem>

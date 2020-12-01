@@ -5,11 +5,11 @@ import moment from 'moment';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const DonutComp = ({ chartID, data, config, interactiveClick, interactiveObj, relations }) => {
+const DonutComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
   const {
     axis1: { label: nameLabel, type: nameType = 'string', value: nameValue },
     axis2: { label: valueLabel, type: valueType = 'string', value },
-  } = config;
+  } = configuration;
 
   const customNameLabel = nameLabel ? nameLabel : nameValue;
   const customValueLabel = valueLabel ? valueLabel : value;
@@ -69,7 +69,7 @@ const DonutComp = ({ chartID, data, config, interactiveClick, interactiveObj, re
   };
 
   // Add click events
-  if (relations[chartID]) {
+  if (hasClickEvent) {
     chartConfig.events = {
       onRingClick: ({ data }) => interactiveClick(chartID, customNameLabel, data[nameValue]),
     };

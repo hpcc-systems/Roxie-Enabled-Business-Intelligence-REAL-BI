@@ -26,8 +26,8 @@ const useStyles = makeStyles(theme => ({
 
 const GeneralChartParams = ({ eclRef, localState, updateAxisKey, checkboxUpdated }) => {
   const { schema = [] } = eclRef.current;
-  const { chartID, config, error = '', selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, axis2 = {} } = config;
+  const { chartID, configuration, error = '', selectedDataset = {}, sourceType } = localState;
+  const { axis1 = {}, axis2 = {} } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress, checkbox } = useStyles();
   const showTicksCheckboxLabel = 'Show Labels';

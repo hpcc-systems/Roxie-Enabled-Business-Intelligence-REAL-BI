@@ -1,118 +1,118 @@
-// DB Models
 const {
-  cluster: clusterModel,
-  dashboard: dashboardModel,
-  Sequelize,
-  source: sourceModel,
+  chart: Chart,
+  cluster: Cluster,
+  dashboard: Dashboard,
+  dashboard_filter: DashboardFilter,
+  dashboard_filter_value: DashboardFilterValue,
+  dashboard_permission: DashboardPermission,
+  dashboard_relation: DashboardRelation,
+  role: Role,
+  source: Source,
+  source_type: SourceType,
 } = require('../models');
+const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
-// Utils
-const { awaitHandler, unNestSequelizeObj } = require('./misc');
-
-const getDashboardsByUserID = async userID => {
-  let [err, dashboards] = await awaitHandler(dashboardModel.findAll({ where: { userID }, order: ['name'] }));
-
-  // Return error
-  if (err) throw err;
-
-  return dashboards;
-};
-
-const getDashboardByID = async dashboardID => {
-  let [err, dashboard] = await awaitHandler(
-    dashboardModel.findOne({
-      where: { id: dashboardID },
-      include: {
-        model: clusterModel,
-        attributes: [
-          ['host', 'clusterHost'],
-          ['infoPort', 'clusterPort'],
-        ],
-        where: { id: { [Sequelize.Op.col]: 'dashboard.clusterID' } },
+const getDashboardByID = async (id, userID) => {
+  let dashboard = await Dashboard.findOne({
+    ...removeFields(['workspaceID', 'clusterID'], true),
+    where: { id },
+    include: [
+      { model: Cluster, ...removeFields([], true), required: true },
+      {
+        model: DashboardPermission,
+        as: 'permission',
+        where: { userID },
+        required: true,
+        include: { model: Role, attributes: ['name'], required: true },
       },
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
+      {
+        model: DashboardFilter,
+        as: 'filters',
+        ...removeFields(['clusterID', 'dashboardID', 'sourceID'], true),
+        include: [
+          { model: Cluster, ...removeFields([], true), required: true },
+          {
+            model: Source,
+            as: 'source',
+            ...removeFields(['typeID'], true),
+            required: true,
+            include: { model: SourceType, as: 'type', attributes: ['name'], required: true },
+          },
+          {
+            model: DashboardFilterValue,
+            as: 'value',
+            ...removeFields(['dashboardFilterID', 'userID'], true),
+            were: { userID },
+          },
+        ],
+      },
+      {
+        model: DashboardRelation,
+        as: 'relations',
+        ...removeFields(['dashboardID'], true),
+        include: [
+          {
+            model: Chart,
+            as: 'source',
+            attributes: [],
+            required: true,
+          },
+          {
+            model: Chart,
+            as: 'target',
+            attributes: [],
+            required: true,
+          },
+        ],
+      },
+      {
+        model: Chart,
+        as: 'charts',
+        ...removeFields(['dashboardID', 'sourceID'], true),
+        include: {
+          model: Source,
+          as: 'source',
+          ...removeFields(['typeID'], true),
+          include: { model: SourceType, as: 'type', attributes: ['name'], required: true },
+        },
+      },
+    ],
+  });
   dashboard = unNestSequelizeObj(dashboard);
+  dashboard.permission = dashboard.permission[0].role.name;
   dashboard.cluster = unNestSequelizeObj(dashboard.cluster);
+  dashboard.charts = dashboard.charts.map(chart => {
+    chart = unNestSequelizeObj(chart);
+    chart.source = unNestSequelizeObj(chart.source);
+    chart.source.type = chart.source.type.name;
 
-  // Format object
-  dashboard = { ...dashboard, ...dashboard.cluster };
-  delete dashboard.cluster;
+    return chart;
+  });
+  dashboard.filters = dashboard.filters.map(filter => {
+    filter = unNestSequelizeObj(filter);
+    filter.source = unNestSequelizeObj(filter.source);
+    filter.source.type = filter.source.type.name;
+    filter.value = filter.value[0];
+
+    return filter;
+  });
+  dashboard.relations = dashboard.relations.map(relation => unNestSequelizeObj(relation));
 
   return dashboard;
 };
 
-const getDashboardFilterSourceInfo = async filter => {
-  const { sourceID } = filter;
-  const newFilter = { ...filter };
-
-  let [err, source] = await awaitHandler(
-    sourceModel.findOne({
-      attributes: [
-        ['name', 'sourceName'],
-        ['type', 'sourceType'],
-      ],
-      where: { id: sourceID },
-    }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
-  source = unNestSequelizeObj(source);
-
-  return { ...newFilter, ...source };
+const createDashboard = async (dashboard, workspaceID) => {
+  const { clusterID, name } = dashboard;
+  const newDashboard = await Dashboard.create({ name: name.trim(), workspaceID, clusterID });
+  return newDashboard.id;
 };
 
-const createDashboard = async (dashboard, workspaceID, userID) => {
-  const { clusterID, name, relations = {}, filters = [] } = dashboard;
-
-  let [err, newDashboard] = await awaitHandler(
-    dashboardModel.create({ clusterID, name: name.trim(), relations, filters, workspaceID, userID }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  // Get nested object
-  newDashboard = unNestSequelizeObj(newDashboard);
-
-  return newDashboard;
+const updateDashboardByID = async (clusterID, id, name) => {
+  return await Dashboard.update({ name: name.trim(), clusterID }, { where: { id } });
 };
 
-const updateDashboardByID = async dataObj => {
-  const { clusterID, id, name, relations = {}, filters = [] } = dataObj;
-
-  let [err] = await awaitHandler(
-    dashboardModel.update({ clusterID, name: name.trim(), relations, filters }, { where: { id } }),
-  );
-
-  // Return error
-  if (err) throw err;
-
-  return;
+const deleteDashboardByID = async id => {
+  return await Dashboard.destroy({ where: { id } });
 };
 
-const deleteDashboardByID = async dashboardID => {
-  let [err] = await awaitHandler(dashboardModel.destroy({ where: { id: dashboardID } }));
-
-  // Return error
-  if (err) throw err;
-
-  return;
-};
-
-module.exports = {
-  createDashboard,
-  deleteDashboardByID,
-  getDashboardByID,
-  getDashboardFilterSourceInfo,
-  getDashboardsByUserID,
-  updateDashboardByID,
-};
+module.exports = { createDashboard, deleteDashboardByID, getDashboardByID, updateDashboardByID };

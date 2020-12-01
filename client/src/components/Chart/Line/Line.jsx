@@ -8,14 +8,14 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, relations }) => {
+const LineComp = ({ data, chartID, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
     groupBy: { type: groupByType = 'string', value: groupByValue },
     showDataLabels = false,
     sortBy = {},
-  } = config;
+  } = configuration;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;
@@ -125,7 +125,7 @@ const LineComp = ({ data, chartID, config, interactiveClick, interactiveObj, rel
   };
 
   // Add click events
-  if (relations[chartID]) {
+  if (hasClickEvent) {
     chartConfig.events = {
       onLineClick: ({ data }) =>
         groupByValue ? interactiveClick(chartID, groupByValue, data[0][groupByValue]) : null,

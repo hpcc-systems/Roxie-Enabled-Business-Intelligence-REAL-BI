@@ -10,14 +10,14 @@ import { chartFillColor } from '../../constants';
 
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
-const HeatMapComp = ({ data, config }) => {
+const HeatMapComp = ({ data, configuration }) => {
   const {
     axis1: { label: xLabel, value: xValue },
     axis2: { label: yLabel, value: yValue },
     colorField,
     showDataLabels = false,
     sortBy = {},
-  } = config;
+  } = configuration;
   const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;
