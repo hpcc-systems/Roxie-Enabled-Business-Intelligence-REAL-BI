@@ -20,29 +20,16 @@ export const getChartData = async (chartID, clusterID, dashboardID, interactiveO
   }
 };
 
-// Updates value field of objects in old array with ones updated in new array
-export const mergeArrays = (oldArr, newArr) => {
-  oldArr.forEach((obj, index) => {
-    const matchedParam = newArr.find(({ name }) => name === obj.name);
-
-    if (matchedParam && obj.name !== 'Start' && obj.name !== 'Count') {
-      // Update value
-      oldArr[index].value = matchedParam.value;
-    }
-  });
-
-  return oldArr;
-};
-
 export const createChartObj = (localState, ecl) => {
-  const { configuration, dataset, mappedParams, sourceType } = localState;
-  const { params = [] } = configuration;
-  let newConfig = { ...configuration, dataset };
+  const { configuration, dataset, params, sourceType } = localState;
+  let formattedParams = params.map(obj => {
+    delete obj.show;
+    return obj;
+  });
+  formattedParams = params.filter(({ value }) => value !== '');
 
-  // Merge param arrays to send to server
-  newConfig.params = mergeArrays(params, mappedParams);
-
-  newConfig = validateConfigOptions(newConfig);
+  let newConfig = validateConfigOptions({ ...configuration, dataset });
+  newConfig.params = formattedParams;
 
   // Move ecl values to configuration object root
   if (sourceType === 'ecl') {
@@ -63,19 +50,7 @@ export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { configuration, id, source, ...chartKeys } = charts[chartIndex];
-  const { axis1, axis2, dataset, ecl = {}, params = [] } = configuration;
-
-  // // Show only certain params
-  const paramsArr = params.filter(({ name }) => name !== 'Start' && name !== 'Count');
-  const paramWithValueArr = paramsArr.filter(({ value }) => value != null && value !== '');
-
-  let mappedParams;
-
-  if (source.type === 'file' && paramWithValueArr.length > 0) {
-    mappedParams = paramWithValueArr;
-  } else {
-    mappedParams = [{ name: '', value: '' }];
-  }
+  const { axis1, axis2, dataset, ecl = {}, params } = configuration;
 
   // Confirm values are present to prevent error
   configuration.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
@@ -91,7 +66,7 @@ export const setEditorState = (charts, chartID) => {
     error: '',
     errors: [],
     keyword: source.name,
-    mappedParams,
+    params,
     selectedDataset: {},
     selectedSource: {},
     sources: [],

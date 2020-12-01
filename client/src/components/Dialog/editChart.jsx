@@ -15,7 +15,7 @@ import { validateSource } from '../../utils/validate';
 import useForm from '../../hooks/useForm';
 
 // Utils
-import { createChartObj, mergeArrays, setEditorState } from '../../utils/chart';
+import { createChartObj, setEditorState } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 
@@ -94,16 +94,14 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
   };
 
   const updateChartPreview = () => {
-    const { configuration, dataset, mappedParams, selectedSource: source, sourceType } = localState;
-    const { params = [] } = configuration;
+    const { dataset, params, selectedSource: source, sourceType } = localState;
 
     if (sourceKeys > 0 && datasetKeys > 0) {
       (async () => {
         handleChange(null, { name: 'dataObj', value: { loading: true } });
 
         try {
-          const usedParams = mergeArrays(params, mappedParams);
-          const options = { dataset, params: usedParams, source };
+          const options = { dataset, params, source };
           const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
 
           handleChange(null, { name: 'error', value: '' });

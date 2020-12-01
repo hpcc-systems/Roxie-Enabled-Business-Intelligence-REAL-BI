@@ -7,10 +7,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const StaticFileParams = ({ localState, setParamObj }) => {
-  const {
-    configuration: { params = [] },
-    sourceType,
-  } = localState;
+  const { params, sourceType } = localState;
   const { formControl } = useStyles();
 
   // Show only certain params
