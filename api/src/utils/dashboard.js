@@ -107,8 +107,7 @@ const createDashboard = async (dashboard, workspaceID) => {
   return newDashboard.id;
 };
 
-const updateDashboardByID = async (clusterID, dashboardObj) => {
-  const { id, name } = dashboardObj;
+const updateDashboardByID = async (clusterID, id, name) => {
   return await Dashboard.update({ name: name.trim(), clusterID }, { where: { id } });
 };
 
