@@ -139,6 +139,39 @@ const validateEclEditorExecution = () => {
   ];
 };
 
+const validateWorkspaceShare = () => {
+  const validations = [
+    body('workspaceID')
+      .isUUID(4)
+      .withMessage('Invalid Request'),
+    body('email')
+      .isArray({ min: 1 })
+      .withMessage('At least one email address is required'),
+    body('email.*')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Valid email required'),
+    body('dashboards')
+      .isArray({ min: 1 })
+      .withMessage('Choose at least one dashboard to share'),
+  ];
+
+  // Only allow internal email addresses for sharing
+  if (process.env.INTERNAL_ONLY === 'true') {
+    validations.push(
+      body('email.*').custom(email => {
+        if (!email.includes('lexisnexisrisk')) {
+          throw new Error('Must be an LNRS Email');
+        }
+
+        return true;
+      }),
+    );
+  }
+
+  return validations;
+};
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -168,4 +201,5 @@ module.exports = {
   validateRegistration,
   validateResetPassword,
   validateSourceCreation,
+  validateWorkspaceShare,
 };

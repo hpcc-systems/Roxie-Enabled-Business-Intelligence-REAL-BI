@@ -5,7 +5,7 @@ import { Container, Grid } from '@material-ui/core';
 // React Components
 import Toolbar from './Toolbar';
 import NewChartDialog from '../Dialog/newChart';
-import ShareLinkDialog from '../Dialog/shareLink';
+import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
 import EditChartDialog from '../Dialog/editChart';
 import FilterDrawer from '../Drawers/Filters';
 import DeleteChartDialog from '../Dialog/DeleteChart';
@@ -187,7 +187,7 @@ const Dashboard = () => {
           />
         )}
         {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
-        {shareLinkShow && <ShareLinkDialog show={shareLinkShow} toggleShare={shareLinkToggle} />}
+        {shareLinkShow && <ShareWorkspaceDialog show={shareLinkShow} toggleDialog={shareLinkToggle} />}
         {editChartShow && (
           <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
         )}
