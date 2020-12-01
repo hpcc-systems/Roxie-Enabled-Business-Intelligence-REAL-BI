@@ -26,7 +26,6 @@ export const createChartObj = (localState, ecl) => {
     delete obj.show;
     return obj;
   });
-  formattedParams = params.filter(({ value }) => value !== '');
 
   let newConfig = validateConfigOptions({ ...configuration, dataset });
   newConfig.params = formattedParams;
