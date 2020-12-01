@@ -19,14 +19,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog }) => {
-  const { id: dashboardID } = dashboard;
+  const { clusterID, id: dashboardID, name } = dashboard;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
 
   const confirmDelete = async () => {
     try {
       const action = await deleteChart(chartID, dashboardID);
-      const action2 = await updateDashboard(dashboard);
+      const action2 = await updateDashboard(clusterID, dashboardID, name);
 
       batch(() => {
         dispatch(action2);

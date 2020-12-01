@@ -81,6 +81,15 @@ export const clearWorkspaceRef = () => {
   return { type: CLEAR_WORKSPACE, payload: {} };
 };
 
+export const getOpenDashboardsInWorkspace = async workspaceID => {
+  try {
+    const response = await axios.get('/api/v1/workspace/open_dashboard', { params: { workspaceID } });
+    return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
+  } catch (error) {
+    throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
+  }
+};
+
 export const openDashboardInWorkspace = async (dashboardID, workspaceID) => {
   try {
     const response = await axios.post('/api/v1/workspace/open_dashboard', { dashboardID, workspaceID });

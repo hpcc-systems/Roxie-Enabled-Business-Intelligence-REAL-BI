@@ -107,6 +107,20 @@ router.get('/find', async (req, res, next) => {
   }
 });
 
+router.get('/open_dashboard', async (req, res, next) => {
+  const {
+    query: { workspaceID },
+    user: { id: userID },
+  } = req;
+
+  try {
+    const openDashboards = await getOpenDashboardsByUser(workspaceID, userID);
+    return res.json(openDashboards);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.post('/open_dashboard', async (req, res, next) => {
   const {
     body: { dashboardID, workspaceID },
