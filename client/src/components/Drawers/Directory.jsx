@@ -19,7 +19,11 @@ import useForm from '../../hooks/useForm';
 
 // Redux Actions
 import { getDashboard, updateDashboard } from '../../features/dashboard/actions';
-import { openDashboardInWorkspace, updateWorkspaceDirectory } from '../../features/workspace/actions';
+import {
+  getOpenDashboardsInWorkspace,
+  openDashboardInWorkspace,
+  updateWorkspaceDirectory,
+} from '../../features/workspace/actions';
 
 // Utils
 import { createDashboard } from '../../utils/dashboard';
@@ -167,9 +171,11 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       const newDirectoryObj = { ...directoryObj, name, clusterID };
       const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
 
-      const actions = await Promise.all([
-        updateDashboard(localState),
+      // Update dashboard first then get refreshed workspace data
+      const action = await updateDashboard(clusterID, directoryObj.id, name);
+      const otherActions = await Promise.all([
         updateWorkspaceDirectory(newDirectory, workspaceID),
+        getOpenDashboardsInWorkspace(workspaceID),
       ]);
 
       if (updateCreds || (username && password)) {
@@ -181,7 +187,8 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       }
 
       batch(() => {
-        actions.forEach(action => dispatch(action));
+        const allActions = [action, ...otherActions];
+        allActions.forEach(action => dispatch(action));
 
         toggleEditDashboardDialog();
         setLoading(false);

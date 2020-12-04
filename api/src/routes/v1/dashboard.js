@@ -42,13 +42,13 @@ router.get('/info', async (req, res, next) => {
 
 router.put('/', async (req, res, next) => {
   const {
-    body: { clusterID, id, name },
+    body: { clusterID, dashboardID, name },
     user: { id: userID },
   } = req;
 
   try {
-    await updateDashboardByID(clusterID, id, name);
-    const dashboard = await getDashboardByID(id, userID);
+    await updateDashboardByID(clusterID, dashboardID, name);
+    const dashboard = await getDashboardByID(dashboardID, userID);
     return res.status(200).json(dashboard);
   } catch (error) {
     next(error);
