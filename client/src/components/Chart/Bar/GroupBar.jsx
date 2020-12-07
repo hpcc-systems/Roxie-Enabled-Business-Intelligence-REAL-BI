@@ -8,7 +8,15 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const GroupBarComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
+const GroupBarComp = ({
+  chartID,
+  data,
+  configuration,
+  hasClickEvent,
+  interactiveClick,
+  interactiveObj,
+  pdfPreview,
+}) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
@@ -95,6 +103,7 @@ const GroupBarComp = ({ chartID, data, configuration, hasClickEvent, interactive
       visible: true,
     },
     meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
+    tooltip: { visible: !pdfPreview },
     xAxis: {
       grid: { visible: true },
       label: {

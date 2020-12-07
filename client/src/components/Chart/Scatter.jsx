@@ -8,7 +8,7 @@ import { sortArr, thousandsSeparator } from '../../utils/misc';
 // Constants
 import { chartFillColor } from '../../constants';
 
-const ScatterComp = ({ data, configuration }) => {
+const ScatterComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
@@ -74,6 +74,7 @@ const ScatterComp = ({ data, configuration }) => {
       formatter: v => thousandsSeparator(v),
       visible: showDataLabels,
     },
+    tooltip: { visible: !pdfPreview },
     xField: xValue,
     xAxis: {
       label: {

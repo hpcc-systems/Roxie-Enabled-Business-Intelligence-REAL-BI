@@ -8,7 +8,7 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const DualLineComp = ({ data, configuration }) => {
+const DualLineComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { label: xLabel, type: xType = 'string', value: xValue },
     axis2: { type: yType1 = 'string', value: yValue1 },
@@ -79,22 +79,21 @@ const DualLineComp = ({ data, configuration }) => {
       position: 'bottom',
       visible: true,
     },
-    meta: {
-      yValue1: { formatter: v => thousandsSeparator(v) },
-      yValue2: { formatter: v => thousandsSeparator(v) },
-    },
     lineConfigs: [
       {
-        smooth: true,
         point: { visible: true },
         color: '#5c90f9',
       },
       {
-        smooth: true,
         point: { visible: true },
         color: '#e76c5e',
       },
     ],
+    meta: {
+      yValue1: { formatter: v => thousandsSeparator(v) },
+      yValue2: { formatter: v => thousandsSeparator(v) },
+    },
+    tooltip: { visible: !pdfPreview },
     xField: xValue,
     xAxis: {
       label: {

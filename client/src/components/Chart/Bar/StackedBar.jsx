@@ -15,6 +15,7 @@ const StackedBarComp = ({
   hasClickEvent,
   interactiveClick,
   interactiveObj,
+  pdfPreview,
 }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
@@ -99,6 +100,7 @@ const StackedBarComp = ({
     },
     meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
     stackField: groupByValue,
+    tooltip: { visible: !pdfPreview },
     xAxis: {
       label: {
         style: { fill: chartFillColor },

@@ -35,6 +35,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
   const { id: clusterID } = dashboard.cluster;
   const { formControl, progress, errorText } = useStyles();
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
       (async () => {
@@ -76,6 +77,7 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
       })();
     }
   }, [chartID, clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     if (datasets.length > 0 && dataset) {

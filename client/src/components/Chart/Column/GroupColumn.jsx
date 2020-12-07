@@ -15,6 +15,7 @@ const GroupColumnComp = ({
   hasClickEvent,
   interactiveClick,
   interactiveObj,
+  pdfPreview,
 }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
@@ -99,6 +100,7 @@ const GroupColumnComp = ({
       visible: true,
     },
     meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
+    tooltip: { visible: !pdfPreview },
     xAxis: {
       label: {
         style: { fill: chartFillColor },
