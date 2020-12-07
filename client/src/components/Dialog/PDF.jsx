@@ -17,7 +17,7 @@ import { printDashboard } from '../../utils/pdf';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
-  dialog: { maxHeight: '70vh', maxWidth: '70vw' },
+  dialog: { maxHeight: '70vh', maxWidth: '80vw' },
   paper: { backgroundColor: grey[300], padding: theme.spacing(2, 0) },
   toolbar: { padding: 0 },
   typography: { flex: 1, margin: theme.spacing(2, 1.5) },
@@ -27,7 +27,6 @@ const initState = {
   fileName: 'dashboard',
   headerImg: '',
   headerURI: '',
-  orientation: 'portrait',
 };
 
 const PdfDialog = ({ compData, show, toggleDialog }) => {

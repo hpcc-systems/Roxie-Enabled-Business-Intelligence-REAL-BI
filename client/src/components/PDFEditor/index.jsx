@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  FormControl,
-  FormHelperText,
-  Grid,
-  Input,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@material-ui/core';
+import { FormControl, FormHelperText, Grid, Input, InputLabel, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -17,7 +8,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const PdfEditor = ({ handleChange, localState }) => {
-  const { fileName, headerImg, orientation } = localState;
+  const { fileName, headerImg } = localState;
   const { formControl, grid } = useStyles();
 
   const handleImage = async event => {
@@ -52,15 +43,6 @@ const PdfEditor = ({ handleChange, localState }) => {
             onChange={handleChange}
             autoComplete='off'
           />
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}>
-        <FormControl className={formControl} fullWidth>
-          <InputLabel>Orientation</InputLabel>
-          <Select name='orientation' value={orientation} onChange={handleChange}>
-            <MenuItem value='portrait'>Portrait</MenuItem>
-            <MenuItem value='landscape'>Landscape</MenuItem>
-          </Select>
         </FormControl>
       </Grid>
       <Grid item xs={3}>
