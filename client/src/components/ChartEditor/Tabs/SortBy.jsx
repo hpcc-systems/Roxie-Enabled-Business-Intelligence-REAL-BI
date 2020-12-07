@@ -43,7 +43,7 @@ const SortBy = ({ eclRef, localState, updateAxisKey }) => {
             <CircularProgress className={progress} size={20} />
           ) : (
             <Select name='sortBy:value' value={sortBy.value || ''} onChange={updateAxisKey}>
-              {sortBy.value !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
+              {sortBy.value !== '' && <MenuItem value=''>Clear Selection</MenuItem>}
               {fieldsArr.map(({ name, value = name }, index) => {
                 return (
                   <MenuItem key={index} value={value}>

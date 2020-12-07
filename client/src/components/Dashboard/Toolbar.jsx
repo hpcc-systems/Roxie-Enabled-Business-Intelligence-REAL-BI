@@ -40,33 +40,50 @@ const ToolbarComp = ({
   toggleNewChartDialog,
   toggleRelationsDialog,
   toggleDrawer,
+  togglePDF,
   toggleShare,
 }) => {
   const { name, permission } = dashboard;
   const anchorRef = useRef(null);
+  const anchorRef2 = useRef(null);
   const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
   const { button, menuItem, toolbar, typography } = useStyles();
 
   const handleToggle = () => {
     setOpen(prevOpen => !prevOpen);
   };
 
+  const handleToggle2 = () => {
+    setOpen2(prevOpen => !prevOpen);
+  };
+
   const handleClose = event => {
     if (!anchorRef.current || !anchorRef.current.contains(event.target)) {
-      return setOpen(false);
+      setOpen(false);
+    }
+
+    if (!anchorRef2.current || !anchorRef2.current.contains(event.target)) {
+      return setOpen2(false);
     }
   };
 
   // Return focus to the button when transitioned from !open -> open
   const prevOpen = useRef(open);
+  const prevOpen2 = useRef(open2);
 
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
 
+    if (prevOpen2.current === true && open2 === false) {
+      anchorRef2.current.focus();
+    }
+
     prevOpen.current = open;
-  }, [open]);
+    prevOpen2.current = open2;
+  }, [open, open2]);
 
   return (
     <Fragment>
@@ -129,9 +146,47 @@ const ToolbarComp = ({
             <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
               <FilterListIcon />
             </Button>
-            <Button className={button} variant='contained' color='primary' onClick={toggleShare}>
+            <Button
+              className={button}
+              variant='contained'
+              color='primary'
+              onClick={handleToggle2}
+              ref={anchorRef2}
+            >
               <ShareIcon />
             </Button>
+
+            {/* Share Element Dropdown */}
+            <Popper open={open2} anchorEl={anchorRef2.current} role={undefined} transition>
+              {({ TransitionProps }) => (
+                <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleClose}>
+                      <MenuList autoFocusItem={open} id='addElementMenu'>
+                        <MenuItem
+                          className={menuItem}
+                          onClick={e => {
+                            handleClose(e);
+                            togglePDF();
+                          }}
+                        >
+                          Create PDF
+                        </MenuItem>
+                        <MenuItem
+                          className={menuItem}
+                          onClick={e => {
+                            handleClose(e);
+                            toggleShare();
+                          }}
+                        >
+                          Share Dashboard
+                        </MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
           </Toolbar>
         </Grid>
       </Grid>

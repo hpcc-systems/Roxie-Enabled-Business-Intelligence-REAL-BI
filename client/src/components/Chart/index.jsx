@@ -34,6 +34,7 @@ const ChartComp = ({
   dataObj,
   interactiveClick,
   interactiveObj = {},
+  pdfPreview,
   sourceType,
 }) => {
   const { groupBy = {}, horizontal, params = [], stacked, isStatic = false, type } = configuration;
@@ -54,7 +55,7 @@ const ChartComp = ({
     }
   }
 
-  const hasClickEvent = relations.findIndex(({ sourceID }) => sourceID === chartID) > -1;
+  const hasClickEvent = pdfPreview ? false : relations.findIndex(({ sourceID }) => sourceID === chartID) > -1;
 
   // Don't render the progress wheel if the chart is a static textbox
   return loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (
@@ -72,6 +73,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -84,6 +86,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -96,6 +99,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -108,6 +112,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -120,6 +125,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -132,6 +138,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -144,6 +151,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
@@ -156,29 +164,30 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;
         case 'histogram':
-          chartComp = <HistogramChart data={data} configuration={configuration} />;
+          chartComp = <HistogramChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'dualline':
-          chartComp = <DualLineChart data={data} configuration={configuration} />;
+          chartComp = <DualLineChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'pie':
-          chartComp = <PieChart data={data} configuration={configuration} />;
+          chartComp = <PieChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'scatter':
-          chartComp = <ScatterChart data={data} configuration={configuration} />;
+          chartComp = <ScatterChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'textBox':
           chartComp = <TextBox data={data} configuration={configuration} />;
           break;
         case 'heatmap':
-          chartComp = <HeatMap data={data} configuration={configuration} />;
+          chartComp = <HeatMap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'gauge':
-          chartComp = <Gauge data={data} configuration={configuration} />;
+          chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'table':
           chartComp = (
@@ -189,6 +198,7 @@ const ChartComp = ({
               hasClickEvent={hasClickEvent}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
             />
           );
           break;

@@ -8,7 +8,15 @@ import { thousandsSeparator, sortArr } from '../../../utils/misc';
 // Constants
 import { chartFillColor } from '../../../constants';
 
-const BarComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick, interactiveObj }) => {
+const BarComp = ({
+  chartID,
+  data,
+  configuration,
+  hasClickEvent,
+  interactiveClick,
+  interactiveObj,
+  pdfPreview,
+}) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue },
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue },
@@ -84,6 +92,7 @@ const BarComp = ({ chartID, data, configuration, hasClickEvent, interactiveClick
       visible: true,
     },
     meta: { [xValue]: { formatter: v => thousandsSeparator(v) } },
+    tooltip: { visible: !pdfPreview },
     xAxis: {
       grid: { visible: true },
       label: {

@@ -4,7 +4,7 @@ import { Gauge } from '@ant-design/charts';
 // Constants
 import { chartFillColor } from '../../constants';
 
-const GaugeComp = ({ data, configuration }) => {
+const GaugeComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { type: valueType = 'string', value = null },
     axis2: { value: val2 = null },
@@ -55,6 +55,7 @@ const GaugeComp = ({ data, configuration }) => {
       text: data[0][value],
       visible: true,
     },
+    tooltip: { visible: !pdfPreview },
     value: data[0][value],
   };
 

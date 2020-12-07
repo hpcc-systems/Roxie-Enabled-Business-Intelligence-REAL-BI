@@ -10,7 +10,7 @@ import { chartFillColor } from '../../constants';
 
 const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
 
-const HeatMapComp = ({ data, configuration }) => {
+const HeatMapComp = ({ data, configuration, pdfPreview }) => {
   const {
     axis1: { label: xLabel, value: xValue },
     axis2: { label: yLabel, value: yValue },
@@ -72,6 +72,7 @@ const HeatMapComp = ({ data, configuration }) => {
       }),
       style: { fill: chartFillColor },
       title: ' ', // Have to pass in a space or it will duplicate information
+      visible: !pdfPreview,
     },
     xAxis: {
       label: {

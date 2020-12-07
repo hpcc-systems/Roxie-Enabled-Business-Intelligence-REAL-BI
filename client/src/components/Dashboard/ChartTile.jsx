@@ -31,6 +31,7 @@ const ChartTile = props => {
     handleDragStart,
     interactiveClick,
     interactiveObj,
+    pdfPreview = false,
   } = props;
   const { id: chartID, configuration } = chart;
   const { ecl = {}, size = 12 } = configuration;
@@ -40,26 +41,35 @@ const ChartTile = props => {
   const dataObj = compData[chartID] || compData[eclDataset] || {};
   const lastModifiedDate = dataObj.lastModifiedDate ? dataObj.lastModifiedDate : null;
 
+  const tile = () => (
+    <Paper variant='outlined' style={{ position: 'relative' }}>
+      <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
+      <div className={clearDiv}>
+        <Chart
+          chart={chart}
+          dataObj={dataObj}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      </div>
+    </Paper>
+  );
+
   return (
     <Grid item md={size}>
-      <div
-        className={classnames(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
-        draggable
-        onDragStart={event => handleDragStart(event, chartID)}
-        onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}
-      >
-        <Paper variant='outlined' style={{ position: 'relative' }}>
-          <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
-          <div className={clearDiv}>
-            <Chart
-              chart={chart}
-              dataObj={dataObj}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-            />
-          </div>
-        </Paper>
-      </div>
+      {!pdfPreview ? (
+        <div
+          className={classnames(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
+          draggable
+          onDragStart={event => handleDragStart(event, chartID)}
+          onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}
+        >
+          {tile()}
+        </div>
+      ) : (
+        tile()
+      )}
     </Grid>
   );
 };

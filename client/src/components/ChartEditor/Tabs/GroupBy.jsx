@@ -45,7 +45,7 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
             <CircularProgress className={progress} size={20} />
           ) : (
             <Select name='groupBy:value' value={groupBy.value || ''} onChange={updateAxisKey}>
-              {groupBy !== '' && <MenuItem value={''}>Clear Selection</MenuItem>}
+              {groupBy !== '' && <MenuItem value=''>Clear Selection</MenuItem>}
               {fieldsArr.map(({ name, value = name }, index) => {
                 return (
                   <MenuItem key={index} value={value}>
