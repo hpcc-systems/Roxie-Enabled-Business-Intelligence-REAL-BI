@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
 
 const Header = ({ toggleDrawer }) => {
   const { user = {} } = useSelector(state => state.auth);
-  const { workspaces } = useSelector(state => state.workspace);
+  const { workspace, workspaces } = useSelector(state => state.workspace);
   const { id: userID, lastViewedWorkspace, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -97,6 +97,7 @@ const Header = ({ toggleDrawer }) => {
   }, [open, open2]);
 
   const isChangePwdScreen = location.pathname === '/changepwd';
+  const permission = workspace?.permission || 'Read-Only';
 
   return (
     <Fragment>
@@ -120,7 +121,7 @@ const Header = ({ toggleDrawer }) => {
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
                   <WorkspaceSelector />
-                  {lastViewedWorkspace && (
+                  {lastViewedWorkspace && permission !== 'Read-Only' && (
                     <Fragment>
                       <IconButton
                         edge='start'

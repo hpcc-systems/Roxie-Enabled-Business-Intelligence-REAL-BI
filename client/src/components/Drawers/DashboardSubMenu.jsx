@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItemIcon, Menu, MenuItem, Typography } from '@material-ui/core';
 import {
@@ -18,6 +18,7 @@ const DashboardSubMenu = ({
   anchorEl,
   directoryObj,
   editDashboard,
+  permission,
   removeDashboard,
   setAnchorEl,
   setAnchorName,
@@ -44,28 +45,32 @@ const DashboardSubMenu = ({
         </ListItemIcon>
         <Typography>{favorite ? 'Unpin' : 'Pin'}</Typography>
       </MenuItem>
-      <MenuItem
-        onClick={() => {
-          editDashboard(directoryObj);
-          closeMenu();
-        }}
-      >
-        <ListItemIcon className={menuIcon}>
-          <EditIcon />
-        </ListItemIcon>
-        <Typography>Edit</Typography>
-      </MenuItem>
-      <MenuItem
-        onClick={() => {
-          removeDashboard(id);
-          closeMenu();
-        }}
-      >
-        <ListItemIcon className={menuIcon}>
-          <CloseIcon />
-        </ListItemIcon>
-        <Typography>Delete</Typography>
-      </MenuItem>
+      {permission === 'Owner' && (
+        <Fragment>
+          <MenuItem
+            onClick={() => {
+              editDashboard(directoryObj);
+              closeMenu();
+            }}
+          >
+            <ListItemIcon className={menuIcon}>
+              <EditIcon />
+            </ListItemIcon>
+            <Typography>Edit</Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              removeDashboard(id);
+              closeMenu();
+            }}
+          >
+            <ListItemIcon className={menuIcon}>
+              <CloseIcon />
+            </ListItemIcon>
+            <Typography>Delete</Typography>
+          </MenuItem>
+        </Fragment>
+      )}
     </Menu>
   );
 };

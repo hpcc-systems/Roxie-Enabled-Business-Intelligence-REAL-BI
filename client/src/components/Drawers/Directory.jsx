@@ -342,6 +342,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
               removeFolder={removeFolder}
               updateDirectoryObj={updateDirectoryObj}
               updateDirectoryDepth={updateDirectoryDepth}
+              workspace={workspace}
             />
           </Fragment>
         ) : (

@@ -20,7 +20,7 @@ import {
 } from '@material-ui/icons';
 
 // Constants
-import { canAddCharts } from '../../utils/misc';
+import { canAddCharts, canShareDashboard } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -172,15 +172,17 @@ const ToolbarComp = ({
                         >
                           Create PDF
                         </MenuItem>
-                        <MenuItem
-                          className={menuItem}
-                          onClick={e => {
-                            handleClose(e);
-                            toggleShare();
-                          }}
-                        >
-                          Share Dashboard
-                        </MenuItem>
+                        {canShareDashboard(permission) && (
+                          <MenuItem
+                            className={menuItem}
+                            onClick={e => {
+                              handleClose(e);
+                              toggleShare();
+                            }}
+                          >
+                            Share Dashboard
+                          </MenuItem>
+                        )}
                       </MenuList>
                     </ClickAwayListener>
                   </Paper>

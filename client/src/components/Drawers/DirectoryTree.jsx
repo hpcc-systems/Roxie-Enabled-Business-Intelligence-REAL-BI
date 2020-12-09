@@ -40,29 +40,32 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const RecursiveTreeView = props => {
-  const { directory, directoryDepth, openDashboard, updateDirectoryDepth } = props;
+  const { directory, directoryDepth, openDashboard, updateDirectoryDepth, workspace } = props;
   const { iconColor, itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorName, setAnchorName] = useState('');
+  const permission = workspace?.permission || 'Read-Only';
 
   const rootLabel = (
     <div className={rootDiv}>
       <Typography className={rootText}>Directory</Typography>
-      <div>
-        <IconButton onClick={event => showMenu(event, { name: 'root' })}>
-          <MoreHorizIcon className={iconColor} />
-        </IconButton>
-        {'root' === anchorName && (
-          <FolderSubMenu
-            {...props}
-            anchorEl={anchorEl}
-            directoryObj={{}}
-            root={true}
-            setAnchorEl={setAnchorEl}
-            setAnchorName={setAnchorName}
-          />
-        )}
-      </div>
+      {permission !== 'Read-Only' && (
+        <div>
+          <IconButton onClick={event => showMenu(event, { name: 'root' })}>
+            <MoreHorizIcon className={iconColor} />
+          </IconButton>
+          {'root' === anchorName && (
+            <FolderSubMenu
+              {...props}
+              anchorEl={anchorEl}
+              directoryObj={{}}
+              root={true}
+              setAnchorEl={setAnchorEl}
+              setAnchorName={setAnchorName}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -101,19 +104,22 @@ const RecursiveTreeView = props => {
           </IconButton>
           {directoryObj.name === anchorName &&
             (isFolder ? (
-              <FolderSubMenu
-                {...props}
-                anchorEl={anchorEl}
-                directoryObj={directoryObj}
-                root={false}
-                setAnchorEl={setAnchorEl}
-                setAnchorName={setAnchorName}
-              />
+              permission !== 'Read-Only' ? (
+                <FolderSubMenu
+                  {...props}
+                  anchorEl={anchorEl}
+                  directoryObj={directoryObj}
+                  root={false}
+                  setAnchorEl={setAnchorEl}
+                  setAnchorName={setAnchorName}
+                />
+              ) : null
             ) : (
               <DashboardSubMenu
                 {...props}
                 anchorEl={anchorEl}
                 directoryObj={directoryObj}
+                permission={permission}
                 setAnchorEl={setAnchorEl}
                 setAnchorName={setAnchorName}
               />

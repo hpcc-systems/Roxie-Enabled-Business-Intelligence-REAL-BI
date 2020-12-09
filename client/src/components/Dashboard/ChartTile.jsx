@@ -7,6 +7,7 @@ import classnames from 'classnames';
 // React Components
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
+import { canReOrganizeDashboards } from '../../utils/misc';
 
 const useStyles = makeStyles(() => ({
   clearDiv: { clear: 'both' },
@@ -25,6 +26,7 @@ const ChartTile = props => {
   const {
     chart,
     compData,
+    dashboard,
     dragging,
     dragItemID,
     handleDragEnter,
@@ -58,7 +60,7 @@ const ChartTile = props => {
 
   return (
     <Grid item md={size}>
-      {!pdfPreview ? (
+      {!pdfPreview && canReOrganizeDashboards(dashboard.permission) ? (
         <div
           className={classnames(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
           draggable
