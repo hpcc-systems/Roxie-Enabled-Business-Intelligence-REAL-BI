@@ -15,4 +15,8 @@ const updateWorkspaceDirectory = async (directory, workspaceID, userID) => {
   return await WorkspaceDirectory.update({ directory }, { where: { workspaceID, userID } });
 };
 
-module.exports = { getWorkspaceDirectory, updateWorkspaceDirectory };
+const createWorkspaceDirectory = async (directory, workspaceID, userID) => {
+  return await WorkspaceDirectory.create({ directory, workspaceID, userID });
+};
+
+module.exports = { createWorkspaceDirectory, getWorkspaceDirectory, updateWorkspaceDirectory };

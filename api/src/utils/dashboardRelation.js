@@ -16,7 +16,7 @@ const deleteRelation = async id => {
 
 const getDashboardRelationsByDashboardID = async dashboardID => {
   let relations = await DashboardRelation.findAll({
-    ...removeFields(['dashboardID'], true),
+    ...removeFields(['dashboardID']),
     where: { dashboardID },
     include: [
       {
@@ -42,7 +42,7 @@ const getDashboardRelationsByChartID = async (dashboardID, sourceObj, targetID) 
   const { chartID: sourceID, field: sourceField } = sourceObj;
 
   let relations = await DashboardRelation.findAll({
-    ...removeFields(['dashboardID'], true),
+    ...removeFields(['dashboardID']),
     where: { dashboardID, sourceID, sourceField, targetID },
     include: [
       {

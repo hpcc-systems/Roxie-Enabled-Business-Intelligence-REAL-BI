@@ -1,10 +1,9 @@
 import React, { Fragment } from 'react';
-import { useSelector } from 'react-redux';
 import { Checkbox, List, ListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 // Utils
-import { getDashboardsFromDirectory } from '../../../utils/directory';
+import { getDashboardsFromDirectory, updateDashboardObj } from '../../../utils/directory';
 
 const useStyles = makeStyles(theme => ({
   dialogText: { fontSize: '0.85rem', marginTop: theme.spacing(1.5) },
@@ -15,26 +14,46 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ShareDashboards = ({ handleChange, localState }) => {
-  const { directory } = useSelector(state => state.workspace.workspace);
-  const { dashboards: selectedDashboards } = localState;
-  const dashboards = getDashboardsFromDirectory(directory, []);
+  const { directory } = localState;
   const { dialogText, errMsg, item, itemText, list } = useStyles();
 
-  const handleToggle = value => () => {
-    const currentIndex = selectedDashboards.indexOf(value);
-    const newSelectedDashboards = [...selectedDashboards];
-
-    if (currentIndex === -1) {
-      newSelectedDashboards.push(value);
-    } else {
-      newSelectedDashboards.splice(currentIndex, 1);
-    }
-
-    handleChange(null, { name: 'dashboards', value: newSelectedDashboards });
+  const handleToggle = (id, checked) => {
+    const newDirectory = updateDashboardObj(localState.directory, id, 'shared', checked);
+    handleChange(null, { name: 'directory', value: newDirectory });
   };
 
   const { errors } = localState;
   const dashboardsErr = errors.find(err => err['dashboards']);
+  const dashboards = getDashboardsFromDirectory(directory, []);
+  const selectedDashboards = dashboards.filter(({ shared }) => shared);
+
+  const renderList = directoryObj => {
+    const { children, id, name } = directoryObj;
+    const isFolder = Boolean(children);
+    const checked = selectedDashboards.findIndex(({ id: idNum }) => idNum === id) > -1;
+
+    return (
+      <ListItem
+        key={id}
+        role={undefined}
+        dense
+        button
+        onClick={() => handleToggle(id, !checked)}
+        className={item}
+      >
+        {isFolder ? (
+          children.map(node => renderList(node))
+        ) : (
+          <Fragment>
+            <ListItemIcon>
+              <Checkbox edge='start' checked={checked} tabIndex={-1} disableRipple />
+            </ListItemIcon>
+            <ListItemText primary={name} classes={{ primary: itemText }} />
+          </Fragment>
+        )}
+      </ListItem>
+    );
+  };
 
   return (
     <Fragment>
@@ -42,27 +61,7 @@ const ShareDashboards = ({ handleChange, localState }) => {
         Choose which dashboards you wish to share from this workspace. Recipients will receive view
         permissions.
       </Typography>
-      <List className={list}>
-        {dashboards.map((dashboard, index) => {
-          const { id, name } = dashboard;
-          const labelId = `checkbox-list-label-${id}`;
-
-          return (
-            <ListItem key={index} role={undefined} dense button onClick={handleToggle(id)} className={item}>
-              <ListItemIcon>
-                <Checkbox
-                  edge='start'
-                  checked={selectedDashboards.indexOf(id) !== -1}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
-                />
-              </ListItemIcon>
-              <ListItemText primary={name} classes={{ primary: itemText }} />
-            </ListItem>
-          );
-        })}
-      </List>
+      <List className={list}>{directory.map(directoryObj => renderList(directoryObj))}</List>
       {dashboardsErr !== undefined && (
         <Typography variant={'body2'} className={errMsg}>
           {dashboardsErr['dashboards']}

@@ -7,6 +7,9 @@ const {
   workspace_permission: workspacePermission,
 } = require('../models');
 const { unNestSequelizeObj, removeFields } = require('./sequelize');
+const logger = require('../config/logger');
+const transporter = require('../config/nodemailer');
+const { SHARE_EMAIL, SHARE_URL } = process.env;
 
 const createWorkspace = async (name, ownerID) => {
   let workspace = await Workspace.create({ name, ownerID });
@@ -18,7 +21,7 @@ const createWorkspace = async (name, ownerID) => {
 
 const getWorkspacesByUserID = async userID => {
   let workspaces = await Workspace.findAll({
-    ...removeFields([], true),
+    ...removeFields([]),
     include: {
       model: workspacePermission,
       as: 'permission',
@@ -39,7 +42,7 @@ const getWorkspacesByUserID = async userID => {
 
 const getWorkspaceByID = async (id, userID) => {
   let workspace = await Workspace.findOne({
-    ...removeFields([], true),
+    ...removeFields([]),
     where: { id },
     include: [
       {
@@ -93,10 +96,28 @@ const deleteWorkspaceByID = async id => {
   return await Workspace.destroy({ where: { id } });
 };
 
+const sendShareWorkspaceEmail = async (workspaceID, recipientEmail, username) => {
+  const url = `${SHARE_URL}/workspace/${workspaceID}`;
+  const subject = 'Real BI - Shared Workspace';
+  const message = `A user has shared a workspace with you. Please click on the link to view the workspace. ${url}`;
+
+  const options = {
+    from: SHARE_EMAIL,
+    to: recipientEmail,
+    subject,
+    text: message,
+  };
+
+  const info = await transporter.sendMail(options);
+
+  return logger.info(`Email sent to ${username} with message id ${info.messageId}`);
+};
+
 module.exports = {
   createWorkspace,
   deleteWorkspaceByID,
   getWorkspaceByID,
   getWorkspacesByUserID,
+  sendShareWorkspaceEmail,
   updateWorkspaceByID,
 };

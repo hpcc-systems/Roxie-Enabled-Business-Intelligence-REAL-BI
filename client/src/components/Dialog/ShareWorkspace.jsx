@@ -12,6 +12,7 @@ import ShareWorkspace from '../ShareWorkspace';
 
 // Utils
 import { shareWorkspace as shareWorkspaceFn } from '../../utils/workspace';
+import { getDashboardsFromDirectory } from '../../utils/directory';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -33,7 +34,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const initState = {
-  dashboards: [],
   errors: [],
   email: '',
   loading: false,
@@ -41,23 +41,39 @@ const initState = {
 };
 
 const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
-  const { id: workspaceID } = useSelector(state => state.workspace.workspace);
-  const { values: localState, handleChange } = useForm(initState);
+  const { directory, id: workspaceID } = useSelector(state => state.workspace.workspace);
+  const { values: localState, handleChange } = useForm({ ...initState, directory });
   const { button, dialogContent, errMsg, message, success } = useStyles();
 
   const handleSubmit = async () => {
-    const { dashboards, email } = localState;
+    const { directory: stateDirectory, email } = localState;
 
     // Split emails into array and sanitize any leading or trailing spaces
     const emailArr = email.split(';').map(addr => addr.trim());
 
+    if (emailArr[0] === '') {
+      return handleChange(null, { name: 'errors', value: [{ email: 'Required Field' }] });
+    }
+
+    const dashboards = getDashboardsFromDirectory(stateDirectory, []);
+    const sharedDashboards = dashboards.filter(({ shared }) => shared).map(({ id }) => id);
+
+    if (sharedDashboards.length === 0) {
+      return handleChange(null, { name: 'errors', value: [{ msg: 'Must select at least one dashboard' }] });
+    }
+
     handleChange(null, { name: 'loading', value: true });
 
     try {
-      await shareWorkspaceFn(workspaceID, emailArr, dashboards);
+      await shareWorkspaceFn(workspaceID, emailArr, stateDirectory, sharedDashboards);
     } catch (err) {
       handleChange(null, { name: 'loading', value: false });
-      return handleChange(null, { name: 'errors', value: err });
+
+      if (Array.isArray(err)) {
+        return handleChange(null, { name: 'errors', value: err });
+      }
+
+      return handleChange(null, { name: 'errors', value: [{ msg: err.message }] });
     }
 
     handleChange(null, { name: 'loading', value: false });
@@ -67,7 +83,7 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
   };
 
   const { errors, loading, successMsg } = localState;
-  const msgErr = errors.find(err => err['msg']);
+  const msgErr = errors.find(err => err['msg'])?.msg;
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>

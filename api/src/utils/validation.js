@@ -34,7 +34,6 @@ const validateRegistration = () => {
       .withMessage('Field Required'),
     body('email')
       .isEmail()
-      .normalizeEmail()
       .withMessage('Invalid Email'),
     body('password')
       .exists({ checkFalsy: true })
@@ -140,7 +139,7 @@ const validateEclEditorExecution = () => {
 };
 
 const validateWorkspaceShare = () => {
-  const validations = [
+  return [
     body('workspaceID')
       .isUUID(4)
       .withMessage('Invalid Request'),
@@ -149,27 +148,15 @@ const validateWorkspaceShare = () => {
       .withMessage('At least one email address is required'),
     body('email.*')
       .isEmail()
-      .normalizeEmail()
       .withMessage('Valid email required'),
-    body('dashboards')
-      .isArray({ min: 1 })
-      .withMessage('Choose at least one dashboard to share'),
+    body('email.*').custom(email => {
+      if (!email.includes('lexisnexisrisk') && process.env.INTERNAL_ONLY === 'true') {
+        throw new Error('All emails must be internal');
+      }
+
+      return true;
+    }),
   ];
-
-  // Only allow internal email addresses for sharing
-  if (process.env.INTERNAL_ONLY === 'true') {
-    validations.push(
-      body('email.*').custom(email => {
-        if (!email.includes('lexisnexisrisk')) {
-          throw new Error('Must be an LNRS Email');
-        }
-
-        return true;
-      }),
-    );
-  }
-
-  return validations;
 };
 
 const validate = (req, res, next) => {

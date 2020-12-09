@@ -39,14 +39,14 @@ const updateFilterValue = async valueObj => {
 
 const getDashboardFilter = async (id, userID) => {
   let filter = await DashboardFilter.findOne({
-    ...removeFields(['clusterID', 'dashboardID', 'sourceID'], true),
+    ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
     where: { id },
     include: [
-      { model: Cluster, ...removeFields([], true), required: true },
+      { model: Cluster, ...removeFields([]), required: true },
       {
         model: Source,
         as: 'source',
-        ...removeFields(['typeID'], true),
+        ...removeFields(['typeID']),
         required: true,
         include: {
           model: SourceType,
@@ -58,7 +58,7 @@ const getDashboardFilter = async (id, userID) => {
       {
         model: DashboardFilterValue,
         as: 'value',
-        ...removeFields(['dashboardFilterID', 'userID'], true),
+        ...removeFields(['dashboardFilterID', 'userID']),
         where: { userID },
       },
     ],
@@ -74,14 +74,14 @@ const getDashboardFilter = async (id, userID) => {
 
 const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
   let filters = await DashboardFilter.findAll({
-    ...removeFields(['clusterID', 'dashboardID', 'sourceID'], true),
+    ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
     where: { dashboardID },
     include: [
-      { model: Cluster, ...removeFields([], true), required: true },
+      { model: Cluster, ...removeFields([]), required: true },
       {
         model: Source,
         as: 'source',
-        ...removeFields(['typeID'], true),
+        ...removeFields(['typeID']),
         required: true,
         include: {
           model: SourceType,
@@ -93,7 +93,7 @@ const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
       {
         model: DashboardFilterValue,
         as: 'value',
-        ...removeFields(['dashboardFilterID', 'userID'], true),
+        ...removeFields(['dashboardFilterID', 'userID']),
         where: { userID },
       },
     ],
@@ -113,12 +113,12 @@ const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
 
 const getDashboardFiltersWithValues = async (chartID, dashboardID, userID) => {
   let filters = await DashboardFilter.findAll({
-    ...removeFields(['dashboardID', 'sourceID'], true),
+    ...removeFields(['dashboardID', 'sourceID']),
     where: { configuration: { [Sequelize.Op.substring]: chartID }, dashboardID },
     include: {
       model: DashboardFilterValue,
       as: 'value',
-      ...removeFields(['dashboardFilterID', 'userID'], true),
+      ...removeFields(['dashboardFilterID', 'userID']),
       where: { value: { [Sequelize.Op.ne]: null }, userID },
       required: true,
     },
@@ -133,6 +133,13 @@ const getDashboardFiltersWithValues = async (chartID, dashboardID, userID) => {
   return filters;
 };
 
+const getDashboardFilterValue = async (dashboardFilterID, userID) => {
+  let valueRow = await DashboardFilterValue.findOne({ where: { dashboardFilterID, userID } });
+  valueRow = unNestSequelizeObj(valueRow);
+
+  return valueRow;
+};
+
 module.exports = {
   createFilter,
   createFilterValue,
@@ -140,6 +147,7 @@ module.exports = {
   getDashboardFilter,
   getDashboardFiltersByDashboardID,
   getDashboardFiltersWithValues,
+  getDashboardFilterValue,
   updateFilter,
   updateFilterValue,
 };

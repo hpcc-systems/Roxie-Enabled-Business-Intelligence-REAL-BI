@@ -1,18 +1,17 @@
+/* eslint-disable no-throw-literal */
 import axios from 'axios';
 
-export const shareWorkspace = async (workspaceID, email, dashboards) => {
+export const shareWorkspace = async (workspaceID, email, directory, dashboards) => {
   try {
-    await axios.post('/api/workspace/share', { workspaceID, email, dashboards });
+    await axios.post('/api/v1/workspace/share', { workspaceID, email, directory, dashboards });
   } catch (err) {
-    const { data } = err.response;
-
-    // Not an express validation error object
-    if (!data) {
-      throw [{ msg: err.response }];
+    if (err?.response?.data?.errors) {
+      throw err.response.data.errors;
     }
 
-    throw data.errors;
+    throw err.response.data;
   }
 
   return;
 };
+/* eslint-enable no-throw-literal */

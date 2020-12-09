@@ -1,12 +1,8 @@
-const https = require('https');
 const qs = require('qs');
 const axios = require('axios');
 const moment = require('moment');
 const { getClusterCreds } = require('./clusterCredentials');
 const { getValueType } = require('./misc');
-
-// Create axios request instance
-const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 
 const getQueriesFromCluster = async (cluster, keyword, userID) => {
   const { host, id: clusterID, infoPort } = cluster;
@@ -14,7 +10,7 @@ const getQueriesFromCluster = async (cluster, keyword, userID) => {
   let queries;
 
   try {
-    const response = await instance.get(
+    const response = await axios.get(
       `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`,
       { auth: clusterCreds },
     );
@@ -50,7 +46,7 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID) => {
   let datasets;
 
   try {
-    const response = await instance.get(
+    const response = await axios.get(
       `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`,
       { auth: clusterCreds },
     );
@@ -78,7 +74,7 @@ const getQueryParamsFromCluster = async (cluster, source, userID) => {
   const clusterCreds = await getClusterCreds(clusterID, userID);
 
   try {
-    const response = await instance.get(
+    const response = await axios.get(
       `${host}:${dataPort}/WsEcl/example/request/query/${target}/${name}/json?display`,
       { auth: clusterCreds },
     );
@@ -104,7 +100,7 @@ const getQueryDataFromCluster = async (cluster, options, userID) => {
   let data;
 
   try {
-    const response = await instance.get(
+    const response = await axios.get(
       `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`,
       { auth: clusterCreds },
     );
