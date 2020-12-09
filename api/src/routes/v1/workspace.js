@@ -61,6 +61,13 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await updateWorkspaceByID(name, workspaceID);
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -77,6 +84,13 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await deleteWorkspaceByID(workspaceID);
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -196,6 +210,13 @@ router.post('/share', [validateWorkspaceShare(), validate], async (req, res, nex
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     for await (const email of emailArr) {
       let user = await getUserByEmail(email);
       let username = user?.username;

@@ -47,6 +47,13 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await updateDashboardByID(clusterID, dashboardID, name);
     const dashboard = await getDashboardByID(dashboardID, userID);
     return res.status(200).json(dashboard);
@@ -56,8 +63,20 @@ router.put('/', async (req, res, next) => {
 });
 
 router.delete('/', async (req, res, next) => {
+  const {
+    query: { dashboardID },
+    user: { id: userID },
+  } = req;
+
   try {
-    await deleteDashboardByID(req.query.dashboardID);
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    await deleteDashboardByID(dashboardID);
     return res.status(200).end();
   } catch (error) {
     next(error);
@@ -65,10 +84,21 @@ router.delete('/', async (req, res, next) => {
 });
 
 router.delete('/multiple', async (req, res, next) => {
-  const { dashboardIDArray = [] } = req.query;
+  const {
+    query: { dashboardIDArray = [] },
+    user: { id: userID },
+  } = req;
 
   try {
-    const promises = dashboardIDArray.map(dashboardID => deleteDashboardByID(dashboardID));
+    const promises = [];
+
+    for await (const dashboardID of dashboardIDArray) {
+      const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+      if (permission !== 'Owner') continue;
+
+      promises.push(deleteDashboardByID(dashboardID));
+    }
     await Promise.all(promises);
 
     return res.status(200).end();
