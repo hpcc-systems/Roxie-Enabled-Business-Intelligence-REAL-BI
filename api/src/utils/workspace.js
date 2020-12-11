@@ -96,21 +96,20 @@ const deleteWorkspaceByID = async id => {
   return await Workspace.destroy({ where: { id } });
 };
 
-const sendShareWorkspaceEmail = async (workspaceID, recipientEmail, username) => {
-  const url = `${SHARE_URL}/workspace/${workspaceID}`;
-  const subject = 'Real BI - Shared Workspace';
-  const message = `A user has shared a workspace with you. Please click on the link to view the workspace. ${url}`;
+const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, newUser) => {
+  const url = newUser ? `${SHARE_URL}/register/${shareID}` : `${SHARE_URL}/workspace/${workspaceID}`;
+  const message = `<p>A user has shared a workspace with you. Please click on the link <a href="${url}">here</a> to view the workspace.</p>`;
 
   const options = {
     from: SHARE_EMAIL,
     to: recipientEmail,
-    subject,
-    text: message,
+    subject: 'Real BI - Shared Workspace',
+    html: message,
   };
 
   const info = await transporter.sendMail(options);
 
-  return logger.info(`Email sent to ${username} with message id ${info.messageId}`);
+  return logger.info(`Email sent with share id ${shareID} and message id ${info.messageId}`);
 };
 
 module.exports = {

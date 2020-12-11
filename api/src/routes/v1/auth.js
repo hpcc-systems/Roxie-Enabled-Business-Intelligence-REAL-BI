@@ -14,6 +14,7 @@ const {
   validateForgotPassword,
   validateResetPassword,
 } = require('../../utils/validation');
+const { addSharedResourcesToUser } = require('../../utils/share');
 
 // Create axios request instance
 const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
@@ -52,6 +53,7 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
 });
 
 router.post('/register', [validateRegistration(), validate], async (req, res, next) => {
+  let responseStatus;
   let responseObj;
 
   try {
@@ -63,16 +65,27 @@ router.post('/register', [validateRegistration(), validate], async (req, res, ne
     });
 
     // Auth Service will send a 201 if it creates a new user account or a 202 if it modifies an existing account
-    if (response.status === 201) {
+    responseStatus = response.status;
+    if (responseStatus === 201) {
       responseObj = { message: 'User Account Created' };
     } else {
       responseObj = { message: 'User Account Modified' };
     }
-
-    return res.status(response.status).json(responseObj);
   } catch (err) {
     res.status(err.response.status ? err.response.status : 500);
     const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    return next(error);
+  }
+
+  try {
+    const { email, shareID, username } = req.body;
+
+    if (shareID) {
+      await addSharedResourcesToUser(email, username, shareID);
+    }
+
+    return res.status(responseStatus).json(responseObj);
+  } catch (error) {
     return next(error);
   }
 });

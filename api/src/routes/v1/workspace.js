@@ -1,11 +1,4 @@
 const router = require('express').Router();
-
-const {
-  createFilterValue,
-  getDashboardFiltersByDashboardID,
-  getDashboardFilterValue,
-} = require('../../utils/dashboardFilter');
-const { createDashboardPermission, findDashboardPermission } = require('../../utils/dashboardPermission');
 const {
   getOpenDashboardsByUser,
   createOpenDashboard,
@@ -13,19 +6,15 @@ const {
   restoreOpenDashboard,
   deleteOpenDashboard,
 } = require('../../utils/openDashboards');
-// Utils
-const { updateLastViewedWorkspace, getUserByEmail, createUser } = require('../../utils/user');
-const { validate, validateWorkspaceShare } = require('../../utils/validation');
+const { updateLastViewedWorkspace } = require('../../utils/user');
 const {
   createWorkspace,
   updateWorkspaceByID,
   deleteWorkspaceByID,
   getWorkspacesByUserID,
   getWorkspaceByID,
-  sendShareWorkspaceEmail,
 } = require('../../utils/workspace');
-const { createWorkspaceDirectory, updateWorkspaceDirectory } = require('../../utils/workspaceDirectory');
-const { createWorkspacePermission, findWorkspacePermission } = require('../../utils/workspacePermission');
+const { createWorkspacePermission } = require('../../utils/workspacePermission');
 
 router.get('/all', async (req, res, next) => {
   try {
@@ -200,68 +189,6 @@ router.delete('/open_dashboard/multiple', async (req, res, next) => {
     return res.status(200).json(openDashboards);
   } catch (err) {
     return next(err);
-  }
-});
-
-router.post('/share', [validateWorkspaceShare(), validate], async (req, res, next) => {
-  const {
-    body: { workspaceID, directory, email: emailArr, dashboards },
-    user: { id: userID },
-  } = req;
-
-  try {
-    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
-
-    if (permission !== 'Owner') {
-      const error = new Error('Permission Denied');
-      throw error;
-    }
-
-    for await (const email of emailArr) {
-      let user = await getUserByEmail(email);
-      let username = user?.username;
-
-      if (!user) {
-        // Create username for new user record
-        username = email.slice(0, email.indexOf('@')).replace('.', '');
-        user = await createUser(email, username);
-      }
-
-      // Workspace setup
-      const workspacePermission = await findWorkspacePermission(workspaceID, user.id);
-
-      if (!workspacePermission) {
-        await createWorkspacePermission(workspaceID, user.id, 'Read-Only');
-        await createWorkspaceDirectory(directory, workspaceID, user.id);
-      } else {
-        await updateWorkspaceDirectory(directory, workspaceID, user.id);
-      }
-
-      // Dashboard setup
-      for await (const dashboard of dashboards) {
-        const dashboardPermission = await findDashboardPermission(dashboard, user.id);
-
-        if (!dashboardPermission) {
-          await createDashboardPermission(dashboard, user.id, 'Read-Only');
-        }
-
-        const filters = await getDashboardFiltersByDashboardID(dashboard, userID);
-
-        for await (const filter of filters) {
-          const filterValue = await getDashboardFilterValue(filter.id, user.id);
-
-          if (!filterValue) {
-            await createFilterValue(filter.id, user.id);
-          }
-        }
-      }
-
-      await sendShareWorkspaceEmail(workspaceID, email, username);
-    }
-
-    res.status(200).end();
-  } catch (error) {
-    return next(error);
   }
 });
 

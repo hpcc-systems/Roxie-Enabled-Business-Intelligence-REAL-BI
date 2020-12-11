@@ -35,9 +35,9 @@ export const updatePassword = async stateObj => {
   }
 };
 
-export const registerUser = async stateObj => {
+export const registerUser = async (stateObj, shareID) => {
   try {
-    const response = await axios.post('/api/v1/auth/register', { ...stateObj });
+    const response = await axios.post('/api/v1/auth/register', { ...stateObj, shareID });
     return response.data;
   } catch (error) {
     throw error.response.data;

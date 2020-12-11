@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const shareWorkspace = async (workspaceID, email, directory, dashboards) => {
   try {
-    await axios.post('/api/v1/workspace/share', { workspaceID, email, directory, dashboards });
+    await axios.post('/api/v1/share', { workspaceID, email, directory, dashboards });
   } catch (err) {
     if (err?.response?.data?.errors) {
       throw err.response.data.errors;
