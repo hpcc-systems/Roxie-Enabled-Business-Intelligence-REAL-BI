@@ -4,7 +4,7 @@ const logger = require('../config/logger');
 const { getUserByUsername } = require('../utils/user');
 
 // Constants
-const { AUTH_APP_ID, AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
+const { /* AUTH_CLIENT_ID,*/ AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
 
 const authenticateToken = async (req, res, next) => {
   let token = req.headers.authorization;
@@ -26,20 +26,21 @@ const authenticateToken = async (req, res, next) => {
 
     response = await requestInstance();
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
     return next(error);
   }
 
   try {
     // Get user data from response
-    const { role, username } = response.data.verified;
-    const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === for flexibility and type coercion.
+    const { /* role ,*/ username } = response.data.verified;
+    // TEMPORARY (Auth Service Change Coming)
+    // const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId === AUTH_CLIENT_ID);
 
-    if (!hasPermission) {
-      res.status(401);
-      throw new Error('User not authorized to use Real BI.');
-    }
+    // if (!hasPermission) {
+    //   res.status(401);
+    //   throw new Error('User not authorized to use Real BI.');
+    // }
 
     const { id } = await getUserByUsername(username);
 

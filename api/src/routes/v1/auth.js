@@ -3,7 +3,7 @@ const router = require('express').Router();
 const axios = require('axios');
 const jwtDecode = require('jwt-decode');
 
-const { AUTH_APP_ID, AUTH_PORT, AUTH_URL, EXTERNAL_HTTPS_PORT, HOST_HOSTNAME, NODE_ENV } = process.env;
+const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, EXTERNAL_HTTPS_PORT, HOST_HOSTNAME, NODE_ENV } = process.env;
 
 // Utils
 const { createUser, getUserByEmail } = require('../../utils/user');
@@ -25,20 +25,21 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
   try {
     response = await instance.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/login`, req.body);
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
     return next(error);
   }
 
   try {
     const token = response.data.accessToken;
-    const { email, role, username } = jwtDecode(token);
-    const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
+    const { email, /* role ,*/ username } = jwtDecode(token);
+    // TEMPORARY (Auth Service Change Coming)
+    // const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId === AUTH_CLIENT_ID);
 
-    if (!hasPermission) {
-      res.status(401);
-      throw new Error('User not authorized to use Real BI.');
-    }
+    // if (!hasPermission) {
+    //   res.status(401);
+    //   throw new Error('User not authorized to use Real BI.');
+    // }
 
     user = await getUserByEmail(email);
 
@@ -59,7 +60,7 @@ router.post('/register', [validateRegistration(), validate], async (req, res, ne
   try {
     const response = await instance.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/registerUser`, {
       ...req.body,
-      applicationId: AUTH_APP_ID,
+      clientId: AUTH_CLIENT_ID,
       confirmpassword: req.body.confirmPassword,
       role: 'User',
     });
@@ -72,8 +73,8 @@ router.post('/register', [validateRegistration(), validate], async (req, res, ne
       responseObj = { message: 'User Account Modified' };
     }
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data?.error || err?.response?.data || 'Unknown error'}`);
     return next(error);
   }
 
@@ -99,14 +100,14 @@ router.post('/forgot_password', [validateForgotPassword(), validate], async (req
   try {
     const response = await instance.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/forgotPassword`, {
       ...req.body,
-      applicationId: AUTH_APP_ID,
+      clientId: AUTH_CLIENT_ID,
       resetUrl,
     });
 
     return res.status(200).send(response.data);
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data.message : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data?.message || 'Unknown error'}`);
     return next(error);
   }
 });
@@ -117,8 +118,8 @@ router.post('/reset_password', [validateResetPassword(), validate], async (req, 
 
     return res.status(200).json({ message: 'Password Reset Successfully' });
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
     return next(error);
   }
 });
