@@ -28,7 +28,7 @@ const ChartToolbar = props => {
   const { chart, dashboard, lastModifiedDate, pdfPreview } = props;
   const { configuration, sourceType } = chart;
   const { permission } = dashboard;
-  const { chartDescription = '', size = 12, title = '', type } = configuration;
+  const { chartDescription = '', isStatic, size = 12, title = '', type } = configuration;
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const { description, ellipseBtnLg, ellipseBtnMd, ellipseBtnXs, tableDesc, typography } = useStyles();
@@ -88,7 +88,7 @@ const ChartToolbar = props => {
         */}
         {chartDescription !== '' ? chartDescription : null}
         {chartDescription !== '' ? <br /> : null}
-        <small>{datetimeStamp}</small>
+        {!isStatic && <small>{datetimeStamp}</small>}
       </Typography>
     </Fragment>
   );
