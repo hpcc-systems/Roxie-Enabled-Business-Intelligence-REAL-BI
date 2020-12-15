@@ -194,9 +194,7 @@ const createWUParams = params => {
 };
 
 const createScriptLastModifiedDate = () => {
-  const datetime = moment()
-    .utc()
-    .format('L HH:mm:ss');
+  const datetime = moment().utc().format('L HH:mm:ss');
 
   return `${datetime} UTC`;
 };

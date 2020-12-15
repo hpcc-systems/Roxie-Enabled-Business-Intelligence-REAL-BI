@@ -47,9 +47,7 @@ export const getFilterValue = valueObj => {
       break;
     case 'string':
     default:
-      convertedValue = String(value)
-        .split(',')
-        .sort();
+      convertedValue = String(value).split(',').sort();
   }
 
   return convertedValue;
