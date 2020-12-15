@@ -164,11 +164,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
 
     titleBar.buttons([clusterDropdown, new Spacer(), runButton]);
 
-    layout
-      .top(titleBar)
-      .center(mainSection)
-      .target(targetDomId)
-      .render();
+    layout.top(titleBar).center(mainSection).target(targetDomId).render();
 
     const header = document.querySelector(`#${targetDomId} header`);
 
@@ -226,7 +222,6 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
     titleBar,
   ]);
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!clusterID) {
       return handleChange(null, { name: 'error', value: 'No cluster information found' });
@@ -261,7 +256,6 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
       addComponentsToWidget();
     })();
   }, []);
-  /* eslint-enable react-hooks/exhaustive-deps */
 
   const eclRefErr = errors.find(err => err['eclRef']);
   const msgErr = errors.find(err => err['Message']);

@@ -1,4 +1,4 @@
-FROM node:14.9.0-alpine as builder
+FROM node:15.4.0-alpine as builder
 
 WORKDIR '/app'
 
@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build
 
 
-FROM nginx:1.19.1
+FROM nginx:1.19.5-alpine
 
 COPY ./nginx/conf.d /etc/nginx/conf.d
 
