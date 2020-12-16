@@ -56,22 +56,23 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
 
-    try {
-      validateSource(localState, eclRef);
-    } catch (errors) {
-      return handleChange(null, { name: 'errors', value: errors });
-    }
-
     if (type === 'textBox' && isStatic) {
       const chartObj = { id: chartID, configuration: { ...configuration, dataset, ecl: {} } };
 
       try {
-        const action = updateChart(chartObj, dashboardID);
-        return dispatch(action);
+        const action = await updateChart(chartObj, dashboardID);
+        dispatch(action);
+        return toggleDialog();
       } catch (error) {
         return dispatch(error);
       }
     } else {
+      try {
+        validateSource(localState, eclRef);
+      } catch (errors) {
+        return handleChange(null, { name: 'errors', value: errors });
+      }
+
       const sourceObj = createSourceObj(localState, eclRef.current);
       const chartObj = createChartObj(localState, eclRef.current);
       let newSource;

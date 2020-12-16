@@ -84,7 +84,11 @@ const getDashboardByID = async (id, userID) => {
   dashboard.charts = dashboard.charts.map(chart => {
     chart = unNestSequelizeObj(chart);
     chart.source = unNestSequelizeObj(chart.source);
-    chart.source.type = chart.source.type.name;
+
+    // Static text fields will not have a source
+    if (chart.source) {
+      chart.source.type = chart.source.type.name;
+    }
 
     return chart;
   });

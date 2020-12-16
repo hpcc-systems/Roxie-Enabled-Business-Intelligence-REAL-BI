@@ -54,7 +54,7 @@ router.get('/data', async (req, res, next) => {
     let data;
 
     // Static textboxes won't have a source object
-    if (Object.keys(source).length === 0) {
+    if (!source) {
       return res.status(200).end();
     }
 
@@ -127,14 +127,16 @@ router.put('/', async (req, res, next) => {
       throw error;
     }
 
-    const source = await getSourceByID(chart.source.id);
+    if (!chart.configuration.isStatic) {
+      const source = await getSourceByID(chart.source.id);
 
-    if (source.name === 'ecl') {
-      const { workunitID } = chart.configuration.ecl;
-      await updateSourceByID(chart.source.id, { hpccID: workunitID, name: workunitID });
+      if (source.name === 'ecl') {
+        const { workunitID } = chart.configuration.ecl;
+        await updateSourceByID(chart.source.id, { hpccID: workunitID, name: workunitID });
+      }
     }
 
-    await updateChartByID(chart, chart.source.id);
+    await updateChartByID(chart, chart?.source?.id);
     const { charts } = await getDashboardByID(dashboardID, userID);
 
     return res.status(200).json(charts);

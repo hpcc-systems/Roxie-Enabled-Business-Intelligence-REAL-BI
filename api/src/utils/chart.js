@@ -18,7 +18,11 @@ const getChartByID = async id => {
   });
   chart = unNestSequelizeObj(chart);
   chart.source = unNestSequelizeObj(chart.source);
-  chart.source.type = chart.source.type.name;
+
+  // Static text fields will not have a source
+  if (chart.source) {
+    chart.source.type = chart.source.type.name;
+  }
 
   return chart;
 };

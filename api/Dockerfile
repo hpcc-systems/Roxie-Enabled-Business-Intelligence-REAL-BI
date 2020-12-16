@@ -1,4 +1,4 @@
-FROM node:14.9.0-alpine
+FROM node:15.4.0-alpine
 
 WORKDIR '/app'
 
@@ -6,4 +6,4 @@ COPY package*.json ./
 RUN npm install --production
 COPY . .
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:prod"]
