@@ -9,7 +9,7 @@ const {
 const { unNestSequelizeObj, removeFields } = require('./sequelize');
 const logger = require('../config/logger');
 const transporter = require('../config/nodemailer');
-const { SHARE_EMAIL, SHARE_URL } = process.env;
+const { SHARE_FROM_EMAIL, SHARE_URL } = process.env;
 
 const createWorkspace = async (name, ownerID) => {
   let workspace = await Workspace.create({ name, ownerID });
@@ -101,7 +101,7 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
   const message = `<p>A user has shared a workspace with you. Please click on the link <a href="${url}">here</a> to view the workspace.</p>`;
 
   const options = {
-    from: SHARE_EMAIL,
+    from: SHARE_FROM_EMAIL,
     to: recipientEmail,
     subject: 'Real BI - Shared Workspace',
     html: message,

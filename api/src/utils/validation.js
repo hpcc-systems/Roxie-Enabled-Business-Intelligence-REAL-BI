@@ -79,7 +79,7 @@ const validateWorkspaceShare = () => {
     body('email').isArray({ min: 1 }).withMessage('At least one email address is required'),
     body('email.*').isEmail().withMessage('Valid email required'),
     body('email.*').custom(email => {
-      if (!email.includes('lexisnexisrisk') && process.env.INTERNAL_ONLY === 'true') {
+      if (!email.includes('lexisnexisrisk') && process.env.INTERNAL_DOMAINS_ONLY === 'true') {
         throw new Error('All emails must be internal');
       }
 
