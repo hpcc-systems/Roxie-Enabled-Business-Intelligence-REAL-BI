@@ -3,47 +3,19 @@ const logger = require('../config/logger');
 
 const validateLogin = () => {
   return [
-    body('username')
-      .exists({ checkFalsy: true })
-      .trim()
-      .escape()
-      .withMessage('Field Required'),
-    body('password')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
+    body('username').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
+    body('password').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
   ];
 };
 
 const validateRegistration = () => {
   return [
-    body('firstName')
-      .exists({ checkFalsy: true })
-      .trim()
-      .escape()
-      .withMessage('Field Required'),
-    body('lastName')
-      .exists({ checkFalsy: true })
-      .trim()
-      .escape()
-      .withMessage('Field Required'),
-    body('username')
-      .exists({ checkFalsy: true })
-      .trim()
-      .escape()
-      .withMessage('Field Required'),
-    body('email')
-      .isEmail()
-      .normalizeEmail()
-      .withMessage('Invalid Email'),
-    body('password')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
-    body('confirmPassword')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
+    body('firstName').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
+    body('lastName').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
+    body('username').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
+    body('email').isEmail().normalizeEmail().withMessage('Invalid Email'),
+    body('password').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
+    body('confirmPassword').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
     body('confirmPassword').custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error('Passwords Do Not Match');
@@ -55,32 +27,15 @@ const validateRegistration = () => {
 };
 
 const validateForgotPassword = () => {
-  return [
-    body('username')
-      .exists({ checkFalsy: true })
-      .trim()
-      .escape()
-      .withMessage('Field Required'),
-  ];
+  return [body('username').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required')];
 };
 
 const validateChangePassword = () => {
   return [
-    header('authorization')
-      .exists({ checkFalsy: true })
-      .withMessage('Invalid Request'),
-    body('oldPwd')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
-    body('newPwd')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
-    body('newPwd2')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
+    header('authorization').exists({ checkFalsy: true }).withMessage('Invalid Request'),
+    body('oldPwd').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
+    body('newPwd').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
+    body('newPwd2').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
     body('newPwd2').custom((value, { req }) => {
       if (value !== req.body.newPwd) {
         throw new Error('Passwords Do Not Match');
@@ -93,17 +48,9 @@ const validateChangePassword = () => {
 
 const validateResetPassword = () => {
   return [
-    body('id')
-      .isUUID(4)
-      .withMessage('Invalid Request'),
-    body('password')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
-    body('confirmPassword')
-      .exists({ checkFalsy: true })
-      .escape()
-      .withMessage('Field Required'),
+    body('id').isUUID(4).withMessage('Invalid Request'),
+    body('password').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
+    body('confirmPassword').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
     body('confirmPassword').custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error('Passwords Do Not Match');
@@ -115,27 +62,14 @@ const validateResetPassword = () => {
 };
 
 const validateSourceCreation = () => {
-  return [
-    body('source.hpccID')
-      .not()
-      .isEmpty()
-      .withMessage('hpccID not found'),
-  ];
+  return [body('source.hpccID').not().isEmpty().withMessage('hpccID not found')];
 };
 
 const validateEclEditorExecution = () => {
   return [
-    body('clusterID')
-      .isUUID(4)
-      .withMessage('Invalid Request'),
-    body('targetCluster')
-      .not()
-      .isEmpty()
-      .withMessage('Target Not Selected'),
-    body('eclScript')
-      .not()
-      .isEmpty()
-      .withMessage('ECL Script Required'),
+    body('clusterID').isUUID(4).withMessage('Invalid Request'),
+    body('targetCluster').not().isEmpty().withMessage('Target Not Selected'),
+    body('eclScript').not().isEmpty().withMessage('ECL Script Required'),
   ];
 };
 

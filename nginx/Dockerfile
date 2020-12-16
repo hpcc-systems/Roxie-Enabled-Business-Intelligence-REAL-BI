@@ -1,4 +1,4 @@
-FROM nginx:1.19.1
+FROM nginx:1.19.5-alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/realbi.conf.template /etc/nginx/conf.d/realbi.conf.template

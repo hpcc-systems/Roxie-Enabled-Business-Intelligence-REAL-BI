@@ -23,7 +23,8 @@
   "plugins": ["react", "react-hooks", "prettier"],
   "rules": {
     "react/prop-types": "off",
-    "no-throw-literal": "off"
+    "no-throw-literal": "off",
+    "react-hooks/exhaustive-deps": "off"
   },
   "settings": {
     "react": {

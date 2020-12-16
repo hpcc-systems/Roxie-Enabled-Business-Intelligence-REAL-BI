@@ -31,13 +31,13 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
 
   try {
     const token = response.data.accessToken;
-    const { email, role, username } = jwtDecode(token);
-    const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
+    const { email, /* role ,*/ username } = jwtDecode(token);
+    // const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId == AUTH_APP_ID); // Used == instead of === because process.env converts all values to strings.
 
-    if (!hasPermission) {
-      res.status(401);
-      throw new Error('User not authorized to use Real BI.');
-    }
+    // if (!hasPermission) {
+    //   res.status(401);
+    //   throw new Error('User not authorized to use Real BI.');
+    // }
 
     user = await getUserByEmail(email);
 

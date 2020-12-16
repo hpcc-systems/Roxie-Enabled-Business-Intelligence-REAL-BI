@@ -60,10 +60,7 @@ const ShareLinkDialog = ({ show, toggleShare }) => {
     const emailEnd = user.indexOf(')') > -1 ? user.indexOf(')') : user.length;
 
     // Get email address
-    const email = user
-      .substring(emailStart, emailEnd)
-      .trim()
-      .toLowerCase();
+    const email = user.substring(emailStart, emailEnd).trim().toLowerCase();
 
     if (!validEmailRegex.test(email) || user.length === 0) {
       return handleChange(null, { name: 'error', value: 'Email is not valid!' });

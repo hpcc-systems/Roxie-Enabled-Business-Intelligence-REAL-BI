@@ -64,12 +64,12 @@ export const setEditorState = (charts, chartID) => {
     datasets: [],
     error: '',
     errors: [],
-    keyword: source.name,
+    keyword: source?.name,
     params,
     selectedDataset: {},
     selectedSource: {},
     sources: [],
-    sourceType: source.type,
+    sourceType: source?.type,
     ...chartKeys,
   };
 
