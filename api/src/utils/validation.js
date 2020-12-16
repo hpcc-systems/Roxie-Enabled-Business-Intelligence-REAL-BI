@@ -13,7 +13,7 @@ const validateRegistration = () => {
     body('firstName').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
     body('lastName').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
     body('username').exists({ checkFalsy: true }).trim().escape().withMessage('Field Required'),
-    body('email').isEmail().normalizeEmail().withMessage('Invalid Email'),
+    body('email').isEmail().withMessage('Invalid Email'),
     body('password').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
     body('confirmPassword').exists({ checkFalsy: true }).escape().withMessage('Field Required'),
     body('confirmPassword').custom((value, { req }) => {
@@ -73,6 +73,21 @@ const validateEclEditorExecution = () => {
   ];
 };
 
+const validateWorkspaceShare = () => {
+  return [
+    body('workspaceID').isUUID(4).withMessage('Invalid Request'),
+    body('email').isArray({ min: 1 }).withMessage('At least one email address is required'),
+    body('email.*').isEmail().withMessage('Valid email required'),
+    body('email.*').custom(email => {
+      if (!email.includes('lexisnexisrisk') && process.env.INTERNAL_DOMAINS_ONLY === 'true') {
+        throw new Error('All emails must be internal');
+      }
+
+      return true;
+    }),
+  ];
+};
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -102,4 +117,5 @@ module.exports = {
   validateRegistration,
   validateResetPassword,
   validateSourceCreation,
+  validateWorkspaceShare,
 };

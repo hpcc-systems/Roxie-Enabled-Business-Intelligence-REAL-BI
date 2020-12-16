@@ -121,6 +121,20 @@ export const canDeleteCharts = permission => {
   return permissions.indexOf(permission) > -1;
 };
 
+export const canShareDashboard = permission => {
+  const permissions = ['Owner'];
+
+  // Return boolean
+  return permissions.indexOf(permission) > -1;
+};
+
+export const canReOrganizeDashboards = permission => {
+  const permissions = ['Owner'];
+
+  // Return boolean
+  return permissions.indexOf(permission) > -1;
+};
+
 export const existsInArray = (arr, string) => {
   return arr.indexOf(string) > -1;
 };

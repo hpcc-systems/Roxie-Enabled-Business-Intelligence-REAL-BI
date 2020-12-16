@@ -3,12 +3,12 @@ const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
 const getChartByID = async id => {
   let chart = await Chart.findOne({
-    ...removeFields(['dashboardID', 'sourceID'], true),
+    ...removeFields(['dashboardID', 'sourceID']),
     where: { id },
     include: {
       model: Source,
       as: 'source',
-      ...removeFields(['typeID'], true),
+      ...removeFields(['typeID']),
       include: {
         model: SourceType,
         as: 'type',

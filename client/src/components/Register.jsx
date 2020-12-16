@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -95,6 +95,7 @@ const fields = [
 const Register = () => {
   const { values: localState, handleChange } = useForm(initState);
   const history = useHistory();
+  const { shareID } = useParams();
   const {
     button,
     closeBtn,
@@ -116,7 +117,7 @@ const Register = () => {
     handleChange(null, { name: 'loading', value: true });
 
     try {
-      const response = await registerUser(localState);
+      const response = await registerUser(localState, shareID);
 
       handleChange(null, { name: 'loading', value: false });
       handleChange(null, { name: 'errors', value: [] });

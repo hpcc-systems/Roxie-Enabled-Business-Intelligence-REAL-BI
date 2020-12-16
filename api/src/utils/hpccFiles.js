@@ -1,11 +1,7 @@
-const https = require('https');
 const axios = require('axios');
 const moment = require('moment');
 const { getClusterCreds } = require('./clusterCredentials');
 const { getValueType } = require('./misc');
-
-// Create axios instance that allows self-signed certificates
-const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 
 const getFilesFromCluster = async (cluster, keyword, userID) => {
   const { host, id: clusterID, infoPort } = cluster;
@@ -13,11 +9,12 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
   let files;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUQuery.json`,
       { DFUQueryRequest: { LogicalName: `*${keyword}*` } },
       { auth: clusterCreds },
     );
+
     files = response.data.DFUQueryResponse;
   } catch (error) {
     throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
@@ -48,7 +45,7 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
   let fields, response;
 
   try {
-    response = await instance.post(
+    response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUGetFileMetaData.json`,
       { DFUGetFileMetaDataRequest: { LogicalFileName: source.name } },
       { auth: clusterCreds },
@@ -88,7 +85,7 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
   let data;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsWorkunits/WUResult.json`,
       {
         WUResultRequest: {
@@ -100,8 +97,10 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
       },
       { auth: clusterCreds },
     );
+
     data = response.data.WUResultResponse;
   } catch (error) {
+    console.error(error);
     throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
   }
 
@@ -122,7 +121,7 @@ const getFileLastModifiedDate = async (cluster, fileName, clusterCreds) => {
   let file;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUQuery.json`,
       { DFUQueryRequest: { LogicalName: fileName } },
       { auth: clusterCreds },

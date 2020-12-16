@@ -1,5 +1,4 @@
 const router = require('express').Router();
-
 const {
   getOpenDashboardsByUser,
   createOpenDashboard,
@@ -7,7 +6,6 @@ const {
   restoreOpenDashboard,
   deleteOpenDashboard,
 } = require('../../utils/openDashboards');
-// Utils
 const { updateLastViewedWorkspace } = require('../../utils/user');
 const {
   createWorkspace,
@@ -52,6 +50,13 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await updateWorkspaceByID(name, workspaceID);
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -68,6 +73,13 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await deleteWorkspaceByID(workspaceID);
     const workspaces = await getWorkspacesByUserID(userID);
 

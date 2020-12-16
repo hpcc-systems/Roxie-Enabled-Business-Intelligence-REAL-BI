@@ -9,7 +9,7 @@ const getClusterByID = async id => {
 };
 
 const getAllClusters = async () => {
-  let clusters = await Cluster.findAll(removeFields([], true));
+  let clusters = await Cluster.findAll(removeFields([]));
   clusters = clusters.map(cluster => unNestSequelizeObj(cluster));
 
   return clusters;

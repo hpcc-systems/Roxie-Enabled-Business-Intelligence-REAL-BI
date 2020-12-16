@@ -82,12 +82,13 @@ const Login = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
+  const hasAuthError = Object.keys(errorObj).length > 0;
 
   useEffect(() => {
     const { token, valid } = checkForToken();
 
     if (token) {
-      if (valid) {
+      if (valid && !hasAuthError) {
         // There is a valid token in storage
         setAuthHeader(token);
 

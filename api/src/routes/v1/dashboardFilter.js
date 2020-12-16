@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { getClusterByID } = require('../../utils/cluster');
+const { getDashboardByID } = require('../../utils/dashboard');
 const {
   createFilter,
   createFilterValue,
@@ -20,6 +21,13 @@ router.post('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(body.dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     let newFilter = await createFilter(body);
     await createFilterValue(newFilter.id, userID);
     newFilter = await getDashboardFilter(newFilter.id, userID);
@@ -37,6 +45,13 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await updateFilter(filterObj, sourceID);
     const filters = await getDashboardFiltersByDashboardID(dashboardID, userID);
 
@@ -53,6 +68,13 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await deleteFilter(filterID);
     const filters = await getDashboardFiltersByDashboardID(dashboardID, userID);
 

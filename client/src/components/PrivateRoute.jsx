@@ -15,8 +15,9 @@ import { getWorkspaces } from '../features/workspace/actions';
 const PrivateRoute = ({ component, ...options }) => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const { id } = useSelector(state => state.auth.user);
+  const { errorObj, user } = useSelector(state => state.auth);
   const token = localStorage.getItem(tokenName);
+  const hasAuthError = Object.keys(errorObj).length > 0;
 
   if (!token) {
     setAuthHeader();
@@ -25,7 +26,7 @@ const PrivateRoute = ({ component, ...options }) => {
     return null;
   }
 
-  if (token && !id) {
+  if (token && !user.id && !hasAuthError) {
     setAuthHeader(token);
 
     (async () => {

@@ -12,7 +12,7 @@ const createSource = async source => {
 
 const getSourceByID = async id => {
   let source = await Source.findOne({
-    ...removeFields(['typeID'], true),
+    ...removeFields(['typeID']),
     where: { id },
     include: {
       model: SourceType,
@@ -32,7 +32,7 @@ const getSourceByID = async id => {
 
 const getSourceByHpccID = async hpccID => {
   let source = await Source.findOne({
-    ...removeFields(['typeID'], true),
+    ...removeFields(['typeID']),
     where: { hpccID },
     include: {
       model: SourceType,

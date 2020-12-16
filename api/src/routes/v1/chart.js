@@ -18,9 +18,17 @@ const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelatio
 router.post('/', async (req, res, next) => {
   const {
     body: { chart, dashboardID, sourceID },
+    user: { id: userID },
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     const charts = await getChartsByDashboardID(dashboardID);
     const { id } = await createChart(chart, dashboardID, sourceID, charts.length);
     const newChart = await getChartByID(id);
@@ -112,9 +120,14 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
-    const isStatic = chart.configuration.isStatic;
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
 
-    if (!isStatic) {
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    if (!chart.configuration.isStatic) {
       const source = await getSourceByID(chart.source.id);
 
       if (source.name === 'ecl') {
@@ -139,6 +152,13 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     await deleteChartByID(chartID);
     const { charts } = await getDashboardByID(dashboardID, userID);
 

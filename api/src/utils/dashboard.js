@@ -14,10 +14,10 @@ const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
 const getDashboardByID = async (id, userID) => {
   let dashboard = await Dashboard.findOne({
-    ...removeFields(['workspaceID', 'clusterID'], true),
+    ...removeFields(['workspaceID', 'clusterID']),
     where: { id },
     include: [
-      { model: Cluster, ...removeFields([], true), required: true },
+      { model: Cluster, ...removeFields([]), required: true },
       {
         model: DashboardPermission,
         as: 'permission',
@@ -28,20 +28,20 @@ const getDashboardByID = async (id, userID) => {
       {
         model: DashboardFilter,
         as: 'filters',
-        ...removeFields(['clusterID', 'dashboardID', 'sourceID'], true),
+        ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
         include: [
-          { model: Cluster, ...removeFields([], true), required: true },
+          { model: Cluster, ...removeFields([]), required: true },
           {
             model: Source,
             as: 'source',
-            ...removeFields(['typeID'], true),
+            ...removeFields(['typeID']),
             required: true,
             include: { model: SourceType, as: 'type', attributes: ['name'], required: true },
           },
           {
             model: DashboardFilterValue,
             as: 'value',
-            ...removeFields(['dashboardFilterID', 'userID'], true),
+            ...removeFields(['dashboardFilterID', 'userID']),
             were: { userID },
           },
         ],
@@ -49,7 +49,7 @@ const getDashboardByID = async (id, userID) => {
       {
         model: DashboardRelation,
         as: 'relations',
-        ...removeFields(['dashboardID'], true),
+        ...removeFields(['dashboardID']),
         include: [
           {
             model: Chart,
@@ -68,11 +68,11 @@ const getDashboardByID = async (id, userID) => {
       {
         model: Chart,
         as: 'charts',
-        ...removeFields(['dashboardID', 'sourceID'], true),
+        ...removeFields(['dashboardID', 'sourceID']),
         include: {
           model: Source,
           as: 'source',
-          ...removeFields(['typeID'], true),
+          ...removeFields(['typeID']),
           include: { model: SourceType, as: 'type', attributes: ['name'], required: true },
         },
       },

@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
-  const { filters = [], id: dashboardID } = dashboard;
+  const { filters = [], id: dashboardID, permission } = dashboard;
   const [filter, setFilter] = useState(null);
   const [compData, setCompData] = useState({});
   const { showDialog: showFilter, toggleDialog: toggleFilter } = useDialog(false);
@@ -149,9 +149,11 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
           <Typography variant='h6' align='left' color='inherit' className={typography}>
             Dashboard Filters
           </Typography>
-          <Button className={button} onClick={newFilter}>
-            <AddCircleIcon className={iconColor} />
-          </Button>
+          {permission !== 'Read-Only' && (
+            <Button className={button} onClick={newFilter}>
+              <AddCircleIcon className={iconColor} />
+            </Button>
+          )}
         </div>
         <Grid container direction='row' justify='space-between'>
           {filters.map(({ configuration, id, name, value }) => {

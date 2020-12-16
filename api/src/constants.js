@@ -10,6 +10,7 @@ const tableNames = {
   dashboardRelation: 'dashboard_relation',
   openDashboard: 'open_dashboard',
   role: 'role',
+  share: 'share',
   source: 'source',
   sourceType: 'source_type',
   workspace: 'workspace',

@@ -1,12 +1,8 @@
-const https = require('https');
 const axios = require('axios');
 const moment = require('moment');
 const { parseStringPromise } = require('xml2js');
 const { Topology, Workunit } = require('@hpcc-js/comms');
 const { getClusterCreds } = require('./clusterCredentials');
-
-// Create axios request instance
-const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 
 const getTargetClusters = async (cluster, userID) => {
   const { id: clusterID, host, infoPort } = cluster;
@@ -14,7 +10,6 @@ const getTargetClusters = async (cluster, userID) => {
 
   const topology = new Topology({
     baseUrl: `${host}:${infoPort}`,
-    rejectUnauthorized: false,
     type: 'POST',
     userID: username,
     password: password,
@@ -31,7 +26,6 @@ const submitWorkunitToCluster = async (cluster, targetCluster, eclScript, userID
     const response = await Workunit.submit(
       {
         baseUrl: `${host}:${infoPort}`,
-        rejectUnauthorized: false,
         type: 'POST',
         userID: username,
         password: password,
@@ -67,7 +61,7 @@ const getECLParamsFromScript = async (cluster, Wuid, userID) => {
   let data;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsWorkunits/WUInfo.json`,
       { WUInfoRequest: { Wuid } },
       { auth: clusterCreds },
@@ -102,7 +96,7 @@ const getWorkunitDataFromCluster = async (cluster, configuration, source, userID
   let data;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsWorkunits/WUResult.json`,
       {
         WUResultRequest: {
@@ -136,7 +130,7 @@ const getWorkunitDataFromClusterWithParams = async (cluster, configuration, para
   let data;
 
   try {
-    const response = await instance.post(
+    const response = await axios.post(
       `${host}:${infoPort}/WsWorkunits/WURun.json`,
       {
         WURunRequest: {

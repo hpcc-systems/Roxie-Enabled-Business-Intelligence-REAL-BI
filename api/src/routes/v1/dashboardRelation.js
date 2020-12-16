@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { getDashboardByID } = require('../../utils/dashboard');
 const {
   createRelation,
   deleteRelation,
@@ -7,9 +8,19 @@ const {
 } = require('../../utils/dashboardRelation');
 
 router.post('/', async (req, res, next) => {
-  const { dashboardID, relationsArr = [] } = req.body;
+  const {
+    body: { dashboardID, relationsArr = [] },
+    user: { id: userID },
+  } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     const promises = relationsArr.map(relationObj => createRelation(relationObj, dashboardID));
     await Promise.all(promises);
 
@@ -20,9 +31,19 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/', async (req, res, next) => {
-  const { relationsArr = [] } = req.body;
+  const {
+    body: { dashboardID, relationsArr = [] },
+    user: { id: userID },
+  } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     const promises = relationsArr.map(relationObj => updateRelation(relationObj));
     await Promise.all(promises);
 
@@ -33,9 +54,19 @@ router.put('/', async (req, res, next) => {
 });
 
 router.delete('/', async (req, res, next) => {
-  const { dashboardID, relationsArr = [] } = req.query;
+  const {
+    query: { dashboardID, relationsArr = [] },
+    user: { id: userID },
+  } = req;
 
   try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
     const promises = relationsArr.map(relationObj => deleteRelation(JSON.parse(relationObj).id));
     await Promise.all(promises);
 
