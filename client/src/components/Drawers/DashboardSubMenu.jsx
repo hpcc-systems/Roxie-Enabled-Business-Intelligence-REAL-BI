@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItemIcon, Menu, MenuItem, Typography } from '@material-ui/core';
 import {
@@ -46,7 +46,7 @@ const DashboardSubMenu = ({
         <Typography>{favorite ? 'Unpin' : 'Pin'}</Typography>
       </MenuItem>
       {permission === 'Owner' && (
-        <Fragment>
+        <div>
           <MenuItem
             onClick={() => {
               editDashboard(directoryObj);
@@ -69,7 +69,7 @@ const DashboardSubMenu = ({
             </ListItemIcon>
             <Typography>Delete</Typography>
           </MenuItem>
-        </Fragment>
+        </div>
       )}
     </Menu>
   );
