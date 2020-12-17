@@ -9,34 +9,20 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel,
 } from '@material-ui/core';
-import classnames from 'classnames';
-
-// Utils
-import { sortArr } from '../../utils/misc';
 
 const useStyles = makeStyles(() => ({
-  activeCell: { fontWeight: 'bold' },
   columnHeader: { textTransform: 'capitalize' },
-  tableCell: { '&:hover': { cursor: 'pointer' } },
 }));
 
-const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
-  const { fields = [] } = configuration;
-  const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
-  const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(fields[0]);
+// Convenient variable to quickly change how many rows the data snippet returns
+const dataSnippetSize = 50;
+
+const DataSnippet = ({ data }) => {
+  const fields = Object.keys(data[0] || {}).filter(field => field !== '__fileposition__');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const { activeCell, columnHeader, tableCell } = useStyles();
-
-  const updateOrderByField = property => {
-    const isAsc = orderBy === property && order === 'asc';
-
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
+  const { columnHeader } = useStyles();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -52,8 +38,8 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
     return null;
   }
 
-  // Sort data
-  data = sortArr(data, orderBy, order);
+  // Slice data to get first x rows
+  data = data.slice(0, dataSnippetSize);
 
   // Reference values
   const rowCount = data.length;
@@ -70,13 +56,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
               {fields.map((field, index) => {
                 return (
                   <TableCell key={index} className={columnHeader}>
-                    <TableSortLabel
-                      active={orderBy === field}
-                      direction={orderBy === field ? order : 'asc'}
-                      onClick={() => updateOrderByField(field)}
-                    >
-                      {field}
-                    </TableSortLabel>
+                    {field}
                   </TableCell>
                 );
               })}
@@ -88,18 +68,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                 <TableRow key={index}>
                   {fields.map((field, index) => {
                     return (
-                      <TableCell
-                        key={index}
-                        component='th'
-                        scope='row'
-                        className={classnames(tableCell, {
-                          [activeCell]:
-                            chartID === interactiveChartID &&
-                            field === interactiveField &&
-                            row[field] === interactiveValue,
-                        })}
-                        onClick={() => interactiveClick(chartID, field, row[field])}
-                      >
+                      <TableCell key={index} component='th' scope='row'>
                         {row[field]}
                       </TableCell>
                     );
@@ -128,4 +97,4 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   );
 };
 
-export default TableComp;
+export default DataSnippet;

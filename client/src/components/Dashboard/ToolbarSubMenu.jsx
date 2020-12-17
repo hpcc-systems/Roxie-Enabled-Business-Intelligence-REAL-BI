@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItemIcon, ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
-import { Close as CloseIcon, Edit as EditIcon } from '@material-ui/icons';
+import { Close as CloseIcon, Edit as EditIcon, TableChart as TableChartIcon } from '@material-ui/icons';
 
 // Constants
 import { chartSizes } from '../../constants';
@@ -12,7 +12,15 @@ const useStyles = makeStyles(theme => ({
   select: { marginLeft: theme.spacing(1), padding: theme.spacing(1, 0, 1, 1.5) },
 }));
 
-const ToolbarSubMenu = ({ anchorEl, chart, setAnchorEl, toggleDialog, removeChart, updateChartWidth }) => {
+const ToolbarSubMenu = ({
+  anchorEl,
+  chart,
+  setAnchorEl,
+  toggleData,
+  toggleEdit,
+  removeChart,
+  updateChartWidth,
+}) => {
   const { configuration, id: chartID, sourceID } = chart;
   const { size = 12 } = configuration;
   const { menuIcon } = useStyles();
@@ -48,7 +56,18 @@ const ToolbarSubMenu = ({ anchorEl, chart, setAnchorEl, toggleDialog, removeChar
       </MenuItem>
       <MenuItem
         onClick={() => {
-          toggleDialog(chartID);
+          toggleData(chartID);
+          closeMenu();
+        }}
+      >
+        <ListItemIcon className={menuIcon}>
+          <TableChartIcon />
+        </ListItemIcon>
+        <ListItemText>View Data Snippet</ListItemText>
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          toggleEdit(chartID);
           closeMenu();
         }}
       >

@@ -12,6 +12,7 @@ import DeleteChartDialog from '../Dialog/DeleteChart';
 import Relations from '../Dialog/Relations';
 import ChartTile from './ChartTile';
 import PdfDialog from '../Dialog/PDF';
+import DataSnippetDialog from '../Dialog/DataSnippet';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDialog: pdfShow, toggleDialog: pdfToggle } = useDialog(false);
+  const { showDialog: dataShow, toggleDialog: dataToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dragItemID = useRef(null);
   const dragNode = useRef(null);
@@ -48,6 +50,11 @@ const Dashboard = () => {
   const editChart = chartID => {
     setChartID(chartID);
     editChartToggle();
+  };
+
+  const showData = chartID => {
+    setChartID(chartID);
+    dataToggle();
   };
 
   const removeChart = async (chartID, sourceID) => {
@@ -179,7 +186,8 @@ const Dashboard = () => {
                 interactiveClick={interactiveClick}
                 interactiveObj={interactiveObj}
                 removeChart={removeChart}
-                toggleDialog={editChart}
+                toggleData={showData}
+                toggleEdit={editChart}
               />
             );
           })}
@@ -209,6 +217,9 @@ const Dashboard = () => {
         )}
         {relationsShow && <Relations show={relationsShow} toggleDialog={relationsToggle} />}
         {pdfShow && <PdfDialog compData={compData} show={pdfShow} toggleDialog={pdfToggle} />}
+        {dataShow && (
+          <DataSnippetDialog data={compData[chartID]?.data || []} show={dataShow} toggleDialog={dataToggle} />
+        )}
       </Container>
     </Fragment>
   );
