@@ -1,23 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
-import { Refresh as RefreshIcon } from '@material-ui/icons';
+import { Refresh as RefreshIcon, TableChart as TableChartIcon } from '@material-ui/icons';
+import classnames from 'classnames';
 
 // Redux Actions
 import { createChart } from '../../features/dashboard/actions';
 
 // React Components
 import ChartEditor from '../ChartEditor';
-import { validateSource } from '../../utils/validate';
+import DataSnippetDialog from './DataSnippet';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
+import useDialog from '../../hooks/useDialog';
 
 // Utils
 import { createChartObj } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
+import { validateSource } from '../../utils/validate';
 
 const initState = {
   configuration: {
@@ -41,23 +44,34 @@ const initState = {
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
+  button: {
+    backgroundColor: theme.palette.info.main,
+    color: theme.palette.info.contrastText,
+  },
+  button2: { minWidth: 20 },
+  button3: { marginRight: theme.spacing(1) },
+  button4: { marginRight: theme.spacing(2) },
+  paper: {
+    maxHeight: '70vh',
+    minHeight: '63vh',
+  },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
 }));
 
 const NewChartDialog = ({ show, toggleDialog }) => {
+  const { showDialog, toggleDialog: toggleData } = useDialog(false);
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
   );
   const eclRef = useRef({});
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { button, toolbar, typography } = useStyles();
+  const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
 
   // Reference values
   const {
-    dataObj: { loading },
+    dataObj: { data = [], loading },
     selectedDataset = {},
     selectedSource = {},
     sourceType,
@@ -140,37 +154,57 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   };
 
   return (
-    <Dialog open={show} fullWidth maxWidth='xl'>
-      <Toolbar className={toolbar}>
-        <Typography variant='h6' color='inherit' className={typography}>
-          New Chart
-        </Typography>
-        {sourceType !== 'ecl' && (
-          <Button disabled={sourceKeys === 0 || datasetKeys === 0 || loading} onClick={updateChartPreview}>
-            <RefreshIcon />
+    <Fragment>
+      <Dialog open={show} fullWidth maxWidth='xl' classes={{ paper }}>
+        <Toolbar className={toolbar}>
+          <Typography variant='h6' color='inherit' className={typography}>
+            New Chart
+          </Typography>
+          <Button
+            className={classnames(button2, button3)}
+            disabled={sourceKeys === 0 || datasetKeys === 0 || loading || data.length === 0}
+            onClick={toggleData}
+          >
+            <TableChartIcon />
           </Button>
-        )}
-      </Toolbar>
-      <DialogContent>
-        <ChartEditor
-          dashboard={dashboard}
-          eclRef={eclRef}
-          handleChange={handleChange}
-          handleChangeArr={handleChangeArr}
-          handleChangeObj={handleChangeObj}
-          handleCheckbox={handleCheckbox}
-          localState={localState}
+          {sourceType !== 'ecl' && (
+            <Button
+              className={classnames(button2, button4)}
+              disabled={sourceKeys === 0 || datasetKeys === 0 || loading}
+              onClick={updateChartPreview}
+            >
+              <RefreshIcon />
+            </Button>
+          )}
+        </Toolbar>
+        <DialogContent>
+          <ChartEditor
+            dashboard={dashboard}
+            eclRef={eclRef}
+            handleChange={handleChange}
+            handleChangeArr={handleChangeArr}
+            handleChangeObj={handleChangeObj}
+            handleCheckbox={handleCheckbox}
+            localState={localState}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color='secondary' onClick={toggleDialog}>
+            Cancel
+          </Button>
+          <Button variant='contained' className={button} onClick={newChart}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {showDialog && (
+        <DataSnippetDialog
+          data={localState?.dataObj?.data?.data || []}
+          show={showDialog}
+          toggleDialog={toggleData}
         />
-      </DialogContent>
-      <DialogActions>
-        <Button color='secondary' onClick={toggleDialog}>
-          Cancel
-        </Button>
-        <Button variant='contained' className={button} onClick={newChart}>
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+      )}
+    </Fragment>
   );
 };
 
