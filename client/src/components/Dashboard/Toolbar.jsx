@@ -3,18 +3,20 @@ import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
   ClickAwayListener,
+  Grid,
   Grow,
+  IconButton,
   MenuList,
   MenuItem,
   Paper,
   Popper,
   Toolbar,
   Typography,
-  Grid,
 } from '@material-ui/core';
 import {
   AddCircle as AddCircleIcon,
   FilterList as FilterListIcon,
+  Info as InfoIcon,
   Refresh as RefreshIcon,
   Share as ShareIcon,
 } from '@material-ui/icons';
@@ -25,13 +27,22 @@ import { canAddCharts, canShareDashboard } from '../../utils/misc';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: theme.spacing(0.75) },
+  info: {
+    marginBottom: theme.spacing(0.5),
+    padding: 0,
+  },
   menuItem: {
     paddingTop: theme.spacing(0.75),
     paddingBottom: theme.spacing(0.75),
     '& > a': { color: 'inherit', display: 'inherit', textDecoration: 'none' },
   },
   toolbar: { float: 'right' },
-  typography: { fontSize: 24, fontWeight: 'bold', marginTop: theme.spacing(3), float: 'right' },
+  typography: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: theme.spacing(3),
+  },
+  typographyInfo: { margin: `${theme.spacing(1)}px auto` },
 }));
 
 const ToolbarComp = ({
@@ -43,34 +54,53 @@ const ToolbarComp = ({
   togglePDF,
   toggleShare,
 }) => {
-  const { name, permission } = dashboard;
+  const {
+    cluster: { name: clusterName, host },
+    name,
+    permission,
+  } = dashboard;
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
+  const anchorRef3 = useRef(null);
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
-  const { button, menuItem, toolbar, typography } = useStyles();
+  const [open3, setOpen3] = useState(false);
+  const { button, info, menuItem, toolbar, typography, typographyInfo } = useStyles();
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
-  };
-
-  const handleToggle2 = () => {
-    setOpen2(prevOpen => !prevOpen);
-  };
-
-  const handleClose = event => {
-    if (!anchorRef.current || !anchorRef.current.contains(event.target)) {
-      setOpen(false);
+  const handleToggle = num => {
+    switch (num) {
+      case 2:
+        return setOpen2(prevState => !prevState);
+      case 3:
+        return setOpen3(prevState => !prevState);
+      default:
+        return setOpen(prevState => !prevState);
     }
+  };
 
-    if (!anchorRef2.current || !anchorRef2.current.contains(event.target)) {
-      return setOpen2(false);
+  const handleClose = (event, num) => {
+    switch (num) {
+      case 2:
+        if (!anchorRef2.current || !anchorRef2.current.contains(event.target)) {
+          setOpen2(false);
+        }
+        break;
+      case 3:
+        if (!anchorRef3.current || !anchorRef3.current.contains(event.target)) {
+          setOpen3(false);
+        }
+        break;
+      default:
+        if (!anchorRef.current || !anchorRef.current.contains(event.target)) {
+          setOpen(false);
+        }
     }
   };
 
   // Return focus to the button when transitioned from !open -> open
   const prevOpen = useRef(open);
   const prevOpen2 = useRef(open2);
+  const prevOpen3 = useRef(open3);
 
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
@@ -81,16 +111,24 @@ const ToolbarComp = ({
       anchorRef2.current.focus();
     }
 
+    if (prevOpen3.current === true && open3 === false) {
+      anchorRef3.current.focus();
+    }
+
     prevOpen.current = open;
     prevOpen2.current = open2;
-  }, [open, open2]);
+    prevOpen3.current = open3;
+  }, [open, open2, open3]);
 
   return (
     <Fragment>
       <Grid container spacing={1}>
         <Grid item xs={6}>
-          <Typography variant='h2' color='inherit' className={typography} align='center'>
-            {name}
+          <Typography variant='h2' color='inherit' className={typography} align='right'>
+            {name}{' '}
+            <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
+              <InfoIcon />
+            </IconButton>
           </Typography>
         </Grid>
         <Grid item xs={6}>
@@ -104,43 +142,11 @@ const ToolbarComp = ({
                   className={button}
                   variant='contained'
                   color='primary'
-                  onClick={handleToggle}
+                  onClick={() => handleToggle(1)}
                   ref={anchorRef}
                 >
                   <AddCircleIcon />
                 </Button>
-
-                {/* Add Element Dropdown */}
-                <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
-                  {({ TransitionProps }) => (
-                    <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleClose}>
-                          <MenuList autoFocusItem={open} id='addElementMenu'>
-                            <MenuItem
-                              className={menuItem}
-                              onClick={e => {
-                                handleClose(e);
-                                toggleNewChartDialog();
-                              }}
-                            >
-                              Add Chart
-                            </MenuItem>
-                            <MenuItem
-                              className={menuItem}
-                              onClick={e => {
-                                handleClose(e);
-                                toggleRelationsDialog();
-                              }}
-                            >
-                              Add Relation
-                            </MenuItem>
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
               </Fragment>
             ) : null}
             <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
@@ -150,48 +156,106 @@ const ToolbarComp = ({
               className={button}
               variant='contained'
               color='primary'
-              onClick={handleToggle2}
+              onClick={() => handleToggle(2)}
               ref={anchorRef2}
             >
               <ShareIcon />
             </Button>
-
-            {/* Share Element Dropdown */}
-            <Popper open={open2} anchorEl={anchorRef2.current} role={undefined} transition>
-              {({ TransitionProps }) => (
-                <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
-                  <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
-                      <MenuList autoFocusItem={open} id='addElementMenu'>
-                        <MenuItem
-                          className={menuItem}
-                          onClick={e => {
-                            handleClose(e);
-                            togglePDF();
-                          }}
-                        >
-                          Create PDF
-                        </MenuItem>
-                        {canShareDashboard(permission) && (
-                          <MenuItem
-                            className={menuItem}
-                            onClick={e => {
-                              handleClose(e);
-                              toggleShare();
-                            }}
-                          >
-                            Share Dashboard
-                          </MenuItem>
-                        )}
-                      </MenuList>
-                    </ClickAwayListener>
-                  </Paper>
-                </Grow>
-              )}
-            </Popper>
           </Toolbar>
         </Grid>
       </Grid>
+
+      {/* Add Element Dropdown */}
+      <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
+        {({ TransitionProps }) => (
+          <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
+            <Paper>
+              <ClickAwayListener onClickAway={e => handleClose(e, 1)}>
+                <MenuList autoFocusItem={open} id='addElementMenu'>
+                  <MenuItem
+                    className={menuItem}
+                    onClick={e => {
+                      handleClose(e, 1);
+                      toggleNewChartDialog();
+                    }}
+                  >
+                    Add Chart
+                  </MenuItem>
+                  <MenuItem
+                    className={menuItem}
+                    onClick={e => {
+                      handleClose(e, 1);
+                      toggleRelationsDialog();
+                    }}
+                  >
+                    Add Relation
+                  </MenuItem>
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+
+      {/* Share Element Dropdown */}
+      <Popper open={open2} anchorEl={anchorRef2.current} role={undefined} transition>
+        {({ TransitionProps }) => (
+          <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
+            <Paper>
+              <ClickAwayListener onClickAway={e => handleClose(e, 2)}>
+                <MenuList autoFocusItem={open} id='addElementMenu'>
+                  <MenuItem
+                    className={menuItem}
+                    onClick={e => {
+                      handleClose(e, 2);
+                      togglePDF();
+                    }}
+                  >
+                    Create PDF
+                  </MenuItem>
+                  {canShareDashboard(permission) && (
+                    <MenuItem
+                      className={menuItem}
+                      onClick={e => {
+                        handleClose(e, 2);
+                        toggleShare();
+                      }}
+                    >
+                      Share Dashboard
+                    </MenuItem>
+                  )}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+
+      {/* Dashboard Info Dropdown */}
+      <Popper open={open3} anchorEl={anchorRef3.current} role={undefined} transition>
+        {({ TransitionProps }) => (
+          <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
+            <Paper elevation={10}>
+              <ClickAwayListener onClickAway={e => handleClose(e, 3)}>
+                <Paper style={{ padding: '4px 24px' }}>
+                  <Typography variant='h6' align='center'>
+                    Dashboard Info
+                  </Typography>
+                  <Typography variant='body2' className={typographyInfo}>
+                    <strong>Permission:</strong> {permission}
+                  </Typography>
+                  <Typography variant='body2' className={typographyInfo}>
+                    <strong>Cluster Name:</strong> {clusterName}
+                  </Typography>
+                  <Typography variant='body2' className={typographyInfo}>
+                    <strong>Cluster Host:</strong> <em>{host}</em>
+                  </Typography>
+                </Paper>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
     </Fragment>
   );
 };
