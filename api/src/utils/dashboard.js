@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const {
   chart: Chart,
   cluster: Cluster,
@@ -9,6 +10,7 @@ const {
   role: Role,
   source: Source,
   source_type: SourceType,
+  user: User,
 } = require('../models');
 const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
@@ -119,4 +121,40 @@ const deleteDashboardByID = async id => {
   return await Dashboard.destroy({ where: { id } });
 };
 
-module.exports = { createDashboard, deleteDashboardByID, getDashboardByID, updateDashboardByID };
+const getSharedDashboardUsers = async (dashboardID, userID) => {
+  const usersArr = await DashboardPermission.findAll({
+    attributes: [['userID', 'id']],
+    where: { dashboardID, userID: { [Op.ne]: userID } },
+    include: {
+      model: Role,
+      attributes: ['name'],
+      required: true,
+    },
+  });
+
+  const users = [];
+
+  for await (let user of usersArr) {
+    user = unNestSequelizeObj(user);
+
+    // Format object
+    user.permission = user.role.name;
+    delete user.role;
+
+    // Add email to user object
+    const userDetails = await User.findOne({ attributes: ['email'], where: { id: user.id } });
+    user.email = unNestSequelizeObj(userDetails)?.email;
+
+    users.push(user);
+  }
+
+  return users;
+};
+
+module.exports = {
+  createDashboard,
+  deleteDashboardByID,
+  getDashboardByID,
+  getSharedDashboardUsers,
+  updateDashboardByID,
+};

@@ -13,6 +13,7 @@ import Relations from '../Dialog/Relations';
 import ChartTile from './ChartTile';
 import PdfDialog from '../Dialog/PDF';
 import DataSnippetDialog from '../Dialog/DataSnippet';
+import SharedWithDialog from '../Dialog/SharedWith';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -39,6 +40,7 @@ const Dashboard = () => {
   const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
   const { showDialog: pdfShow, toggleDialog: pdfToggle } = useDialog(false);
   const { showDialog: dataShow, toggleDialog: dataToggle } = useDialog(false);
+  const { showDialog: sharedWithShow, toggleDialog: sharedWithToggle } = useDialog(false);
   const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
   const dragItemID = useRef(null);
   const dragNode = useRef(null);
@@ -169,6 +171,7 @@ const Dashboard = () => {
         toggleDrawer={toggleFilterDrawer}
         togglePDF={pdfToggle}
         toggleShare={shareLinkToggle}
+        toggleSharedWith={sharedWithToggle}
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
@@ -220,6 +223,7 @@ const Dashboard = () => {
         {dataShow && (
           <DataSnippetDialog data={compData[chartID]?.data || []} show={dataShow} toggleDialog={dataToggle} />
         )}
+        {sharedWithShow && <SharedWithDialog show={sharedWithShow} toggleDialog={sharedWithToggle} />}
       </Container>
     </Fragment>
   );
