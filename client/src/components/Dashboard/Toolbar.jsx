@@ -34,7 +34,16 @@ const useStyles = makeStyles(theme => ({
   menuItem: {
     paddingTop: theme.spacing(0.75),
     paddingBottom: theme.spacing(0.75),
-    '& > a': { color: 'inherit', display: 'inherit', textDecoration: 'none' },
+    '& > a': {
+      color: 'inherit',
+      display: 'inherit',
+      textDecoration: 'none',
+    },
+  },
+  paper: { padding: theme.spacing(1, 3, 1.5, 3) },
+  shareBtn: {
+    backgroundColor: theme.palette.info.main,
+    color: theme.palette.info.contrastText,
   },
   toolbar: { float: 'right' },
   typography: {
@@ -53,6 +62,7 @@ const ToolbarComp = ({
   toggleDrawer,
   togglePDF,
   toggleShare,
+  toggleSharedWith,
 }) => {
   const {
     cluster: { name: clusterName, host },
@@ -65,7 +75,7 @@ const ToolbarComp = ({
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
-  const { button, info, menuItem, toolbar, typography, typographyInfo } = useStyles();
+  const { button, info, menuItem, paper, shareBtn, toolbar, typography, typographyInfo } = useStyles();
 
   const handleToggle = num => {
     switch (num) {
@@ -127,7 +137,7 @@ const ToolbarComp = ({
           <Typography variant='h2' color='inherit' className={typography} align='right'>
             {name}{' '}
             <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
-              <InfoIcon />
+              <InfoIcon fontSize='small' />
             </IconButton>
           </Typography>
         </Grid>
@@ -171,7 +181,7 @@ const ToolbarComp = ({
           <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
             <Paper>
               <ClickAwayListener onClickAway={e => handleClose(e, 1)}>
-                <MenuList autoFocusItem={open} id='addElementMenu'>
+                <MenuList autoFocusItem={open}>
                   <MenuItem
                     className={menuItem}
                     onClick={e => {
@@ -203,7 +213,7 @@ const ToolbarComp = ({
           <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
             <Paper>
               <ClickAwayListener onClickAway={e => handleClose(e, 2)}>
-                <MenuList autoFocusItem={open} id='addElementMenu'>
+                <MenuList autoFocusItem={open}>
                   <MenuItem
                     className={menuItem}
                     onClick={e => {
@@ -237,7 +247,7 @@ const ToolbarComp = ({
           <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
             <Paper elevation={10}>
               <ClickAwayListener onClickAway={e => handleClose(e, 3)}>
-                <Paper style={{ padding: '4px 24px' }}>
+                <Paper className={paper}>
                   <Typography variant='h6' align='center'>
                     Dashboard Info
                   </Typography>
@@ -250,6 +260,17 @@ const ToolbarComp = ({
                   <Typography variant='body2' className={typographyInfo}>
                     <strong>Cluster Host:</strong> <em>{host}</em>
                   </Typography>
+                  <Button
+                    variant='contained'
+                    fullWidth
+                    className={shareBtn}
+                    onClick={e => {
+                      handleClose(e, 3);
+                      toggleSharedWith();
+                    }}
+                  >
+                    View Shared
+                  </Button>
                 </Paper>
               </ClickAwayListener>
             </Paper>

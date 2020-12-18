@@ -11,6 +11,7 @@ const useStyles = makeStyles(() => ({
     maxHeight: '80vh',
     maxWidth: '80vw',
     minHeight: '75vh',
+    minWidth: '75vw',
   },
 }));
 

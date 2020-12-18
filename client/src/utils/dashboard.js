@@ -24,3 +24,12 @@ export const deleteMultipleExistingDashboard = async dashboardIDArray => {
     throw error.response;
   }
 };
+
+export const getSharedWithUsers = async dashboardID => {
+  try {
+    const response = await axios.get('/api/v1/dashboard/shared_with', { params: { dashboardID } });
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};

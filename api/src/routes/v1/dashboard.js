@@ -5,6 +5,7 @@ const {
   createDashboard,
   deleteDashboardByID,
   getDashboardByID,
+  getSharedDashboardUsers,
   updateDashboardByID,
 } = require('../../utils/dashboard');
 const { createDashboardPermission } = require('../../utils/dashboardPermission');
@@ -102,6 +103,28 @@ router.delete('/multiple', async (req, res, next) => {
     await Promise.all(promises);
 
     return res.status(200).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/shared_with', async (req, res, next) => {
+  const {
+    query: { dashboardID },
+    user: { id: userID },
+  } = req;
+
+  try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    const users = await getSharedDashboardUsers(dashboardID, userID);
+
+    return res.status(200).json(users);
   } catch (error) {
     return next(error);
   }
