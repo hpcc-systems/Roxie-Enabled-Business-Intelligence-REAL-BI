@@ -16,15 +16,10 @@ const authenticateToken = async (req, res, next) => {
       throw new Error('Auth Token Required');
     }
 
-    // Create axios request instance
-    const requestInstance = axios.create({
-      url: `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`,
-      method: 'POST',
+    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/verify`, null, {
       headers: { authorization: token },
       httpsAgent: new https.Agent({ rejectUnauthorized: false }),
     });
-
-    response = await requestInstance();
   } catch (err) {
     res.status(err?.response?.status || 500);
     const error = new Error(`${err?.response?.data || 'Unknown error'}`);
