@@ -9,9 +9,6 @@ const { validateChangePassword, validate } = require('../../utils/validation');
 // Constants
 const { AUTH_PORT, AUTH_URL } = process.env;
 
-// Create axios request instance
-const instance = axios.create({ httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-
 router.get('/get_data', async (req, res, next) => {
   try {
     const user = await getUserDetails(req.user.id);
@@ -30,10 +27,10 @@ router.post('/update_password', [validateChangePassword(), validate], async (req
   } = req;
 
   try {
-    await instance.post(
+    await axios.post(
       `${AUTH_URL}:${AUTH_PORT}/api/users/changepwd`,
       { username, oldpassword: oldPwd, newpassword: newPwd, confirmpassword: newPwd2 },
-      { headers: { authorization } },
+      { headers: { authorization }, httpsAgent: new https.Agent({ rejectUnauthorized: false }) },
     );
 
     res.status(200).json({ message: 'Password Updated' });
