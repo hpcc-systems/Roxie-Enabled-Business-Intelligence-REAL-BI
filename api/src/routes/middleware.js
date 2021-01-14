@@ -4,7 +4,7 @@ const logger = require('../config/logger');
 const { getUserByUsername } = require('../utils/user');
 
 // Constants
-const { /* AUTH_CLIENT_ID,*/ AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
+const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
 
 const authenticateToken = async (req, res, next) => {
   let token = req.headers.authorization;
@@ -16,7 +16,9 @@ const authenticateToken = async (req, res, next) => {
       throw new Error('Auth Token Required');
     }
 
-    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/verify`, null, {
+    const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`;
+    const requestBody = { clientId: AUTH_CLIENT_ID };
+    response = await axios.post(requestUrl, requestBody, {
       headers: { authorization: token },
       httpsAgent: new https.Agent({ rejectUnauthorized: false }),
     });
@@ -27,16 +29,8 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    // Get user data from response
-    const { /* role ,*/ username } = response.data.verified;
-    // TEMPORARY (Auth Service Change Coming)
-    // const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId === AUTH_CLIENT_ID);
-
-    // if (!hasPermission) {
-    //   res.status(401);
-    //   throw new Error('User not authorized to use Real BI.');
-    // }
-
+    // Get username from response
+    const { username } = response.data.verified;
     const { id } = await getUserByUsername(username);
 
     // Add user object to request
