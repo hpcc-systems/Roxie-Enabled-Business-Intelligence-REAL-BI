@@ -23,7 +23,9 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
   let response, user;
 
   try {
-    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/login`, req.body, axiosConfig);
+    const requestBody = { ...req.body, clientId: AUTH_CLIENT_ID };
+
+    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/login`, requestBody, axiosConfig);
   } catch (err) {
     res.status(err?.response?.status || 500);
     const error = new Error(`${err?.response?.data || 'Unknown error'}`);
@@ -32,14 +34,7 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
 
   try {
     const token = response.data.accessToken;
-    const { email, /* role ,*/ username } = jwtDecode(token);
-    // TEMPORARY (Auth Service Change Coming)
-    // const hasPermission = role.some(({ User_Roles }) => User_Roles.applicationId === AUTH_CLIENT_ID);
-
-    // if (!hasPermission) {
-    //   res.status(401);
-    //   throw new Error('User not authorized to use Real BI.');
-    // }
+    const { email, username } = jwtDecode(token);
 
     user = await getUserByEmail(email);
 
@@ -58,16 +53,14 @@ router.post('/register', [validateRegistration(), validate], async (req, res, ne
   let responseObj;
 
   try {
-    const response = await axios.post(
-      `${AUTH_URL}:${AUTH_PORT}/api/auth/registerUser`,
-      {
-        ...req.body,
-        clientId: AUTH_CLIENT_ID,
-        confirmpassword: req.body.confirmPassword,
-        role: 'User',
-      },
-      axiosConfig,
-    );
+    const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/registerUser`;
+    const requestBody = {
+      ...req.body,
+      clientId: AUTH_CLIENT_ID,
+      confirmpassword: req.body.confirmPassword,
+      role: 'User',
+    };
+    const response = await axios.post(requestUrl, requestBody, axiosConfig);
 
     // Auth Service will send a 201 if it creates a new user account or a 202 if it modifies an existing account
     responseStatus = response.status;
@@ -102,15 +95,9 @@ router.post('/forgot_password', [validateForgotPassword(), validate], async (req
       : `https://${HOST_HOSTNAME}:${EXTERNAL_HTTPS_PORT}/reset_password`;
 
   try {
-    const response = await axios.post(
-      `${AUTH_URL}:${AUTH_PORT}/api/auth/forgotPassword`,
-      {
-        ...req.body,
-        clientId: AUTH_CLIENT_ID,
-        resetUrl,
-      },
-      axiosConfig,
-    );
+    const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/forgotPassword`;
+    const requestBody = { ...req.body, clientId: AUTH_CLIENT_ID, resetUrl };
+    const response = await axios.post(requestUrl, requestBody, axiosConfig);
 
     return res.status(200).send(response.data);
   } catch (err) {
