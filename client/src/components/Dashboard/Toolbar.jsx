@@ -31,6 +31,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(0.5),
     padding: 0,
   },
+  infoCard: { marginTop: theme.spacing(1) },
   menuItem: {
     paddingTop: theme.spacing(0.75),
     paddingBottom: theme.spacing(0.75),
@@ -75,7 +76,17 @@ const ToolbarComp = ({
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
-  const { button, info, menuItem, paper, shareBtn, toolbar, typography, typographyInfo } = useStyles();
+  const {
+    button,
+    info,
+    infoCard,
+    menuItem,
+    paper,
+    shareBtn,
+    toolbar,
+    typography,
+    typographyInfo,
+  } = useStyles();
 
   const handleToggle = num => {
     switch (num) {
@@ -245,7 +256,7 @@ const ToolbarComp = ({
       <Popper open={open3} anchorEl={anchorRef3.current} role={undefined} transition>
         {({ TransitionProps }) => (
           <Grow {...TransitionProps} style={{ transformOrigin: 'center bottom' }}>
-            <Paper elevation={10}>
+            <Paper elevation={10} classes={{ root: infoCard }}>
               <ClickAwayListener onClickAway={e => handleClose(e, 3)}>
                 <Paper className={paper}>
                   <Typography variant='h6' align='center'>
@@ -258,7 +269,7 @@ const ToolbarComp = ({
                     <strong>Cluster Name:</strong> {clusterName}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Cluster Host:</strong> <em>{host}</em>
+                    <strong>Cluster Host:</strong> {host}
                   </Typography>
                   <Button
                     variant='contained'

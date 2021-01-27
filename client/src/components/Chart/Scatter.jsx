@@ -1,9 +1,9 @@
 import React from 'react';
 import { Scatter } from '@ant-design/charts';
-import moment from 'moment';
+import _ from 'lodash';
 
 // Utils
-import { sortArr, thousandsSeparator } from '../../utils/misc';
+import { formatValue, thousandsSeparator } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
@@ -16,7 +16,7 @@ const ScatterComp = ({ data, configuration, pdfPreview }) => {
     showDataLabels = false,
     sortBy = {},
   } = configuration;
-  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = '' } = sortBy;
+  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = xValue } = sortBy;
 
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
@@ -29,42 +29,22 @@ const ScatterComp = ({ data, configuration, pdfPreview }) => {
   // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [groupByValue]:
-      groupByType === 'date'
-        ? moment(String(row[groupByValue])).format('L')
-        : groupByType === 'number'
-        ? Number(row[groupByValue])
-        : String(row[groupByValue]),
-    [xValue]:
-      xType === 'date'
-        ? moment(String(row[xValue])).format('L')
-        : xType === 'number'
-        ? Number(row[xValue])
-        : String(row[xValue]),
-    [yValue]:
-      yType === 'date'
-        ? moment(String(row[yValue])).format('L')
-        : yType === 'number'
-        ? Number(row[yValue])
-        : String(row[yValue]),
+    [groupByValue]: formatValue(groupByType, row[groupByValue]),
+    [xValue]: formatValue(xType, row[xValue]),
+    [yValue]: formatValue(yType, row[yValue]),
   }));
 
   // Determine how to sort data array
-  if (sortValue === '' || sortValue === xValue) {
-    data = sortArr(data, xValue, sortOrder);
+  /*
+    If sortValue === xValue then when mapping over array, create a new key in object to prevent overwriting
+    the formatted ouput the user sees on the chart
+  */
+  if (sortValue === xValue) {
+    data = data.map(row => ({ ...row, [`sort${sortValue}`]: formatValue(sortType, row[sortValue], true) }));
+    data = _.orderBy(data, [`sort${sortValue}`], [sortOrder]);
   } else {
-    // Convert necessary values to specified data type
-    data = data.map(row => ({
-      ...row,
-      [sortValue]:
-        sortType === 'date'
-          ? moment(String(row[sortValue])).format('L')
-          : sortType === 'number'
-          ? Number(row[sortValue])
-          : String(row[sortValue]),
-    }));
-
-    data = sortArr(data, sortValue, sortOrder);
+    data = data.map(row => ({ ...row, [sortValue]: formatValue(sortType, row[sortValue], true) }));
+    data = _.orderBy(data, [sortValue], [sortOrder]);
   }
 
   const chartConfig = {

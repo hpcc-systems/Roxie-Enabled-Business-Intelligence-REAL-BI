@@ -17,13 +17,13 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
+import _ from 'lodash';
 
 // Redux Actions
 import { getClusters } from '../../features/cluster/actions';
 
 // Utils
 import { checkForClusterCreds } from '../../utils/clusterCredentials';
-import { sortArr } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -98,7 +98,7 @@ const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDi
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={checkForAuth}>
-            {sortArr(clusters, 'id').map(({ host, id, infoPort, name }) => {
+            {_.orderBy(clusters, ['name'], ['asc']).map(({ host, id, infoPort, name }) => {
               return (
                 <MenuItem key={id} value={id}>
                   {`${name} (${host}:${infoPort})`}

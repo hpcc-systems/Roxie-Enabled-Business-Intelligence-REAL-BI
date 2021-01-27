@@ -1,43 +1,4 @@
-export const sortArr = (arr, field = '', order = 'asc') => {
-  if (!field) return arr;
-
-  arr.sort((a, b) => {
-    let aField, bField, nestedObj, nestedField;
-
-    // Sort by a nested objects field
-    if (field.includes('::')) {
-      [nestedObj, nestedField] = field.split('::');
-      aField = a[nestedObj][nestedField] == null ? '' : a[nestedObj][nestedField];
-      bField = b[nestedObj][nestedField] == null ? '' : b[nestedObj][nestedField];
-    } else {
-      aField = a[field] == null ? '' : a[field];
-      bField = b[field] == null ? '' : b[field];
-    }
-
-    // Format value
-    aField = isNaN(Number(aField)) ? aField.trim().toLowerCase() : Number(aField);
-    bField = isNaN(Number(bField)) ? bField.trim().toLowerCase() : Number(bField);
-
-    // Sort value
-    let value = 0;
-
-    if (aField < bField) {
-      value = -1;
-    } else if (aField > bField) {
-      value = 1;
-    } else {
-      value = 0;
-    }
-
-    if (order === 'desc' && value !== 0) {
-      value = -value;
-    }
-
-    return value;
-  });
-
-  return arr;
-};
+import moment from 'moment';
 
 // Convert a number to a string with a thousands place separator
 export const thousandsSeparator = num => {
@@ -150,4 +111,14 @@ export const getMessage = (sourceType, isFilter = false) => {
   }
 
   return message;
+};
+
+export const formatValue = (type, value, returnDate = false) => {
+  if (type === 'date') {
+    return returnDate ? new Date(String(value)) : moment(String(value)).format('L');
+  } else if (type === 'time') {
+    return returnDate ? new Date(String(value)) : moment(String(value)).format('LT');
+  }
+
+  return type === 'number' ? Number(value) : String(value);
 };

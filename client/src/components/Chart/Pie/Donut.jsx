@@ -1,9 +1,9 @@
 import React from 'react';
 import { Donut } from '@ant-design/charts';
-import moment from 'moment';
 
 // Constants
 import { chartFillColor } from '../../../constants';
+import { formatValue } from '../../../utils/misc';
 
 const DonutComp = ({
   chartID,
@@ -30,18 +30,8 @@ const DonutComp = ({
   // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [nameValue]:
-      nameType === 'date'
-        ? moment(String(row[nameValue])).format('L')
-        : nameType === 'number'
-        ? Number(row[nameValue])
-        : String(row[nameValue]),
-    [value]:
-      valueType === 'date'
-        ? moment(String(row[value])).format('L')
-        : valueType === 'number'
-        ? Number(row[value])
-        : String(row[value]),
+    [nameValue]: formatValue(nameType, row[nameValue]),
+    [value]: formatValue(valueType, row[value]),
   }));
 
   const chartConfig = {

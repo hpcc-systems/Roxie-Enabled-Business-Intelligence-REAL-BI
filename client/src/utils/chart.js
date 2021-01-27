@@ -33,7 +33,12 @@ export const createChartObj = (localState, ecl) => {
   // Move ecl values to configuration object root
   if (sourceType === 'ecl') {
     const newDataset = !ecl.dataset ? dataset : ecl.dataset;
-    const newParams = !ecl.params ? params : [...ecl.params, ...params];
+    let newParams = !ecl.params ? params : [...ecl.params, ...params];
+
+    // Remove duplicate parameters
+    newParams = newParams.filter((param, index, self) => {
+      return index === self.findIndex(t => t.name === param.name);
+    });
 
     newConfig = { ...newConfig, dataset: newDataset, params: newParams };
 

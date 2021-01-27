@@ -3,6 +3,7 @@ import { Gauge } from '@ant-design/charts';
 
 // Constants
 import { chartFillColor } from '../../constants';
+import { formatValue } from '../../utils/misc';
 
 const GaugeComp = ({ data, configuration, pdfPreview }) => {
   const {
@@ -37,10 +38,7 @@ const GaugeComp = ({ data, configuration, pdfPreview }) => {
   };
 
   // Convert necessary values to numbers
-  data = data.map(row => ({
-    ...row,
-    [value]: valueType === 'number' ? Number(row[value]) : String(row[value]),
-  }));
+  data = data.map(row => ({ ...row, [value]: formatValue(valueType, row[value]) }));
 
   const chartConfig = {
     color: ['#39B8FF', '#52619B', '#43E089', '#C0EDF3'],

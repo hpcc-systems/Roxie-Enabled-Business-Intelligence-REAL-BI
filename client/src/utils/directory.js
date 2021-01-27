@@ -1,5 +1,4 @@
-// Utils
-import { sortArr } from './misc';
+import _ from 'lodash';
 
 export const getDashboardIDsFromFolder = (directoryObj, dashboardIDs) => {
   directoryObj.children.forEach(child => {
@@ -34,7 +33,7 @@ export const getDashboardsFromDirectory = (directory, dashboards) => {
   });
 
   // Sort by Name
-  dashboards = sortArr(dashboards, 'name');
+  dashboards = _.orderBy(dashboards, ['name'], ['asc']);
 
   return dashboards;
 };
@@ -58,7 +57,7 @@ export const getFavoriteDashboards = dashboards => {
   dashboards = dashboards.filter(({ favorite }) => favorite === true);
 
   // Sort by Name
-  dashboards = sortArr(dashboards, 'name');
+  dashboards = _.orderBy(dashboards, ['name'], ['asc']);
 
   return dashboards;
 };

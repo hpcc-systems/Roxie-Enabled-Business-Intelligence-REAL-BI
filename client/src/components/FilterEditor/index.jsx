@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -13,10 +13,11 @@ import {
 } from '@material-ui/core';
 
 // React Components
-import { ECLEditor, Mapper, Source } from './Tabs';
+import { DateRange, ECLEditor, Mapper, Source } from './Tabs';
 
 // Constants
-import { sourceOptions } from '../../constants';
+import { filterTypeOptions, sourceOptions } from '../../constants';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -28,7 +29,7 @@ const tabOptions = ['ECL Script', 'Source', 'Targets'];
 
 const FilterEditor = props => {
   const { handleChange, localState } = props;
-  const { errors = [], name, sourceType } = localState;
+  const { errors = [], filterType, minDate, maxDate, name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid } = useStyles();
@@ -38,24 +39,47 @@ const FilterEditor = props => {
     handleChange(event);
   };
 
+  const resetTabIndex = event => {
+    setTabIndex(0);
+    handleChange(event);
+  };
+
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
   };
+
+  const isDateField = filterType === 'dateField' || filterType === 'dateRange';
 
   useEffect(() => {
     // Get percentage of tab width
     if (sourceType === 'ecl') {
       setTabPercentage('33.3%');
+    } else if (isDateField) {
+      setTabPercentage('100%');
     } else {
       setTabPercentage('50%');
     }
-  }, [sourceType]);
+  }, [filterType, sourceType]);
 
   const nameErr = errors.find(err => err['name']);
 
   return (
     <Grid container direction='row' spacing={1} className={grid}>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
+        <FormControl fullWidth>
+          <InputLabel>Filter Type</InputLabel>
+          <Select name='filterType' value={filterType} onChange={resetTabIndex}>
+            {filterTypeOptions.map(({ label, value }, index) => {
+              return (
+                <MenuItem key={index} value={value}>
+                  {label}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={6}>
         <TextField
           fullWidth
           label='Filter Name'
@@ -66,27 +90,61 @@ const FilterEditor = props => {
           helperText={nameErr !== undefined ? nameErr['name'] : ''}
         />
       </Grid>
-      <Grid item xs={12}>
-        <FormControl fullWidth>
-          <InputLabel>Source Type</InputLabel>
-          <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
-            {sourceOptions.map((option, index) => {
-              return (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      </Grid>
+      {!isDateField ? (
+        <Grid item xs={12}>
+          <FormControl fullWidth>
+            <InputLabel>Source Type</InputLabel>
+            <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
+              {sourceOptions.map((option, index) => {
+                return (
+                  <MenuItem key={index} value={option}>
+                    {option}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+      ) : filterType === 'dateRange' ? (
+        <Fragment>
+          <Grid item xs={6}>
+            <KeyboardDatePicker
+              fullWidth
+              disableToolbar
+              variant='inline'
+              format='MM/dd/yyyy'
+              margin='normal'
+              label='Minimum Date'
+              value={minDate || ''}
+              onChange={(date, value) => handleChange({ target: { name: 'minDate', value } })}
+              autoOk
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <KeyboardDatePicker
+              fullWidth
+              disableToolbar
+              variant='inline'
+              format='MM/dd/yyyy'
+              margin='normal'
+              label='Maximum Date'
+              value={maxDate || new Date()}
+              onChange={(date, value) => handleChange({ target: { name: 'minDate', value } })}
+              autoOk
+            />
+          </Grid>
+        </Fragment>
+      ) : null}
       <AppBar className={appbar} position='static' color='inherit'>
         <Tabs value={tabIndex} onChange={changeTabIndex}>
           {tabOptions.map((option, index) => {
             /*
               Do not show the 'ECL Script' tab if the source type is not 'ecl'
+              Do not show the source tab if the filter type is the date slider
             */
             if (sourceType !== 'ecl' && option === 'ECL Script') {
+              return null;
+            } else if (isDateField && option === 'Source') {
               return null;
             }
 
@@ -98,8 +156,7 @@ const FilterEditor = props => {
       </AppBar>
       {(() => {
         // Get correct position based on source type and tab index
-        // If sourceType === 'ecl', skip parameters tab
-        const tabNum = sourceType !== 'ecl' ? tabIndex + 1 : tabIndex;
+        const tabNum = sourceType !== 'ecl' ? (isDateField ? tabIndex + 2 : tabIndex + 1) : tabIndex;
 
         switch (tabNum) {
           case 0:
@@ -111,7 +168,11 @@ const FilterEditor = props => {
           case 1:
             return <Source {...props} />;
           case 2:
-            return <Mapper {...props} />;
+            if (filterType !== 'dateRange') {
+              return <Mapper {...props} />;
+            }
+
+            return <DateRange {...props} />;
           default:
             return 'Unknown Tab';
         }

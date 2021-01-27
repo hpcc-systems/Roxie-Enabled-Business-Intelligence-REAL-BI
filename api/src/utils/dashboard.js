@@ -32,12 +32,11 @@ const getDashboardByID = async (id, userID) => {
         as: 'filters',
         ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
         include: [
-          { model: Cluster, ...removeFields([]), required: true },
+          { model: Cluster, ...removeFields([]) },
           {
             model: Source,
             as: 'source',
             ...removeFields(['typeID']),
-            required: true,
             include: { model: SourceType, as: 'type', attributes: ['name'], required: true },
           },
           {
@@ -96,8 +95,12 @@ const getDashboardByID = async (id, userID) => {
   });
   dashboard.filters = dashboard.filters.map(filter => {
     filter = unNestSequelizeObj(filter);
-    filter.source = unNestSequelizeObj(filter.source);
-    filter.source.type = filter.source.type.name;
+
+    if (filter.source) {
+      filter.source = unNestSequelizeObj(filter.source);
+      filter.source.type = filter.source.type.name;
+    }
+
     filter.value = filter.value[0];
 
     return filter;

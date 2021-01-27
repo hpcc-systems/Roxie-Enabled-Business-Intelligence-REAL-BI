@@ -66,9 +66,15 @@ router.get('/data', async (req, res, next) => {
     dashboardFilters.forEach(filter => {
       const { configuration, value } = filter;
 
-      configuration.params.forEach(({ targetChart, targetParam }) => {
+      configuration.params.forEach(({ targetChart, targetParam, dateRangePosition }) => {
         if (chartID === targetChart) {
-          dashboardParams.push({ name: targetParam, value });
+          if (configuration.type === 'dateRange') {
+            const valuesArr = value.split(',');
+            const dateValue = dateRangePosition === 'Start' ? valuesArr[0] : valuesArr[1];
+            dashboardParams.push({ name: targetParam, value: dateValue });
+          } else {
+            dashboardParams.push({ name: targetParam, value });
+          }
         }
       });
     });

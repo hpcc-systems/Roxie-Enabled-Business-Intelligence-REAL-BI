@@ -36,6 +36,7 @@ const useStyles = makeStyles(theme => ({
 const initState = {
   error: '',
   errors: [],
+  filterType: 'valuesDropdown',
   keyword: '',
   name: '',
   selectedDataset: '',
@@ -59,23 +60,26 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   useEffect(() => {
     if (filter) {
       const {
-        configuration: { dataset, field, name: filterName, params = [] },
+        configuration: { dataset, field, type: filterType, minDate, maxDate, name: filterName, params = [] },
         ecl = {},
-        source: { id, name, type },
+        source = {},
       } = filter;
 
       const newState = {
         datasets: [],
         error: '',
-        keyword: name,
+        filterType,
+        keyword: source?.name || '',
+        minDate,
+        maxDate,
         name: filterName,
-        params: [...params, { targetChart: '', targetParam: '' }],
+        params: [...params, { datePart: '', targetChart: '', targetParam: '' }],
         sourceDataset: dataset,
         selectedSource: {},
         sources: [],
         sourceField: field,
-        sourceID: id,
-        sourceType: type,
+        sourceID: source?.id || '',
+        sourceType: source?.type || '',
       };
 
       resetState(newState);
@@ -88,6 +92,7 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   }, [handleChange, localState.sourceType]);
 
   const saveFilter = async () => {
+    const { filterType } = localState;
     let sourceID;
 
     try {
@@ -96,18 +101,21 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
       return handleChange(null, { name: 'errors', value: errors });
     }
 
-    const sourceObj = createSourceObj(localState, eclRef.current);
-    const newFilterObj = createFilterObj(localState, eclRef.current);
-
     setLoading(true);
 
-    try {
-      const newSource = await createSource(sourceObj);
-      sourceID = newSource.id;
-    } catch (error) {
-      setLoading(false);
-      return handleChange(null, { name: 'error', value: error.message });
+    if (filterType !== 'dateRange' && filterType !== 'dateField') {
+      const sourceObj = createSourceObj(localState, eclRef.current);
+
+      try {
+        const newSource = await createSource(sourceObj);
+        sourceID = newSource.id;
+      } catch (error) {
+        setLoading(false);
+        return handleChange(null, { name: 'error', value: error.message });
+      }
     }
+
+    const newFilterObj = createFilterObj(localState, eclRef.current);
 
     try {
       let action;

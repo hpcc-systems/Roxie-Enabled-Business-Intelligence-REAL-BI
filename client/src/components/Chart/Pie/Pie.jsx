@@ -1,9 +1,8 @@
 import React from 'react';
 import { Pie } from '@ant-design/charts';
-import moment from 'moment';
 
 // Utils
-import { thousandsSeparator } from '../../../utils/misc';
+import { formatValue, thousandsSeparator } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
@@ -30,18 +29,8 @@ const PieComp = ({ data, configuration, pdfPreview }) => {
   // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
-    [nameValue]:
-      nameType === 'date'
-        ? moment(String(row[nameValue])).format('L')
-        : nameType === 'number'
-        ? Number(row[nameValue])
-        : String(row[nameValue]),
-    [value]:
-      valueType === 'date'
-        ? moment(String(row[value])).format('L')
-        : valueType === 'number'
-        ? Number(row[value])
-        : String(row[value]),
+    [nameValue]: formatValue(nameType, row[nameValue]),
+    [value]: formatValue(valueType, row[value]),
   }));
 
   const total = data.map(obj => obj[value]).reduce(reducer); // Gets total of yAxis values

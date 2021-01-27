@@ -118,7 +118,7 @@ const getWorkunitDataFromCluster = async (cluster, configuration, source, userID
     throw new Error(`${Code} -> ${Message}`);
   }
 
-  data = data['WUResultResponse']['Result'][configuration.dataset].Row || [];
+  data = data?.WUResultResponse?.Result?.[configuration.dataset]?.Row || [];
 
   return { lastModifiedDate: createScriptLastModifiedDate(), data };
 };
@@ -152,12 +152,16 @@ const getWorkunitDataFromClusterWithParams = async (cluster, configuration, para
     throw new Error(`${Code} -> ${Message}`);
   }
 
-  const parsedXML = await parseStringPromise(data['WURunResponse']['Results']);
+  if (!data?.WURunResponse?.Results) {
+    return { lastModifiedDate: createScriptLastModifiedDate(), data: [] };
+  }
+
+  const parsedXML = await parseStringPromise(data.WURunResponse.Results);
   const dataObj = parsedXML.Result.Dataset.find(obj => obj['$'].name === configuration.dataset);
   const schemaArr = configuration.ecl.schema.map(({ name }) => name);
   data = [];
 
-  if (Object.keys(dataObj).length > 0) {
+  if (Object.keys(dataObj).length > 0 && dataObj.Row) {
     dataObj.Row.forEach(obj => {
       const newObj = {};
       schemaArr.forEach(field => (newObj[field] = obj[field].join('')));

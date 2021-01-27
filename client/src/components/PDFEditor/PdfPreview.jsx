@@ -1,12 +1,10 @@
 import React from 'react';
 import { Container, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash';
 
 // React Components
 import ChartTile from '../Dashboard/ChartTile';
-
-// Utils
-import { sortArr } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -33,7 +31,7 @@ const PdfPreview = ({ charts, compData, dashboard, localState }) => {
         )}
 
         <Grid container direction='row' spacing={3}>
-          {sortArr(charts, 'configuration::sort').map((chart, index) => {
+          {_.orderBy(charts, [({ configuration }) => configuration.sort], ['asc']).map((chart, index) => {
             return (
               <ChartTile
                 key={index}

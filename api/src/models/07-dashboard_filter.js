@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       configuration: createJsonObject(DataTypes),
       clusterID: createFKField(DataTypes),
       dashboardID: createFKField(DataTypes),
-      sourceID: createFKField(DataTypes),
+      sourceID: createFKField(DataTypes, true),
       ...createDateTimeStamps(DataTypes),
     },
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.dashboardFilter },

@@ -12,9 +12,7 @@ import {
   TableSortLabel,
 } from '@material-ui/core';
 import classnames from 'classnames';
-
-// Utils
-import { sortArr } from '../../utils/misc';
+import _ from 'lodash';
 
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
@@ -53,7 +51,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   }
 
   // Sort data
-  data = sortArr(data, orderBy, order);
+  data = _.orderBy(data, [orderBy], [order]);
 
   // Reference values
   const rowCount = data.length;

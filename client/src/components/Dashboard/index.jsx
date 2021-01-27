@@ -1,6 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid } from '@material-ui/core';
+import _ from 'lodash';
 
 // React Components
 import Toolbar from './Toolbar';
@@ -24,7 +25,6 @@ import { updateChart } from '../../features/dashboard/actions';
 
 // Utils
 import { getChartData } from '../../utils/chart';
-import { sortArr } from '../../utils/misc';
 
 const Dashboard = () => {
   const [chartID, setChartID] = useState(null);
@@ -175,7 +175,7 @@ const Dashboard = () => {
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
-          {sortArr(charts, 'configuration::sort').map((chart, index) => {
+          {_.orderBy(charts, [({ configuration }) => configuration.sort], ['asc']).map((chart, index) => {
             return (
               <ChartTile
                 key={index}
