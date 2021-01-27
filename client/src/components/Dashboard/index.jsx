@@ -175,25 +175,27 @@ const Dashboard = () => {
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
-          {_.orderBy(charts, [({ configuration }) => configuration.sort], ['asc']).map((chart, index) => {
-            return (
-              <ChartTile
-                key={index}
-                chart={chart}
-                compData={compData}
-                dashboard={dashboard}
-                dragging={dragging}
-                dragItemID={dragItemID}
-                handleDragEnter={handleDragEnter}
-                handleDragStart={handleDragStart}
-                interactiveClick={interactiveClick}
-                interactiveObj={interactiveObj}
-                removeChart={removeChart}
-                toggleData={showData}
-                toggleEdit={editChart}
-              />
-            );
-          })}
+          {_.orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
+            (chart, index) => {
+              return (
+                <ChartTile
+                  key={index}
+                  chart={chart}
+                  compData={compData}
+                  dashboard={dashboard}
+                  dragging={dragging}
+                  dragItemID={dragItemID}
+                  handleDragEnter={handleDragEnter}
+                  handleDragStart={handleDragStart}
+                  interactiveClick={interactiveClick}
+                  interactiveObj={interactiveObj}
+                  removeChart={removeChart}
+                  toggleData={showData}
+                  toggleEdit={editChart}
+                />
+              );
+            },
+          )}
         </Grid>
 
         {showFilterDrawer && (

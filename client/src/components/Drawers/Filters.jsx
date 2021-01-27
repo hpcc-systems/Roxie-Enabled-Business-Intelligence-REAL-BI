@@ -199,16 +199,18 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
                         className={fontColor}
                       >
                         {(() => {
-                          return _.orderBy(data, [({ configuration }) => configuration.field], ['asc']).map(
-                            (object, index) => {
-                              const value = object[configuration.field];
-                              return (
-                                <MenuItem key={index} value={value}>
-                                  {value}
-                                </MenuItem>
-                              );
-                            },
-                          );
+                          return _.orderBy(
+                            data,
+                            [({ configuration }) => configuration?.field || ''],
+                            ['asc'],
+                          ).map((object, index) => {
+                            const value = object[configuration.field];
+                            return (
+                              <MenuItem key={index} value={value}>
+                                {value}
+                              </MenuItem>
+                            );
+                          });
                         })()}
                       </Select>
                     </FormControl>

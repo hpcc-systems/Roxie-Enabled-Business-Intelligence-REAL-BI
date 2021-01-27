@@ -31,17 +31,19 @@ const PdfPreview = ({ charts, compData, dashboard, localState }) => {
         )}
 
         <Grid container direction='row' spacing={3}>
-          {_.orderBy(charts, [({ configuration }) => configuration.sort], ['asc']).map((chart, index) => {
-            return (
-              <ChartTile
-                key={index}
-                chart={chart}
-                compData={compData}
-                dashboard={dashboard}
-                pdfPreview={true}
-              />
-            );
-          })}
+          {_.orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
+            (chart, index) => {
+              return (
+                <ChartTile
+                  key={index}
+                  chart={chart}
+                  compData={compData}
+                  dashboard={dashboard}
+                  pdfPreview={true}
+                />
+              );
+            },
+          )}
         </Grid>
       </Container>
     </div>
