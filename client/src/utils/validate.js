@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const validateSource = (state, eclRef) => {
   const { selectedDataset = {}, selectedSource = {}, sourceType } = state;
   const errors = [];
@@ -33,14 +35,8 @@ export const validateSource = (state, eclRef) => {
 };
 
 export const validateFilter = (state, eclRef) => {
-  validateSource(state, eclRef);
-
-  const { name, params, sourceField } = state;
+  const { filterType, minDate, name, params, sourceField } = state;
   const errors = [];
-
-  if (!sourceField) {
-    errors.push({ sourceField: 'Select a field of values' });
-  }
 
   if (name === '') {
     errors.push({ name: 'Provide a name for this filter' });
@@ -59,6 +55,32 @@ export const validateFilter = (state, eclRef) => {
       }
     }
   });
+
+  if (filterType !== 'dateRange' && filterType !== 'dateField') {
+    validateSource(state, eclRef);
+
+    if (!sourceField) {
+      errors.push({ sourceField: 'Select a field of values' });
+    }
+  } else {
+    if (filterType !== 'dateField') {
+      if (!params[0].dateRangePosition) {
+        errors.push({ dateRangePosition0: 'Specify the date range position' });
+      }
+
+      params.forEach(({ dateRangePosition, targetChart, targetParam }, index) => {
+        if (index > 0) {
+          if ((targetChart !== '' || targetParam === '') && dateRangePosition === '') {
+            errors.push({ [`dateRangePosition${index}`]: 'Specify the date range position' });
+          }
+        }
+      });
+
+      if (!minDate || !moment(minDate).isValid()) {
+        errors.push({ minDate: 'Valid Date Required' });
+      }
+    }
+  }
 
   if (errors.length > 0) throw errors;
   return;

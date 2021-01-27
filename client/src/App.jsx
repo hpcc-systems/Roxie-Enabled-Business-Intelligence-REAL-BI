@@ -3,6 +3,8 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
 // Redux Store
 import store from './store';
@@ -52,7 +54,8 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <CssBaseline>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <CssBaseline />
           <Router>
             <Switch>
               <Route exact path='/' component={Login} />
@@ -64,7 +67,7 @@ const App = () => {
               <PrivateRoute exact path='/changepwd' component={ChangePwd} />
             </Switch>
           </Router>
-        </CssBaseline>
+        </MuiPickersUtilsProvider>
       </ThemeProvider>
     </Provider>
   );

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Histogram } from '@ant-design/charts';
-import moment from 'moment';
+import _ from 'lodash';
 
 // Utils
-import { sortArr } from '../../utils/misc';
+import { formatValue } from '../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../constants';
@@ -22,19 +22,9 @@ const HistogramComp = ({ data, configuration, pdfPreview }) => {
     return null;
   }
 
-  // Convert necessary values to specified data type
-  data = data.map(row => ({
-    ...row,
-    [xValue]:
-      xType === 'date'
-        ? moment(String(row[xValue])).format('L')
-        : xType === 'number'
-        ? Number(row[xValue])
-        : String(row[xValue]),
-  }));
-
-  // Sort data in ascending order
-  data = sortArr(data, xValue, sortOrder);
+  // Convert necessary values to specified data type and sort the array
+  data = data.map(row => ({ ...row, [`sort${xValue}`]: formatValue(xType, row[xValue], true) }));
+  data = _.orderBy(data, [`sort${xValue}`], [sortOrder]);
 
   const chartConfig = {
     binField: xValue,

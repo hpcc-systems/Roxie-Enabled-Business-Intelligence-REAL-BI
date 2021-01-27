@@ -1,14 +1,28 @@
 import axios from 'axios';
 
 export const createFilterObj = (localState, ecl) => {
-  const { name, sourceDataset, sourceField, sourceType, params } = localState;
+  const { filterType, minDate, maxDate, name, sourceDataset, sourceField, sourceType, params } = localState;
 
   // Get array of objects that are complete
   const completeParams = params.filter(({ targetChart, targetParam }) => {
     return targetChart !== '' && targetParam !== '';
   });
 
-  const newFilter = { dataset: sourceDataset, field: sourceField, name, params: completeParams };
+  const newFilter = {
+    dataset: sourceDataset,
+    field: sourceField,
+    name,
+    params: completeParams,
+    type: filterType,
+  };
+
+  if (filterType === 'dateRange') {
+    newFilter.minDate = minDate;
+    newFilter.maxDate = maxDate;
+  } else {
+    delete newFilter.minDate;
+    delete newFilter.maxDate;
+  }
 
   // Move ecl value to object root
   if (sourceType === 'ecl') {
@@ -32,8 +46,14 @@ export const getFilterData = async (clusterID, filterID) => {
   }
 };
 
-export const getFilterValue = valueObj => {
-  if (!valueObj || !valueObj.value) return [];
+export const getFilterValue = (valueObj, type) => {
+  if (!valueObj || !valueObj.value) {
+    if (type === 'dateField') {
+      return '';
+    }
+
+    return [];
+  }
 
   const { dataType, value } = valueObj;
   let convertedValue;

@@ -14,36 +14,40 @@ import {
 } from '@material-ui/core';
 import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@material-ui/icons';
 import { grey } from '@material-ui/core/colors';
+import clsx from 'clsx';
+import _ from 'lodash';
 
 // Redux Actions
 import { deleteExistingFilter, updateFilterValue } from '../../features/dashboard/actions.js';
 
 // React Components
 import Filters from '../Dialog/Filters.jsx';
+import DateRange from '../DateRange';
+import DateField from '../DateField';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
 // Utils
-import { sortArr } from '../../utils/misc';
 import { getFilterData, getFilterValue, getFilterValueType } from '../../utils/dashboardFilter.js';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
-  deleteBtn: { margin: theme.spacing(4, 0, 0, 0), padding: theme.spacing(0, 2, 0, 0) },
-  drawer: { width: 'auto', minWidth: 250, maxWidth: 250 },
+  deleteBtn: { margin: theme.spacing(4, 2, 0, 1), padding: theme.spacing(0, 2, 0, 0) },
+  drawer: {},
   drawerClose: { width: 0 },
   drawerPaper: {
     backgroundColor: theme.palette.primary.main,
     marginTop: theme.spacing(8.125),
   },
   drawerPaperClose: { width: 0 },
-  editBtn: { margin: theme.spacing(4, 0, 0, 0), padding: 0 },
+  editBtn: { margin: theme.spacing(4, 0, 0, 1), padding: 0 },
   fontColor: { color: grey[50] },
   formControl: { color: grey[50], margin: theme.spacing(1) },
   iconColor: { color: grey[50] },
   progress: { margin: theme.spacing(1, 0, 1, 1) },
+  sliderBtn: { marginTop: theme.spacing(9) },
   typography: {
     flexGrow: 1,
     margin: theme.spacing(1.5, 1, 1, 1),
@@ -69,6 +73,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
     formControl,
     iconColor,
     progress,
+    sliderBtn,
     typography,
   } = useStyles();
 
@@ -159,7 +164,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
           {filters.map(({ configuration, id, name, value }) => {
             const dataObj = compData[id] || {};
             const { data = [], loading = false } = dataObj;
-            const filterVal = getFilterValue(value);
+            const filterVal = getFilterValue(value, configuration.type);
 
             return loading ? (
               <Grid item key={id} xs={12} className={progress}>
@@ -168,34 +173,60 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
             ) : (
               <Fragment key={id}>
                 <Grid item xs={8}>
-                  <FormControl className={formControl} fullWidth>
-                    <InputLabel className={fontColor}>{name}</InputLabel>
-                    <Select
-                      multiple
+                  {configuration.type === 'dateRange' ? (
+                    <DateRange
+                      minDate={configuration.minDate}
+                      maxDate={configuration.maxDate || new Date()}
+                      name={configuration.name}
+                      valueObj={value}
+                      values={filterVal}
+                      onChange={setFilterValue}
+                    />
+                  ) : configuration.type === 'dateField' ? (
+                    <DateField
+                      name={configuration.name}
+                      valueObj={value}
                       value={filterVal}
-                      onChange={event => setFilterValue(event, value)}
-                      className={fontColor}
-                    >
-                      {(() => {
-                        return sortArr(data, configuration.field).map((object, index) => {
-                          const value = object[configuration.field];
-                          return (
-                            <MenuItem key={index} value={value}>
-                              {value}
-                            </MenuItem>
+                      onChange={setFilterValue}
+                    />
+                  ) : (
+                    <FormControl className={formControl} fullWidth>
+                      <InputLabel className={fontColor}>{name}</InputLabel>
+                      <Select
+                        multiple
+                        value={filterVal}
+                        onChange={event => setFilterValue(event, value)}
+                        className={fontColor}
+                      >
+                        {(() => {
+                          return _.orderBy(data, [({ configuration }) => configuration.field], ['asc']).map(
+                            (object, index) => {
+                              const value = object[configuration.field];
+                              return (
+                                <MenuItem key={index} value={value}>
+                                  {value}
+                                </MenuItem>
+                              );
+                            },
                           );
-                        });
-                      })()}
-                    </Select>
-                  </FormControl>
+                        })()}
+                      </Select>
+                    </FormControl>
+                  )}
                 </Grid>
                 <Grid item xs={2}>
-                  <Button className={editBtn} onClick={() => setCurrentFilter(id)}>
+                  <Button
+                    className={clsx(button, editBtn, { [sliderBtn]: configuration.type === 'dateRange' })}
+                    onClick={() => setCurrentFilter(id)}
+                  >
                     <EditIcon className={iconColor} />
                   </Button>
                 </Grid>
                 <Grid item xs={2}>
-                  <Button className={deleteBtn} onClick={() => deleteFilter(id)}>
+                  <Button
+                    className={clsx(button, deleteBtn, { [sliderBtn]: configuration.type === 'dateRange' })}
+                    onClick={() => deleteFilter(id)}
+                  >
                     <DeleteIcon className={iconColor} />
                   </Button>
                 </Grid>
