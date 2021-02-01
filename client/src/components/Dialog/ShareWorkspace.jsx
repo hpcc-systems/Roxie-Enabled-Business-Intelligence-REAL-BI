@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
@@ -90,12 +90,12 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
       <DialogTitle>Share Workspace</DialogTitle>
       <DialogContent className={dialogContent}>
         {msgErr !== undefined && (
-          <Typography className={classnames(message, errMsg)} align='center'>
+          <Typography className={clsx(message, errMsg)} align='center'>
             {msgErr}
           </Typography>
         )}
         {successMsg && (
-          <Typography className={classnames(message, success)} align='center'>
+          <Typography className={clsx(message, success)} align='center'>
             {successMsg}
           </Typography>
         )}

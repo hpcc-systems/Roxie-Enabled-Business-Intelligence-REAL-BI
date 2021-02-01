@@ -85,9 +85,9 @@ const fieldDropdown = (label, name, arr, chartID, field, index, updateArr, relat
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
       <Select name={name} value={field || ''} onChange={event => updateArr(event, index, relationID)}>
-        {fieldsArr.map(({ name }, index) => {
+        {fieldsArr.map(({ name, value }, index) => {
           return (
-            <MenuItem key={index} value={name}>
+            <MenuItem key={index} value={value}>
               {name}
             </MenuItem>
           );
@@ -112,16 +112,16 @@ const Relations = ({ show, toggleDialog }) => {
   // Configure charts to get formatted array of objects
   const formattedCharts = charts.map(chart => {
     const { id: chartID, configuration, source } = chart;
-    const { axis1, axis2, fields = [], groupBy = {}, params, title, type } = configuration;
+    const { axis1, axis2, fields = [], groupBy = {}, params = [], title, type } = configuration;
     const newFields = [];
 
     // Get fields from chart config
     if (axis1.value) {
-      newFields.push({ name: axis1.label || axis1.value });
+      newFields.push({ name: axis1.label || axis1.value, value: axis1.value });
     }
 
     if (axis2.value) {
-      newFields.push({ name: axis2.label || axis2.value });
+      newFields.push({ name: axis2.label || axis2.value, value: axis2.value });
     }
 
     // Table fields are stored here
@@ -134,7 +134,17 @@ const Relations = ({ show, toggleDialog }) => {
       newFields.push({ name: groupBy.value });
     }
 
-    return { chartID, fields: newFields, params, sourceID: source.id, sourceName: source.name, title, type };
+    const formattedParams = params.map(({ name }) => ({ name, value: name }));
+
+    return {
+      chartID,
+      fields: newFields,
+      params: formattedParams,
+      sourceID: source.id,
+      sourceName: source.name,
+      title,
+      type,
+    };
   });
 
   // Remove charts that do not have params that relations can use

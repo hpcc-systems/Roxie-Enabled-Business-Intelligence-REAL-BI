@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -146,14 +146,14 @@ const ChangePwd = () => {
                 <CardContent className={content}>
                   {/* Error message */}
                   {error && error !== '' && (
-                    <Typography className={classnames(message, err)} align='center'>
+                    <Typography className={clsx(message, err)} align='center'>
                       {error}
                     </Typography>
                   )}
 
                   {/* Success Message */}
                   {successMsg && successMsg !== '' && (
-                    <Typography className={classnames(message, success)} align='center'>
+                    <Typography className={clsx(message, success)} align='center'>
                       {successMsg}
                     </Typography>
                   )}

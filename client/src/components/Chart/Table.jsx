@@ -11,7 +11,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@material-ui/core';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import _ from 'lodash';
 
 const useStyles = makeStyles(() => ({
@@ -90,7 +90,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                         key={index}
                         component='th'
                         scope='row'
-                        className={classnames(tableCell, {
+                        className={clsx(tableCell, {
                           [activeCell]:
                             chartID === interactiveChartID &&
                             field === interactiveField &&

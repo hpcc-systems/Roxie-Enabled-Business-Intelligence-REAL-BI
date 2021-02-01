@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -151,13 +151,13 @@ const ResetPwd = () => {
                 <CardContent className={content}>
                   {/* Error Message */}
                   {error && (
-                    <Typography className={classnames(message, errMsg)} align='center'>
+                    <Typography className={clsx(message, errMsg)} align='center'>
                       {error}
                     </Typography>
                   )}
                   {/* Success Message */}
                   {successMsg && successMsg !== '' && (
-                    <Typography className={classnames(message, success)} align='center'>
+                    <Typography className={clsx(message, success)} align='center'>
                       {successMsg}
                     </Typography>
                   )}
