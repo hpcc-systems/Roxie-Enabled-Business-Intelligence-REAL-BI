@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // Utils
 import { getKeywordSearchResults } from '../../utils/hpcc';
@@ -74,7 +74,7 @@ const SourceSearch = ({ dashboard, handleChange, localState }) => {
 
   return type !== 'textBox' || (type === 'textBox' && !isStatic) ? (
     <Autocomplete
-      className={classnames(autocomplete, { [autocomplete2]: sourceType === 'file' })}
+      className={clsx(autocomplete, { [autocomplete2]: sourceType === 'file' })}
       onChange={handleOnChange}
       getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
       options={sources}

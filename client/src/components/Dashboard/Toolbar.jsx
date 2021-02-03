@@ -12,14 +12,17 @@ import {
   Popper,
   Toolbar,
   Typography,
+  Tooltip,
 } from '@material-ui/core';
 import {
   AddCircle as AddCircleIcon,
   FilterList as FilterListIcon,
   Info as InfoIcon,
   Refresh as RefreshIcon,
+  RotateLeft as RotateLeftIcon,
   Share as ShareIcon,
 } from '@material-ui/icons';
+import clsx from 'clsx';
 
 // Constants
 import { canAddCharts, canShareDashboard } from '../../utils/misc';
@@ -42,6 +45,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
   paper: { padding: theme.spacing(1, 3, 1.5, 3) },
+  resetBtn: {
+    backgroundColor: theme.palette.error.dark,
+    color: theme.palette.error.contrastText,
+  },
   shareBtn: {
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
@@ -57,7 +64,10 @@ const useStyles = makeStyles(theme => ({
 
 const ToolbarComp = ({
   dashboard,
+  dataFetchInProgress,
+  hasInteractiveFilter,
   refreshChart,
+  resetInteractiveFilter,
   toggleNewChartDialog,
   toggleRelationsDialog,
   toggleDrawer,
@@ -82,6 +92,7 @@ const ToolbarComp = ({
     infoCard,
     menuItem,
     paper,
+    resetBtn,
     shareBtn,
     toolbar,
     typography,
@@ -154,11 +165,28 @@ const ToolbarComp = ({
         </Grid>
         <Grid item xs={6}>
           <Toolbar className={toolbar}>
-            <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
-              <RefreshIcon />
-            </Button>
+            {hasInteractiveFilter && (
+              <Tooltip title='Remove click filter' placement='bottom'>
+                {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
+                <span>
+                  <Button
+                    className={clsx(button, resetBtn)}
+                    variant='contained'
+                    onClick={resetInteractiveFilter}
+                    disabled={dataFetchInProgress}
+                  >
+                    <RotateLeftIcon />
+                  </Button>
+                </span>
+              </Tooltip>
+            )}
+            <Tooltip title='Refresh page' placement='bottom'>
+              <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
+                <RefreshIcon />
+              </Button>
+            </Tooltip>
             {canAddCharts(permission) ? (
-              <Fragment>
+              <Tooltip title='Add Chart/Relation' placement='bottom'>
                 <Button
                   className={button}
                   variant='contained'
@@ -168,20 +196,24 @@ const ToolbarComp = ({
                 >
                   <AddCircleIcon />
                 </Button>
-              </Fragment>
+              </Tooltip>
             ) : null}
-            <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-              <FilterListIcon />
-            </Button>
-            <Button
-              className={button}
-              variant='contained'
-              color='primary'
-              onClick={() => handleToggle(2)}
-              ref={anchorRef2}
-            >
-              <ShareIcon />
-            </Button>
+            <Tooltip title='Open filter drawer' placement='bottom'>
+              <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+                <FilterListIcon />
+              </Button>
+            </Tooltip>
+            <Tooltip title='Share dashboard' placement='bottom'>
+              <Button
+                className={button}
+                variant='contained'
+                color='primary'
+                onClick={() => handleToggle(2)}
+                ref={anchorRef2}
+              >
+                <ShareIcon />
+              </Button>
+            </Tooltip>
           </Toolbar>
         </Grid>
       </Grid>

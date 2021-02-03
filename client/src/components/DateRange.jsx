@@ -17,9 +17,9 @@ const useStyles = makeStyles(theme => ({
   root: { paddingLeft: theme.spacing(1) },
 }));
 
-const DateRange = ({ minDate, maxDate, valueObj, values: propVals, onChange }) => {
-  const min = propVals[0] || minDate;
-  const max = propVals[1] || maxDate;
+const DateRange = ({ filterID, valueObj, values: propVals, onChange }) => {
+  const min = propVals[0] || new Date().toDateString();
+  const max = propVals[1] || new Date().toDateString();
   const initState = [moment(min).format('L'), moment(max).format('L')];
   const [values, setValues] = React.useState(initState);
   const { picker, root } = useStyles();
@@ -31,11 +31,9 @@ const DateRange = ({ minDate, maxDate, valueObj, values: propVals, onChange }) =
 
     if (moment(newValues[0]).isValid() && moment(newValues[1]).isValid()) {
       const event = { target: { value: newValues } };
-      onChange(event, valueObj);
+      onChange(event, valueObj, filterID);
     }
   };
-
-  console.log(initState);
 
   return (
     <div className={root}>
@@ -52,8 +50,6 @@ const DateRange = ({ minDate, maxDate, valueObj, values: propVals, onChange }) =
               value={values[i]}
               onChange={(date, value) => handlePickerChange(value, i)}
               autoOk
-              minDate={minDate}
-              maxDate={maxDate}
             />
           </div>
         );

@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -152,19 +152,19 @@ const ForgotPwd = () => {
                 <CardContent className={content}>
                   {/* Error Message */}
                   {error && (
-                    <Typography className={classnames(message, errMsg)} align='center'>
+                    <Typography className={clsx(message, errMsg)} align='center'>
                       {error}
                     </Typography>
                   )}
                   {/* Success Message */}
                   {successMsg && successMsg !== '' && (
-                    <Typography className={classnames(message, success)} align='center'>
+                    <Typography className={clsx(message, success)} align='center'>
                       {successMsg}
                     </Typography>
                   )}
                   {/* Warning Message */}
                   {errors.length === 0 && successMsg === '' && (
-                    <Typography variant='body2' className={classnames(message, warning)} align='center'>
+                    <Typography variant='body2' className={clsx(message, warning)} align='center'>
                       If you have a user account for Tombolo, this will reset that password too.
                     </Typography>
                   )}

@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
@@ -111,7 +111,7 @@ const Header = ({ toggleDrawer }) => {
           <Typography
             variant='h5'
             color='inherit'
-            className={classnames(typography, { [typography2]: isChangePwdScreen })}
+            className={clsx(typography, { [typography2]: isChangePwdScreen })}
           >
             REAL BI
           </Typography>

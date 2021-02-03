@@ -116,7 +116,7 @@ export const getMessage = (sourceType, isFilter = false) => {
 export const formatValue = (type, value, returnDate = false) => {
   if (type === 'date') {
     return returnDate ? new Date(String(value)) : moment(String(value)).format('L');
-  } else if (type === 'time') {
+  } else if (type === 'datetime') {
     return returnDate ? new Date(String(value)) : moment(String(value)).format('LT');
   }
 

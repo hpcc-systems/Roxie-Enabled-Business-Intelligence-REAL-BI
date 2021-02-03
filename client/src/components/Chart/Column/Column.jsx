@@ -12,7 +12,7 @@ const ColumnComp = ({
   chartID,
   data,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -112,9 +112,10 @@ const ColumnComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
-      onColumnClick: ({ data }) => interactiveClick(chartID, customXLabel, data[xValue]),
+      onColumnClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

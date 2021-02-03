@@ -11,7 +11,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@material-ui/core';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import _ from 'lodash';
 
 const useStyles = makeStyles(() => ({
@@ -24,7 +24,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const { fields = [] } = configuration;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(fields[0]);
+  const [orderBy, setOrderBy] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { activeCell, columnHeader, tableCell } = useStyles();
@@ -51,7 +51,9 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   }
 
   // Sort data
-  data = _.orderBy(data, [orderBy], [order]);
+  if (orderBy) {
+    data = _.orderBy(data, [orderBy], [order]);
+  }
 
   // Reference values
   const rowCount = data.length;
@@ -90,7 +92,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                         key={index}
                         component='th'
                         scope='row'
-                        className={classnames(tableCell, {
+                        className={clsx(tableCell, {
                           [activeCell]:
                             chartID === interactiveChartID &&
                             field === interactiveField &&

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const createFilterObj = (localState, ecl) => {
-  const { filterType, minDate, maxDate, name, sourceDataset, sourceField, sourceType, params } = localState;
+  const { filterType, name, sourceDataset, sourceField, sourceType, params } = localState;
 
   // Get array of objects that are complete
   const completeParams = params.filter(({ targetChart, targetParam }) => {
@@ -15,14 +15,6 @@ export const createFilterObj = (localState, ecl) => {
     params: completeParams,
     type: filterType,
   };
-
-  if (filterType === 'dateRange') {
-    newFilter.minDate = minDate;
-    newFilter.maxDate = maxDate;
-  } else {
-    delete newFilter.minDate;
-    delete newFilter.maxDate;
-  }
 
   // Move ecl value to object root
   if (sourceType === 'ecl') {

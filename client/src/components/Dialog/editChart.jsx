@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon, TableChart as TableChartIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // Redux Actions
 import { updateChart } from '../../features/dashboard/actions';
@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const EditChartDialog = ({ chartID, show, toggleDialog }) => {
+const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts = [] } = dashboard;
   const { eclObj, initState } = setEditorState(charts, chartID);
@@ -101,6 +101,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         const updatedChartObj = { id: chartID, configuration: chartObj, source: newSource };
         const action = await updateChart(updatedChartObj, dashboardID);
         dispatch(action);
+
+        getChartData([chartID], {});
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
@@ -137,7 +139,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
             Edit Chart
           </Typography>
           <Button
-            className={classnames(button2, button3)}
+            className={clsx(button2, button3)}
             disabled={sourceKeys === 0 || datasetKeys === 0 || loading || data.length === 0}
             onClick={() => toggleData(chartID)}
           >
@@ -145,7 +147,7 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
           </Button>
           {sourceType !== 'ecl' && (
             <Button
-              className={classnames(button2, button4)}
+              className={clsx(button2, button4)}
               disabled={sourceKeys === 0 || datasetKeys === 0 || loading}
               onClick={updateChartPreview}
             >

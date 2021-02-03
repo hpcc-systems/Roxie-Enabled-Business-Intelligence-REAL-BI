@@ -86,6 +86,18 @@ export const updateExistingFilter = async (dashboardID, filterObj, sourceID) => 
   }
 };
 
+export const updateAlteredFilters = async (dashboardID, filtersArr) => {
+  try {
+    const response = await axios.put('/api/v1/dashboard_filter/filters', {
+      dashboardID,
+      filtersArr: JSON.stringify(filtersArr),
+    });
+    return { type: UPDATE_FILTER, payload: response.data };
+  } catch (error) {
+    throw { type: SET_DASHBOARD_ERRORS, payload: error.response };
+  }
+};
+
 export const createRelations = async (dashboardID, relationsArr) => {
   try {
     return await axios.post('/api/v1/dashboard_relation/', { dashboardID, relationsArr });
@@ -114,6 +126,17 @@ export const updateFilterValue = async (valueObj, dashboardID) => {
 export const deleteExistingFilter = async (dashboardID, filterID) => {
   try {
     const response = await axios.delete('/api/v1/dashboard_filter/', { params: { dashboardID, filterID } });
+    return { type: DELETE_FILTER, payload: response.data };
+  } catch (error) {
+    throw { type: SET_DASHBOARD_ERRORS, payload: error.response };
+  }
+};
+
+export const deleteEmptyFilters = async (dashboardID, filtersArr) => {
+  try {
+    const response = await axios.delete('/api/v1/dashboard_filter/filters', {
+      params: { dashboardID, filtersArr: JSON.stringify(filtersArr) },
+    });
     return { type: DELETE_FILTER, payload: response.data };
   } catch (error) {
     throw { type: SET_DASHBOARD_ERRORS, payload: error.response };

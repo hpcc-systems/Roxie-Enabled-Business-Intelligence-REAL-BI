@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Typography } from '@material-ui/core';
 import { MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import ToolbarSubMenu from './ToolbarSubMenu';
@@ -67,7 +67,7 @@ const ChartToolbar = props => {
           {canEditCharts(permission) && !pdfPreview && (
             <Fragment>
               <MoreHorizIcon
-                className={classnames(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}
+                className={clsx(ellipseBtnXs, { [ellipseBtnMd]: size >= 4, [ellipseBtnLg]: size >= 9 })}
                 onClick={showMenu}
               />
               <ToolbarSubMenu
@@ -81,7 +81,7 @@ const ChartToolbar = props => {
         </Grid>
       </Grid>
 
-      <Typography className={classnames(description, { [tableDesc]: type === 'table' })}>
+      <Typography className={clsx(description, { [tableDesc]: type === 'table' })}>
         {/*
           Conditionally render the chart description and <br /> only if a description is provided
           Always render the datetime stamp

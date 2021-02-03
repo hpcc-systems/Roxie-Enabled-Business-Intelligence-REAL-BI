@@ -61,6 +61,67 @@ router.put('/', async (req, res, next) => {
   }
 });
 
+router.put('/filters', async (req, res, next) => {
+  const {
+    body: { dashboardID, filtersArr = [] },
+    user: { id: userID },
+  } = req;
+  const parsedArr = JSON.parse(filtersArr);
+
+  try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    // Update altered filters
+    const promises = [];
+    parsedArr.forEach(filter => {
+      const sourceID = filter?.source?.id;
+      delete filter.source;
+
+      promises.push(updateFilter(filter, sourceID));
+    });
+    await Promise.all(promises);
+
+    const filters = await getDashboardFiltersByDashboardID(dashboardID, userID);
+
+    return res.status(200).json(filters);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/filters', async (req, res, next) => {
+  const {
+    query: { dashboardID, filtersArr = [] },
+    user: { id: userID },
+  } = req;
+  const parsedArr = JSON.parse(filtersArr);
+
+  try {
+    const { permission = 'Read-Only' } = await getDashboardByID(dashboardID, userID);
+
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    // Update altered filters
+    const promises = [];
+    parsedArr.forEach(filter => promises.push(deleteFilter(filter.id)));
+    await Promise.all(promises);
+
+    const filters = await getDashboardFiltersByDashboardID(dashboardID, userID);
+
+    return res.status(200).json(filters);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/', async (req, res, next) => {
   const {
     query: { dashboardID, filterID },

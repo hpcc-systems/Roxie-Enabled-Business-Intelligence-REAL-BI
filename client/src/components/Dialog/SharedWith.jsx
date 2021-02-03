@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // Utils
 import { getSharedWithUsers } from '../../utils/dashboard';
@@ -78,10 +78,10 @@ const SharedWithDialog = ({ show, toggleDialog }) => {
 
                   return (
                     <TableRow key={index}>
-                      <TableCell align='left' className={classnames('', { [oddCell]: oddNum })}>
+                      <TableCell align='left' className={clsx('', { [oddCell]: oddNum })}>
                         {email}
                       </TableCell>
-                      <TableCell align='center' className={classnames('', { [oddCell]: oddNum })}>
+                      <TableCell align='center' className={clsx('', { [oddCell]: oddNum })}>
                         {permission}
                       </TableCell>
                     </TableRow>

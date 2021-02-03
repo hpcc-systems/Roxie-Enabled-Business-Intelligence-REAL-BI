@@ -12,7 +12,7 @@ const StackedColumnComp = ({
   chartID,
   data,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -115,9 +115,10 @@ const StackedColumnComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
-      onColumnClick: ({ data }) => interactiveClick(chartID, groupByValue, data[groupByValue]),
+      onColumnClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

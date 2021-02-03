@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon, TableChart as TableChartIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // Redux Actions
 import { createChart } from '../../features/dashboard/actions';
@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog }) => {
+const NewChartDialog = ({ show, toggleDialog, getChartData }) => {
   const { showDialog, toggleDialog: toggleData } = useDialog(false);
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
@@ -123,6 +123,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       try {
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
         dispatch(action);
+
+        getChartData([action.payload.id], {});
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
@@ -161,7 +163,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
             New Chart
           </Typography>
           <Button
-            className={classnames(button2, button3)}
+            className={clsx(button2, button3)}
             disabled={sourceKeys === 0 || datasetKeys === 0 || loading || data.length === 0}
             onClick={toggleData}
           >
@@ -169,7 +171,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
           </Button>
           {sourceType !== 'ecl' && (
             <Button
-              className={classnames(button2, button4)}
+              className={clsx(button2, button4)}
               disabled={sourceKeys === 0 || datasetKeys === 0 || loading}
               onClick={updateChartPreview}
             >

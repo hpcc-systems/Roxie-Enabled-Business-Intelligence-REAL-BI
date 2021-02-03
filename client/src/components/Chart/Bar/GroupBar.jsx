@@ -12,7 +12,7 @@ const GroupBarComp = ({
   chartID,
   data,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -122,9 +122,10 @@ const GroupBarComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
-      onBarClick: ({ data }) => interactiveClick(chartID, groupByValue, data[groupByValue]),
+      onBarClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

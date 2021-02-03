@@ -12,7 +12,7 @@ const StackedBarComp = ({
   chartID,
   data,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -118,9 +118,10 @@ const StackedBarComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
-      onBarClick: ({ data }) => interactiveClick(chartID, groupByValue, data[groupByValue]),
+      onBarClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

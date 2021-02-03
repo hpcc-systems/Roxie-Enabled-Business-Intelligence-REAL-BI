@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import ChartToolbar from './ChartToolbar';
@@ -62,7 +62,7 @@ const ChartTile = props => {
     <Grid item md={size}>
       {!pdfPreview && canReOrganizeDashboards(dashboard.permission) ? (
         <div
-          className={classnames(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
+          className={clsx(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
           draggable
           onDragStart={event => handleDragStart(event, chartID)}
           onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}

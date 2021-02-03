@@ -9,7 +9,7 @@ const DonutComp = ({
   chartID,
   data,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -68,9 +68,10 @@ const DonutComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
-      onRingClick: ({ data }) => interactiveClick(chartID, customNameLabel, data[nameValue]),
+      onRingClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

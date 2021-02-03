@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
   root: { paddingLeft: theme.spacing(1) },
 }));
 
-const DateField = ({ name, value, valueObj, onChange }) => {
+const DateField = ({ filterID, name, value, valueObj, onChange }) => {
   const date = moment(value);
   const [isValid, setIsValid] = useState(value ? date.isValid() : true);
   const { picker, root } = useStyles();
@@ -29,7 +29,7 @@ const DateField = ({ name, value, valueObj, onChange }) => {
     }
 
     const event = { target: { value } };
-    onChange(event, valueObj);
+    onChange(event, valueObj, filterID);
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -17,7 +17,6 @@ import { DateRange, ECLEditor, Mapper, Source } from './Tabs';
 
 // Constants
 import { filterTypeOptions, sourceOptions } from '../../constants';
-import { KeyboardDatePicker } from '@material-ui/pickers';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -29,7 +28,7 @@ const tabOptions = ['ECL Script', 'Source', 'Targets'];
 
 const FilterEditor = props => {
   const { handleChange, localState } = props;
-  const { errors = [], filterType, minDate, maxDate, name, sourceType } = localState;
+  const { errors = [], filterType, name, sourceType } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid } = useStyles();
@@ -105,35 +104,6 @@ const FilterEditor = props => {
             </Select>
           </FormControl>
         </Grid>
-      ) : filterType === 'dateRange' ? (
-        <Fragment>
-          <Grid item xs={6}>
-            <KeyboardDatePicker
-              fullWidth
-              disableToolbar
-              variant='inline'
-              format='MM/dd/yyyy'
-              margin='normal'
-              label='Minimum Date'
-              value={minDate || ''}
-              onChange={(date, value) => handleChange({ target: { name: 'minDate', value } })}
-              autoOk
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <KeyboardDatePicker
-              fullWidth
-              disableToolbar
-              variant='inline'
-              format='MM/dd/yyyy'
-              margin='normal'
-              label='Maximum Date'
-              value={maxDate || new Date()}
-              onChange={(date, value) => handleChange({ target: { name: 'minDate', value } })}
-              autoOk
-            />
-          </Grid>
-        </Fragment>
       ) : null}
       <AppBar className={appbar} position='static' color='inherit'>
         <Tabs value={tabIndex} onChange={changeTabIndex}>

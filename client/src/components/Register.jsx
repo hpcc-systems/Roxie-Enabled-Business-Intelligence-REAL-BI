@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -167,7 +167,7 @@ const Register = () => {
                   )}
                   {/* Success Message */}
                   {successMsg && successMsg !== '' && (
-                    <Typography className={classnames(message, success)} align='center'>
+                    <Typography className={clsx(message, success)} align='center'>
                       {successMsg}
                     </Typography>
                   )}
