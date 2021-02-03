@@ -15,12 +15,12 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
       { auth: clusterCreds },
     );
 
-    files = response.data.DFUQueryResponse;
+    files = response?.data?.DFUQueryResponse;
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    throw new Error(`${error?.response?.data || 'Unknown error'}`);
   }
 
-  if (!files.DFULogicalFiles) {
+  if (!files?.DFULogicalFiles) {
     throw new Error(`No file with name like "*${keyword}*`);
   }
 
