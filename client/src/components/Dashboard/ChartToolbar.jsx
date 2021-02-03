@@ -28,7 +28,7 @@ const ChartToolbar = props => {
   const { chart, dashboard, lastModifiedDate, pdfPreview } = props;
   const { configuration, sourceType } = chart;
   const { permission } = dashboard;
-  const { chartDescription = '', isStatic, size = 12, title = '', type } = configuration;
+  const { chartDescription = '', isStatic, showLastExecuted, size = 12, title = '', type } = configuration;
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const { description, ellipseBtnLg, ellipseBtnMd, ellipseBtnXs, tableDesc, typography } = useStyles();
@@ -84,11 +84,10 @@ const ChartToolbar = props => {
       <Typography className={clsx(description, { [tableDesc]: type === 'table' })}>
         {/*
           Conditionally render the chart description and <br /> only if a description is provided
-          Always render the datetime stamp
         */}
         {chartDescription !== '' ? chartDescription : null}
         {chartDescription !== '' ? <br /> : null}
-        {!isStatic && <small>{datetimeStamp}</small>}
+        {!isStatic && showLastExecuted && <small>{datetimeStamp}</small>}
       </Typography>
     </Fragment>
   );
