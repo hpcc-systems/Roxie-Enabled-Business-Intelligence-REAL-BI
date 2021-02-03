@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog }) => {
+const NewChartDialog = ({ show, toggleDialog, getChartData }) => {
   const { showDialog, toggleDialog: toggleData } = useDialog(false);
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
@@ -123,6 +123,8 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       try {
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
         dispatch(action);
+
+        getChartData([action.payload.id], {});
         return toggleDialog();
       } catch (error) {
         return dispatch(error);

@@ -12,7 +12,7 @@ const LineComp = ({
   data,
   chartID,
   configuration,
-  hasClickEvent,
+  chartRelation,
   interactiveClick,
   interactiveObj,
   pdfPreview,
@@ -114,14 +114,14 @@ const LineComp = ({
   };
 
   // Add click events
-  if (hasClickEvent) {
+  if (chartRelation?.sourceID === chartID) {
     chartConfig.events = {
       onLineClick: ({ data }) =>
-        groupByValue ? interactiveClick(chartID, groupByValue, data[0][groupByValue]) : null,
-      onPointClick: ({ data }) =>
         groupByValue
-          ? interactiveClick(chartID, groupByValue, data[groupByValue])
-          : interactiveClick(chartID, customXLabel, data[xValue]),
+          ? interactiveClick(chartID, chartRelation.sourceField, data[0][chartRelation.sourceField])
+          : null,
+      onPointClick: ({ data }) =>
+        interactiveClick(chartID, chartRelation.sourceField, data[chartRelation.sourceField]),
     };
   }
 

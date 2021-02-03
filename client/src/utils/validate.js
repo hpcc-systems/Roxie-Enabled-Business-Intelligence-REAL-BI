@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export const validateSource = (state, eclRef) => {
   const { selectedDataset = {}, selectedSource = {}, sourceType } = state;
   const errors = [];
@@ -35,7 +33,7 @@ export const validateSource = (state, eclRef) => {
 };
 
 export const validateFilter = (state, eclRef) => {
-  const { filterType, minDate, name, params, sourceField } = state;
+  const { filterType, name, params, sourceField } = state;
   const errors = [];
 
   if (name === '') {
@@ -75,10 +73,6 @@ export const validateFilter = (state, eclRef) => {
           }
         }
       });
-
-      if (!minDate || !moment(minDate).isValid()) {
-        errors.push({ minDate: 'Valid Date Required' });
-      }
     }
   }
 

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
+const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => {
   const { filters = [], id: dashboardID, permission } = dashboard;
   const [filter, setFilter] = useState(null);
   const [compData, setCompData] = useState({});
@@ -77,7 +77,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
     typography,
   } = useStyles();
 
-  const dataCall = useCallback(() => {
+  const dataCall = filters => {
     // Set initial object keys and loading
     filters.forEach(({ id: filterID }) => {
       setCompData(prevState => ({ ...prevState, [filterID]: { loading: true } }));
@@ -97,13 +97,11 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
         }
       })();
     });
-  }, [filters]);
+  };
 
   useEffect(() => {
-    if (filters.length > 0) {
-      dataCall();
-    }
-  }, [dataCall, filters]);
+    dataCall(filters);
+  }, []);
 
   const newFilter = () => {
     setFilter(null);
@@ -116,26 +114,46 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
     toggleFilter();
   };
 
-  const setFilterValue = async (event, valueObj) => {
+  const setFilterValue = async (event, valueObj, filterID) => {
     let { value } = event.target;
 
     if (Array.isArray(value)) {
       value = value.join();
     }
 
+    // Get altered filter to make dataCall
+    const selectedFilter = filters.find(({ id }) => id === filterID);
+    selectedFilter.value.value = value;
+
+    // Get unique id's of the targeted charts
+    const effectedChartIds = [
+      ...new Set(selectedFilter.configuration.params.map(({ targetChart }) => targetChart)),
+    ];
+
     try {
       const dataType = getFilterValueType(value);
       const action = await updateFilterValue({ ...valueObj, dataType, value }, dashboardID);
       dispatch(action);
+
+      getChartData(effectedChartIds, {});
     } catch (error) {
       dispatch(error);
     }
   };
 
   const deleteFilter = async id => {
+    const filterObj = filters.find(({ id: filterID }) => filterID === id);
+
+    // Get unique id's of the targeted charts
+    const effectedChartIds = [
+      ...new Set(filterObj.configuration.params.map(({ targetChart }) => targetChart)),
+    ];
+
     try {
       const action = await deleteExistingFilter(dashboardID, id);
       dispatch(action);
+
+      getChartData(effectedChartIds, {});
     } catch (error) {
       dispatch(error);
     }
@@ -161,13 +179,13 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
           )}
         </div>
         <Grid container direction='row' justify='space-between'>
-          {filters.map(({ configuration, id, name, value }) => {
+          {filters.map(({ configuration, id, name, value }, index) => {
             const dataObj = compData[id] || {};
             const { data = [], loading = false } = dataObj;
             const filterVal = getFilterValue(value, configuration.type);
 
             return loading ? (
-              <Grid item key={id} xs={12} className={progress}>
+              <Grid item key={index} xs={12} className={progress}>
                 <CircularProgress color='secondary' size={30} />
               </Grid>
             ) : (
@@ -175,8 +193,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
                 <Grid item xs={8}>
                   {configuration.type === 'dateRange' ? (
                     <DateRange
-                      minDate={configuration.minDate}
-                      maxDate={configuration.maxDate || new Date()}
+                      filterID={id}
                       name={configuration.name}
                       valueObj={value}
                       values={filterVal}
@@ -184,6 +201,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
                     />
                   ) : configuration.type === 'dateField' ? (
                     <DateField
+                      filterID={id}
                       name={configuration.name}
                       valueObj={value}
                       value={filterVal}
@@ -195,7 +213,7 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
                       <Select
                         multiple
                         value={filterVal}
-                        onChange={event => setFilterValue(event, value)}
+                        onChange={event => setFilterValue(event, value, id)}
                         className={fontColor}
                       >
                         {(() => {
@@ -238,7 +256,13 @@ const FilterDrawer = ({ dashboard, showDrawer, toggleDrawer }) => {
         </Grid>
       </div>
       {showFilter && (
-        <Filters dashboard={dashboard} filter={filter} show={showFilter} toggleDialog={toggleFilter} />
+        <Filters
+          dashboard={dashboard}
+          filter={filter}
+          show={showFilter}
+          toggleDialog={toggleFilter}
+          getChartData={getChartData}
+        />
       )}
     </Drawer>
   );

@@ -49,7 +49,7 @@ const initState = {
   params: [{ targetChart: '', targetParam: '' }],
 };
 
-const Filters = ({ dashboard, filter, show, toggleDialog }) => {
+const Filters = ({ dashboard, filter, show, toggleDialog, getChartData }) => {
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const { charts = [], cluster, id: dashboardID } = dashboard;
@@ -60,7 +60,7 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   useEffect(() => {
     if (filter) {
       const {
-        configuration: { dataset, field, type: filterType, minDate, maxDate, name: filterName, params = [] },
+        configuration: { dataset, field, type: filterType, name: filterName, params = [] },
         ecl = {},
         source = {},
       } = filter;
@@ -70,8 +70,6 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
         error: '',
         filterType,
         keyword: source?.name || '',
-        minDate,
-        maxDate,
         name: filterName,
         params: [...params, { datePart: '', targetChart: '', targetParam: '' }],
         sourceDataset: dataset,
@@ -127,6 +125,12 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
       }
 
       dispatch(action);
+
+      // Get unique id's of the targeted charts
+      const effectedChartIds = [...new Set(newFilterObj.params.map(({ targetChart }) => targetChart))];
+
+      getChartData(effectedChartIds, {});
+
       return toggleDialog();
     } catch (error) {
       dispatch(error);

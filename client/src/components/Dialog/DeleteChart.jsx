@@ -4,7 +4,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
 
 // Redux Actions
-import { deleteChart, updateDashboard } from '../../features/dashboard/actions';
+import {
+  deleteChart,
+  deleteEmptyFilters,
+  updateAlteredFilters,
+  updateDashboard,
+} from '../../features/dashboard/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -19,19 +24,30 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog }) => {
-  const { clusterID, id: dashboardID, name } = dashboard;
+  const { clusterID, id: dashboardID, filters, name } = dashboard;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
 
   const confirmDelete = async () => {
-    try {
-      const action = await deleteChart(chartID, dashboardID);
-      const action2 = await updateDashboard(clusterID, dashboardID, name);
+    // Remove deleted chart from filter targets
+    let updatedFilters = filters.map(({ configuration, id, source }) => {
+      const updatedParams = configuration.params.filter(({ targetChart }) => targetChart !== chartID);
+      return { id, ...configuration, params: updatedParams, source };
+    });
+    const emptyFilters = updatedFilters.filter(({ params }) => params.length === 0);
+    updatedFilters = updatedFilters.filter(({ params }) => params.length > 0);
 
-      batch(() => {
-        dispatch(action2);
-        dispatch(action);
-        toggleDialog();
+    try {
+      Promise.all([
+        deleteChart(chartID, dashboardID),
+        updateAlteredFilters(dashboardID, updatedFilters),
+        deleteEmptyFilters(dashboardID, emptyFilters),
+      ]).then(async actions => {
+        const action = await updateDashboard(clusterID, dashboardID, name);
+        batch(() => {
+          [...actions, action].forEach(action => dispatch(action));
+          toggleDialog();
+        });
       });
     } catch (error) {
       dispatch(error);

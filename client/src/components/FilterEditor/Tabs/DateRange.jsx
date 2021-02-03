@@ -53,7 +53,7 @@ const fieldDropdown = (arr, chartID, field, index, updateArr, errors, errStyle) 
   if (chartID && arr.length > 0) {
     const chart = arr.find(obj => obj.chartID === chartID);
 
-    fieldsArr = chart.params || [];
+    fieldsArr = chart?.params || [];
   }
 
   return (
@@ -111,7 +111,7 @@ const dateRangePositionDropdown = (field, index, updateArr, errors, errStyle) =>
 };
 
 const DateRange = ({ handleChange, localState }) => {
-  const { errors = [], params } = localState;
+  const { errors = [], params = [] } = localState;
   const { button, errorText } = useStyles();
   let { charts } = useSelector(state => state.dashboard.dashboard);
 
@@ -127,7 +127,7 @@ const DateRange = ({ handleChange, localState }) => {
   // Configure charts to get formatted array of objects
   charts = charts.map(chart => {
     const { id: chartID, configuration } = chart;
-    const { params, title } = configuration;
+    const { params = [], title } = configuration;
 
     return { chartID, params, title };
   });

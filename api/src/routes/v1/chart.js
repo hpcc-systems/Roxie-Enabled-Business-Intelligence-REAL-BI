@@ -41,7 +41,7 @@ router.post('/', async (req, res, next) => {
 
 router.get('/data', async (req, res, next) => {
   const {
-    query: { chartID, clusterID, dashboardID, interactiveObj },
+    query: { chartID, clusterID, dashboardID, interactiveObj = {} },
     user: { id: userID },
   } = req;
   const parsedObj = JSON.parse(interactiveObj);
@@ -81,7 +81,7 @@ router.get('/data', async (req, res, next) => {
 
     // Interactive click filters
     const interactiveFilters = [];
-    if (parsedObj.chartID) {
+    if (parsedObj?.chartID) {
       const dashboardRelations = await getDashboardRelationsByChartID(dashboardID, parsedObj, chartID);
 
       dashboardRelations.forEach(({ targetField }) => {

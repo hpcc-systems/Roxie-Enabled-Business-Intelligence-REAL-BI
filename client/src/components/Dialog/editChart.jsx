@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const EditChartDialog = ({ chartID, show, toggleDialog }) => {
+const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts = [] } = dashboard;
   const { eclObj, initState } = setEditorState(charts, chartID);
@@ -101,6 +101,8 @@ const EditChartDialog = ({ chartID, show, toggleDialog }) => {
         const updatedChartObj = { id: chartID, configuration: chartObj, source: newSource };
         const action = await updateChart(updatedChartObj, dashboardID);
         dispatch(action);
+
+        getChartData([chartID], {});
         return toggleDialog();
       } catch (error) {
         return dispatch(error);

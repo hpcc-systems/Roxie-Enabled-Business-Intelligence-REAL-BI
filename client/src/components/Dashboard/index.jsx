@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid } from '@material-ui/core';
 import _ from 'lodash';
@@ -31,8 +31,10 @@ const Dashboard = () => {
   const [sourceID, setSourceID] = useState(null);
   const [compData, setCompData] = useState({});
   const [interactiveObj, setInteractiveObj] = useState({});
-  const { dashboard } = useSelector(state => state.dashboard);
-  const { charts = [], cluster, id: dashboardID } = dashboard; // Destructure here instead of previous line to maintain reference to entire dashboard object
+  const {
+    dashboard,
+    dashboard: { charts = [], cluster, id: dashboardID, relations },
+  } = useSelector(state => state.dashboard);
   const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
   const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
   const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
@@ -48,6 +50,7 @@ const Dashboard = () => {
   const isDifferentNode = useRef(null);
   const [dragging, setDragging] = useState(false);
   const dispatch = useDispatch();
+  const chartIDs = charts.map(({ id }) => id);
 
   const editChart = chartID => {
     setChartID(chartID);
@@ -66,20 +69,18 @@ const Dashboard = () => {
     deleteChartToggle();
   };
 
-  const dataCall = useCallback(() => {
+  const dataCall = (chartIDs, interactiveObj) => {
     // Set initial object keys and loading
-    charts.forEach(({ id: chartID }) => {
-      setCompData(prevState => ({ ...prevState, [chartID]: { loading: true } }));
-    });
+    chartIDs.forEach(Id => setCompData(prevState => ({ ...prevState, [Id]: { loading: true } })));
 
     // Fetch data for each chart
-    charts.forEach(({ id: chartID }) => {
+    chartIDs.forEach(Id => {
       (async () => {
         try {
-          const results = await getChartData(chartID, cluster.id, dashboardID, interactiveObj);
+          const results = await getChartData(Id, cluster.id, dashboardID, interactiveObj);
           setCompData(prevState => ({
             ...prevState,
-            [chartID]: {
+            [Id]: {
               data: results.data,
               error: '',
               lastModifiedDate: results.lastModifiedDate,
@@ -87,27 +88,31 @@ const Dashboard = () => {
             },
           }));
         } catch (error) {
-          setCompData(prevState => ({ ...prevState, [chartID]: { error: error.message, loading: false } }));
+          setCompData(prevState => ({ ...prevState, [Id]: { error: error.message, loading: false } }));
         }
       })();
     });
-  }, [charts, cluster.id, dashboardID, interactiveObj]);
-
-  const interactiveClick = (chartID, field, clickValue) => {
-    // Click same value twice, clear interactive click value
-    if (clickValue === interactiveObj.value) {
-      return setInteractiveObj({});
-    }
-
-    // Set interactive click values
-    setInteractiveObj({ chartID, field, value: clickValue });
   };
 
+  const interactiveClick = (chartID, field, clickValue) => {
+    const effectedCharts = relations
+      .filter(({ sourceID }) => sourceID === chartID)
+      .map(({ targetID }) => targetID);
+
+    // Remove duplicate Id's from array
+    const effectedChartIds = Array.from(new Set(effectedCharts.map(Id => Id))).map(Id => {
+      return effectedCharts.find(Id2 => Id2 === Id);
+    });
+
+    setInteractiveObj(prevState => ({ ...prevState, chartID, field, value: clickValue, effectedChartIds }));
+  };
+
+  // Initial data call when component is loaded
   useEffect(() => {
-    if ((dashboard.id || interactiveObj.value) && charts.length > 0) {
-      dataCall();
+    if (dashboard.id && charts.length > 0) {
+      dataCall(chartIDs, {});
     }
-  }, [charts, dashboard, dataCall, interactiveObj.value]);
+  }, []);
 
   const handleDragStart = (event, chartID) => {
     dragItemID.current = chartID;
@@ -161,11 +166,25 @@ const Dashboard = () => {
     setDragging(false);
   };
 
+  const resetDashboardCharts = chartIDs => {
+    dataCall(chartIDs, {});
+    setInteractiveObj({});
+  };
+
+  // Data call when interactiveObj changes
+  useEffect(() => {
+    const chartIDs = interactiveObj.effectedChartIds || [];
+    dataCall(chartIDs, interactiveObj);
+  }, [interactiveObj]);
+
   return (
     <Fragment>
       <Toolbar
         dashboard={dashboard}
-        refreshChart={dataCall}
+        dataFetchInProgress={Object.keys(compData).some(key => compData[key].loading === true)}
+        hasInteractiveFilter={Object.keys(interactiveObj).length > 0}
+        resetInteractiveFilter={() => resetDashboardCharts(interactiveObj.effectedChartIds)}
+        refreshChart={() => resetDashboardCharts(chartIDs)}
         toggleNewChartDialog={newChartToggle}
         toggleRelationsDialog={relationsToggle}
         toggleDrawer={toggleFilterDrawer}
@@ -203,13 +222,20 @@ const Dashboard = () => {
             dashboard={dashboard}
             showDrawer={showFilterDrawer}
             toggleDrawer={toggleFilterDrawer}
-            compData={compData}
+            getChartData={dataCall}
           />
         )}
-        {newChartShow && <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} />}
+        {newChartShow && (
+          <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} getChartData={dataCall} />
+        )}
         {shareLinkShow && <ShareWorkspaceDialog show={shareLinkShow} toggleDialog={shareLinkToggle} />}
         {editChartShow && (
-          <EditChartDialog chartID={chartID} show={editChartShow} toggleDialog={editChartToggle} />
+          <EditChartDialog
+            chartID={chartID}
+            show={editChartShow}
+            toggleDialog={editChartToggle}
+            getChartData={dataCall}
+          />
         )}
         {deleteChartShow && (
           <DeleteChartDialog
