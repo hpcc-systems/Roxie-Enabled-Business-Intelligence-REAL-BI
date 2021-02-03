@@ -50,9 +50,9 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID) => {
       `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`,
       { auth: clusterCreds },
     );
-    datasets = response.data[`${name}Response`].Results;
+    datasets = response?.data[`${name}Response`].Results;
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    throw new Error(`${error?.response?.data || 'Unknown error'}`);
   }
 
   if (!datasets) {

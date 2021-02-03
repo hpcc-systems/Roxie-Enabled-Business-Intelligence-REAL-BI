@@ -4,8 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Typography } from '@material-ui/core';
 
 //React Components
-import { BarChart, GroupBarChart, StackedBarChart } from './Bar';
-import { ColumnChart, GroupColumnChart, StackedColumnChart } from './Column';
+import { BarChart, GroupBarChart, PercentageBarChart, StackedBarChart } from './Bar';
+import { ColumnChart, GroupColumnChart, PercentageColumnChart, StackedColumnChart } from './Column';
 import Gauge from './Gauge';
 import HeatMap from './HeatMap';
 import HistogramChart from './Histogram';
@@ -37,7 +37,15 @@ const ChartComp = ({
   pdfPreview,
   sourceType,
 }) => {
-  const { groupBy = {}, horizontal, params = [], stacked, isStatic = false, type } = configuration;
+  const {
+    groupBy = {},
+    horizontal,
+    params = [],
+    percentageStack,
+    stacked,
+    isStatic = false,
+    type,
+  } = configuration;
   const { progress, warningMsg } = useStyles();
   let { relations } = useSelector(state => state.dashboard.dashboard);
   let chartType = type;
@@ -48,9 +56,23 @@ const ChartComp = ({
     // Confirm chart type
     if (chartType === 'bar') {
       if (horizontal) {
-        chartType = stacked ? 'bar-stacked' : groupBy.value ? 'bar-group' : 'bar';
+        chartType =
+          percentageStack && stacked
+            ? 'bar-percentage'
+            : stacked
+            ? 'bar-stacked'
+            : groupBy.value
+            ? 'bar-group'
+            : 'bar';
       } else {
-        chartType = stacked ? 'column-stacked' : groupBy.value ? 'column-group' : 'column';
+        chartType =
+          percentageStack && stacked
+            ? 'column-percentage'
+            : stacked
+            ? 'column-stacked'
+            : groupBy.value
+            ? 'column-group'
+            : 'column';
       }
     }
   }
@@ -103,6 +125,19 @@ const ChartComp = ({
             />
           );
           break;
+        case 'bar-percentage':
+          chartComp = (
+            <PercentageBarChart
+              chartID={chartID}
+              configuration={configuration}
+              data={data}
+              chartRelation={chartRelation}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
+            />
+          );
+          break;
         case 'column':
           chartComp = (
             <ColumnChart
@@ -132,6 +167,19 @@ const ChartComp = ({
         case 'column-stacked':
           chartComp = (
             <StackedColumnChart
+              chartID={chartID}
+              configuration={configuration}
+              data={data}
+              chartRelation={chartRelation}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
+            />
+          );
+          break;
+        case 'column-percentage':
+          chartComp = (
+            <PercentageColumnChart
               chartID={chartID}
               configuration={configuration}
               data={data}

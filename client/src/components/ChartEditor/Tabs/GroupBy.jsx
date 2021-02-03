@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
   const { dataset: eclDataset, schema = [] } = eclRef.current;
   const { chartID, configuration, dataset, selectedDataset = {}, sourceType } = localState;
-  const { groupBy = {}, stacked, type } = configuration;
+  const { groupBy = {}, percentageStack, stacked, type } = configuration;
   const { fields = [] } = selectedDataset;
   const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
 
@@ -38,7 +38,10 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
 
   return dataset || eclDataset ? (
     <Grid container direction='row' alignContent='space-between' spacing={1} className={topFormControl}>
-      <Grid item md={hasStackedOption(type) ? 7 : 9}>
+      <Grid
+        item
+        xs={hasStackedOption(type) ? (type === 'bar' && stacked ? 4 : 7) : type === 'bar' && stacked ? 6 : 9}
+      >
         <FormControl className={formControl} fullWidth>
           <InputLabel>Group Field</InputLabel>
           {chartID && fieldsArr.length <= 1 ? (
@@ -57,7 +60,7 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
           )}
         </FormControl>
       </Grid>
-      <Grid item md={3}>
+      <Grid item xs={3}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Data Type</InputLabel>
           <Select name='groupBy:type' value={groupBy.type || 'string'} onChange={updateAxisKey}>
@@ -72,7 +75,7 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
         </FormControl>
       </Grid>
       {hasStackedOption(type) && (
-        <Grid item md={2}>
+        <Grid item xs={2}>
           <FormControlLabel
             className={checkbox}
             control={
@@ -84,6 +87,23 @@ const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
               />
             }
             label='Stacked'
+            labelPlacement='top'
+          />
+        </Grid>
+      )}
+      {type === 'bar' && stacked && (
+        <Grid item xs={3}>
+          <FormControlLabel
+            className={checkbox}
+            control={
+              <Checkbox
+                name='configuration:percentageStack'
+                checked={percentageStack || false}
+                onChange={handleCheckbox}
+                color='primary'
+              />
+            }
+            label='Percentage (%)'
             labelPlacement='top'
           />
         </Grid>
