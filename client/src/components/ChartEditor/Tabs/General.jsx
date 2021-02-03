@@ -53,18 +53,27 @@ const charts = [
 ];
 
 const useStyles = makeStyles(theme => ({
-  dataLabelsCheckbox: { marginTop: theme.spacing(0.75) },
-  horizontalCheckbox: { marginTop: theme.spacing(2) },
-  menuIcon: { marginRight: 10 },
+  menuIcon: { marginRight: theme.spacing(1) },
   staticCheckbox: { marginTop: theme.spacing(1.5) },
+  topCheckbox: { margin: theme.spacing(2, 0, 0, 0) },
   topFormControl: { marginTop: theme.spacing(3) },
 }));
 
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
   const { configuration } = localState;
-  const { axis1, axis2, chartDescription, horizontal, isStatic, showDataLabels, title, type } = configuration;
-  const { dataLabelsCheckbox, horizontalCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
+  const {
+    axis1,
+    axis2,
+    chartDescription,
+    horizontal,
+    isStatic,
+    showDataLabels,
+    showLastExecuted,
+    title,
+    type,
+  } = configuration;
+  const { topCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
 
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
@@ -102,7 +111,19 @@ const GeneralTab = props => {
 
   return (
     <Grid container direction='row' alignContent='space-between' spacing={1}>
-      <Grid item md={hasHorizontalOption(type) || hasDynamicOption(type) ? 9 : 12} className={topFormControl}>
+      <Grid
+        item
+        xs={
+          hasHorizontalOption(type) || hasDynamicOption(type)
+            ? hasDataLabelOption(type)
+              ? 6
+              : 9
+            : hasDataLabelOption(type)
+            ? 9
+            : 12
+        }
+        className={topFormControl}
+      >
         <FormControl fullWidth>
           <InputLabel>Chart Type</InputLabel>
           <Select name='configuration:type' value={type} onChange={handleTypeChange}>
@@ -145,9 +166,9 @@ const GeneralTab = props => {
         </FormControl>
       </Grid>
       {hasHorizontalOption(type) && (
-        <Grid item md={3} className={topFormControl}>
+        <Grid item xs={3} className={topFormControl}>
           <FormControlLabel
-            className={horizontalCheckbox}
+            className={topCheckbox}
             control={
               <Checkbox
                 name='configuration:horizontal'
@@ -162,7 +183,7 @@ const GeneralTab = props => {
         </Grid>
       )}
       {hasDynamicOption(type) && (
-        <Grid item md={3} className={topFormControl}>
+        <Grid item xs={3} className={topFormControl}>
           <FormControlLabel
             className={staticCheckbox}
             control={
@@ -178,7 +199,24 @@ const GeneralTab = props => {
           />
         </Grid>
       )}
-      <Grid item md={hasDataLabelOption(type) ? 8 : 12}>
+      {hasDataLabelOption(type) && (
+        <Grid item xs={3} className={topFormControl}>
+          <FormControlLabel
+            className={topCheckbox}
+            control={
+              <Checkbox
+                name='configuration:showDataLabels'
+                checked={showDataLabels || false}
+                onChange={checkboxUpdated}
+                color='primary'
+              />
+            }
+            label='Data Labels'
+            labelPlacement='end'
+          />
+        </Grid>
+      )}
+      <Grid item xs={8}>
         <TextField
           fullWidth
           label='Chart Title'
@@ -188,24 +226,22 @@ const GeneralTab = props => {
           autoComplete='off'
         />
       </Grid>
-      {hasDataLabelOption(type) && (
-        <Grid item md={4}>
-          <FormControlLabel
-            className={dataLabelsCheckbox}
-            control={
-              <Checkbox
-                name='configuration:showDataLabels'
-                checked={showDataLabels || false}
-                onChange={checkboxUpdated}
-                color='primary'
-              />
-            }
-            label='Show Data Labels'
-            labelPlacement='end'
-          />
-        </Grid>
-      )}
-      <Grid item md={12}>
+      <Grid item xs={4}>
+        <FormControlLabel
+          className={topCheckbox}
+          control={
+            <Checkbox
+              name='configuration:showLastExecuted'
+              checked={showLastExecuted || false}
+              onChange={checkboxUpdated}
+              color='primary'
+            />
+          }
+          label='Show Last Executed'
+          labelPlacement='end'
+        />
+      </Grid>
+      <Grid item xs={12}>
         <TextField
           fullWidth
           label='Chart Description (Optional)'

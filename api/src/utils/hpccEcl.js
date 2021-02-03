@@ -142,13 +142,13 @@ const getWorkunitDataFromClusterWithParams = async (cluster, configuration, para
       },
       { auth: clusterCreds },
     );
-    data = response.data;
+    data = response?.data;
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    throw new Error(`${error?.response?.data || 'Unknown error'}`);
   }
 
-  if (data.Exceptions) {
-    const { Code, Message } = data.Exceptions.Exception[0];
+  if (data?.Exceptions) {
+    const { Code, Message } = data.Exceptions?.Exception[0];
     throw new Error(`${Code} -> ${Message}`);
   }
 

@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   button3: { marginRight: theme.spacing(1) },
   button4: { marginRight: theme.spacing(2) },
   paper: {
-    maxHeight: '70vh',
+    maxHeight: '75vh',
     minHeight: '63vh',
   },
   toolbar: { padding: 0 },
