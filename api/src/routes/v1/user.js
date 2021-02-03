@@ -35,8 +35,8 @@ router.post('/update_password', [validateChangePassword(), validate], async (req
 
     res.status(200).json({ message: 'Password Updated' });
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(err.response.data.errors);
+    res.status(err?.response?.status || 500);
+    const error = new Error(err?.response?.data?.errors);
     return next(error);
   }
 });

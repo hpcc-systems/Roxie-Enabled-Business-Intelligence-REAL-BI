@@ -108,8 +108,8 @@ router.post('/editor/clusters', async (req, res, next) => {
 
     res.status(200).json(targetClusters);
   } catch (err) {
-    res.status(err.response.status ? err.response.status : 500);
-    const error = new Error(`${err.response.data ? err.response.data : 'Unknown error'}`);
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
     return next(error);
   }
 });
