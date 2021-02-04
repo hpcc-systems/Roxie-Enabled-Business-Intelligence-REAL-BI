@@ -3,7 +3,7 @@ import { PercentStackedColumn } from '@ant-design/charts';
 import _ from 'lodash';
 
 // Utils
-import { thousandsSeparator, formatValue } from '../../../utils/misc';
+import { formatValue } from '../../../utils/misc';
 
 // Constants
 import { chartFillColor } from '../../../constants';
@@ -69,7 +69,7 @@ const PercentageColumnComp = ({
     data,
     forceFit: true,
     label: {
-      formatter: v => thousandsSeparator(v),
+      formatter: v => `${(Math.round(v * 1000) / 10).toFixed(1)}%`, // Format value to match tooltip
       position: 'middle',
       style: { fontSize: 12 },
       visible: showDataLabels,
@@ -78,7 +78,7 @@ const PercentageColumnComp = ({
       position: 'right-top',
       visible: true,
     },
-    meta: { [yValue]: { formatter: v => thousandsSeparator(v) } },
+    meta: { [yValue]: { formatter: v => v } },
     stackField: groupByValue,
     tooltip: { visible: !pdfPreview },
     xAxis: {
