@@ -3,6 +3,7 @@ import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import DatePicker from 'react-date-picker';
 import moment from 'moment';
+import { getDateParts } from '../utils/misc';
 
 const useStyles = makeStyles(theme => ({
   picker: {
@@ -14,20 +15,6 @@ const useStyles = makeStyles(theme => ({
   root: { paddingLeft: theme.spacing(1) },
   typography: { color: theme.palette.primary.contrastText },
 }));
-
-const getDateParts = date => {
-  // Expects date string in mm/dd/yyyy format
-
-  if (!date || typeof date !== 'string' || date.length !== 10) {
-    return;
-  }
-
-  const month = date.substring(0, 2);
-  const day = date.substring(3, 5);
-  const year = date.substring(6, 10);
-
-  return { month, day, year };
-};
 
 const DateRange = ({ filterID, valueObj, values: propVals, onChange }) => {
   const initState = propVals[0] ? [...propVals] : new Array(2);
