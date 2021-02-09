@@ -9,8 +9,8 @@ import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 import { canReOrganizeDashboards } from '../../utils/misc';
 
-const useStyles = makeStyles(() => ({
-  clearDiv: { clear: 'both' },
+const useStyles = makeStyles(theme => ({
+  chartDiv: { clear: 'both', margin: theme.spacing(1) },
   div: { cursor: 'pointer', height: '100%', opacity: 1 },
   draggedDiv: {
     border: `1px dashed ${grey[400]}`,
@@ -38,7 +38,7 @@ const ChartTile = props => {
   const { id: chartID, configuration } = chart;
   const { ecl = {}, size = 12 } = configuration;
   const eclDataset = ecl.dataset || '';
-  const { clearDiv, div, draggedDiv } = useStyles();
+  const { chartDiv, div, draggedDiv } = useStyles();
 
   const dataObj = compData[chartID] || compData[eclDataset] || {};
   const lastModifiedDate = dataObj.lastModifiedDate ? dataObj.lastModifiedDate : null;
@@ -46,7 +46,7 @@ const ChartTile = props => {
   const tile = () => (
     <Paper variant='outlined' style={{ position: 'relative' }}>
       <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
-      <div className={clearDiv}>
+      <div className={chartDiv}>
         <Chart
           chart={chart}
           dataObj={dataObj}

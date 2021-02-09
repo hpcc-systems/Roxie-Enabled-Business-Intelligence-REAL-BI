@@ -122,3 +122,17 @@ export const formatValue = (type, value, returnDate = false) => {
 
   return type === 'number' ? Number(value) : String(value);
 };
+
+export const getDateParts = date => {
+  // Expects date string in mm/dd/yyyy format
+
+  if (!date || typeof date !== 'string' || date.length !== 10) {
+    return;
+  }
+
+  const month = date.substring(0, 2);
+  const day = date.substring(3, 5);
+  const year = date.substring(6, 10);
+
+  return { month, day, year };
+};

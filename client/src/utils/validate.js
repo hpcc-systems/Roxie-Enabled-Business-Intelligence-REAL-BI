@@ -40,9 +40,9 @@ export const validateFilter = (state, eclRef) => {
     errors.push({ name: 'Provide a name for this filter' });
   }
 
-  if (!params[0].targetChart) {
+  if (!params[0]?.targetChart) {
     errors.push({ targetChart0: 'Specify at least one chart to be modified by this filter' });
-  } else if (!params[0].targetParam) {
+  } else if (!params[0]?.targetParam) {
     errors.push({ targetParam0: 'Specify a parameter for the selected chart' });
   }
 
@@ -54,22 +54,30 @@ export const validateFilter = (state, eclRef) => {
     }
   });
 
-  if (filterType !== 'dateRange' && filterType !== 'dateField') {
-    validateSource(state, eclRef);
+  if (filterType === 'valuesDropdown') {
+    try {
+      validateSource(state, eclRef);
+    } catch (errors) {
+      errors.push(...errors);
+    }
 
     if (!sourceField) {
       errors.push({ sourceField: 'Select a field of values' });
     }
   } else {
     if (filterType !== 'dateField') {
-      if (!params[0].dateRangePosition) {
+      if (!params[0]?.dateRangePosition) {
         errors.push({ dateRangePosition0: 'Specify the date range position' });
       }
 
       params.forEach(({ dateRangePosition, targetChart, targetParam }, index) => {
         if (index > 0) {
-          if ((targetChart !== '' || targetParam === '') && dateRangePosition === '') {
-            errors.push({ [`dateRangePosition${index}`]: 'Specify the date range position' });
+          if (targetChart !== '' && dateRangePosition === '') {
+            errors.push({ [`Position${index}`]: 'Specify the date range position' });
+          }
+
+          if (targetChart !== '' && targetParam === '') {
+            errors.push({ [`targetParam${index}`]: 'Specify the target parameter' });
           }
         }
       });

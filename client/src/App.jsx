@@ -3,8 +3,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 
 // Redux Store
 import store from './store';
@@ -54,20 +52,18 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <CssBaseline />
-          <Router>
-            <Switch>
-              <Route exact path='/' component={Login} />
-              <Route exact path='/login' component={Login} />
-              <Route exact path='/register/:shareID?' component={Register} />
-              <Route exact path='/forgot-password' component={ForgotPwd} />
-              <Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
-              <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
-              <PrivateRoute exact path='/changepwd' component={ChangePwd} />
-            </Switch>
-          </Router>
-        </MuiPickersUtilsProvider>
+        <CssBaseline />
+        <Router>
+          <Switch>
+            <Route exact path='/' component={Login} />
+            <Route exact path='/login' component={Login} />
+            <Route exact path='/register/:shareID?' component={Register} />
+            <Route exact path='/forgot-password' component={ForgotPwd} />
+            <Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
+            <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
+            <PrivateRoute exact path='/changepwd' component={ChangePwd} />
+          </Switch>
+        </Router>
       </ThemeProvider>
     </Provider>
   );
