@@ -7,7 +7,7 @@
     "start": "react-scripts start"
   },
   "dependencies": {
-    "@ant-design/charts": "^0.9.13",
+    "@ant-design/charts": "^1.0.17",
     "@hpcc-js/codemirror": "^2.36.0",
     "@hpcc-js/common": "^2.45.0",
     "@hpcc-js/phosphor": "^2.14.35",
@@ -20,6 +20,7 @@
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
+    "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-date-picker": "^8.0.7",
     "react-dom": "^17.0.1",

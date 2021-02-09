@@ -20,15 +20,15 @@ import {
   ScatterPlot as ScatterPlotIcon,
   Poll as PollIcon,
   TableChart as TableChartIcon,
-  TrendingFlat as HeatMapIcon,
+  ViewComfy as HeatmapIcon,
 } from '@material-ui/icons';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
 
 // React Components
-import DualLineParams from './DualLineParams';
+import DualAxesParams from './DualAxesParams';
 import GaugeParams from './GaugeParams';
 import GeneralParams from './GeneralParams';
-import HeatMapParams from './HeatMapParams';
+import HeatmapParams from './HeatmapParams';
 import HistogramParams from './HistogramParams';
 import PieParams from './PieParams';
 import TableParams from './TableParams';
@@ -41,9 +41,9 @@ import { changeChartType } from '../../../utils/chart';
 const charts = [
   { name: 'Bar', value: 'bar' },
   { name: 'Donut', value: 'donut' },
-  { name: 'DualLine', value: 'dualline' },
+  { name: 'Dual Axes Line', value: 'dualline' },
   { name: 'Gauge', value: 'gauge' },
-  { name: 'HeatMap', value: 'heatmap' },
+  { name: 'Heatmap', value: 'heatmap' },
   { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
   { name: 'Pie', value: 'pie' },
@@ -141,7 +141,7 @@ const GeneralTab = props => {
                       case 'histogram':
                         return <PollIcon className={menuIcon} />;
                       case 'heatmap':
-                        return <HeatMapIcon className={menuIcon} />;
+                        return <HeatmapIcon className={menuIcon} />;
                       case 'gauge':
                         return <AvTimerIcon className={menuIcon} />;
                       case 'line':
@@ -252,11 +252,11 @@ const GeneralTab = props => {
         />
       </Grid>
       {type === 'dualline' ? (
-        <DualLineParams {...props} />
+        <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
       ) : type === 'gauge' ? (
         <GaugeParams {...props} />
       ) : type === 'heatmap' ? (
-        <HeatMapParams {...props} />
+        <HeatmapParams {...props} />
       ) : type === 'histogram' ? (
         <HistogramParams {...props} />
       ) : type === 'pie' || type === 'donut' ? (

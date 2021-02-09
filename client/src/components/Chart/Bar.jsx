@@ -1,17 +1,19 @@
-import React from 'react';
-import { Scatter } from '@ant-design/charts';
+import React, { useEffect, useRef } from 'react';
+import { Bar } from '@ant-design/charts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
 import { chartFillColor } from '../../constants';
 
-const ScatterChart = ({ data, configuration, pdfPreview }) => {
+const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue } = {},
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue } = {},
     groupBy: { type: groupByType = 'string', value: groupByValue } = {},
+    percentageStack,
     showDataLabels,
-    sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
+    sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = yValue } = {},
+    stacked,
   } = configuration;
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
@@ -31,10 +33,10 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
 
   // Determine how to sort data array
   /*
-    If sortValue === xValue then when mapping over array, create a new key in object to prevent overwriting
+    If sortValue === yValue then when mapping over array, create a new key in object to prevent overwriting
     the formatted ouput the user sees on the chart
   */
-  if (sortValue === xValue) {
+  if (sortValue === yValue) {
     data = data.map(row => ({ ...row, [`sort${sortValue}`]: formatValue(sortType, row[sortValue], true) }));
     data = _.orderBy(data, [`sort${sortValue}`], [order]);
   } else {
@@ -44,9 +46,19 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
 
   const chartConfig = {
     data,
-    colorField: groupByValue,
-    shape: 'circle',
-    size: 4,
+    forceFit: true,
+    legend: { position: 'right-top' },
+    meta: {
+      [xValue]: {
+        formatter: value => {
+          return isNaN(value)
+            ? value
+            : percentageStack
+            ? `${(value * 100).toFixed(2)}%`
+            : Intl.NumberFormat('en-US').format(value);
+        },
+      },
+    },
     tooltip: { showContent: !pdfPreview },
     xAxis: {
       min: 0,
@@ -64,10 +76,15 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
   if (showDataLabels) {
     chartConfig.label = {
       formatter: row => {
-        const value = row[yValue];
+        const value = row[xValue];
 
-        return isNaN(value) ? value : Intl.NumberFormat('en-US').format(value);
+        return isNaN(value)
+          ? value
+          : percentageStack
+          ? `${(value * 100).toFixed(2)}%`
+          : Intl.NumberFormat('en-US').format(value);
       },
+      position: stacked ? 'middle' : 'right',
       style: { fill: chartFillColor, fontSize: 12 },
     };
   } else {
@@ -86,16 +103,56 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
     chartConfig.yAxis.label = null;
   }
 
-  return <Scatter {...chartConfig} />;
+  // Add groupby and stacked
+  if (groupByValue) {
+    if (percentageStack) {
+      chartConfig.isPercent = true;
+      chartConfig.isStack = true;
+      chartConfig.isGroup = null;
+    } else if (stacked) {
+      chartConfig.isPercent = null;
+      chartConfig.isStack = true;
+      chartConfig.isGroup = null;
+    } else {
+      chartConfig.isPercent = null;
+      chartConfig.isStack = null;
+      chartConfig.isGroup = true;
+    }
+
+    chartConfig.seriesField = groupByValue;
+  } else {
+    chartConfig.isPercent = null;
+    chartConfig.isStack = null;
+    chartConfig.isGroup = null;
+    chartConfig.seriesField = null;
+  }
+
+  // Add click event
+  const ref = useRef();
+  useEffect(() => {
+    if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
+      ref.current.on('element:click', args => {
+        const row = args.data.data;
+        interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
+      });
+    }
+  }, []);
+
+  return <Bar {...chartConfig} chartRef={ref} />;
 };
 
-ScatterChart.defaultProps = {
+BarChart.defaultProps = {
+  chartID: '',
+  chartRelation: {},
   configuration: {},
   data: [],
+  interactiveClick: () => {},
   pdfPreview: false,
 };
 
-ScatterChart.propTypes = {
+BarChart.propTypes = {
+  chartID: PropTypes.string,
+  chartRelation: PropTypes.object,
   configuration: PropTypes.shape({
     axis1: PropTypes.shape({
       label: PropTypes.string,
@@ -123,7 +180,8 @@ ScatterChart.propTypes = {
     stacked: PropTypes.bool,
   }).isRequired,
   data: PropTypes.array,
+  interactiveClick: PropTypes.func,
   pdfPreview: PropTypes.bool,
 };
 
-export default ScatterChart;
+export default BarChart;
