@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
   formControl: { color: grey[50], margin: theme.spacing(1) },
   iconColor: { color: grey[50] },
   progress: { margin: theme.spacing(1, 0, 1, 1) },
-  sliderBtn: { marginTop: theme.spacing(9) },
+  rangeBtn: { marginTop: theme.spacing(8) },
   typography: {
     flexGrow: 1,
     margin: theme.spacing(1.5, 1, 1, 1),
@@ -73,7 +73,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
     formControl,
     iconColor,
     progress,
-    sliderBtn,
+    rangeBtn,
     typography,
   } = useStyles();
 
@@ -236,7 +236,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
                 </Grid>
                 <Grid item xs={2}>
                   <Button
-                    className={clsx(button, editBtn, { [sliderBtn]: configuration.type === 'dateRange' })}
+                    className={clsx(button, editBtn, { [rangeBtn]: configuration.type === 'dateRange' })}
                     onClick={() => setCurrentFilter(id)}
                   >
                     <EditIcon className={iconColor} />
@@ -244,7 +244,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
                 </Grid>
                 <Grid item xs={2}>
                   <Button
-                    className={clsx(button, deleteBtn, { [sliderBtn]: configuration.type === 'dateRange' })}
+                    className={clsx(button, deleteBtn, { [rangeBtn]: configuration.type === 'dateRange' })}
                     onClick={() => deleteFilter(id)}
                   >
                     <DeleteIcon className={iconColor} />

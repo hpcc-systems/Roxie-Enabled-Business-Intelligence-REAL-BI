@@ -136,7 +136,7 @@ const createUrlParamsString = params => {
   let urlString = '';
   params = params.filter(({ value }) => value !== '' && value !== null);
   params.forEach(
-    ({ name, value }) => (urlString += qs.stringify({ [name]: value }, { encodeValuesOnly: true })),
+    ({ name, value }) => (urlString += `${qs.stringify({ [name]: value }, { encodeValuesOnly: true })}&`),
   );
 
   return `?${urlString}`;
