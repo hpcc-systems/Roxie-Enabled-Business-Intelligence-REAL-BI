@@ -1,63 +1,62 @@
 import React from 'react';
 import { Gauge } from '@ant-design/charts';
-
-// Constants
+import PropTypes from 'prop-types';
 import { chartFillColor } from '../../constants';
-import { formatValue } from '../../utils/misc';
 
-const GaugeComp = ({ data, configuration, pdfPreview }) => {
-  const {
-    axis1: { type: valueType = 'string', value = null },
-    axis2: { value: val2 = null },
-    axis3: { value: val3 = null },
-  } = configuration;
-
-  const minVal = Number(val2);
-  const maxVal = Number(val3);
+const GaugeChart = ({ data, configuration }) => {
+  const { axis1: { value } = {} } = configuration;
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !value || !val2 || !val3 || !minVal || !maxVal) {
+  if (!data || data.length === 0 || !value) {
     return null;
   }
 
-  // Create range array of equal segments
-  const split = (min, max, segments) => {
-    const result = [];
-    let delta = (max - min) / (segments - 1);
-
-    // Add smaller numbers to array and increase by delta
-    while (min < max) {
-      result.push(min);
-      min += delta;
-    }
-
-    // Add max value to end of array
-    result.push(max);
-
-    return result;
-  };
-
   // Convert necessary values to numbers
-  data = data.map(row => ({ ...row, [value]: formatValue(valueType, row[value]) }));
+  data = data.map(row => ({ ...row, [value]: Number(row[value]) }));
 
   const chartConfig = {
-    color: ['#39B8FF', '#52619B', '#43E089', '#C0EDF3'],
-    data,
-    forceFit: true,
-    min: minVal,
-    max: maxVal,
-    range: split(minVal, maxVal, 5),
-    statistic: {
-      color: chartFillColor,
-      position: ['50%', '90%'],
-      text: data[0][value],
-      visible: true,
+    axis: {
+      label: { formatter: v => v * 100 },
+      subTickLine: { count: 3 },
     },
-    tooltip: { visible: !pdfPreview },
-    value: data[0][value],
+    forceFit: true,
+    indicator: {
+      pointer: { style: { stroke: '#AAA' } },
+      pin: { style: { stroke: '#AAA' } },
+    },
+    percent: data[0][value],
+    range: {
+      color: ['l(0) 0:#B8E1FF 1:#3D76DD'],
+      ticks: [0, 1],
+    },
+    statistic: {
+      title: {
+        formatter: data => `${(data.percent * 100).toFixed(2)}%`,
+        style: { chartFillColor, fontSize: '36px', lineHeight: 1 },
+      },
+      content: {
+        offsetY: 36,
+        style: { color: chartFillColor, fontSize: '24px' },
+        formatter: () => value,
+      },
+    },
   };
 
   return <Gauge {...chartConfig} />;
 };
 
-export default GaugeComp;
+GaugeChart.defaultProps = {
+  configuration: {},
+  data: [],
+};
+
+GaugeChart.propTypes = {
+  configuration: PropTypes.shape({
+    axis1: PropTypes.shape({
+      value: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+  data: PropTypes.array,
+};
+
+export default GaugeChart;

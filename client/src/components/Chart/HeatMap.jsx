@@ -1,25 +1,20 @@
 import React from 'react';
 import { Heatmap } from '@ant-design/charts';
 import _ from 'lodash';
-
-// Utils
-import { thousandsSeparator, formatValue } from '../../utils/misc';
-
-// Constants
+import PropTypes from 'prop-types';
+import { formatValue } from '../../utils/misc';
 import { chartFillColor } from '../../constants';
 
-const colorList = ['#174c83', '#7eb6d4', '#efefeb', '#efa759', '#9b4d16'];
+const colorList = ['#dddddd', '#9ec8e0', '#5fa4cd', '#2e7ab6', '#114d90'];
 
-const HeatMapComp = ({ data, configuration, pdfPreview }) => {
+const HeatmapChart = ({ data, configuration, pdfPreview }) => {
   const {
-    axis1: { label: xLabel, value: xValue },
-    axis2: { label: yLabel, value: yValue },
+    axis1: { label: xLabel, type: xType = 'string', value: xValue } = {},
+    axis2: { label: yLabel, type: yType = 'string', value: yValue } = {},
     colorField,
-    showDataLabels = false,
-    sortBy = {},
+    showDataLabels,
+    sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
   } = configuration;
-  const { order: sortOrder = 'asc', type: sortType = 'string', value: sortValue = xValue } = sortBy;
-
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
 
@@ -31,8 +26,8 @@ const HeatMapComp = ({ data, configuration, pdfPreview }) => {
   // Convert necessary values to strings
   data = data.map(row => ({
     ...row,
-    [xValue]: String(row[xValue]),
-    [yValue]: String(row[yValue]),
+    [xValue]: String(formatValue(xType, row[xValue])),
+    [yValue]: String(formatValue(yType, row[yValue])),
   }));
 
   // Determine how to sort data array
@@ -42,68 +37,70 @@ const HeatMapComp = ({ data, configuration, pdfPreview }) => {
   */
   if (sortValue === xValue) {
     data = data.map(row => ({ ...row, [`sort${sortValue}`]: formatValue(sortType, row[sortValue], true) }));
-    data = _.orderBy(data, [`sort${sortValue}`], [sortOrder]);
+    data = _.orderBy(data, [`sort${sortValue}`], [order]);
   } else {
     data = data.map(row => ({ ...row, [sortValue]: formatValue(sortType, row[sortValue], true) }));
-    data = _.orderBy(data, [sortValue], [sortOrder]);
+    data = _.orderBy(data, [sortValue], [order]);
   }
 
   const chartConfig = {
     color: colorList,
-    colorField: colorField,
+    colorField,
     data,
     forceFit: true,
-    label: {
-      formatter: v => thousandsSeparator(v),
-      visible: showDataLabels,
-    },
-    meta: { [xValue]: { type: 'cat' } },
-    shapeType: 'rect',
+    shape: 'square',
     sizeField: colorField,
-    tooltip: {
-      formatter: v => ({
-        name: colorField,
-        value: thousandsSeparator(v),
-      }),
-      style: { fill: chartFillColor },
-      title: ' ', // Have to pass in a space or it will duplicate information
-      visible: !pdfPreview,
-    },
-    xAxis: {
-      label: {
-        style: { fill: chartFillColor },
-        visible: true,
-      },
-      line: {
-        style: { fill: chartFillColor },
-        visible: true,
-      },
-      title: {
-        style: { fill: chartFillColor },
-        text: customXLabel,
-        visible: true,
-      },
-    },
+    tooltip: { showContent: !pdfPreview },
+    xAxis: { title: { style: { fill: chartFillColor }, text: customXLabel } },
     xField: xValue,
-    yAxis: {
-      label: {
-        style: { fill: chartFillColor },
-        visible: true,
-      },
-      line: {
-        style: { fill: chartFillColor },
-        visible: true,
-      },
-      title: {
-        style: { fill: chartFillColor },
-        text: customYLabel,
-        visible: true,
-      },
-    },
+    yAxis: { title: { style: { fill: chartFillColor }, text: customYLabel } },
     yField: yValue,
   };
+
+  // Add data labels property
+  if (showDataLabels) {
+    chartConfig.label = {
+      formatter: row => {
+        const value = row[colorField];
+        return isNaN(value) ? value : Intl.NumberFormat('en-US').format(value);
+      },
+      style: { fill: chartFillColor, fontSize: 14 },
+    };
+  } else {
+    chartConfig.label = null;
+  }
 
   return <Heatmap {...chartConfig} />;
 };
 
-export default HeatMapComp;
+HeatmapChart.defaultProps = {
+  configuration: {},
+  data: [],
+  pdfPreview: false,
+};
+
+HeatmapChart.propTypes = {
+  configuration: PropTypes.shape({
+    axis1: PropTypes.shape({
+      label: PropTypes.string,
+      type: PropTypes.string,
+      value: PropTypes.string,
+    }).isRequired,
+    axis2: PropTypes.shape({
+      label: PropTypes.string,
+      type: PropTypes.string,
+      value: PropTypes.string,
+    }).isRequired,
+    colorField: PropTypes.string,
+    showDataLabels: PropTypes.bool,
+    sortBy: PropTypes.shape({
+      order: PropTypes.string,
+      type: PropTypes.string,
+      value: PropTypes.string,
+    }),
+  }).isRequired,
+  data: PropTypes.array,
+  pdfPreview: PropTypes.bool,
+};
+
+export default HeatmapChart;

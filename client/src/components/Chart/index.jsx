@@ -4,14 +4,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Typography } from '@material-ui/core';
 
 //React Components
-import { BarChart, GroupBarChart, PercentageBarChart, StackedBarChart } from './Bar';
-import { ColumnChart, GroupColumnChart, PercentageColumnChart, StackedColumnChart } from './Column';
+import BarChart from './Bar';
+import ColumnChart from './Column';
 import Gauge from './Gauge';
-import HeatMap from './HeatMap';
+import Heatmap from './Heatmap';
 import HistogramChart from './Histogram';
-import { LineChart, DualLineChart } from './Line';
+import LineChart from './Line';
+import { DualAxesLineChart } from './DualAxes';
 import NoData from './NoData';
-import { DonutChart, PieChart } from './Pie';
+import PieChart from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
 import TextBox from './TextBox';
@@ -37,15 +38,7 @@ const ChartComp = ({
   pdfPreview,
   sourceType,
 }) => {
-  const {
-    groupBy = {},
-    horizontal,
-    params = [],
-    percentageStack,
-    stacked,
-    isStatic = false,
-    type,
-  } = configuration;
+  const { horizontal, params = [], isStatic = false, type } = configuration;
   const { progress, warningMsg } = useStyles();
   let { relations } = useSelector(state => state.dashboard.dashboard);
   let chartType = type;
@@ -53,27 +46,8 @@ const ChartComp = ({
   const { data = [], error, loading } = dataObj;
 
   if (!error && data) {
-    // Confirm chart type
     if (chartType === 'bar') {
-      if (horizontal) {
-        chartType =
-          percentageStack && stacked
-            ? 'bar-percentage'
-            : stacked
-            ? 'bar-stacked'
-            : groupBy.value
-            ? 'bar-group'
-            : 'bar';
-      } else {
-        chartType =
-          percentageStack && stacked
-            ? 'column-percentage'
-            : stacked
-            ? 'column-stacked'
-            : groupBy.value
-            ? 'column-group'
-            : 'column';
-      }
+      chartType = horizontal ? 'bar' : 'column';
     }
   }
 
@@ -99,100 +73,9 @@ const ChartComp = ({
             />
           );
           break;
-        case 'bar-group':
-          chartComp = (
-            <GroupBarChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'bar-stacked':
-          chartComp = (
-            <StackedBarChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'bar-percentage':
-          chartComp = (
-            <PercentageBarChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
         case 'column':
           chartComp = (
             <ColumnChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'column-group':
-          chartComp = (
-            <GroupColumnChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'column-stacked':
-          chartComp = (
-            <StackedColumnChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'column-percentage':
-          chartComp = (
-            <PercentageColumnChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'donut':
-          chartComp = (
-            <DonutChart
               chartID={chartID}
               configuration={configuration}
               data={data}
@@ -220,9 +103,10 @@ const ChartComp = ({
           chartComp = <HistogramChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'dualline':
-          chartComp = <DualLineChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+          chartComp = <DualAxesLineChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'pie':
+        case 'donut':
           chartComp = <PieChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'scatter':
@@ -232,7 +116,7 @@ const ChartComp = ({
           chartComp = <TextBox data={data} configuration={configuration} />;
           break;
         case 'heatmap':
-          chartComp = <HeatMap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+          chartComp = <Heatmap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'gauge':
           chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
