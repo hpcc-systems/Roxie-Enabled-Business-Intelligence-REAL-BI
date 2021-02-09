@@ -59,52 +59,66 @@ router.get('/data', async (req, res, next) => {
     }
 
     // Default params to chart params or empty array
-    const chartParams = configuration.params || [];
+    const dataParams = configuration.params || [];
 
     // Get dashboard filters
-    const dashboardParams = [];
     dashboardFilters.forEach(filter => {
       const { configuration, value } = filter;
 
       configuration.params.forEach(({ targetChart, targetParam, dateRangePosition }) => {
         if (chartID === targetChart) {
+          const dataParamIndex = dataParams.findIndex(({ name }) => name === targetParam);
+
           if (configuration.type === 'dateRange') {
             const valuesArr = value.split(',');
             const dateValue = dateRangePosition === 'Start' ? valuesArr[0] : valuesArr[1];
-            dashboardParams.push({ name: targetParam, value: dateValue });
+
+            if (dataParamIndex > -1) {
+              dataParams[dataParamIndex] = { name: targetParam, value: dateValue };
+            } else {
+              dataParams.push({ name: targetParam, value: dateValue });
+            }
           } else {
-            dashboardParams.push({ name: targetParam, value });
+            if (dataParamIndex > -1) {
+              dataParams[dataParamIndex] = { name: targetParam, value };
+            } else {
+              dataParams.push({ name: targetParam, value });
+            }
           }
         }
       });
     });
 
     // Interactive click filters
-    const interactiveFilters = [];
     if (parsedObj?.chartID) {
       const dashboardRelations = await getDashboardRelationsByChartID(dashboardID, parsedObj, chartID);
 
       dashboardRelations.forEach(({ targetField }) => {
-        interactiveFilters.push({ name: targetField, value: parsedObj.value });
+        const dataParamIndex = dataParams.findIndex(({ name }) => name === targetField);
+
+        if (dataParamIndex > -1) {
+          dataParams[dataParamIndex] = { name: targetField, value: parsedObj.value };
+        } else {
+          dataParams.push({ name: targetField, value: parsedObj.value });
+        }
       });
     }
 
-    // Set hierarchy of importance
-    const newParam =
-      interactiveFilters.length > 0
-        ? interactiveFilters
-        : dashboardFilters.length > 0
-        ? dashboardParams
-        : chartParams;
-    const options = { params: newParam, source };
+    const options = { params: dataParams, source };
 
     switch (source.type) {
       case 'file':
         data = await getFileDataFromCluster(cluster, options, userID);
         break;
       case 'ecl':
-        if (newParam.filter(({ name }) => name !== 'Count').length > 0) {
-          data = await getWorkunitDataFromClusterWithParams(cluster, configuration, newParam, source, userID);
+        if (dataParams.filter(({ name }) => name !== 'Count').length > 0) {
+          data = await getWorkunitDataFromClusterWithParams(
+            cluster,
+            configuration,
+            dataParams,
+            source,
+            userID,
+          );
         } else {
           data = await getWorkunitDataFromCluster(cluster, configuration, source, userID);
         }

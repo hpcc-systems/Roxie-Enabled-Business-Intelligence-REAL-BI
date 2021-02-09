@@ -1,11 +1,11 @@
-import React from 'react';
-import { Scatter } from '@ant-design/charts';
+import React, { useEffect, useRef } from 'react';
+import { Line } from '@ant-design/charts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
 import { chartFillColor } from '../../constants';
 
-const ScatterChart = ({ data, configuration, pdfPreview }) => {
+const LineChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue } = {},
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue } = {},
@@ -44,19 +44,18 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
 
   const chartConfig = {
     data,
-    colorField: groupByValue,
-    shape: 'circle',
-    size: 4,
+    forceFit: true,
+    legend: { position: 'right-top' },
+    meta: {
+      [yValue]: {
+        formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
+      },
+    },
+    point: { size: 4 },
     tooltip: { showContent: !pdfPreview },
-    xAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customXLabel },
-    },
+    xAxis: { title: { style: { fill: chartFillColor }, text: customXLabel } },
     xField: xValue,
-    yAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customYLabel },
-    },
+    yAxis: { title: { style: { fill: chartFillColor }, text: customYLabel } },
     yField: yValue,
   };
 
@@ -65,9 +64,9 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
     chartConfig.label = {
       formatter: row => {
         const value = row[yValue];
-
         return isNaN(value) ? value : Intl.NumberFormat('en-US').format(value);
       },
+      position: 'top',
       style: { fill: chartFillColor, fontSize: 12 },
     };
   } else {
@@ -86,16 +85,46 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
     chartConfig.yAxis.label = null;
   }
 
-  return <Scatter {...chartConfig} />;
+  // Add groupby and stacked
+  if (groupByValue) {
+    chartConfig.seriesField = groupByValue;
+  } else {
+    chartConfig.seriesField = null;
+  }
+
+  // Add click event
+  const ref = useRef();
+  useEffect(() => {
+    if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
+      ref.current.on('element:click', args => {
+        const row = args.data.data;
+
+        if (Array.isArray(row)) {
+          if (groupByValue) {
+            interactiveClick(chartID, chartRelation.sourceField, row[0][chartRelation.sourceField]);
+          }
+        } else {
+          interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
+        }
+      });
+    }
+  }, []);
+
+  return <Line {...chartConfig} chartRef={ref} />;
 };
 
-ScatterChart.defaultProps = {
+LineChart.defaultProps = {
+  chartID: '',
+  chartRelation: {},
   configuration: {},
   data: [],
+  interactiveClick: () => {},
   pdfPreview: false,
 };
 
-ScatterChart.propTypes = {
+LineChart.propTypes = {
+  chartID: PropTypes.string,
+  chartRelation: PropTypes.object,
   configuration: PropTypes.shape({
     axis1: PropTypes.shape({
       label: PropTypes.string,
@@ -123,7 +152,8 @@ ScatterChart.propTypes = {
     stacked: PropTypes.bool,
   }).isRequired,
   data: PropTypes.array,
+  interactiveClick: PropTypes.func,
   pdfPreview: PropTypes.bool,
 };
 
-export default ScatterChart;
+export default LineChart;

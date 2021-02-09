@@ -27,7 +27,7 @@ export const hasStackedOption = chartType => {
 };
 
 export const hasGroupByOption = chartType => {
-  const chartTypes = ['bar', 'line', 'scatter'];
+  const chartTypes = ['bar', 'histogram', 'line', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
@@ -48,14 +48,14 @@ export const hasSortOptions = chartType => {
 };
 
 export const hasDataLabelOption = chartType => {
-  const chartTypes = ['bar', 'dualline', 'heatmap', 'line', 'pie', 'scatter'];
+  const chartTypes = ['bar', 'heatmap', 'line', 'pie', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
 };
 
 export const hasClickEventOption = chartType => {
-  const chartTypes = ['bar', 'donut', 'line', 'table'];
+  const chartTypes = ['bar', 'donut', 'line', 'pie', 'table'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
@@ -121,4 +121,18 @@ export const formatValue = (type, value, returnDate = false) => {
   }
 
   return type === 'number' ? Number(value) : String(value);
+};
+
+export const getDateParts = date => {
+  // Expects date string in mm/dd/yyyy format
+
+  if (!date || typeof date !== 'string' || date.length !== 10) {
+    return;
+  }
+
+  const month = date.substring(0, 2);
+  const day = date.substring(3, 5);
+  const year = date.substring(6, 10);
+
+  return { month, day, year };
 };

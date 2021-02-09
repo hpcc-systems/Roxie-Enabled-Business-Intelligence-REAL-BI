@@ -25,12 +25,10 @@ const useStyles = makeStyles(theme => ({
 const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj }) => {
   const { schema = [] } = eclRef.current;
   const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
-  const { axis1 = {}, binNumber } = configuration;
+  const { axis1 = {}, binWidth } = configuration;
   const { fields = [] } = selectedDataset;
   const { formControl, progress } = useStyles();
-  const binNumTooltipText = `The number of bins, or buckets, the dataset should be split into.
-  For example, specifiying "3" would split the dataset 3 times, resulting in 4 buckets
-  of values.`;
+  const binNumTooltipText = 'The width of each bin. Affects how the dataset is divided on the chart.';
 
   const fieldsArr =
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
@@ -87,9 +85,9 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
             <Tooltip title={binNumTooltipText} placement='right'>
               <TextField
                 fullWidth
-                label='Number of Bins'
-                name='configuration:binNumber'
-                value={binNumber || ''}
+                label='Bin Width'
+                name='configuration:binWidth'
+                value={binWidth || ''}
                 onChange={handleChangeObj}
                 autoComplete='off'
               />

@@ -136,8 +136,11 @@ const createUrlParamsString = params => {
   let urlString = '';
   params = params.filter(({ value }) => value !== '' && value !== null);
   params.forEach(
-    ({ name, value }) => (urlString += qs.stringify({ [name]: value }, { encodeValuesOnly: true })),
+    ({ name, value }) => (urlString += `${qs.stringify({ [name]: value }, { encodeValuesOnly: true })}&`),
   );
+
+  // Remove extra '&' at end of string
+  urlString = urlString.substring(0, urlString.length - 1);
 
   return `?${urlString}`;
 };
