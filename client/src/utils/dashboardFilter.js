@@ -4,8 +4,12 @@ export const createFilterObj = (localState, ecl) => {
   const { filterType, name, sourceDataset, sourceField, sourceType, params } = localState;
 
   // Get array of objects that are complete
-  const completeParams = params.filter(({ targetChart, targetParam }) => {
-    return targetChart !== '' && targetParam !== '';
+  const completeParams = params.filter(({ targetChart, targetParam, startTargetParam, endTargetParam }) => {
+    if (filterType === 'dateRange') {
+      return targetChart !== '' && startTargetParam !== '' && endTargetParam;
+    } else {
+      return targetChart !== '' && targetParam !== '';
+    }
   });
 
   const newFilter = {

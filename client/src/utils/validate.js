@@ -42,46 +42,45 @@ export const validateFilter = (state, eclRef) => {
 
   if (!params[0]?.targetChart) {
     errors.push({ targetChart0: 'Specify at least one chart to be modified by this filter' });
-  } else if (!params[0]?.targetParam) {
-    errors.push({ targetParam0: 'Specify a parameter for the selected chart' });
   }
 
-  params.forEach(({ targetChart, targetParam }, index) => {
-    if (index > 0) {
-      if (targetChart !== '' && targetParam === '') {
-        errors.push({ [`targetParam${index}`]: 'Specify a parameter for the selected chart' });
+  if (filterType !== 'dateRange') {
+    if (!params[0]?.targetParam) {
+      errors.push({ targetParam0: 'Specify a parameter for the selected chart' });
+    }
+
+    params.forEach(({ targetChart, targetParam }, index) => {
+      if (index > 0) {
+        if (targetChart !== '' && targetParam === '') {
+          errors.push({ [`targetParam${index}`]: 'Specify a parameter for the selected chart' });
+        }
       }
-    }
-  });
+    });
 
-  if (filterType === 'valuesDropdown') {
-    try {
-      validateSource(state, eclRef);
-    } catch (errors) {
-      errors.push(...errors);
-    }
+    if (filterType !== 'dateField') {
+      try {
+        validateSource(state, eclRef);
+      } catch (errors) {
+        errors.push(...errors);
+      }
 
-    if (!sourceField) {
-      errors.push({ sourceField: 'Select a field of values' });
+      if (!sourceField) {
+        errors.push({ sourceField: 'Select a field of values' });
+      }
     }
   } else {
-    if (filterType !== 'dateField') {
-      if (!params[0]?.dateRangePosition) {
-        errors.push({ dateRangePosition0: 'Specify the date range position' });
+    // Is a date range filter
+    params.forEach((paramObj, index) => {
+      const { targetChart, startTargetParam = paramObj.targetParam, endTargetParam } = paramObj;
+
+      if (targetChart !== '' && startTargetParam === '') {
+        errors.push({ [`startTargetParam${index}`]: 'Specify the target parameter' });
       }
 
-      params.forEach(({ dateRangePosition, targetChart, targetParam }, index) => {
-        if (index > 0) {
-          if (targetChart !== '' && dateRangePosition === '') {
-            errors.push({ [`Position${index}`]: 'Specify the date range position' });
-          }
-
-          if (targetChart !== '' && targetParam === '') {
-            errors.push({ [`targetParam${index}`]: 'Specify the target parameter' });
-          }
-        }
-      });
-    }
+      if (targetChart !== '' && endTargetParam === '') {
+        errors.push({ [`endTargetParam${index}`]: 'Specify the target parameter' });
+      }
+    });
   }
 
   if (errors.length > 0) throw errors;

@@ -65,24 +65,34 @@ router.get('/data', async (req, res, next) => {
     dashboardFilters.forEach(filter => {
       const { configuration, value } = filter;
 
-      configuration.params.forEach(({ targetChart, targetParam, dateRangePosition }) => {
+      configuration.params.forEach(({ targetChart, targetParam, startTargetParam, endTargetParam }) => {
         if (chartID === targetChart) {
-          const dataParamIndex = dataParams.findIndex(({ name }) => name === targetParam);
+          let dataParamIndex = dataParams.findIndex(({ name }) => name === targetParam);
 
           if (configuration.type === 'dateRange') {
             const valuesArr = value.split(',');
-            const dateValue = dateRangePosition === 'Start' ? valuesArr[0] : valuesArr[1];
+
+            valuesArr.forEach((value, index) => {
+              const paramField = index === 0 ? startTargetParam : endTargetParam;
+              let dataParamIndex = dataParams.findIndex(({ name }) => name === paramField);
+
+              if (dataParamIndex > -1) {
+                dataParams[dataParamIndex] = { name: paramField, value };
+              } else {
+                dataParams.push({ name: paramField, value });
+              }
+            });
+          } else {
+            let filterVal = value;
+
+            if (configuration.type === 'dateField' && filterVal.indexOf(',') > -1) {
+              filterVal = filterVal.split(',')[0];
+            }
 
             if (dataParamIndex > -1) {
-              dataParams[dataParamIndex] = { name: targetParam, value: dateValue };
+              dataParams[dataParamIndex] = { name: targetParam, value: filterVal };
             } else {
-              dataParams.push({ name: targetParam, value: dateValue });
-            }
-          } else {
-            if (dataParamIndex > -1) {
-              dataParams[dataParamIndex] = { name: targetParam, value };
-            } else {
-              dataParams.push({ name: targetParam, value });
+              dataParams.push({ name: targetParam, value: filterVal });
             }
           }
         }
