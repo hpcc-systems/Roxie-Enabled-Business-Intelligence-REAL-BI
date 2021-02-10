@@ -51,7 +51,11 @@ const AxisConfigOptions = props => {
           {chartID && messages.indexOf(fieldsArr[0].name) > -1 && error === '' ? (
             <CircularProgress className={progress} size={20} />
           ) : (
-            <Select name={`${field}:value`} value={configuration[field].value || ''} onChange={updateAxisKey}>
+            <Select
+              name={`${field}:value`}
+              value={configuration?.[field]?.value || ''}
+              onChange={updateAxisKey}
+            >
               {fieldsArr.map(({ name, value = name }, index) => {
                 return (
                   <MenuItem key={index} value={value}>
@@ -71,7 +75,7 @@ const AxisConfigOptions = props => {
               fullWidth
               label='Label'
               name={`${field}:label`}
-              value={configuration[field].label || ''}
+              value={configuration?.[field]?.label || ''}
               onChange={updateAxisKey}
               autoComplete='off'
             />
@@ -85,7 +89,7 @@ const AxisConfigOptions = props => {
             handleChange={updateAxisKey}
             label='Data Type'
             name={`${field}:type`}
-            value={configuration[field].type}
+            value={configuration?.[field]?.type}
             valuesArr={dataTypes}
           />
         </Grid>
@@ -95,7 +99,7 @@ const AxisConfigOptions = props => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={configuration[field].showTickLabels}
+                checked={configuration?.[field]?.showTickLabels}
                 onChange={checkboxUpdated}
                 name={`${field}:showTickLabels`}
               />

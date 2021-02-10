@@ -57,7 +57,7 @@ const GroupOptions = props => {
           handleChange={updateAxisKey}
           label='Data Type'
           name={`${field}:type`}
-          value={configuration[field].type}
+          value={configuration?.[field]?.type}
           valuesArr={dataTypes}
         />
       </Grid>

@@ -118,7 +118,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
     let { value } = event.target;
 
     if (Array.isArray(value)) {
-      value = value.join();
+      value = value.join(',');
     }
 
     // Get altered filter to make dataCall
@@ -182,7 +182,11 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
           {filters.map(({ configuration, id, name, value }, index) => {
             const dataObj = compData[id] || {};
             const { data = [], loading = false } = dataObj;
-            const filterVal = getFilterValue(value, configuration.type);
+            let filterVal = getFilterValue(value, configuration.type);
+
+            if (configuration.type === 'valuesDropdown') {
+              filterVal = Array.isArray(filterVal) ? filterVal.map(val => String(val)) : [String(filterVal)];
+            }
 
             return loading ? (
               <Grid item key={index} xs={12} className={progress}>
@@ -222,7 +226,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
                             [({ configuration }) => configuration?.field || ''],
                             ['asc'],
                           ).map((object, index) => {
-                            const value = object[configuration.field];
+                            const value = String(object[configuration.field]);
                             return (
                               <MenuItem key={index} value={value}>
                                 {value}
