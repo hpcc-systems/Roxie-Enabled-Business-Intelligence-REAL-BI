@@ -13,8 +13,9 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import { getMessage } from '../../utils/misc';
-import { dataTypes, messages } from '../../constants';
+import { getMessage } from '../../../utils/misc';
+import { dataTypes, messages } from '../../../constants';
+import DataTypeDropdown from './DataTypeDropdown';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -79,22 +80,14 @@ const AxisConfigOptions = props => {
       )}
       {showDataTypeOption && (
         <Grid item xs>
-          <FormControl className={formControl} fullWidth>
-            <InputLabel>Data Type</InputLabel>
-            <Select
-              name={`${field}:type`}
-              value={configuration[field].type || 'string'}
-              onChange={updateAxisKey}
-            >
-              {dataTypes.map((dataType, index) => {
-                return (
-                  <MenuItem key={index} value={dataType}>
-                    {dataType}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
+          <DataTypeDropdown
+            className={formControl}
+            handleChange={updateAxisKey}
+            label='Data Type'
+            name={`${field}:type`}
+            value={configuration[field].type}
+            valuesArr={dataTypes}
+          />
         </Grid>
       )}
       {showLabelOption && (

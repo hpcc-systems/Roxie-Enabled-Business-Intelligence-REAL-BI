@@ -43,6 +43,7 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
   }
 
   const chartConfig = {
+    appendPadding: [24, 0, 0, 0],
     data,
     forceFit: true,
     legend: { position: 'right-top' },
@@ -51,6 +52,7 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
         formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
       },
     },
+    padding: 'auto',
     point: { size: 4 },
     tooltip: { showContent: !pdfPreview },
     xAxis: { title: { style: { fill: chartFillColor }, text: customXLabel } },

@@ -15,6 +15,7 @@ const GaugeChart = ({ data, configuration }) => {
   data = data.map(row => ({ ...row, [value]: Number(row[value]) }));
 
   const chartConfig = {
+    appendPadding: [24, 0, 0, 0],
     axis: {
       label: { formatter: v => v * 100 },
       subTickLine: { count: 3 },
@@ -24,6 +25,7 @@ const GaugeChart = ({ data, configuration }) => {
       pointer: { style: { stroke: '#AAA' } },
       pin: { style: { stroke: '#AAA' } },
     },
+    padding: 'auto',
     percent: data[0][value],
     range: {
       color: ['l(0) 0:#B8E1FF 1:#3D76DD'],

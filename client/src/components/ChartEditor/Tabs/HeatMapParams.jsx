@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 import { getMessage } from '../../../utils/misc';
 import { messages } from '../../../constants';
-import AxisConfigOptions from '../AxisConfigOptions';
+import ConfigOptions from '../AxisConfig/ConfigOptions';
 
 const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
@@ -34,7 +34,7 @@ const HeatmapParams = props => {
   return (
     <Grid item xs={12}>
       <Grid container spacing={2}>
-        <AxisConfigOptions
+        <ConfigOptions
           {...props}
           field='axis1'
           label='X Axis'
@@ -43,7 +43,7 @@ const HeatmapParams = props => {
         />
       </Grid>
       <Grid container spacing={2}>
-        <AxisConfigOptions
+        <ConfigOptions
           {...props}
           field='axis2'
           label='Y Axis'

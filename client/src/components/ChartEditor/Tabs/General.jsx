@@ -20,9 +20,11 @@ import {
   ScatterPlot as ScatterPlotIcon,
   Poll as PollIcon,
   TableChart as TableChartIcon,
+  TextFields as TextFieldsIcon,
   ViewComfy as HeatmapIcon,
 } from '@material-ui/icons';
-import TextFieldsIcon from '@material-ui/icons/TextFields';
+import clsx from 'clsx';
+import ColumnLineIcon from '../../../assets/images/ColumnLine.png';
 
 // React Components
 import DualAxesParams from './DualAxesParams';
@@ -40,6 +42,7 @@ import { changeChartType } from '../../../utils/chart';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
+  { name: 'Dual Axes Column-Line', value: 'columnline' },
   { name: 'Donut', value: 'donut' },
   { name: 'Dual Axes Line', value: 'dualline' },
   { name: 'Gauge', value: 'gauge' },
@@ -55,7 +58,12 @@ const charts = [
 const useStyles = makeStyles(theme => ({
   menuIcon: { marginRight: theme.spacing(1) },
   staticCheckbox: { marginTop: theme.spacing(1.5) },
+  svgIcon: {
+    marginRight: theme.spacing(1),
+    width: 20,
+  },
   topCheckbox: { margin: theme.spacing(2, 0, 0, 0) },
+  topCheckbox2: { margin: 0 },
   topFormControl: { marginTop: theme.spacing(3) },
 }));
 
@@ -69,11 +77,12 @@ const GeneralTab = props => {
     horizontal,
     isStatic,
     showDataLabels,
+    showDataLabels2,
     showLastExecuted,
     title,
     type,
   } = configuration;
-  const { topCheckbox, menuIcon, staticCheckbox, topFormControl } = useStyles();
+  const { topCheckbox, topCheckbox2, menuIcon, staticCheckbox, svgIcon, topFormControl } = useStyles();
 
   const checkboxUpdated = event => {
     const { name, checked } = event.target;
@@ -109,6 +118,8 @@ const GeneralTab = props => {
     handleChange(null, { name: 'configuration', value: newConfig });
   };
 
+  const isDualAxesChart = type === 'columnline' || type === 'dualline';
+
   return (
     <Grid container direction='row' alignContent='space-between' spacing={1}>
       <Grid
@@ -116,10 +127,14 @@ const GeneralTab = props => {
         xs={
           hasHorizontalOption(type) || hasDynamicOption(type)
             ? hasDataLabelOption(type)
-              ? 6
+              ? isDualAxesChart
+                ? 3
+                : 6
               : 9
             : hasDataLabelOption(type)
-            ? 9
+            ? isDualAxesChart
+              ? 6
+              : 9
             : 12
         }
         className={topFormControl}
@@ -134,6 +149,8 @@ const GeneralTab = props => {
                     switch (value) {
                       case 'bar':
                         return <BarChartIcon className={menuIcon} />;
+                      case 'columnline':
+                        return <img src={ColumnLineIcon} className={svgIcon} />;
                       case 'donut':
                         return <DonutChartIcon className={menuIcon} />;
                       case 'dualline':
@@ -202,7 +219,7 @@ const GeneralTab = props => {
       {hasDataLabelOption(type) && (
         <Grid item xs={3} className={topFormControl}>
           <FormControlLabel
-            className={topCheckbox}
+            className={clsx(topCheckbox, { [topCheckbox2]: isDualAxesChart })}
             control={
               <Checkbox
                 name='configuration:showDataLabels'
@@ -211,8 +228,37 @@ const GeneralTab = props => {
                 color='primary'
               />
             }
-            label='Data Labels'
-            labelPlacement='end'
+            label={
+              type === 'columnline'
+                ? 'Data Labels (Column)'
+                : type === 'dualline'
+                ? 'Data Labels (Line)'
+                : 'Data Labels'
+            }
+            labelPlacement={isDualAxesChart ? 'top' : 'end'}
+          />
+        </Grid>
+      )}
+      {hasDataLabelOption(type) && isDualAxesChart && (
+        <Grid item xs={3} className={topFormControl}>
+          <FormControlLabel
+            className={topCheckbox2}
+            control={
+              <Checkbox
+                name='configuration:showDataLabels2'
+                checked={showDataLabels2 || false}
+                onChange={checkboxUpdated}
+                color='primary'
+              />
+            }
+            label={
+              type === 'columnline'
+                ? 'Data Labels (Line)'
+                : type === 'dualline'
+                ? 'Data Labels (Line 2)'
+                : 'Data Labels'
+            }
+            labelPlacement='top'
           />
         </Grid>
       )}
@@ -251,7 +297,7 @@ const GeneralTab = props => {
           autoComplete='off'
         />
       </Grid>
-      {type === 'dualline' ? (
+      {type === 'dualline' || type === 'columnline' ? (
         <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
       ) : type === 'gauge' ? (
         <GaugeParams {...props} />

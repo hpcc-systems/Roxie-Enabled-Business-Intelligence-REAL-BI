@@ -5,15 +5,17 @@ import PropTypes from 'prop-types';
 import { formatValue } from '../../../utils/misc';
 import { chartFillColor } from '../../../constants';
 
-const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
+const ColumnLineChart = ({ configuration, data, pdfPreview }) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue } = {},
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue } = {},
     axis3: { label: yLabel2, showTickLabels: yShowTickLabels2, type: yType2 = 'string', value: yValue2 } = {},
     groupBy: { type: groupByType = 'string', value: groupByValue = '' } = {},
     groupBy2: { type: groupByType2 = 'string', value: groupByValue2 = '' } = {},
+    percentageStack,
     showDataLabels,
     showDataLabels2,
+    stacked,
     sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
   } = configuration;
   const customXLabel = xLabel ? xLabel : xValue;
@@ -52,18 +54,16 @@ const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
     appendPadding: [24, 0, 0, 0],
     data: [data, data],
     forceFit: true,
-    geometryOptions: [
-      { geometry: 'line', point: 4 },
-      {
-        geometry: 'line',
-        lineStyle: { lineDash: [10, 5] },
-        point: 4,
-      },
-    ],
+    geometryOptions: [{ geometry: 'column' }, { geometry: 'line', point: 4 }],
     legend: { position: 'right-top' },
     meta: {
       [yValue]: {
-        formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
+        formatter: value =>
+          isNaN(value)
+            ? value
+            : percentageStack
+            ? `${(value * 100).toFixed(2)}%`
+            : Intl.NumberFormat('en-US').format(value),
       },
       [yValue2]: {
         formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
@@ -85,7 +85,11 @@ const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
     chartConfig.geometryOptions[0].label = {
       formatter: row => {
         const value = row[yValue];
-        return isNaN(value) ? value : Intl.NumberFormat('en-US').format(value);
+        return isNaN(value)
+          ? value
+          : percentageStack
+          ? `${(value * 100).toFixed(2)}%`
+          : Intl.NumberFormat('en-US').format(value);
       },
       style: { fill: chartFillColor, fontSize: 12 },
     };
@@ -125,6 +129,20 @@ const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
 
   // Add groupby
   if (groupByValue) {
+    if (percentageStack) {
+      chartConfig.geometryOptions[0].isPercent = true;
+      chartConfig.geometryOptions[0].isStack = true;
+      chartConfig.geometryOptions[0].isGroup = null;
+    } else if (stacked) {
+      chartConfig.geometryOptions[0].isPercent = null;
+      chartConfig.geometryOptions[0].isStack = true;
+      chartConfig.geometryOptions[0].isGroup = null;
+    } else {
+      chartConfig.geometryOptions[0].isPercent = null;
+      chartConfig.geometryOptions[0].isStack = null;
+      chartConfig.geometryOptions[0].isGroup = true;
+    }
+
     chartConfig.geometryOptions[0].seriesField = groupByValue;
   } else {
     chartConfig.geometryOptions[0].seriesField = null;
@@ -139,13 +157,13 @@ const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
   return <DualAxes {...chartConfig} />;
 };
 
-DualAxesLineChart.defaultProps = {
+ColumnLineChart.defaultProps = {
   configuration: {},
   data: [],
   pdfPreview: false,
 };
 
-DualAxesLineChart.propTypes = {
+ColumnLineChart.propTypes = {
   configuration: PropTypes.shape({
     axis1: PropTypes.shape({
       label: PropTypes.string,
@@ -173,8 +191,10 @@ DualAxesLineChart.propTypes = {
       type: PropTypes.string,
       value: PropTypes.string,
     }),
+    percentageStack: PropTypes.bool,
     showDataLabels: PropTypes.bool,
     showDataLabels2: PropTypes.bool,
+    stacked: PropTypes.bool,
     sortBy: PropTypes.shape({
       order: PropTypes.string,
       type: PropTypes.string,
@@ -185,4 +205,4 @@ DualAxesLineChart.propTypes = {
   pdfPreview: PropTypes.bool,
 };
 
-export default DualAxesLineChart;
+export default ColumnLineChart;

@@ -44,10 +44,12 @@ const HeatmapChart = ({ data, configuration, pdfPreview }) => {
   }
 
   const chartConfig = {
+    appendPadding: [24, 0, 0, 0],
     color: colorList,
     colorField,
     data,
     forceFit: true,
+    padding: 'auto',
     shape: 'square',
     sizeField: colorField,
     tooltip: { showContent: !pdfPreview },

@@ -1,3 +1,4 @@
+import ColumnLineChart from './ColumnLine';
 import DualAxesLineChart from './Line';
 
-export { DualAxesLineChart };
+export { ColumnLineChart, DualAxesLineChart };

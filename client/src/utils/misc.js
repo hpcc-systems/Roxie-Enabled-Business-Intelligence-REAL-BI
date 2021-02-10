@@ -1,15 +1,5 @@
 import moment from 'moment';
 
-// Convert a number to a string with a thousands place separator
-export const thousandsSeparator = num => {
-  // Number contains a decimal
-  if (num % 1 > 0) {
-    return `${num}`;
-  }
-
-  return `${num}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`);
-};
-
 // Determines if the chart type has a horizontal option
 export const hasHorizontalOption = chartType => {
   const chartTypes = ['bar'];
@@ -20,14 +10,22 @@ export const hasHorizontalOption = chartType => {
 
 // Determines if the chart type has a stacked option
 export const hasStackedOption = chartType => {
-  const chartTypes = ['bar'];
+  const chartTypes = ['bar', 'columnline'];
+
+  // Return boolean
+  return chartTypes.indexOf(chartType) > -1;
+};
+
+// Determines if the chart type has a percentage stack option
+export const hasPercentageStackOption = chartType => {
+  const chartTypes = ['bar', 'columnline'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
 };
 
 export const hasGroupByOption = chartType => {
-  const chartTypes = ['bar', 'histogram', 'line', 'scatter'];
+  const chartTypes = ['bar', 'columnline', 'dualline', 'histogram', 'line', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
@@ -41,14 +39,14 @@ export const hasDynamicOption = chartType => {
 };
 
 export const hasSortOptions = chartType => {
-  const chartTypes = ['bar', 'dualline', 'heatmap', 'line', 'scatter'];
+  const chartTypes = ['bar', 'columnline', 'dualline', 'heatmap', 'line', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;
 };
 
 export const hasDataLabelOption = chartType => {
-  const chartTypes = ['bar', 'heatmap', 'line', 'pie', 'scatter'];
+  const chartTypes = ['bar', 'columnline', 'dualline', 'heatmap', 'histogram', 'line', 'pie', 'scatter'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;

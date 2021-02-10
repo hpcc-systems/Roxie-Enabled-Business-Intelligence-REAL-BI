@@ -1,114 +1,76 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Checkbox,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from '@material-ui/core';
-
-// Constants
-import { dataTypes } from '../../../constants';
-
-// Utils
-import { getMessage, hasStackedOption } from '../../../utils/misc';
+import { Grid, Typography } from '@material-ui/core';
+import { getMessage, hasPercentageStackOption, hasStackedOption } from '../../../utils/misc';
+import AxisGroupOptions from '../AxisConfig/GroupOptions';
+import ConfigCheckbox from '../AxisConfig/ConfigCheckbox';
 
 const useStyles = makeStyles(theme => ({
-  checkbox: { marginTop: theme.spacing(0.25), marginLeft: theme.spacing(2) },
-  formControl: { marginTop: theme.spacing(1) },
-  progress: { margin: 0, marginTop: 50 },
   topFormControl: { marginTop: theme.spacing(3) },
-  typography: { marginTop: 20 },
+  typography: { marginTop: theme.spacing(2.5) },
 }));
 
-const GroupByTab = ({ eclRef, handleCheckbox, localState, updateAxisKey }) => {
-  const { dataset: eclDataset, schema = [] } = eclRef.current;
-  const { chartID, configuration, dataset, selectedDataset = {}, sourceType } = localState;
-  const { groupBy = {}, percentageStack, stacked, type } = configuration;
-  const { fields = [] } = selectedDataset;
-  const { checkbox, formControl, progress, topFormControl, typography } = useStyles();
-
-  const fieldsArr =
-    schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
+const GroupByTab = props => {
+  const {
+    eclRef: { current: { dataset: eclDataset } = {} } = {},
+    handleCheckbox,
+    localState: {
+      configuration: { percentageStack, stacked, type },
+      dataset,
+      sourceType,
+    },
+  } = props;
+  const { topFormControl, typography } = useStyles();
 
   return dataset || eclDataset ? (
-    <Grid container direction='row' alignContent='space-between' spacing={1} className={topFormControl}>
-      <Grid
-        item
-        xs={hasStackedOption(type) ? (type === 'bar' && stacked ? 4 : 7) : type === 'bar' && stacked ? 6 : 9}
-      >
-        <FormControl className={formControl} fullWidth>
-          <InputLabel>Group Field</InputLabel>
-          {chartID && fieldsArr.length <= 1 ? (
-            <CircularProgress className={progress} size={20} />
-          ) : (
-            <Select name='groupBy:value' value={groupBy.value || ''} onChange={updateAxisKey}>
-              {groupBy !== '' && <MenuItem value=''>Clear Selection</MenuItem>}
-              {fieldsArr.map(({ name, value = name }, index) => {
-                return (
-                  <MenuItem key={index} value={value}>
-                    {name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          )}
-        </FormControl>
-      </Grid>
-      <Grid item xs={3}>
-        <FormControl className={formControl} fullWidth>
-          <InputLabel>Data Type</InputLabel>
-          <Select name='groupBy:type' value={groupBy.type || 'string'} onChange={updateAxisKey}>
-            {dataTypes.map((dataType, index) => {
-              return (
-                <MenuItem key={index} value={dataType}>
-                  {dataType}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      </Grid>
-      {hasStackedOption(type) && (
-        <Grid item xs={2}>
-          <FormControlLabel
-            className={checkbox}
-            control={
-              <Checkbox
+    <Fragment>
+      <Grid container spacing={2} alignContent='space-between' className={topFormControl}>
+        <AxisGroupOptions
+          {...props}
+          field='groupBy'
+          label={
+            type === 'columnline'
+              ? 'Group By (Column)'
+              : type === 'dualline'
+              ? 'Group By (Line 1)'
+              : 'Group By'
+          }
+        >
+          {hasStackedOption(type) && (
+            <Grid item xs={2}>
+              <ConfigCheckbox
                 name='configuration:stacked'
-                checked={stacked || false}
-                onChange={handleCheckbox}
-                color='primary'
+                checked={stacked}
+                handleChange={handleCheckbox}
+                label='Stacked'
+                labelPlacement='top'
               />
-            }
-            label='Stacked'
-            labelPlacement='top'
-          />
-        </Grid>
-      )}
-      {type === 'bar' && stacked && (
-        <Grid item xs={3}>
-          <FormControlLabel
-            className={checkbox}
-            control={
-              <Checkbox
+            </Grid>
+          )}
+          {hasPercentageStackOption(type) && stacked && (
+            <Grid item xs={3}>
+              <ConfigCheckbox
                 name='configuration:percentageStack'
-                checked={percentageStack || false}
-                onChange={handleCheckbox}
-                color='primary'
+                checked={percentageStack}
+                handleChange={handleCheckbox}
+                label='Percentage (%)'
+                labelPlacement='top'
               />
-            }
-            label='Percentage (%)'
-            labelPlacement='top'
+            </Grid>
+          )}
+        </AxisGroupOptions>
+      </Grid>
+      {(type === 'columnline' || type === 'dualline') && (
+        <Grid container alignContent='space-between' spacing={2}>
+          <AxisGroupOptions
+            {...props}
+            canStack={false}
+            field='groupBy2'
+            label={type === 'dualline' ? 'Group By (Line 2)' : 'Group By (Line)'}
           />
         </Grid>
       )}
-    </Grid>
+    </Fragment>
   ) : (
     <Typography variant='h6' color='inherit' align='center' className={typography}>
       {getMessage(sourceType)}
