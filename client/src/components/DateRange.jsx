@@ -28,7 +28,7 @@ const DateRange = ({ filterID, valueObj, values: propVals, onChange }) => {
 
     if (
       newValues.every(value => {
-        if (value === null) {
+        if (value == null) {
           return true;
         }
 
@@ -36,12 +36,13 @@ const DateRange = ({ filterID, valueObj, values: propVals, onChange }) => {
       })
     ) {
       newValues = newValues.map(value => {
-        if (value === null) {
+        if (value == null) {
           return value;
         }
 
         return moment(value).format('L');
       });
+
       const event = { target: { value: newValues } };
       onChange(event, valueObj, filterID);
     }

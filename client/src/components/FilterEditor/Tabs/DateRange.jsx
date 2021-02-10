@@ -45,22 +45,25 @@ const chartDropdown = (arr, field, index, updateArr, errors, errStyle) => {
 };
 
 // Dropdown component to select field for a particular chart
-const fieldDropdown = (arr, chartID, field, index, updateArr, errors, errStyle) => {
-  const targetParamError = errors.find(err => err[`targetParam${index}`]);
+const fieldDropdown = (arr, paramObj, index, updateArr, errors, errStyle, position) => {
+  const { targetChart, startTargetParam = paramObj?.targetParam, endTargetParam } = paramObj;
+  const targetParamError = errors.find(err => err[`${position}TargetParam${index}`]);
   let fieldsArr = [];
 
   // Confirm chart was chosen, array exists, and fields exist in first object
-  if (chartID && arr.length > 0) {
-    const chart = arr.find(obj => obj.chartID === chartID);
+  if (targetChart && arr.length > 0) {
+    const chart = arr.find(obj => obj.chartID === targetChart);
 
     fieldsArr = chart?.params || [];
   }
 
+  const field = position === 'start' ? startTargetParam : endTargetParam;
+
   return (
     <FormControl fullWidth>
-      <InputLabel>Target Parameter</InputLabel>
+      <InputLabel>{`${position === 'start' ? 'Start' : 'End'} Target Parameter`}</InputLabel>
       <Select
-        name='targetParam'
+        name={`${position}TargetParam`}
         value={field || ''}
         onChange={event => updateArr(event, index)}
         error={targetParamError !== undefined}
@@ -74,36 +77,8 @@ const fieldDropdown = (arr, chartID, field, index, updateArr, errors, errStyle) 
         })}
       </Select>
       {targetParamError !== undefined && (
-        <FormHelperText className={errStyle}>{targetParamError[`targetParam${index}`]}</FormHelperText>
-      )}
-    </FormControl>
-  );
-};
-
-// Dropdown for date part field
-const dateRangePositionDropdown = (field, index, updateArr, errors, errStyle) => {
-  const dateRangePositionError = errors.find(err => err[`dateRangePosition${index}`]);
-
-  return (
-    <FormControl fullWidth>
-      <InputLabel>Date Range Part</InputLabel>
-      <Select
-        name='dateRangePosition'
-        value={field || ''}
-        onChange={event => updateArr(event, index)}
-        error={dateRangePositionError !== undefined}
-      >
-        {['Start', 'End'].map((value, index) => {
-          return (
-            <MenuItem key={index} value={value}>
-              {value}
-            </MenuItem>
-          );
-        })}
-      </Select>
-      {dateRangePositionError !== undefined && (
         <FormHelperText className={errStyle}>
-          {dateRangePositionError[`dateRangePosition${index}`]}
+          {targetParamError[`${position}TargetParam${index}`]}
         </FormHelperText>
       )}
     </FormControl>
@@ -160,8 +135,9 @@ const DateRange = ({ handleChange, localState }) => {
     return handleChange(null, { name: 'params', value: newParamsArr });
   };
 
-  return params.map(({ dateRangePosition, targetChart, targetParam }, index) => {
-    const isPopulated = Boolean(targetChart || targetParam || dateRangePosition);
+  return params.map((paramObj, index) => {
+    const { targetChart, startTargetParam = paramObj?.targetParam, endTargetParam } = paramObj;
+    const isPopulated = Boolean(targetChart || startTargetParam || endTargetParam);
 
     return (
       <Fragment key={index}>
@@ -172,14 +148,14 @@ const DateRange = ({ handleChange, localState }) => {
             </Button>
           </Grid>
         )}
-        <Grid item xs={3}>
-          {dateRangePositionDropdown(dateRangePosition, index, updateField, errors, errorText)}
-        </Grid>
         <Grid item xs={isPopulated ? 3 : 4}>
           {chartDropdown(charts, targetChart, index, updateField, errors, errorText)}
         </Grid>
-        <Grid item xs={5}>
-          {fieldDropdown(charts, targetChart, targetParam, index, updateField, errors, errorText)}
+        <Grid item xs={4}>
+          {fieldDropdown(charts, paramObj, index, updateField, errors, errorText, 'start')}
+        </Grid>
+        <Grid item xs={4}>
+          {fieldDropdown(charts, paramObj, index, updateField, errors, errorText, 'end')}
         </Grid>
       </Fragment>
     );
