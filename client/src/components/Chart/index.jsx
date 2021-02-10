@@ -10,7 +10,7 @@ import Gauge from './Gauge';
 import Heatmap from './Heatmap';
 import HistogramChart from './Histogram';
 import LineChart from './Line';
-import { DualAxesLineChart } from './DualAxes';
+import { ColumnLineChart, DualAxesLineChart } from './DualAxes';
 import NoData from './NoData';
 import PieChart from './Pie';
 import ScatterChart from './Scatter';
@@ -85,6 +85,9 @@ const ChartComp = ({
               pdfPreview={pdfPreview}
             />
           );
+          break;
+        case 'columnline':
+          chartComp = <ColumnLineChart configuration={configuration} data={data} pdfPreview={pdfPreview} />;
           break;
         case 'line':
           chartComp = (

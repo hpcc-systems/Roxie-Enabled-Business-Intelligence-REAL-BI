@@ -28,6 +28,7 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
 
   const chartConfig = {
     angleField: value,
+    appendPadding: [24, 0, 0, 0],
     colorField: nameValue,
     data,
     forceFit: true,
@@ -39,6 +40,7 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         },
       },
     },
+    padding: 'auto',
     tooltip: {
       formatter: row => {
         const formattedValue = isNaN(row[value]) ? row[value] : Intl.NumberFormat('en-US').format(row[value]);

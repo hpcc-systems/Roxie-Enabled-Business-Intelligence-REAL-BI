@@ -1,12 +1,12 @@
 import React from 'react';
 import { Grid } from '@material-ui/core';
-import AxisConfigOptions from '../AxisConfigOptions';
+import ConfigOptions from '../AxisConfig/ConfigOptions';
 
 const PieParams = props => {
   return (
     <Grid item md={12}>
       <Grid container spacing={2}>
-        <AxisConfigOptions
+        <ConfigOptions
           {...props}
           field='axis1'
           label='Name'
@@ -15,7 +15,7 @@ const PieParams = props => {
         />
       </Grid>
       <Grid container spacing={2}>
-        <AxisConfigOptions
+        <ConfigOptions
           {...props}
           field='axis2'
           label='Value'

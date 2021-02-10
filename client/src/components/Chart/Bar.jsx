@@ -45,6 +45,7 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
   }
 
   const chartConfig = {
+    appendPadding: [24, 0, 0, 0],
     data,
     forceFit: true,
     legend: { position: 'right-top' },
@@ -59,6 +60,7 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         },
       },
     },
+    padding: 'auto',
     tooltip: { showContent: !pdfPreview },
     xAxis: {
       min: 0,
