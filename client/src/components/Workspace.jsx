@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(2), minHeight: 48, maxHeight: 48 },
   closeBtn: { marginLeft: theme.spacing(4), padding: 0 },
   span: { margin: theme.spacing(1, 0, 0, 1) },
-  tab: { paddingTop: 0 },
+  tab: { maxWidth: 270, paddingTop: 0 },
 }));
 
 const Workspace = () => {

@@ -21,7 +21,15 @@ const useStyles = makeStyles(theme => ({
 
 const SelectDataset = ({ dashboard, handleChange, localState }) => {
   const [loading, setLoading] = useState(false);
-  const { datasets = [], errors, sourceDataset, selectedSource = {}, sourceType } = localState;
+  const {
+    datasets = [],
+    filterID,
+    filterParams = [],
+    errors,
+    sourceDataset,
+    selectedSource = {},
+    sourceType,
+  } = localState;
   const { id: clusterID } = dashboard.cluster;
   const { errorText, progress } = useStyles();
 
@@ -33,13 +41,29 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
         try {
           const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
-          const { datasets, fields, name } = data;
+          const { datasets, fields, name, params: dataParams = [] } = data;
 
           if (sourceType === 'file') {
             handleChange(null, { name: 'selectedDataset', value: { name, fields } });
             handleChange(null, { name: 'dataset', value: name });
           } else {
             handleChange(null, { name: 'datasets', value: datasets });
+          }
+
+          if (!filterID) {
+            handleChange(null, { name: 'filterParams', value: dataParams });
+          } else {
+            const newParams = dataParams.map(obj => {
+              const foundIndex = filterParams.findIndex(({ name }) => name === obj.name);
+
+              if (foundIndex > -1) {
+                obj = { ...obj, value: filterParams[foundIndex].value, show: true };
+              }
+
+              return obj;
+            });
+
+            handleChange(null, { name: 'filterParams', value: newParams });
           }
         } catch (error) {
           handleChange(null, { name: 'error', value: error.message });

@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 
 // React Components
-import { DateRange, ECLEditor, Mapper, Source } from './Tabs';
+import { DateRange, ECLEditor, Mapper, Parameters, Source } from './Tabs';
 
 // Constants
 import { filterTypeOptions, sourceOptions } from '../../constants';
@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   grid: { overflowY: 'hidden' },
 }));
 
-const tabOptions = ['ECL Script', 'Source', 'Targets'];
+const tabOptions = ['ECL Script', 'Source', 'Parameters', 'Targets'];
 
 const FilterEditor = props => {
   const { handleChange, localState } = props;
@@ -52,11 +52,11 @@ const FilterEditor = props => {
   useEffect(() => {
     // Get percentage of tab width
     if (sourceType === 'ecl') {
-      setTabPercentage('33.3%');
+      setTabPercentage('25%');
     } else if (isDateField) {
       setTabPercentage('100%');
     } else {
-      setTabPercentage('50%');
+      setTabPercentage('33.3%');
     }
   }, [filterType, sourceType]);
 
@@ -114,7 +114,7 @@ const FilterEditor = props => {
             */
             if (sourceType !== 'ecl' && option === 'ECL Script') {
               return null;
-            } else if (isDateField && option === 'Source') {
+            } else if (isDateField && (option === 'Source' || option === 'Parameters')) {
               return null;
             }
 
@@ -126,7 +126,7 @@ const FilterEditor = props => {
       </AppBar>
       {(() => {
         // Get correct position based on source type and tab index
-        const tabNum = sourceType !== 'ecl' ? (isDateField ? tabIndex + 2 : tabIndex + 1) : tabIndex;
+        const tabNum = sourceType !== 'ecl' ? (isDateField ? tabIndex + 3 : tabIndex + 1) : tabIndex;
 
         switch (tabNum) {
           case 0:
@@ -138,6 +138,8 @@ const FilterEditor = props => {
           case 1:
             return <Source {...props} />;
           case 2:
+            return <Parameters {...props} />;
+          case 3:
             if (filterType !== 'dateRange') {
               return <Mapper {...props} />;
             }

@@ -27,7 +27,7 @@ import { validateFilter } from '../../utils/validate';
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
-  dialog: { minWidth: '50vw', maxWidth: '50vw' },
+  dialog: { minWidth: '55vw', maxWidth: '55vw' },
   formControl: { margin: 0, marginTop: theme.spacing(1), marginBottom: theme.spacing(1) },
   progress: { marginRight: 15 },
   typography: { margin: theme.spacing(1, 0, 0, 2.75) },
@@ -60,14 +60,17 @@ const Filters = ({ dashboard, filter, show, toggleDialog, getChartData }) => {
   useEffect(() => {
     if (filter) {
       const {
-        configuration: { dataset, field, type: filterType, name: filterName, params = [] },
+        configuration: { dataset, field, filterParams, type: filterType, name: filterName, params = [] },
         ecl = {},
+        id: filterID,
         source = {},
       } = filter;
 
       const newState = {
         datasets: [],
         error: '',
+        filterID,
+        filterParams,
         filterType,
         keyword: source?.name || '',
         name: filterName,

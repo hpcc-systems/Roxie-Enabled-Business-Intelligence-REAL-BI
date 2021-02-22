@@ -21,7 +21,7 @@ export const getChartData = async (chartID, clusterID, dashboardID, interactiveO
 };
 
 export const createChartObj = (localState, ecl) => {
-  const { configuration, dataset, params, sourceType } = localState;
+  const { configuration, dataset, params, selectedDataset, sourceType } = localState;
   let formattedParams = params.map(obj => {
     delete obj.show;
     return obj;
@@ -45,6 +45,12 @@ export const createChartObj = (localState, ecl) => {
     delete ecl.data;
     delete ecl.dataset;
     delete ecl.params;
+  }
+
+  if (configuration.type === 'table') {
+    // Removes any fields that are no longer options in the selected dataset
+    const validFields = selectedDataset.fields.map(({ name }) => name);
+    newConfig.fields = newConfig.fields.filter(field => validFields.indexOf(field) > -1);
   }
 
   return { ...newConfig, ecl };
