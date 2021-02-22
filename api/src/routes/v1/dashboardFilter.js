@@ -161,7 +161,9 @@ router.get('/data', async (req, res, next) => {
       return res.status(200).end();
     }
 
-    const options = { params: [], source };
+    // Default to filter params or empty array
+    const dataParams = configuration?.filterParams || [];
+    const options = { params: dataParams, source };
 
     switch (source.type) {
       case 'file':

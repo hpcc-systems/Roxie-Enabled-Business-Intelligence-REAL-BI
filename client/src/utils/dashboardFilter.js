@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const createFilterObj = (localState, ecl) => {
-  const { filterType, name, sourceDataset, sourceField, sourceType, params } = localState;
+  const { filterParams, filterType, name, sourceDataset, sourceField, sourceType, params } = localState;
 
   // Get array of objects that are complete
   const completeParams = params.filter(({ targetChart, targetParam, startTargetParam, endTargetParam }) => {
@@ -15,6 +15,7 @@ export const createFilterObj = (localState, ecl) => {
   const newFilter = {
     dataset: sourceDataset,
     field: sourceField,
+    filterParams,
     name,
     params: completeParams,
     type: filterType,

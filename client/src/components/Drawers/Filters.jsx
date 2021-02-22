@@ -35,7 +35,7 @@ import { getFilterData, getFilterValue, getFilterValueType } from '../../utils/d
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
   deleteBtn: { margin: theme.spacing(4, 2, 0, 1), padding: theme.spacing(0, 2, 0, 0) },
-  drawer: {},
+  drawer: { width: 'auto', minWidth: 200, maxWidth: 300 },
   drawerClose: { width: 0 },
   drawerPaper: {
     backgroundColor: theme.palette.primary.main,
@@ -179,7 +179,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
           )}
         </div>
         <Grid container direction='row' justify='space-between'>
-          {filters.map(({ configuration, id, name, value }, index) => {
+          {filters.map(({ configuration, id, value }, index) => {
             const dataObj = compData[id] || {};
             const { data = [], loading = false } = dataObj;
             let filterVal = getFilterValue(value, configuration.type);
@@ -213,7 +213,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
                     />
                   ) : (
                     <FormControl className={formControl} fullWidth>
-                      <InputLabel className={fontColor}>{name}</InputLabel>
+                      <InputLabel className={fontColor}>{configuration.name}</InputLabel>
                       <Select
                         multiple
                         value={filterVal}
