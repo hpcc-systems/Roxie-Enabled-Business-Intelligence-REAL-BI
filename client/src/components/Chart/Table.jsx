@@ -87,7 +87,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
             {data.slice(sliceStart, sliceLength).map((row, index) => {
               return (
                 <TableRow key={index}>
-                  {fields.map(({ name }, index) => {
+                  {fields.map(({ color = '#FFF', name, text = '#000' }, index) => {
                     return (
                       <TableCell
                         key={index}
@@ -99,6 +99,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                             name === interactiveField &&
                             row[name] === interactiveValue,
                         })}
+                        style={{ backgroundColor: color, color: text }}
                         onClick={() => interactiveClick(chartID, name, row[name])}
                       >
                         {row[name]}
