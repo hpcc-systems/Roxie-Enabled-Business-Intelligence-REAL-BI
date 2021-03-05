@@ -67,15 +67,16 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
         <Table size='small'>
           <TableHead>
             <TableRow>
-              {fields.map((field, index) => {
+              {fields.map(({ label, name }, index) => {
+                const header = label || name;
                 return (
                   <TableCell key={index} className={columnHeader}>
                     <TableSortLabel
-                      active={orderBy === field}
-                      direction={orderBy === field ? order : 'asc'}
-                      onClick={() => updateOrderByField(field)}
+                      active={orderBy === name}
+                      direction={orderBy === name ? order : 'asc'}
+                      onClick={() => updateOrderByField(name)}
                     >
-                      {field}
+                      {header}
                     </TableSortLabel>
                   </TableCell>
                 );
@@ -86,7 +87,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
             {data.slice(sliceStart, sliceLength).map((row, index) => {
               return (
                 <TableRow key={index}>
-                  {fields.map((field, index) => {
+                  {fields.map(({ name }, index) => {
                     return (
                       <TableCell
                         key={index}
@@ -95,12 +96,12 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                         className={clsx(tableCell, {
                           [activeCell]:
                             chartID === interactiveChartID &&
-                            field === interactiveField &&
-                            row[field] === interactiveValue,
+                            name === interactiveField &&
+                            row[name] === interactiveValue,
                         })}
-                        onClick={() => interactiveClick(chartID, field, row[field])}
+                        onClick={() => interactiveClick(chartID, name, row[name])}
                       >
-                        {row[field]}
+                        {row[name]}
                       </TableCell>
                     );
                   })}

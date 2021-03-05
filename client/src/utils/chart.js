@@ -50,7 +50,7 @@ export const createChartObj = (localState, ecl) => {
   if (configuration.type === 'table') {
     // Removes any fields that are no longer options in the selected dataset
     const validFields = selectedDataset.fields.map(({ name }) => name);
-    newConfig.fields = newConfig.fields.filter(field => validFields.indexOf(field) > -1);
+    newConfig.fields = newConfig.fields.filter(({ name }) => validFields.indexOf(name) > -1 && name !== '');
   }
 
   return { ...newConfig, ecl };
@@ -60,7 +60,7 @@ export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { configuration, id, source, ...chartKeys } = charts[chartIndex];
-  const { axis1, axis2, dataset, ecl = {}, params } = configuration;
+  const { axis1, axis2, dataset, ecl = {}, fields = [], params } = configuration;
 
   // Confirm values are present to prevent error
   configuration.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
@@ -69,7 +69,7 @@ export const setEditorState = (charts, chartID) => {
   // Create initial state object
   let initState = {
     chartID: id,
-    configuration,
+    configuration: { ...configuration, fields: [...fields, { label: '', name: '' }] },
     dataObj: { loading: false },
     dataset,
     datasets: [],
