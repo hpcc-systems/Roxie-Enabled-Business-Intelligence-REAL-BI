@@ -69,7 +69,7 @@ export const setEditorState = (charts, chartID) => {
   // Create initial state object
   let initState = {
     chartID: id,
-    configuration: { ...configuration, fields: [...fields, { label: '', name: '' }] },
+    configuration: { ...configuration, fields: [...fields, { color: '#FFF', label: '', name: '' }] },
     dataObj: { loading: false },
     dataset,
     datasets: [],

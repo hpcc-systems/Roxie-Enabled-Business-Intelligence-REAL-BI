@@ -27,7 +27,7 @@ const initState = {
     axis1: { showTickLabels: true },
     axis2: { showTickLabels: true },
     axis3: { showTickLabels: true },
-    fields: [{ label: '', name: '' }],
+    fields: [{ color: '#FFF', label: '', name: '' }],
     type: 'bar',
   },
   dataObj: { loading: false },

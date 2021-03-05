@@ -134,3 +134,30 @@ export const getDateParts = date => {
 
   return { month, day, year };
 };
+
+// https://convertingcolors.com/blog/article/convert_hex_to_rgb_with_javascript.html
+const hexToRgb = hex => {
+  if (hex.length !== 6 && hex.length !== 7) {
+    return [255, 255, 255];
+  }
+
+  const hexVal = hex[0] === '#' ? hex.slice(1, hex.length) : hex;
+  const rgbHex = hexVal.match(/.{1,2}/g);
+  const rgbArr = [parseInt(rgbHex[0], 16), parseInt(rgbHex[1], 16), parseInt(rgbHex[2], 16)];
+
+  return rgbArr;
+};
+
+// https://websolutionstuff.com/post/change-text-color-based-on-background-color-using-javascript
+export const getConstrastTextColor = hex => {
+  const backgroundColorRgb = hexToRgb(hex);
+
+  const color = Math.round(
+    (parseInt(backgroundColorRgb[0]) * 299 +
+      parseInt(backgroundColorRgb[1]) * 587 +
+      parseInt(backgroundColorRgb[2]) * 114) /
+      1000,
+  );
+
+  return color > 125 ? 'black' : 'white';
+};

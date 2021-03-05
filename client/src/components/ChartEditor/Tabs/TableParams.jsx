@@ -11,9 +11,10 @@ import {
   TextField,
 } from '@material-ui/core';
 import { Remove as RemoveIcon } from '@material-ui/icons';
+import { TwitterPicker } from 'react-color';
 
 // Utils
-import { getMessage } from '../../../utils/misc';
+import { getConstrastTextColor, getMessage } from '../../../utils/misc';
 
 // Constants
 import { messages } from '../../../constants';
@@ -24,6 +25,13 @@ const useStyles = makeStyles(theme => ({
     minWidth: 30,
     padding: 0,
   },
+  colorDiv: {
+    margin: '0 auto',
+    marginTop: theme.spacing(1.75),
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+  },
   grid: { marginTop: theme.spacing(2) },
   progress: { margin: 0, marginTop: 50 },
 }));
@@ -33,14 +41,18 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
   const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
   const { fields = [] } = selectedDataset;
   const { fields: configFields = [] } = configuration;
-  const { button, grid, progress } = useStyles();
+  const { button, colorDiv, grid, progress } = useStyles();
 
   const updateField = (event, index) => {
     const { name, value } = event.target;
     const newFieldsArr = new Array(...configFields);
 
     // Update index
-    newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
+    if (name === 'color') {
+      newFieldsArr[index] = { ...newFieldsArr[index], [name]: value, text: getConstrastTextColor(value) };
+    } else {
+      newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
+    }
 
     // Add new object to end of array for next entry
     if (newFieldsArr.length - 1 === index) {
@@ -57,7 +69,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
 
     // Array is empty, add an empty object
     if (newFieldsArr.length === 0) {
-      newFieldsArr.push('');
+      newFieldsArr.push({ color: '#FFF', label: '', name: '' });
     }
 
     return handleChangeObj(null, { name: 'configuration:fields', value: newFieldsArr });
@@ -71,8 +83,8 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
       {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
         <CircularProgress className={progress} size={20} />
       ) : (
-        <Grid container spacing={1}>
-          {configFields.map(({ label, name }, index) => {
+        <Grid container spacing={2}>
+          {configFields.map(({ color, label, name }, index) => {
             const isPopulated = Boolean(name);
             return (
               <Fragment key={index}>
@@ -83,7 +95,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     </Button>
                   </Grid>
                 )}
-                <Grid item xs={5}>
+                <Grid item xs={3}>
                   <FormControl fullWidth>
                     <InputLabel>Field</InputLabel>
                     <Select name='name' value={name || ''} onChange={event => updateField(event, index)}>
@@ -97,7 +109,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={isPopulated ? 6 : 7}>
+                <Grid item xs={isPopulated ? 3 : 4}>
                   <TextField
                     fullWidth
                     label='Label'
@@ -105,6 +117,20 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     value={label || ''}
                     onChange={event => updateField(event, index)}
                     autoComplete='off'
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <div className={colorDiv} style={{ backgroundColor: color }} />
+                </Grid>
+                <Grid item xs={4}>
+                  <TwitterPicker
+                    colors={[]}
+                    color={color || '#FFF'}
+                    triangle='hide'
+                    onChangeComplete={color =>
+                      updateField({ target: { name: 'color', value: color.hex } }, index)
+                    }
+                    width='100%'
                   />
                 </Grid>
               </Fragment>
