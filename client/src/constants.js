@@ -24,3 +24,11 @@ export const filterTypeOptions = [
   { label: 'Date Field', value: 'dateField' },
   { label: 'Date Range', value: 'dateRange' },
 ];
+
+export const comparisonOperands = [
+  { label: 'is greater than', value: '>' },
+  { label: 'is greater than or equal to', value: '>=' },
+  { label: 'is less than', value: '<' },
+  { label: 'is less than or equal to', value: '<=' },
+  { label: 'is equal to', value: '==' },
+];
