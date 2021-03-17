@@ -17,7 +17,7 @@ const createOpenDashboard = async (dashboardID, workspaceID, userID) => {
 
 const getOpenDashboardsByUser = async (workspaceID, userID) => {
   let openDashboards = await openDashboard.findAll({
-    attributes: [['dashboardID', 'id']],
+    attributes: [['dashboardID', 'id'], 'updatedAt'],
     where: { workspaceID, userID },
     include: {
       model: Dashboard,

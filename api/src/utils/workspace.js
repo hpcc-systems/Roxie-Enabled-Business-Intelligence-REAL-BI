@@ -65,7 +65,7 @@ const getWorkspaceByID = async (id, userID) => {
       {
         model: openDashboard,
         as: 'openDashboards',
-        attributes: [['dashboardID', 'id']],
+        attributes: [['dashboardID', 'id'], 'updatedAt'],
         include: {
           model: Dashboard,
           attributes: ['name'],

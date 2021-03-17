@@ -4,6 +4,7 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Tab, Tabs } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
+import _ from 'lodash';
 
 // React Components
 import Header from './Layout/Header';
@@ -113,7 +114,7 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {openDashboards.map(({ id, name }, key) => {
+            {_.orderBy(openDashboards, ['updatedAt'], ['asc']).map(({ id, name }, key) => {
               return (
                 <Tab
                   component='div'
