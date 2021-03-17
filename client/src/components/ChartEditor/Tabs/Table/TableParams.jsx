@@ -14,10 +14,10 @@ import { Remove as RemoveIcon } from '@material-ui/icons';
 import { TwitterPicker } from 'react-color';
 
 // Utils
-import { getConstrastTextColor, getMessage } from '../../../utils/misc';
+import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
 
 // Constants
-import { messages } from '../../../constants';
+import { messages } from '../../../../constants';
 
 const useStyles = makeStyles(theme => ({
   button: {

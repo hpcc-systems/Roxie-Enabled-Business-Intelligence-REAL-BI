@@ -33,7 +33,7 @@ import GeneralParams from './GeneralParams';
 import HeatmapParams from './HeatmapParams';
 import HistogramParams from './HistogramParams';
 import PieParams from './PieParams';
-import TableParams from './TableParams';
+import TableParams from './Table/TableParams';
 import TextBoxParams from './TextBoxParams';
 
 // Utils

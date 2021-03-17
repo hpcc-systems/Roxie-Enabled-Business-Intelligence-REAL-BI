@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import clsx from 'clsx';
 import _ from 'lodash';
+import { evaluateFormattingRules } from '../../utils/chart';
 
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
@@ -21,7 +22,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
-  const { fields = [] } = configuration;
+  const { conditionals = [], fields = [] } = configuration;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState(null);
@@ -88,6 +89,9 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
               return (
                 <TableRow key={index}>
                   {fields.map(({ color = '#FFF', name, text = '#000' }, index) => {
+                    const conditionIndex = conditionals.findIndex(({ field }) => field === name);
+                    const conditionalRules = conditionIndex > -1 ? conditionals[conditionIndex].rules : [];
+
                     return (
                       <TableCell
                         key={index}
@@ -99,7 +103,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                             name === interactiveField &&
                             row[name] === interactiveValue,
                         })}
-                        style={{ backgroundColor: color, color: text }}
+                        style={evaluateFormattingRules(row[name], color, text, conditionalRules)}
                         onClick={() => interactiveClick(chartID, name, row[name])}
                       >
                         {row[name]}

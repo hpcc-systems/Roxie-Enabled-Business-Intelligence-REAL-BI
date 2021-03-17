@@ -15,14 +15,14 @@ import {
 // React Components
 import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
-import { ECLEditor, General, GroupBy, Parameters, SortBy } from './Tabs';
+import { ECLEditor, General, GroupBy, Parameters, SortBy, TableConditionalFormatting } from './Tabs';
 import Chart from '../Chart';
 
 // Constants
 import { hasGroupByOption, hasSortOptions } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
 
-const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'];
+const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By', 'Conditional Formatting'];
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -81,7 +81,11 @@ const ChartEditor = props => {
     // Get percentage of tab width
     if (sourceType === 'ecl') {
       if (!hasGroupByOption(type) && !hasSortOptions(type)) {
-        setTabPercentage('33.3%');
+        if (type === 'table') {
+          setTabPercentage('25%');
+        } else {
+          setTabPercentage('33.3%');
+        }
       } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
         setTabPercentage('25%');
       } else {
@@ -90,7 +94,11 @@ const ChartEditor = props => {
     } else {
       if (type !== 'textBox') {
         if (!hasGroupByOption(type) && !hasSortOptions(type)) {
-          setTabPercentage('50%');
+          if (type === 'table') {
+            setTabPercentage('33.3%');
+          } else {
+            setTabPercentage('50%');
+          }
         } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
           setTabPercentage('33.3%');
         } else {
@@ -148,7 +156,8 @@ const ChartEditor = props => {
                 (sourceType !== 'ecl' && option === 'ECL Script') ||
                 (!hasGroupByOption(type) && option === 'Group By') ||
                 (type === 'textBox' && isStatic && option === 'Parameters') ||
-                (!hasSortOptions(type) && option === 'Sort By')
+                (!hasSortOptions(type) && option === 'Sort By') ||
+                (type !== 'table' && option === 'Conditional Formatting')
               ) {
                 return null;
               }
@@ -173,7 +182,11 @@ const ChartEditor = props => {
             if (!hasGroupByOption(type) && hasSortOptions(type) && tabIndex > 1) {
               tabNum = tabIndex + 2;
             } else {
-              tabNum = tabIndex + 1;
+              if (type === 'table') {
+                tabNum = tabIndex >= 2 ? tabIndex + 3 : tabIndex + 1;
+              } else {
+                tabNum = tabIndex + 1;
+              }
             }
           } else {
             if (!hasGroupByOption(type) && hasSortOptions(type) && tabIndex > 2) {
@@ -181,6 +194,10 @@ const ChartEditor = props => {
                 tabNum = tabIndex + 2;
               } else {
                 tabNum = tabIndex + 1;
+              }
+            } else {
+              if (tabIndex >= 3 && type === 'table') {
+                tabNum = tabIndex + 2;
               }
             }
           }
@@ -196,6 +213,8 @@ const ChartEditor = props => {
               return <GroupBy {...props} updateAxisKey={updateAxisKey} />;
             case 4:
               return <SortBy {...props} updateAxisKey={updateAxisKey} />;
+            case 5:
+              return <TableConditionalFormatting {...props} updateAxisKey={updateAxisKey} />;
             default:
               return 'Unknown Tab';
           }
