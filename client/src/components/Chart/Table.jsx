@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Paper,
   Table,
@@ -14,6 +15,7 @@ import {
 import clsx from 'clsx';
 import _ from 'lodash';
 import { evaluateFormattingRules } from '../../utils/chart';
+import { updateChart } from '../../features/dashboard/actions';
 
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
@@ -22,19 +24,44 @@ const useStyles = makeStyles(() => ({
 }));
 
 const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
-  const { conditionals = [], fields = [] } = configuration;
+  const { charts, id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const dispatch = useDispatch();
+  const {
+    conditionals = [],
+    fields = [],
+    order: configOrder = 'asc',
+    orderBy: configOrderBy = null,
+    rowsPerPage: configRowsPerPage = 10,
+  } = configuration;
   const { chartID: interactiveChartID, field: interactiveField, value: interactiveValue } = interactiveObj;
-  const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState(null);
+  const [order, setOrder] = useState(configOrder);
+  const [orderBy, setOrderBy] = useState(configOrderBy);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(configRowsPerPage);
   const { activeCell, columnHeader, tableCell } = useStyles();
+
+  // Update chart in DB and store
+  const updateConfig = async keys => {
+    const source = charts.find(({ id }) => id === chartID).source;
+    const newConfig = { ...configuration, ...keys };
+
+    try {
+      const updatedChartObj = { id: chartID, configuration: newConfig, source };
+      const action = await updateChart(updatedChartObj, dashboardID);
+
+      dispatch(action);
+    } catch (error) {
+      return dispatch(error);
+    }
+  };
 
   const updateOrderByField = property => {
     const isAsc = orderBy === property && order === 'asc';
+    const newOrder = isAsc ? 'desc' : 'asc';
 
-    setOrder(isAsc ? 'desc' : 'asc');
+    setOrder(newOrder);
     setOrderBy(property);
+    updateConfig({ order: newOrder, property });
   };
 
   const handleChangePage = (event, newPage) => {
@@ -42,8 +69,11 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   };
 
   const handleChangeRowsPerPage = event => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    const numRows = Number(event.target.value);
+
+    setRowsPerPage(numRows);
     setPage(0);
+    updateConfig({ rowsPerPage: numRows });
   };
 
   // Confirm all necessary values are present before trying to render the chart
