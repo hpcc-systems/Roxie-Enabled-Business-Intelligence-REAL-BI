@@ -4,6 +4,8 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Tab, Tabs } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
+import _ from 'lodash';
+import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -21,9 +23,20 @@ import useDrawer from '../hooks/useDrawer';
 // Create styles
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(2), minHeight: 48, maxHeight: 48 },
-  closeBtn: { marginLeft: theme.spacing(4), padding: 0 },
+  selectedTab: {
+    '& button': { display: 'inline-flex !important' },
+  },
   span: { margin: theme.spacing(1, 0, 0, 1) },
-  tab: { maxWidth: 270, paddingTop: 0 },
+  tab: {
+    maxWidth: 270,
+    paddingTop: 0,
+    '& button': {
+      display: 'none',
+      marginLeft: theme.spacing(3),
+      padding: 0,
+    },
+    '&:hover button': { display: 'inline-flex' },
+  },
 }));
 
 const Workspace = () => {
@@ -35,8 +48,7 @@ const Workspace = () => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const { showDrawer, toggleDrawer } = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const [hoverIndex, setHoverIndex] = useState(-1);
-  const { appbar, closeBtn, span, tab } = useStyles();
+  const { appbar, selectedTab, span, tab } = useStyles();
 
   useEffect(() => {
     if (workspaceID) {
@@ -51,7 +63,7 @@ const Workspace = () => {
     index => {
       (async () => {
         try {
-          const action = await getDashboard(openDashboards[index].id);
+          const action = await getDashboard(_.orderBy(openDashboards, ['updatedAt'], ['asc'])[index].id);
           dispatch(action);
         } catch (error) {
           dispatch(error);
@@ -84,7 +96,7 @@ const Workspace = () => {
   const changeTabIndex = async (event, newValue) => {
     // Close open dashboard
     if (event.target.tagName !== 'SPAN') {
-      const dashboardID = openDashboards[newValue].id;
+      const dashboardID = _.orderBy(openDashboards, ['updatedAt'], ['asc'])[newValue].id;
 
       // Reset tab position
       setTabIndex(0);
@@ -113,22 +125,18 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {openDashboards.map(({ id, name }, key) => {
+            {_.orderBy(openDashboards, ['updatedAt'], ['asc']).map(({ id, name }, key) => {
               return (
                 <Tab
                   component='div'
                   key={id}
-                  className={tab}
-                  onMouseEnter={() => setHoverIndex(key)}
-                  onMouseLeave={() => setHoverIndex(-1)}
+                  className={clsx(tab, { [selectedTab]: key === tabIndex })}
                   label={
                     <span className={span}>
                       {name}
-                      {key === tabIndex || key === hoverIndex ? (
-                        <IconButton className={closeBtn}>
-                          <CloseIcon fontSize='small' />
-                        </IconButton>
-                      ) : null}
+                      <IconButton>
+                        <CloseIcon fontSize='small' />
+                      </IconButton>
                     </span>
                   }
                 />
