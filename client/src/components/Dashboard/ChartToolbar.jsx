@@ -82,11 +82,8 @@ const ChartToolbar = props => {
       </Grid>
 
       <Typography className={clsx(description, { [tableDesc]: type === 'table' })}>
-        {/*
-          Conditionally render the chart description and <br /> only if a description is provided
-        */}
-        {chartDescription !== '' ? chartDescription : null}
-        {chartDescription !== '' ? <br /> : null}
+        {chartDescription}
+        <br />
         {!isStatic && showLastExecuted && <small>{datetimeStamp}</small>}
       </Typography>
     </Fragment>

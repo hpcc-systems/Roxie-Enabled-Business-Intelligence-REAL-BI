@@ -11,6 +11,7 @@ import Heatmap from './Heatmap';
 import HistogramChart from './Histogram';
 import LineChart from './Line';
 import { ColumnLineChart, DualAxesLineChart } from './DualAxes';
+import Map from './Map';
 import NoData from './NoData';
 import PieChart from './Pie';
 import ScatterChart from './Scatter';
@@ -120,6 +121,9 @@ const ChartComp = ({
           break;
         case 'heatmap':
           chartComp = <Heatmap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+          break;
+        case 'map':
+          chartComp = <Map data={data} configuration={configuration} pdfPreview={pdfPreview} />;
           break;
         case 'gauge':
           chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;

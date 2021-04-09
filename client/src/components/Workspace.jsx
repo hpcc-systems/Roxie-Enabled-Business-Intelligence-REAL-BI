@@ -24,18 +24,18 @@ import useDrawer from '../hooks/useDrawer';
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(2), minHeight: 48, maxHeight: 48 },
   selectedTab: {
-    '& button': { display: 'inline-flex !important' },
+    '& button': { opacity: '1 !important' },
   },
   span: { margin: theme.spacing(1, 0, 0, 1) },
   tab: {
     maxWidth: 270,
     paddingTop: 0,
     '& button': {
-      display: 'none',
+      opacity: 0,
       marginLeft: theme.spacing(3),
       padding: 0,
     },
-    '&:hover button': { display: 'inline-flex' },
+    '&:hover button': { opacity: 1 },
   },
 }));
 

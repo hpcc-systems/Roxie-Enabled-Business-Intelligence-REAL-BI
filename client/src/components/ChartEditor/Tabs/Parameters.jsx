@@ -16,8 +16,8 @@ const useStyles = makeStyles(theme => ({
 
 const ParametersTab = props => {
   const { eclRef, handleChange, localState } = props;
-  const { dataset: eclDataset, params: eclParams = [] } = eclRef.current;
-  const { dataset, params, sourceType } = localState;
+  const { dataset: eclDataset } = eclRef.current;
+  const { dataset, params = [], sourceType } = localState;
   const { formControl, typography } = useStyles();
 
   // Updates param array in state
@@ -25,13 +25,11 @@ const ParametersTab = props => {
     const newArr = [...params];
 
     // Get param object at index and update it
-    const index = params.findIndex(({ name }) => name === paramName);
+    const index = newArr.findIndex(({ name }) => name === paramName);
     newArr[index] = { ...newArr[index], value: event.target.value };
 
     handleChange(null, { name: 'params', value: newArr });
   };
-
-  const paramsArr = params.length > 0 ? params : eclParams.length > 0 ? eclParams : [];
 
   return dataset || eclDataset ? (
     sourceType === 'file' ? (
@@ -41,9 +39,9 @@ const ParametersTab = props => {
       </Grid>
     ) : (
       <FormControl className={formControl} fullWidth>
-        {paramsArr.length > 0 ? (
+        {params.length > 0 ? (
           <Grid container direction='row' justify='space-between' spacing={2}>
-            {paramsArr.map(({ name, type, value }, index) => {
+            {params.map(({ name, type, value }, index) => {
               return (
                 <Grid key={index} item xs={12}>
                   <TextField

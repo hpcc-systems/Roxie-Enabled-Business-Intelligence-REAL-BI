@@ -105,7 +105,6 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
         cluster: targetCluster.current,
         data,
         dataset: ResultName,
-        params,
         recordCount: Count,
         schema,
         script: editor.ecl(),
@@ -114,6 +113,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
 
       // Update ref
       eclRef.current = eclConfig;
+      handleChange(null, { name: 'params', value: params });
 
       displayWorkunitID(Wuid);
       resetPlayButton();

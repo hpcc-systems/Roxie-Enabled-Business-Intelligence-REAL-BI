@@ -54,7 +54,16 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
     },
     padding: 'auto',
     point: { size: 4 },
-    tooltip: { showContent: !pdfPreview },
+    tooltip: {
+      formatter: datum => {
+        const yVal = datum[yValue];
+        return {
+          name: customYLabel,
+          value: isNaN(yVal) ? yVal : Intl.NumberFormat('en-US').format(yVal),
+        };
+      },
+      showContent: !pdfPreview,
+    },
     xAxis: { title: { style: { fill: chartFillColor }, text: customXLabel } },
     xField: xValue,
     yAxis: { title: { style: { fill: chartFillColor }, text: customYLabel } },

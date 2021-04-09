@@ -28,6 +28,7 @@ const initState = {
     axis2: { showTickLabels: true },
     axis3: { showTickLabels: true },
     fields: [{ color: '#FFF', label: '', name: '' }],
+    mapFields: [{ label: '', name: '' }],
     type: 'bar',
   },
   dataObj: { loading: false },
