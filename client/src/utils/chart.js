@@ -22,7 +22,7 @@ export const getChartData = async (chartID, clusterID, dashboardID, interactiveO
 };
 
 export const createChartObj = (localState, ecl) => {
-  const { configuration, dataset, params, selectedDataset, sourceType } = localState;
+  const { configuration, dataset, params = [], selectedDataset, sourceType } = localState;
   let formattedParams = params.map(obj => {
     delete obj.show;
     return obj;
@@ -34,24 +34,21 @@ export const createChartObj = (localState, ecl) => {
   // Move ecl values to configuration object root
   if (sourceType === 'ecl') {
     const newDataset = !ecl.dataset ? dataset : ecl.dataset;
-    let newParams = !ecl.params ? params : [...ecl.params, ...params];
 
-    // Remove duplicate parameters
-    newParams = newParams.filter((param, index, self) => {
-      return index === self.findIndex(t => t.name === param.name);
-    });
-
-    newConfig = { ...newConfig, dataset: newDataset, params: newParams };
+    newConfig = { ...newConfig, dataset: newDataset };
 
     delete ecl.data;
     delete ecl.dataset;
-    delete ecl.params;
   }
 
-  if (configuration.type === 'table') {
+  if (configuration.type === 'table' && sourceType !== 'ecl') {
     // Removes any fields that are no longer options in the selected dataset
     const validFields = selectedDataset.fields.map(({ name }) => name);
     newConfig.fields = newConfig.fields.filter(({ name }) => validFields.indexOf(name) > -1 && name !== '');
+  }
+
+  if (configuration.type === 'map') {
+    newConfig.mapFields = newConfig.mapFields.filter(({ name }) => name !== '');
   }
 
   return { ...newConfig, ecl };
@@ -61,7 +58,16 @@ export const setEditorState = (charts, chartID) => {
   // Get desired chart
   const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
   const { configuration, id, source, ...chartKeys } = charts[chartIndex];
-  const { axis1, axis2, conditionals = [], dataset, ecl = {}, fields = [], params } = configuration;
+  const {
+    axis1,
+    axis2,
+    conditionals = [],
+    dataset,
+    ecl = {},
+    fields = [],
+    mapFields = [],
+    params,
+  } = configuration;
 
   // Confirm values are present to prevent error
   configuration.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
@@ -77,7 +83,11 @@ export const setEditorState = (charts, chartID) => {
   // Create initial state object
   let initState = {
     chartID: id,
-    configuration: { ...configuration, fields: [...fields, { color: '#FFF', label: '', name: '' }] },
+    configuration: {
+      ...configuration,
+      fields: [...fields, { color: '#FFF', label: '', name: '' }],
+      mapFields: [...mapFields, { label: '', name: '' }],
+    },
     dataObj: { loading: false },
     dataset,
     datasets: [],

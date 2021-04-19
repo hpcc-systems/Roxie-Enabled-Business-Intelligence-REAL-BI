@@ -61,7 +61,16 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
       },
     },
     padding: 'auto',
-    tooltip: { showContent: !pdfPreview },
+    tooltip: {
+      formatter: datum => {
+        const value = datum[xValue];
+        return {
+          name: groupByValue ? datum[groupByValue] : customXLabel,
+          value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
+        };
+      },
+      showContent: !pdfPreview,
+    },
     xAxis: {
       min: 0,
       title: { style: { fill: chartFillColor }, text: customXLabel },
@@ -111,6 +120,17 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
       chartConfig.isPercent = true;
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
+
+      chartConfig.tooltip = {
+        formatter: datum => {
+          const value = datum[xValue];
+          return {
+            name: groupByValue ? datum[groupByValue] : customXLabel,
+            value: `${(value * 100).toFixed(2)}%`,
+          };
+        },
+        showContent: !pdfPreview,
+      };
     } else if (stacked) {
       chartConfig.isPercent = null;
       chartConfig.isStack = true;

@@ -61,7 +61,16 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       },
     },
     padding: 'auto',
-    tooltip: { showContent: !pdfPreview },
+    tooltip: {
+      formatter: datum => {
+        const value = datum[yValue];
+        return {
+          name: groupByValue ? datum[groupByValue] : customYLabel,
+          value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
+        };
+      },
+      showContent: !pdfPreview,
+    },
     xAxis: {
       min: 0,
       title: { style: { fill: chartFillColor }, text: customXLabel },
@@ -111,6 +120,17 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       chartConfig.isPercent = true;
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
+
+      chartConfig.tooltip = {
+        formatter: datum => {
+          const value = datum[yValue];
+          return {
+            name: groupByValue ? datum[groupByValue] : customYLabel,
+            value: `${(value * 100).toFixed(2)}%`,
+          };
+        },
+        showContent: !pdfPreview,
+      };
     } else if (stacked) {
       chartConfig.isPercent = null;
       chartConfig.isStack = true;

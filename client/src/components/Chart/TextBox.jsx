@@ -19,8 +19,12 @@ const TextBox = ({ data, configuration }) => {
     const fields = Object.keys(dataField);
 
     fields.forEach(field => {
-      var rgx = new RegExp(`{{${field}}}`, 'gi');
-      textBoxContent = textBoxContent.replace(rgx, dataField[field]);
+      const rgx = new RegExp(`{{${field}}}`, 'gi');
+      const fieldVal = isNaN(dataField[field])
+        ? dataField[field]
+        : Intl.NumberFormat('en-US').format(dataField[field]);
+
+      textBoxContent = textBoxContent.replace(rgx, fieldVal);
     });
   }
 

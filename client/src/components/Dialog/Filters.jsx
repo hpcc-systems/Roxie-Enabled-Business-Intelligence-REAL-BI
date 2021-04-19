@@ -60,8 +60,16 @@ const Filters = ({ dashboard, filter, show, toggleDialog, getChartData }) => {
   useEffect(() => {
     if (filter) {
       const {
-        configuration: { dataset, field, filterParams, type: filterType, name: filterName, params = [] },
-        ecl = {},
+        configuration: {
+          dataset,
+          ecl = {},
+          field,
+          filterParams,
+          type: filterType,
+          name: filterName,
+          params = [],
+        },
+
         id: filterID,
         source = {},
       } = filter;

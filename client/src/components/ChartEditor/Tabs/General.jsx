@@ -17,6 +17,7 @@ import {
   Timeline as LineChartIcon,
   MultilineChart as MultilineChartIcon,
   PieChart as PieChartIcon,
+  Public as PublicIcon,
   ScatterPlot as ScatterPlotIcon,
   Poll as PollIcon,
   TableChart as TableChartIcon,
@@ -32,6 +33,7 @@ import GaugeParams from './GaugeParams';
 import GeneralParams from './GeneralParams';
 import HeatmapParams from './HeatmapParams';
 import HistogramParams from './HistogramParams';
+import MapParams from './MapParams';
 import PieParams from './PieParams';
 import TableParams from './Table/TableParams';
 import TextBoxParams from './TextBoxParams';
@@ -49,6 +51,7 @@ const charts = [
   { name: 'Heatmap', value: 'heatmap' },
   { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
+  { name: 'Map', value: 'map' },
   { name: 'Pie', value: 'pie' },
   { name: 'Scatter', value: 'scatter' },
   { name: 'Table', value: 'table' },
@@ -163,6 +166,8 @@ const GeneralTab = props => {
                         return <AvTimerIcon className={menuIcon} />;
                       case 'line':
                         return <LineChartIcon className={menuIcon} />;
+                      case 'map':
+                        return <PublicIcon className={menuIcon} />;
                       case 'pie':
                         return <PieChartIcon className={menuIcon} />;
                       case 'scatter':
@@ -307,6 +312,8 @@ const GeneralTab = props => {
         <HistogramParams {...props} />
       ) : type === 'pie' || type === 'donut' ? (
         <PieParams {...props} />
+      ) : type === 'map' ? (
+        <MapParams {...props} />
       ) : type === 'table' ? (
         <TableParams {...props} />
       ) : type === 'textBox' ? (
