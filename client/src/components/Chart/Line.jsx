@@ -56,10 +56,10 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
     point: { size: 4 },
     tooltip: {
       formatter: datum => {
-        const yVal = datum[yValue];
+        const value = datum[yValue];
         return {
-          name: customYLabel,
-          value: isNaN(yVal) ? yVal : Intl.NumberFormat('en-US').format(yVal),
+          name: groupByValue ? datum[groupByValue] : customYLabel,
+          value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
         };
       },
       showContent: !pdfPreview,

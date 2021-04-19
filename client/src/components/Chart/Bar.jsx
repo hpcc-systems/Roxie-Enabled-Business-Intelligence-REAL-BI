@@ -63,10 +63,10 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
     padding: 'auto',
     tooltip: {
       formatter: datum => {
-        const xVal = datum[xValue];
+        const value = datum[xValue];
         return {
-          name: customXLabel,
-          value: isNaN(xVal) ? xVal : Intl.NumberFormat('en-US').format(xVal),
+          name: groupByValue ? datum[groupByValue] : customXLabel,
+          value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
         };
       },
       showContent: !pdfPreview,
@@ -123,10 +123,10 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
 
       chartConfig.tooltip = {
         formatter: datum => {
-          const xVal = datum[xValue];
+          const value = datum[xValue];
           return {
-            name: customXLabel,
-            value: isNaN(xVal) ? xVal : Intl.NumberFormat('en-US').format(xVal),
+            name: groupByValue ? datum[groupByValue] : customXLabel,
+            value: `${(value * 100).toFixed(2)}%`,
           };
         },
         showContent: !pdfPreview,
@@ -135,8 +135,6 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
       chartConfig.isPercent = null;
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
-
-      chartConfig.tooltip = { showContent: !pdfPreview };
     } else {
       chartConfig.isPercent = null;
       chartConfig.isStack = null;

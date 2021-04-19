@@ -125,13 +125,15 @@ const Relations = ({ show, toggleDialog }) => {
     }
 
     // Table fields are stored here
-    if (fields.length > 0) {
-      fields.forEach(field => newFields.push({ name: field }));
-    }
+    fields.forEach(field => {
+      if (field.name !== '') {
+        newFields.push({ name: field.label || field.name, value: field.name });
+      }
+    });
 
     // Include group by as available field
     if (groupBy.value !== '') {
-      newFields.push({ name: groupBy.value });
+      newFields.push({ name: groupBy.value, value: groupBy.value });
     }
 
     const formattedParams = params.map(({ name }) => ({ name, value: name }));

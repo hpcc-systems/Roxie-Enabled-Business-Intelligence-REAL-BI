@@ -63,10 +63,10 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     padding: 'auto',
     tooltip: {
       formatter: datum => {
-        const yVal = datum[yValue];
+        const value = datum[yValue];
         return {
-          name: customYLabel,
-          value: isNaN(yVal) ? yVal : Intl.NumberFormat('en-US').format(yVal),
+          name: groupByValue ? datum[groupByValue] : customYLabel,
+          value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
         };
       },
       showContent: !pdfPreview,
@@ -121,7 +121,16 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
 
-      chartConfig.tooltip = { showContent: !pdfPreview };
+      chartConfig.tooltip = {
+        formatter: datum => {
+          const value = datum[yValue];
+          return {
+            name: groupByValue ? datum[groupByValue] : customYLabel,
+            value: `${(value * 100).toFixed(2)}%`,
+          };
+        },
+        showContent: !pdfPreview,
+      };
     } else if (stacked) {
       chartConfig.isPercent = null;
       chartConfig.isStack = true;
