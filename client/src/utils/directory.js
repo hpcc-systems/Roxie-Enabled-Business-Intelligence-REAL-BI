@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 export const getDashboardIDsFromFolder = (directoryObj, dashboardIDs) => {
   directoryObj.children.forEach(child => {
@@ -33,7 +33,7 @@ export const getDashboardsFromDirectory = (directory, dashboards) => {
   });
 
   // Sort by Name
-  dashboards = _.orderBy(dashboards, ['name'], ['asc']);
+  dashboards = _orderBy(dashboards, ['name'], ['asc']);
 
   return dashboards;
 };
@@ -57,7 +57,7 @@ export const getFavoriteDashboards = dashboards => {
   dashboards = dashboards.filter(({ favorite }) => favorite === true);
 
   // Sort by Name
-  dashboards = _.orderBy(dashboards, ['name'], ['asc']);
+  dashboards = _orderBy(dashboards, ['name'], ['asc']);
 
   return dashboards;
 };

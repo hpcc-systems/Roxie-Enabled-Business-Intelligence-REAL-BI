@@ -1,6 +1,6 @@
 import React from 'react';
 import { Histogram } from '@ant-design/charts';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 import PropTypes from 'prop-types';
 
 // Utils
@@ -30,7 +30,7 @@ const HistogramChart = ({ configuration, data, pdfPreview }) => {
     [groupByValue]: formatValue(groupByType, row[groupByValue]),
     [`sort${xValue}`]: formatValue(xType, row[xValue], true),
   }));
-  data = _.orderBy(data, [`sort${xValue}`], [sortOrder]);
+  data = _orderBy(data, [`sort${xValue}`], [sortOrder]);
 
   const chartConfig = {
     appendPadding: [24, 0, 0, 0],

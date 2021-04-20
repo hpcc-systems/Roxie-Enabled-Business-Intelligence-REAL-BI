@@ -4,7 +4,7 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Tab, Tabs } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 import clsx from 'clsx';
 
 // React Components
@@ -63,7 +63,7 @@ const Workspace = () => {
     index => {
       (async () => {
         try {
-          const action = await getDashboard(_.orderBy(openDashboards, ['updatedAt'], ['asc'])[index].id);
+          const action = await getDashboard(_orderBy(openDashboards, ['updatedAt'], ['asc'])[index].id);
           dispatch(action);
         } catch (error) {
           dispatch(error);
@@ -96,7 +96,7 @@ const Workspace = () => {
   const changeTabIndex = async (event, newValue) => {
     // Close open dashboard
     if (event.target.tagName !== 'SPAN') {
-      const dashboardID = _.orderBy(openDashboards, ['updatedAt'], ['asc'])[newValue].id;
+      const dashboardID = _orderBy(openDashboards, ['updatedAt'], ['asc'])[newValue].id;
 
       // Reset tab position
       setTabIndex(0);
@@ -125,7 +125,7 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {_.orderBy(openDashboards, ['updatedAt'], ['asc']).map(({ id, name }, key) => {
+            {_orderBy(openDashboards, ['updatedAt'], ['asc']).map(({ id, name }, key) => {
               return (
                 <Tab
                   component='div'

@@ -15,7 +15,7 @@ import {
 import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@material-ui/icons';
 import { grey } from '@material-ui/core/colors';
 import clsx from 'clsx';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 // Redux Actions
 import { deleteExistingFilter, updateFilterValue } from '../../features/dashboard/actions.js';
@@ -221,7 +221,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
                         className={fontColor}
                       >
                         {(() => {
-                          return _.orderBy(
+                          return _orderBy(
                             data,
                             [({ configuration }) => configuration?.field || ''],
                             ['asc'],

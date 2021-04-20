@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 // React Components
 import ChartTile from '../Dashboard/ChartTile';
@@ -31,7 +31,7 @@ const PdfPreview = ({ charts, compData, dashboard, localState }) => {
         )}
 
         <Grid container direction='row' spacing={3}>
-          {_.orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
+          {_orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
             (chart, index) => {
               return (
                 <ChartTile

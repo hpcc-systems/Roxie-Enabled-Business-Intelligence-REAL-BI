@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "start": "react-scripts start"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "jspdf": "^2.2.0",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
+    "mapbox-gl": "^2.2.0",
     "moment": "^2.29.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
@@ -31,13 +32,13 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "^4.0.1",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "worker-loader": "^3.0.8"
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "defaults",
+      "not ie 11"
     ],
     "development": [
       "last 1 chrome version",
