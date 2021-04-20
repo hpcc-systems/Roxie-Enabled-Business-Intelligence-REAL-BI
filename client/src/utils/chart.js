@@ -1,5 +1,5 @@
 import axios from 'axios';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 // Constants
 import {
@@ -202,7 +202,7 @@ export const evaluateFormattingRules = (value, color, textColor, rules) => {
     const equalRules = rules.filter(({ operand, value }) => value !== '' && operand === '==');
     styleObj = { backgroundColor: '#FFF', color: '#000' };
 
-    for (const rule of _.orderBy(greaterThanRules, ['value'], ['asc'])) {
+    for (const rule of _orderBy(greaterThanRules, ['value'], ['asc'])) {
       const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
       switch (operand) {
@@ -218,7 +218,7 @@ export const evaluateFormattingRules = (value, color, textColor, rules) => {
       }
     }
 
-    for (const rule of _.orderBy(lessThanRules, ['value'], ['desc'])) {
+    for (const rule of _orderBy(lessThanRules, ['value'], ['desc'])) {
       const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
       switch (operand) {
@@ -234,7 +234,7 @@ export const evaluateFormattingRules = (value, color, textColor, rules) => {
       }
     }
 
-    for (const rule of _.orderBy(equalRules, ['value'], ['asc'])) {
+    for (const rule of _orderBy(equalRules, ['value'], ['asc'])) {
       const { value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
       if (value == ruleVal) {

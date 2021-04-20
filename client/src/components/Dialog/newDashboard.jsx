@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 // Redux Actions
 import { getClusters } from '../../features/cluster/actions';
@@ -79,7 +79,7 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
         <FormControl className={formControl} fullWidth>
           <InputLabel>HPCC Cluster</InputLabel>
           <Select name='clusterID' value={clusterID} onChange={checkForAuth}>
-            {_.orderBy(clusters, ['name'], ['asc']).map(({ host, id, infoPort, name }) => {
+            {_orderBy(clusters, ['name'], ['asc']).map(({ host, id, infoPort, name }) => {
               return (
                 <MenuItem key={id} value={id}>
                   {`${name} (${host}:${infoPort})`}

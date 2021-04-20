@@ -1,6 +1,6 @@
 import React from 'react';
 import { DualAxes } from '@ant-design/charts';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../../utils/misc';
 import { chartFillColor } from '../../../constants';
@@ -44,10 +44,10 @@ const ColumnLineChart = ({ configuration, data, pdfPreview }) => {
   */
   if (sortValue === xValue) {
     data = data.map(row => ({ ...row, [`sort${sortValue}`]: formatValue(sortType, row[sortValue], true) }));
-    data = _.orderBy(data, [`sort${sortValue}`], [order]);
+    data = _orderBy(data, [`sort${sortValue}`], [order]);
   } else {
     data = data.map(row => ({ ...row, [sortValue]: formatValue(sortType, row[sortValue], true) }));
-    data = _.orderBy(data, [sortValue], [order]);
+    data = _orderBy(data, [sortValue], [order]);
   }
 
   const chartConfig = {

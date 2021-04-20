@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { Container, Grid } from '@material-ui/core';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 
 // React Components
 import Toolbar from './Toolbar';
@@ -194,7 +194,7 @@ const Dashboard = () => {
       />
       <Container maxWidth='xl'>
         <Grid container direction='row' spacing={3}>
-          {_.orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
+          {_orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
             (chart, index) => {
               return (
                 <ChartTile

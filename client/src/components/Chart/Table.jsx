@@ -13,7 +13,7 @@ import {
   TableSortLabel,
 } from '@material-ui/core';
 import clsx from 'clsx';
-import _ from 'lodash';
+import _orderBy from 'lodash/orderBy';
 import { evaluateFormattingRules } from '../../utils/chart';
 import { updateChart } from '../../features/dashboard/actions';
 
@@ -83,7 +83,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
 
   // Sort data
   if (orderBy) {
-    data = _.orderBy(data, [orderBy], [order]);
+    data = _orderBy(data, [orderBy], [order]);
   }
 
   // Reference values
