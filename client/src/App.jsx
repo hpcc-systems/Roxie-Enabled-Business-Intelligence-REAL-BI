@@ -25,48 +25,48 @@ import { tokenName } from './constants';
 
 // Create custom app theme
 const theme = createMuiTheme({
-  palette: {
-    primary: { main: '#343a40' },
-    secondary: { main: '#6c757d' },
-    info: { main: '#007bff' }, // Blue buttons
-  },
+	palette: {
+		primary: { main: '#343a40' },
+		secondary: { main: '#6c757d' },
+		info: { main: '#007bff' }, // Blue buttons
+	},
 });
 
 const { token, valid } = checkForToken();
 
 if (token) {
-  if (valid) {
-    // There is a valid token in storage
-    setAuthHeader(token);
-  } else {
-    // There is an invalid token in storage
-    localStorage.removeItem(tokenName);
-    setAuthHeader();
-  }
+	if (valid) {
+		// There is a valid token in storage
+		setAuthHeader(token);
+	} else {
+		// There is an invalid token in storage
+		localStorage.removeItem(tokenName);
+		setAuthHeader();
+	}
 } else {
-  // Confirm no auth header is set
-  setAuthHeader();
+	// Confirm no auth header is set
+	setAuthHeader();
 }
 
 const App = () => {
-  return (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <Switch>
-            <Route exact path='/' component={Login} />
-            <Route exact path='/login' component={Login} />
-            <Route exact path='/register/:shareID?' component={Register} />
-            <Route exact path='/forgot-password' component={ForgotPwd} />
-            <Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
-            <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
-            <PrivateRoute exact path='/changepwd' component={ChangePwd} />
-          </Switch>
-        </Router>
-      </ThemeProvider>
-    </Provider>
-  );
+	return (
+		<Provider store={store}>
+			<ThemeProvider theme={theme}>
+				<CssBaseline />
+				<Router>
+					<Switch>
+						<Route exact path='/' component={Login} />
+						<Route exact path='/login' component={Login} />
+						<Route exact path='/register/:shareID?' component={Register} />
+						<Route exact path='/forgot-password' component={ForgotPwd} />
+						<Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
+						<PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
+						<PrivateRoute exact path='/changepwd' component={ChangePwd} />
+					</Switch>
+				</Router>
+			</ThemeProvider>
+		</Provider>
+	);
 };
 
 export default App;

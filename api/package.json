@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
+    "start": "nodemon",
     "start:dev": "nodemon",
     "start:prod": "node src/index.js"
   },
@@ -26,5 +27,6 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
-  }
+  },
+  "proxy": "http://localhost:3001"
 }
