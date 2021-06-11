@@ -77,7 +77,7 @@ const initState = {
 const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
-  const { errorObj } = useSelector(state => state.auth);
+  const { errorObj, user } = useSelector(state => state.auth);
   const { errors = [], message: errMessage = '' } = errorObj;
   const dispatch = useDispatch();
   const history = useHistory();
@@ -86,7 +86,6 @@ const Login = () => {
 
   useEffect(() => {
     const { token, valid } = checkForToken();
-
     if (token) {
       if (valid && !hasAuthError) {
         // There is a valid token in storage
@@ -116,7 +115,7 @@ const Login = () => {
         setAuthHeader();
       }
     }
-  });
+  }, [user, hasAuthError]);
 
   const loginUserFn = async event => {
     event.preventDefault();

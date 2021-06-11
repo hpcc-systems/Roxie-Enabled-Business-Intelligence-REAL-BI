@@ -8,6 +8,24 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 
 ### Development
 
+## To run app in localhost
+
+1. Run `git clone https://github.com/hpcc-systems/REAL-BI.git`
+2. Rename the **_.env.example_** file to **_.env_** and fill in the remaining values.
+3. Run `npm install` in root folder
+   - go to `/api` run `npm install`.
+   - go to `/client` run `npm install`.
+4. In `/client` rename the **_.env.example_** file to **_.env.development_** and fill in the remaining values. you can switch authorization flow by changing value of REACT_APP_AUTH_METHOD=ADFS to REACT_APP_AUTH_METHOD="" ;
+5. Create `real_bi` schema in your local MySQL DB.
+6. Inside **_.env_** in root folder, change DB_HOST=localhost
+7. Go to `/api` and run `npx sequelize db:migrate` to build database tables.
+8. - At least one cluster will need to be added to the database to begin making dashboards. A sample seed file is provided in **_api/src/seeders_**. Go to
+     **_api\src\seeders\cluster-example.js_** add existing cluster info.
+9. Run `npx sequelize db:seed:all` when in `/api`.
+10. Navigate to root folder and run `npm start` it should start run your back-end as well as front-end services.
+
+## To run app in Docker Contianer -->
+
 1. Run `git clone https://github.com/hpcc-systems/REAL-BI.git`
 2. Rename the **_.env.example_** file to **_.env_** and fill in the remaining values.
 3. Add cert and key files to `/nginx/certs`.

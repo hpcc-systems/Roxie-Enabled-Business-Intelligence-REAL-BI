@@ -139,7 +139,12 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     }
 
     // Create new dashboard object
-    const newDashboardObj = { id: dashboard.id, name: dashboard.name, favorite: false, shared: false };
+    const newDashboardObj = {
+      id: dashboard.id,
+      name: dashboard.name,
+      favorite: false,
+      shared: false,
+    };
     const newDirectory = addObjectToDirectory(directory, parentID, newDashboardObj);
 
     try {

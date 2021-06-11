@@ -1,8 +1,11 @@
 # Dependency directories
 node_modules/
 *.env
+*.env.development
 !*.env.example
 /client/.eslintcache
+/client/package-lock.json
+/api/package-lock.json
 
 # Logs
 *.log
