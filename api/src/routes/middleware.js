@@ -26,7 +26,7 @@ const authenticateToken = async (req, res, next) => {
       const requestBody = { clientId: AUTH_CLIENT_ID };
       response = await axios.post(requestUrl, requestBody, {
         headers: { authorization: token },
-        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        httpsAgent: new https.Agent({ rejectUnauthorized: true }),
       });
     } catch (err) {
       res.status(err?.response?.status || 500);
