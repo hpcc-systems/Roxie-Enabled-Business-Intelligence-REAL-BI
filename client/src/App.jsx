@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
+import { unstable_createMuiStrictModeTheme } from '@material-ui/core';
 
 // Redux Store
 import store from './store';
@@ -20,7 +21,12 @@ import AzureLogin from './components/AzureLogin';
 const { REACT_APP_AUTH_METHOD } = process.env;
 
 // Create custom app theme
-const theme = createMuiTheme({
+// Issue with MUI component, throws warning to console, this is walk around.
+// https://github.com/mui-org/material-ui/issues/13394
+const createTheme =
+  process.env.NODE_ENV === 'production' ? createMuiTheme : unstable_createMuiStrictModeTheme;
+
+const theme = createTheme({
   palette: {
     primary: { main: '#343a40' },
     secondary: { main: '#6c757d' },

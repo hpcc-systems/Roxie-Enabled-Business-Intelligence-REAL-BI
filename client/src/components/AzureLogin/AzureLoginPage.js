@@ -6,6 +6,7 @@ import { useHistory } from 'react-router';
 import { apiScopes, loginScopes } from './authConfig';
 import { useDispatch } from 'react-redux';
 import { getUserStateWithAzure } from '../../features/auth/actions';
+import ErrorLoginComponent from './ErrorLoginComponent';
 
 function AzureLoginPage() {
   /* useMsal is hook that returns the PublicClientApplication instance */
@@ -71,7 +72,7 @@ function AzureLoginPage() {
       <MsalAuthenticationTemplate
         interactionType={InteractionType.Redirect}
         authenticationRequest={loginScopes} /*set of scopes to pre-consent to while sign in */
-        // errorComponent={ErrorComponent}
+        errorComponent={ErrorLoginComponent}
         // loadingComponent={loadingComponent}
       />
     </>

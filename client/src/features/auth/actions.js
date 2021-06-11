@@ -72,6 +72,6 @@ export const getUserStateWithAzure = () => async (dispatch, getState) => {
     dispatch({ type: SET_AUTH_ERRORS, payload: error.message });
   }
   // 4. returning for riderect to workspace/:lastViewedWorkspace
-  return getState().auth.user.lastViewedWorkspace;
+  return getState()?.auth?.user?.lastViewedWorkspace;
 };
 /* eslint-enable no-throw-literal */

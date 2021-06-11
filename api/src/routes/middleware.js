@@ -5,23 +5,23 @@ const passport = require('passport');
 const { getUserByUsername } = require('../utils/user');
 
 // Constants
-const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
+const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV, REACT_APP_AUTH_METHOD } = process.env;
 
 const authenticateToken = async (req, res, next) => {
-  let token = req.headers.authorization;
-  // Azure has "Bearer" in authorization header, if it is present we will go to next.
-  const goToPassportAzureMiddleware = req.headers.authorization.split(' ')[0];
-  if (goToPassportAzureMiddleware === 'Bearer') {
+  // Azure login flow if ADFS is in ENV
+  if (REACT_APP_AUTH_METHOD === 'ADFS') {
     passport.authenticate('oauth-bearer', {
       session: false,
     })(req, res, next);
   } else {
+    let token = req.headers.authorization;
+    let response;
+
     try {
       if (!token) {
         res.status(401);
         throw new Error('Auth Token Required');
       }
-
       const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`;
       const requestBody = { clientId: AUTH_CLIENT_ID };
       response = await axios.post(requestUrl, requestBody, {
