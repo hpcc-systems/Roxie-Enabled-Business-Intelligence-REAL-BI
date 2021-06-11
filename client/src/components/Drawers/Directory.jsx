@@ -73,7 +73,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const [loading, setLoading] = useState(false);
   const [dashboardID, setDashboardID] = useState(null);
   const [folderObj, setFolderObj] = useState(null);
-  const { workspaces, workspace } = useSelector(state => state.workspace);
+  const { workspace } = useSelector(state => state.workspace);
   const { directory = [], id: workspaceID } = workspace;
   const dispatch = useDispatch();
   const { showDialog: showNewDashboardDialog, toggleDialog: toggleNewDashboardDialog } = useDialog(false);
@@ -328,7 +328,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   return (
     <Drawer open={showDrawer} onClose={toggleDrawer} classes={{ paper: drawerPaper }} variant='temporary'>
       <div className={drawer}>
-        {Object.keys(workspaces).length > 0 ? (
+        {Object.keys(workspace).length > 0 ? (
           <Fragment>
             <FavoritesTree
               favorites={favorites}
@@ -400,7 +400,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
           directoryObj={folderObj}
           show={showDeleteFolderDialog}
           toggleDialog={toggleDeleteFolderDialog}
-          workspace={workspaces}
+          workspace={workspace}
         />
       )}
       {showDeleteDashboardDialog && (
@@ -408,7 +408,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
           dashboardID={dashboardID}
           show={showDeleteDashboardDialog}
           toggleDialog={toggleDeleteDashboardDialog}
-          workspace={workspaces}
+          workspace={workspace}
         />
       )}
     </Drawer>

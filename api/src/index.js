@@ -3,6 +3,10 @@ const { sequelize } = require('./models');
 const routes = require('./routes');
 const logger = require('./config/logger');
 
+// Passport Azure token validation setup
+const passport = require('passport');
+const bearerStrategy = require('./utils/passportStrategies/passport-azure');
+
 const { PORT, NODE_PORT } = process.env;
 const port = PORT || NODE_PORT;
 
@@ -11,6 +15,10 @@ const app = express();
 // Enable express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Enable passport middleware
+app.use(passport.initialize());
+passport.use(bearerStrategy);
 
 // Routes
 app.use('/api', routes);

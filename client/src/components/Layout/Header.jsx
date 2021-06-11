@@ -103,7 +103,7 @@ const Header = ({ toggleDrawer }) => {
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar}>
-          {userID && !isChangePwdScreen && (
+          {!!workspaces?.length && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>

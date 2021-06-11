@@ -23,24 +23,36 @@ import setAuthHeader from '../../utils/axiosConfig';
 
 // Constants
 import { tokenName } from '../../constants';
+import { useMsal } from '@azure/msal-react';
+
+const { REACT_APP_AUTH_METHOD } = process.env;
 
 const UserDropDown = ({ anchorRef, handleClose, handleToggle, open, username, useStyles }) => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const { instance } = useMsal();
+
   const { button, buttonIcon, buttonLabel, menuIcon, menuItem, menuLabel } = useStyles();
 
   const logout = async () => {
-    localStorage.removeItem(tokenName);
-    setAuthHeader();
-
-    Promise.all([logoutUser(), clearWorkspaceRef()]).then(actions => {
-      batch(() => {
-        dispatch(actions[0]);
-        dispatch(actions[1]);
+    if (REACT_APP_AUTH_METHOD === 'ADFS') {
+      instance.logoutPopup({
+        postLogoutRedirectUri: '/',
+        mainWindowRedirectUri: '/',
       });
-    });
+    } else {
+      localStorage.removeItem(tokenName);
+      setAuthHeader();
 
-    history.push('/login');
+      Promise.all([logoutUser(), clearWorkspaceRef()]).then(actions => {
+        batch(() => {
+          dispatch(actions[0]);
+          dispatch(actions[1]);
+        });
+      });
+
+      history.push('/login');
+    }
   };
 
   return (
@@ -58,14 +70,16 @@ const UserDropDown = ({ anchorRef, handleClose, handleToggle, open, username, us
             <Paper>
               <ClickAwayListener onClickAway={event => handleClose(event, 2)}>
                 <MenuList autoFocusItem={open} id='userMenu'>
-                  <MenuItem className={menuItem} onClick={() => history.push('/changepwd')}>
-                    <ListItemIcon className={menuIcon}>
-                      <VpnKey />
-                    </ListItemIcon>
-                    <Typography color='inherit' className={menuLabel}>
-                      Change Password
-                    </Typography>
-                  </MenuItem>
+                  {REACT_APP_AUTH_METHOD === 'ADFS' ? null : (
+                    <MenuItem className={menuItem} onClick={() => history.push('/changepwd')}>
+                      <ListItemIcon className={menuIcon}>
+                        <VpnKey />
+                      </ListItemIcon>
+                      <Typography color='inherit' className={menuLabel}>
+                        Change Password
+                      </Typography>
+                    </MenuItem>
+                  )}
                   <MenuItem className={menuItem} onClick={() => logout()}>
                     <ListItemIcon className={menuIcon}>
                       <ExitToApp />

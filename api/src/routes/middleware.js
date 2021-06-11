@@ -1,6 +1,7 @@
 const https = require('https');
 const axios = require('axios');
 const logger = require('../config/logger');
+const passport = require('passport');
 const { getUserByUsername } = require('../utils/user');
 
 // Constants
@@ -8,37 +9,43 @@ const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
 
 const authenticateToken = async (req, res, next) => {
   let token = req.headers.authorization;
-  let response;
+  // Azure has "Bearer" in authorization header, if it is present we will go to next.
+  const goToPassportAzureMiddleware = req.headers.authorization.split(' ')[0];
+  if (goToPassportAzureMiddleware === 'Bearer') {
+    passport.authenticate('oauth-bearer', {
+      session: false,
+    })(req, res, next);
+  } else {
+    try {
+      if (!token) {
+        res.status(401);
+        throw new Error('Auth Token Required');
+      }
 
-  try {
-    if (!token) {
-      res.status(401);
-      throw new Error('Auth Token Required');
+      const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`;
+      const requestBody = { clientId: AUTH_CLIENT_ID };
+      response = await axios.post(requestUrl, requestBody, {
+        headers: { authorization: token },
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      });
+    } catch (err) {
+      res.status(err?.response?.status || 500);
+      const error = new Error(`${err?.response?.data || 'Unknown error'}`);
+      return next(error);
     }
 
-    const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/verify`;
-    const requestBody = { clientId: AUTH_CLIENT_ID };
-    response = await axios.post(requestUrl, requestBody, {
-      headers: { authorization: token },
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    });
-  } catch (err) {
-    res.status(err?.response?.status || 500);
-    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
-    return next(error);
-  }
+    try {
+      // Get username from response
+      const { username } = response.data.verified;
+      const { id } = await getUserByUsername(username);
 
-  try {
-    // Get username from response
-    const { username } = response.data.verified;
-    const { id } = await getUserByUsername(username);
+      // Add user object to request
+      req.user = { id, username };
 
-    // Add user object to request
-    req.user = { id, username };
-
-    return next();
-  } catch (error) {
-    return next(error);
+      return next();
+    } catch (error) {
+      return next(error);
+    }
   }
 };
 

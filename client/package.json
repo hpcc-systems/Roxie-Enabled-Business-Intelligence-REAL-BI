@@ -8,6 +8,8 @@
 	},
 	"dependencies": {
 		"@ant-design/charts": "^1.0.17",
+		"@azure/msal-browser": "^2.14.2",
+		"@azure/msal-react": "^1.0.0",
 		"@hpcc-js/codemirror": "^2.36.0",
 		"@hpcc-js/common": "^2.45.0",
 		"@hpcc-js/phosphor": "^2.14.35",
