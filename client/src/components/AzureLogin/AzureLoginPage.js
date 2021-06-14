@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InteractionRequiredAuthError, InteractionType } from '@azure/msal-browser';
 import { MsalAuthenticationTemplate, useMsal } from '@azure/msal-react';
 import { useHistory } from 'react-router';
@@ -13,25 +13,35 @@ function AzureLoginPage() {
   const { instance, accounts, inProgress } = useMsal();
   const account = accounts[0] || null;
 
+  const [initUserError, setInitUserError] = useState(null);
+
   const dispatch = useDispatch();
 
   const history = useHistory();
 
-  const silentTokenOptions = {
-    scopes: [loginScopes.scopes[0]],
-    account: account,
-  };
-
   const getUserInfo = async () => {
     try {
       const lastViewedWorkspace = await dispatch(getUserStateWithAzure());
-      if (lastViewedWorkspace) {
-        history.push(`/workspace/${lastViewedWorkspace}`);
-      } else {
-        history.push(`/workspace/`);
-      }
+      history.push(`/workspace/${lastViewedWorkspace || ''}`);
     } catch (error) {
-      console.log('error happened it is in redux store', error);
+      setInitUserError(error);
+    }
+  };
+
+  const aquireTokens = async () => {
+    //to aquire tokens silently we need to provide account.
+    const silentTokenOptions = {
+      ...loginScopes,
+      account: account,
+    };
+    try {
+      /* access token to hit our api aquired silently */
+      await instance.acquireTokenSilent(silentTokenOptions);
+    } catch (error) {
+      /* in case if silent token acquisition fails, fallback to an interactive method */
+      if (error instanceof InteractionRequiredAuthError) {
+        await instance.acquireTokenRedirect(loginScopes);
+      }
     }
   };
 
@@ -40,29 +50,10 @@ function AzureLoginPage() {
       /* set account to Active for Axios interceptor to send HTTPS with fresh tokens */
       instance.setActiveAccount(account);
       (async () => {
-        try {
-          /* access token to hit our api aquired silently */
-          await instance.acquireTokenSilent(silentTokenOptions);
-          await getUserInfo();
-        } catch (error) {
-          /* in case if silent token acquisition fails, fallback to an interactive method */
-          if (error instanceof InteractionRequiredAuthError) {
-            if (account && inProgress === 'none') {
-              try {
-                await instance.acquireTokenPopup(loginScopes);
-                await getUserInfo();
-              } catch (error) {
-                /*Something went Wrong with PopUp signin we need fallback screen and button to try again*/
-                console.log('Something went Wrong with PopUp signin', error);
-                // history.replace('/');
-              }
-            }
-          } else {
-            /*Error is not caused by SSO we need to show fallback screen*/
-            console.log('Error is not caused by SSO we need to show fallback screen', error);
-            // history.replace('/');
-          }
-        }
+        //1. Aquire fresh tokens to send initial user info request
+        await aquireTokens();
+        //2. Send a request to get user info
+        await getUserInfo();
       })();
     }
   }, [account, inProgress]);
@@ -73,8 +64,9 @@ function AzureLoginPage() {
         interactionType={InteractionType.Redirect}
         authenticationRequest={loginScopes} /*set of scopes to pre-consent to while sign in */
         errorComponent={ErrorLoginComponent}
-        // loadingComponent={loadingComponent}
-      />
+      >
+        {initUserError && <ErrorLoginComponent error={initUserError} />}
+      </MsalAuthenticationTemplate>
     </>
   );
 }

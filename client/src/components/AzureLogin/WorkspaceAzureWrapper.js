@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import Workspace from '../Workspace';
 import { loginScopes } from './authConfig';
 import { useHistory } from 'react-router';
+import ErrorLoginComponent from './ErrorLoginComponent';
 
 const WorkspaceAzureWrapper = props => {
   const { user } = useSelector(state => state.auth);
@@ -22,8 +23,7 @@ const WorkspaceAzureWrapper = props => {
     <MsalAuthenticationTemplate
       interactionType={InteractionType.Redirect}
       authenticationRequest={loginScopes}
-      // errorComponent={ErrorComponent}
-      // loadingComponent={LoadingComponent}
+      errorComponent={ErrorLoginComponent}
     >
       <Workspace {...props} />
     </MsalAuthenticationTemplate>
