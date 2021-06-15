@@ -53,7 +53,7 @@ export const getUserStateWithAzure = () => async (dispatch, getState) => {
     dispatch({ type: SET_AUTH_USER, payload: userFromDB });
   } catch (error) {
     dispatch({ type: SET_AUTH_ERRORS, payload: error.message });
-    throw error;
+    return;
   }
   // 2. Get Workspaces
   try {
@@ -61,17 +61,7 @@ export const getUserStateWithAzure = () => async (dispatch, getState) => {
     dispatch({ type: GET_WORKSPACES, payload: response.data });
   } catch (error) {
     dispatch({ type: SET_WORKSPACE_ERROR, payload: error.message });
-    throw error;
+    return;
   }
-  // 3. Get latest user data
-  try {
-    const response = await axios.get('/api/v1/user/get_data');
-    dispatch({ type: SET_AUTH_USER, payload: response.data });
-  } catch (error) {
-    dispatch({ type: SET_AUTH_ERRORS, payload: error.message });
-    throw error;
-  }
-  // 4. returning for riderect to workspace/:lastViewedWorkspace and errors
-  return getState()?.auth?.user?.lastViewedWorkspace;
 };
 /* eslint-enable no-throw-literal */

@@ -16,7 +16,7 @@ router.get(
       if (!user) {
         user = await createUser(email, username);
       }
-      res.send({ id: user.id, username });
+      res.send({ id: user.id, username, lastViewedWorkspace: user.lastViewedWorkspace });
     } catch (error) {
       next(error);
     }
