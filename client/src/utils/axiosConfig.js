@@ -27,10 +27,10 @@ if (REACT_APP_AUTH_METHOD === 'ADFS') {
         }
         return req;
       } catch (error) {
-        //If for some reasone we can not get token for request
+        //If for some reason we can not get token for request
         //Error will be past to place where HTTP call happened and get into REDUX
         console.log(`interceptor`, error);
-        throw error;
+        throw Error('Can not get access token');
       }
     },
     error => {

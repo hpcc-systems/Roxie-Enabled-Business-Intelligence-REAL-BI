@@ -25,20 +25,20 @@ import setAuthHeader from '../../utils/axiosConfig';
 import { tokenName } from '../../constants';
 import { useMsal } from '@azure/msal-react';
 
-const { REACT_APP_AUTH_METHOD } = process.env;
+const { REACT_APP_AUTH_METHOD, REACT_APP_AZURE_REDIRECT_URI } = process.env;
 
 const UserDropDown = ({ anchorRef, handleClose, handleToggle, open, username, useStyles }) => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const { instance } = useMsal();
+  const { instance, accounts } = useMsal();
 
   const { button, buttonIcon, buttonLabel, menuIcon, menuItem, menuLabel } = useStyles();
 
   const logout = async () => {
     if (REACT_APP_AUTH_METHOD === 'ADFS') {
-      instance.logoutPopup({
-        postLogoutRedirectUri: '/',
-        mainWindowRedirectUri: '/',
+      instance.logoutRedirect({
+        account: accounts[0],
+        postLogoutRedirectUri: REACT_APP_AZURE_REDIRECT_URI,
       });
     } else {
       localStorage.removeItem(tokenName);
@@ -80,7 +80,7 @@ const UserDropDown = ({ anchorRef, handleClose, handleToggle, open, username, us
                       </Typography>
                     </MenuItem>
                   )}
-                  <MenuItem className={menuItem} onClick={() => logout()}>
+                  <MenuItem className={menuItem} onClick={logout}>
                     <ListItemIcon className={menuIcon}>
                       <ExitToApp />
                     </ListItemIcon>
