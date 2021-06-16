@@ -93,29 +93,20 @@ const Workspace = () => {
     }
   }, [dashboardID, dispatch, openDashboards]);
 
-  const changeTabIndex = async (event, newValue) => {
-    // Close open dashboard
-    if (event.target.tagName !== 'SPAN') {
-      const dashboardID = _orderBy(openDashboards, ['updatedAt'], ['asc'])[newValue].id;
+  const changeTabIndex = (event, newValue) => setTabIndex(newValue);
 
+  const closeDashboardTab = async dashboardID => {
+    try {
+      const actions = await Promise.all([
+        closeDashboardInWorkspace(dashboardID, workspaceID),
+        clearDashboard(),
+      ]);
       // Reset tab position
       setTabIndex(0);
-
-      try {
-        const actions = await Promise.all([
-          closeDashboardInWorkspace(dashboardID, workspaceID),
-          clearDashboard(),
-        ]);
-        batch(() => actions.forEach(action => dispatch(action)));
-      } catch (error) {
-        dispatch(error);
-      }
-
-      return;
+      batch(() => actions.forEach(action => dispatch(action)));
+    } catch (error) {
+      dispatch(error);
     }
-
-    // Change currently selected dashboard
-    return setTabIndex(newValue);
   };
 
   return (
@@ -125,16 +116,16 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex}>
-            {_orderBy(openDashboards, ['updatedAt'], ['asc']).map(({ id, name }, key) => {
+            {_orderBy(openDashboards, ['updatedAt'], ['asc']).map((dashboard, index) => {
               return (
                 <Tab
                   component='div'
-                  key={id}
-                  className={clsx(tab, { [selectedTab]: key === tabIndex })}
+                  key={dashboard.id}
+                  className={clsx(tab, { [selectedTab]: index === tabIndex })}
                   label={
                     <span className={span}>
-                      {name}
-                      <IconButton>
+                      {dashboard.name}
+                      <IconButton onClick={() => closeDashboardTab(dashboard.id)}>
                         <CloseIcon fontSize='small' />
                       </IconButton>
                     </span>
