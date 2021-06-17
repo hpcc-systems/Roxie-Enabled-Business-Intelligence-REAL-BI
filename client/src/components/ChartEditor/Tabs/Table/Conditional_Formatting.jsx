@@ -63,14 +63,10 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
         text: getConstrastTextColor(value),
       };
     } else {
-      let val;
-      if (value === '') {
-        val = '';
-      } else {
-        val = isNaN(value) ? value : Number(value);
-      }
-
-      newConditionalArr[tabIndex].rules[index] = { ...newConditionalArr[tabIndex].rules[index], [name]: val };
+      newConditionalArr[tabIndex].rules[index] = {
+        ...newConditionalArr[tabIndex].rules[index],
+        [name]: value,
+      };
     }
 
     // Add new object to end of array for next entry
