@@ -154,7 +154,7 @@ const ToolbarComp = ({
 
   return (
     <Fragment>
-      <Grid container spacing={1}>
+      <Grid container>
         <Grid item xs={6}>
           <Typography variant='h2' color='inherit' className={typography} align='right'>
             {name}{' '}

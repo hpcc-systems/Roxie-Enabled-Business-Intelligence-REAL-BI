@@ -160,7 +160,12 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
     }
   }, []);
 
-  return <Bar {...chartConfig} chartRef={ref} />;
+  return (
+    <>
+      {console.log('i am here')}
+      <Bar {...chartConfig} chartRef={ref} />
+    </>
+  );
 };
 
 BarChart.defaultProps = {

@@ -61,7 +61,7 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog, getChartData }) => {
+const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) => {
   const { showDialog, toggleDialog: toggleData } = useDialog(false);
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
@@ -97,6 +97,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData }) => {
 
       try {
         const action = await createChart(chartObj, dashboardID, null, null, null);
+        addChartToLayout(action.payload);
         dispatch(action);
         return toggleDialog();
       } catch (error) {
@@ -124,8 +125,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData }) => {
 
       try {
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
+        addChartToLayout(action.payload);
         dispatch(action);
-
         getChartData([action.payload.id], {});
         return toggleDialog();
       } catch (error) {
