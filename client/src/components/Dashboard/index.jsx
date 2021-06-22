@@ -138,31 +138,31 @@ const Dashboard = () => {
     //1.check in localStorage/db if there is a chart Layour object.
     const lastSavedLayout = JSON.parse(localStorage.getItem(dashboardID));
     if (lastSavedLayout) {
-      console.log('i just got triggered  create layout:>> ');
+      console.log('i just got triggered  lastSavedLayout:>>', lastSavedLayout);
       setChartLayouts(lastSavedLayout);
     } else {
       //2.if not then it is a dash with no charts and we will create new standart layou
       const initlayout = chartIDs.map((id, index) => ({
         i: id.toString(),
         x: 0,
-        y: index * 35,
+        y: index * 36,
         w: 12,
         h: 36,
         minW: 2,
         maxW: 12,
         minH: 36,
       }));
+      console.log(' create initlayout :>> ', initlayout);
       setChartLayouts({ lg: initlayout });
     }
   };
 
-  const createChart = layout => {
+  const generateDOM = layout => {
     const chart = charts.find(el => el.id === layout.i);
-    if (!chart) return;
     return (
       <Paper key={chart.id}>
         <ChartTile
-          key={chart.id.toString()}
+          key={chart.id}
           chart={chart}
           compData={compData}
           dashboard={dashboard}
@@ -179,7 +179,7 @@ const Dashboard = () => {
   const addChartToLayout = chart => {
     console.log('chart :>> ', chart);
     const newLayoutItem = {
-      i: chart.id.toString(),
+      i: chart.id,
       x: 0,
       y: Infinity,
       w: 12,
@@ -188,10 +188,9 @@ const Dashboard = () => {
       maxW: 12,
       minH: 36,
     };
-    const updatedLayouts = { ...chartLayouts };
-    updatedLayouts.lg.push(newLayoutItem);
-    setChartLayouts(updatedLayouts);
-    console.log('chartLayouts :>> ', chartLayouts);
+    const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
+    console.log('updatedLayouts :>> ', updatedLayouts);
+    setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
   };
 
   const removeChartLayout = chartID => {
@@ -220,7 +219,7 @@ const Dashboard = () => {
       <Container maxWidth='xl' style={{ overflow: 'hidden' }}>
         {chartLayouts && (
           <ChartsGrid layouts={chartLayouts} handleLayoutChange={handleLayoutChange}>
-            {_.map(chartLayouts.lg, layout => createChart(layout))}
+            {_.map(chartLayouts.lg, el => generateDOM(el))}
           </ChartsGrid>
         )}
         {/* MAIN CONTENT END! */}

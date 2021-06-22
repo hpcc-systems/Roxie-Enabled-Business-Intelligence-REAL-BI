@@ -54,120 +54,118 @@ const ChartComp = ({
 
   const chartRelation = pdfPreview ? false : relations.find(({ sourceID }) => sourceID === chartID);
 
+  let chartComp;
+  switch (chartType) {
+    case 'bar':
+      chartComp = (
+        <BarChart
+          chartID={chartID}
+          configuration={configuration}
+          data={data}
+          chartRelation={chartRelation}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      );
+      break;
+    case 'column':
+      chartComp = (
+        <ColumnChart
+          chartID={chartID}
+          configuration={configuration}
+          data={data}
+          chartRelation={chartRelation}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      );
+      break;
+    case 'columnline':
+      chartComp = <ColumnLineChart configuration={configuration} data={data} pdfPreview={pdfPreview} />;
+      break;
+    case 'line':
+      chartComp = (
+        <LineChart
+          chartID={chartID}
+          configuration={configuration}
+          data={data}
+          chartRelation={chartRelation}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      );
+      break;
+    case 'histogram':
+      chartComp = <HistogramChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'dualline':
+      chartComp = <DualAxesLineChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'pie':
+    case 'donut':
+      chartComp = <PieChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'scatter':
+      chartComp = <ScatterChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'textBox':
+      chartComp = <TextBox data={data} configuration={configuration} />;
+      break;
+    case 'heatmap':
+      chartComp = <Heatmap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'map':
+      chartComp = <Map data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'gauge':
+      chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      break;
+    case 'table':
+      chartComp = (
+        <Table
+          chartID={chartID}
+          configuration={configuration}
+          data={data}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      );
+      break;
+    default:
+      chartComp = <Typography align='center'>Unknown chart type</Typography>;
+  }
+
+  const countParamIndex = params.findIndex(
+    ({ name, value }) => name === 'Count' && value !== null && value !== '',
+  );
+
+  const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
+
   // Don't render the progress wheel if the chart is a static textbox
-  return loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)) ? (
-    <CircularProgress className={progress} />
-  ) : (data.length > 0 || (chartType === 'textBox' && isStatic)) && !error ? (
-    (() => {
-      let chartComp;
-      switch (chartType) {
-        case 'bar':
-          chartComp = (
-            <BarChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'column':
-          chartComp = (
-            <ColumnChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'columnline':
-          chartComp = <ColumnLineChart configuration={configuration} data={data} pdfPreview={pdfPreview} />;
-          break;
-        case 'line':
-          chartComp = (
-            <LineChart
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              chartRelation={chartRelation}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        case 'histogram':
-          chartComp = <HistogramChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'dualline':
-          chartComp = <DualAxesLineChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'pie':
-        case 'donut':
-          chartComp = <PieChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'scatter':
-          chartComp = <ScatterChart data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'textBox':
-          chartComp = <TextBox data={data} configuration={configuration} />;
-          break;
-        case 'heatmap':
-          chartComp = <Heatmap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'map':
-          chartComp = <Map data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'gauge':
-          chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
-          break;
-        case 'table':
-          chartComp = (
-            <Table
-              chartID={chartID}
-              configuration={configuration}
-              data={data}
-              interactiveClick={interactiveClick}
-              interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
-            />
-          );
-          break;
-        default:
-          chartComp = <Typography align='center'>Unknown chart type</Typography>;
-      }
+  if (loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)))
+    return <CircularProgress className={progress} />;
 
-      const countParamIndex = params.findIndex(
-        ({ name, value }) => name === 'Count' && value !== null && value !== '',
-      );
-      const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
+  if (error || data.length === 0) return <NoData sourceType={sourceType} error={error} />;
 
-      return (
-        <Fragment>
-          {chartComp}
-          {data.length >= 5000 && (
-            <Typography className={warningMsg} display='block'>
-              Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further
-              to improve chart render time.
-            </Typography>
-          )}
-          {data.length < 5000 && data.length === countParamValue && (
-            <Typography className={warningMsg} display='block'>
-              The number of returned rows is being altered by a chart level parameter.
-            </Typography>
-          )}
-        </Fragment>
-      );
-    })()
-  ) : (
-    <NoData sourceType={sourceType} error={error} />
+  return (
+    <Fragment>
+      {chartComp}
+      {data.length >= 5000 && (
+        <Typography className={warningMsg} display='block'>
+          Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further to
+          improve chart render time.
+        </Typography>
+      )}
+      {data.length < 5000 && data.length === countParamValue && (
+        <Typography className={warningMsg} display='block'>
+          The number of returned rows is being altered by a chart level parameter.
+        </Typography>
+      )}
+    </Fragment>
   );
 };
 

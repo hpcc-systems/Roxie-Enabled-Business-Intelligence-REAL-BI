@@ -97,8 +97,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
       try {
         const action = await createChart(chartObj, dashboardID, null, null, null);
-        addChartToLayout(action.payload);
         dispatch(action);
+        addChartToLayout(action.payload);
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
@@ -125,9 +125,9 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
       try {
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
-        addChartToLayout(action.payload);
         dispatch(action);
         getChartData([action.payload.id], {});
+        addChartToLayout(action.payload);
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
