@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) => {
-  const { showDialog, toggleDialog: toggleData } = useDialog(false);
+  const [showDialog, toggleData] = useDialog(false);
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
     initState,
   );

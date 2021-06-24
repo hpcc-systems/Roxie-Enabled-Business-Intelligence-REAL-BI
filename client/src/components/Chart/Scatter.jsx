@@ -43,10 +43,10 @@ const ScatterChart = ({ data, configuration, pdfPreview }) => {
   }
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    appendPadding: [40, 0, 0, 0],
     data,
+    autoFit: true,
     colorField: groupByValue,
-    padding: 'auto',
     shape: 'circle',
     size: 4,
     tooltip: { showContent: !pdfPreview },

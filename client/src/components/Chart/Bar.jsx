@@ -45,9 +45,9 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
   }
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    appendPadding: [40, 0, 0, 0],
     data,
-    forceFit: true,
+    autoFit: true,
     legend: { position: 'right-top' },
     meta: {
       [xValue]: {
@@ -60,7 +60,6 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         },
       },
     },
-    padding: 'auto',
     tooltip: {
       formatter: datum => {
         const value = datum[xValue];
@@ -152,6 +151,7 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
   // Add click event
   const ref = useRef();
   useEffect(() => {
+    console.log('i am here');
     if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
       ref.current.on('element:click', args => {
         const row = args.data.data;
@@ -162,7 +162,6 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
 
   return (
     <>
-      {console.log('i am here')}
       <Bar {...chartConfig} chartRef={ref} />
     </>
   );

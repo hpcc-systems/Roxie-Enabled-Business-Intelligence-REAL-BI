@@ -51,9 +51,10 @@ const ColumnLineChart = ({ configuration, data, pdfPreview }) => {
   }
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    appendPadding: [40, 0, 0, 0],
+    autoFit: true,
+    legend: { position: 'right-top' },
     data: [data, data],
-    forceFit: true,
     geometryOptions: [{ geometry: 'column' }, { geometry: 'line', point: 4 }],
     legend: { position: 'right-top' },
     meta: {
@@ -69,7 +70,6 @@ const ColumnLineChart = ({ configuration, data, pdfPreview }) => {
         formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
       },
     },
-    padding: 'auto',
     tooltip: { showContent: !pdfPreview },
     xAxis: { title: { style: { fill: chartFillColor }, text: customXLabel } },
     xField: xValue,

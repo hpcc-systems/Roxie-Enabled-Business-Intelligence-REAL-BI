@@ -44,7 +44,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const { charts = [] } = dashboard;
   const { eclObj, initState } = setEditorState(charts, chartID);
-  const { showDialog, toggleDialog: toggleData } = useDialog(false);
+  const [showDialog, toggleData] = useDialog(false);
 
   // Set initial state
   const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(

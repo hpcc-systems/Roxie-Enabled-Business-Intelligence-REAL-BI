@@ -28,6 +28,7 @@ const createTheme =
 
 const theme = createTheme({
   palette: {
+    type: 'light', //dark
     primary: { main: '#343a40' },
     secondary: { main: '#6c757d' },
     info: { main: '#007bff' }, // Blue buttons

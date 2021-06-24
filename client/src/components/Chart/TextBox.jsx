@@ -5,8 +5,8 @@ const ReactMarkdown = require('react-markdown');
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  div: { padding: theme.spacing(0, 3, 0, 3), wordBreak: 'break-all' },
-  textDesc: { color: 'grey', fontFamily: 'auto', fontSize: 12 },
+  div: { padding: theme.spacing(0, 1), wordBreak: 'break-all', height: '110%', overflow: 'auto' },
+  textDesc: { color: 'grey', fontSize: 12 },
 }));
 
 const TextBox = ({ data, configuration }) => {

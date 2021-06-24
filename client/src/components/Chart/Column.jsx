@@ -45,9 +45,9 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   }
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    appendPadding: [40, 0, 0, 0],
     data,
-    forceFit: true,
+    autoFit: true,
     legend: { position: 'right-top' },
     meta: {
       [yValue]: {
@@ -60,7 +60,6 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
         },
       },
     },
-    padding: 'auto',
     tooltip: {
       formatter: datum => {
         const value = datum[yValue];

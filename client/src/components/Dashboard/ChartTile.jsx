@@ -6,26 +6,26 @@ import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 
 const ChartTile = props => {
-  const { chart, compData, dashboard, interactiveClick, interactiveObj, pdfPreview = false } = props;
-  const { id: chartID, configuration } = chart;
-  const { ecl = {} } = configuration;
-  const eclDataset = ecl.dataset || '';
+  const { chart, compData, interactiveClick, interactiveObj, pdfPreview = false } = props;
 
-  const dataObj = compData[chartID] || compData[eclDataset] || {};
-  const lastModifiedDate = dataObj.lastModifiedDate ? dataObj.lastModifiedDate : null;
+  // console.log('rerender ChartTile id :>>  ', chart.id);
 
   return (
-    <Box position='relative' p={1}>
-      <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
-      <Chart
-        chart={chart}
-        dataObj={dataObj}
-        interactiveClick={interactiveClick}
-        interactiveObj={interactiveObj}
-        pdfPreview={pdfPreview}
-      />
+    <Box p={1} height='100%'>
+      {/* chart info size is about 77px */}
+      <ChartToolbar {...props} lastModifiedDate={compData.lastModifiedDate} />
+      {/* use calc to find out how much space is left to fit a chart in */}
+      <Box height='calc(100% - 77px)'>
+        <Chart
+          chart={chart}
+          dataObj={compData}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          pdfPreview={pdfPreview}
+        />
+      </Box>
     </Box>
   );
 };
 
-export default ChartTile;
+export default React.memo(ChartTile);

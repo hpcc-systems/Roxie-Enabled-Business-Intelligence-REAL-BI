@@ -28,10 +28,10 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
 
   const chartConfig = {
     angleField: value,
-    appendPadding: [24, 0, 0, 0],
     colorField: nameValue,
+    appendPadding: [40, 0, 0, 0],
     data,
-    forceFit: true,
+    autoFit: true,
     legend: { position: 'right-top' },
     meta: {
       value: {
@@ -40,7 +40,6 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         },
       },
     },
-    padding: 'auto',
     tooltip: {
       formatter: row => {
         const formattedValue = isNaN(row[value]) ? row[value] : Intl.NumberFormat('en-US').format(row[value]);
@@ -57,11 +56,11 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
     chartConfig.interactions = [{ type: 'element-active' }, { type: 'pie-statistic-active' }];
     chartConfig.statistic = {
       title: {
-        style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+        // style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
         formatter: row => row?.[nameValue] || 'Total',
       },
       content: {
-        style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+        // style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
         formatter: (row, data) => row?.[value] || data.map(obj => obj[value]).reduce(reducer),
       },
     };
@@ -70,9 +69,9 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
     if (showDataLabels) {
       chartConfig.label = {
         formatter: row => `${(row.percent * 100).toFixed(2)}%`,
-        offset: '-50%',
-        style: { fill: chartFillColor, fontSize: 14, textAlign: 'center' },
-        type: 'inner',
+        // offset: '-50%',
+        // style: { fill: chartFillColor, fontSize: 14, textAlign: 'center' },
+        // type: 'inner',
       };
     } else {
       chartConfig.label = null;
@@ -87,8 +86,8 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
     if (showDataLabels) {
       chartConfig.label = {
         formatter: row => `${(row.percent * 100).toFixed(2)}%`,
-        style: { fill: chartFillColor, fontSize: 12 },
-        type: 'outer',
+        // style: { fill: chartFillColor, fontSize: 12 },
+        // type: 'outer',
       };
     } else {
       chartConfig.label = null;

@@ -1,7 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Typography } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 //React Components
 import BarChart from './Bar';
@@ -18,19 +19,6 @@ import ScatterChart from './Scatter';
 import Table from './Table';
 import TextBox from './TextBox';
 
-// Create styles
-const useStyles = makeStyles(theme => ({
-  progress: { margin: '0 0 10px 10px' },
-  warningMsg: {
-    backgroundColor: theme.palette.warning.main,
-    borderRadius: '0 0 4px 4px',
-    color: theme.palette.warning.contrastText,
-    margin: '0 auto',
-    padding: theme.spacing(0.15, 0.75),
-    textAlign: 'center',
-  },
-}));
-
 const ChartComp = ({
   chart: { configuration = {}, id: chartID },
   dataObj,
@@ -39,9 +27,14 @@ const ChartComp = ({
   pdfPreview,
   sourceType,
 }) => {
+  // Snackbar warning about data size
+  const [warningSnackbar, setWarningSnackbar] = useState(false);
+  const [infoSnackbar, setInfoSnackbar] = useState(false);
+
+  let relations = useSelector(state => state.dashboard.dashboard.relations);
+
   const { horizontal, params = [], isStatic = false, type } = configuration;
-  const { progress, warningMsg } = useStyles();
-  let { relations } = useSelector(state => state.dashboard.dashboard);
+
   let chartType = type;
 
   const { data = [], error, loading } = dataObj;
@@ -54,6 +47,21 @@ const ChartComp = ({
 
   const chartRelation = pdfPreview ? false : relations.find(({ sourceID }) => sourceID === chartID);
 
+  const countParamIndex = params.findIndex(
+    ({ name, value }) => name === 'Count' && value !== null && value !== '',
+  );
+
+  const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
+
+  useEffect(() => {
+    if (data.length >= 5000) {
+      setWarningSnackbar(true);
+    }
+    if (data.length < 5000 && data.length === countParamValue) {
+      setInfoSnackbar(true);
+    }
+  }, [data]);
+
   let chartComp;
   switch (chartType) {
     case 'bar':
@@ -63,8 +71,9 @@ const ChartComp = ({
           configuration={configuration}
           data={data}
           chartRelation={chartRelation}
+          // ?? Not using interactiveObj but has interactiveClick on inital load. dont understand functionality
+          // interactiveObj={interactiveObj}
           interactiveClick={interactiveClick}
-          interactiveObj={interactiveObj}
           pdfPreview={pdfPreview}
         />
       );
@@ -76,8 +85,9 @@ const ChartComp = ({
           configuration={configuration}
           data={data}
           chartRelation={chartRelation}
+          // ?? Not using interactiveObj but has interactiveClick on inital load. dont understand functionality
+          // interactiveObj={interactiveObj}
           interactiveClick={interactiveClick}
-          interactiveObj={interactiveObj}
           pdfPreview={pdfPreview}
         />
       );
@@ -92,8 +102,9 @@ const ChartComp = ({
           configuration={configuration}
           data={data}
           chartRelation={chartRelation}
+          // ?? Not using interactiveObj but has interactiveClick on inital load. dont understand functionality
+          // interactiveObj={interactiveObj}
           interactiveClick={interactiveClick}
-          interactiveObj={interactiveObj}
           pdfPreview={pdfPreview}
         />
       );
@@ -139,32 +150,33 @@ const ChartComp = ({
       chartComp = <Typography align='center'>Unknown chart type</Typography>;
   }
 
-  const countParamIndex = params.findIndex(
-    ({ name, value }) => name === 'Count' && value !== null && value !== '',
-  );
-
-  const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
+  const isStaticTextBox = () => chartType === 'textBox' && isStatic;
 
   // Don't render the progress wheel if the chart is a static textbox
-  if (loading && (chartType !== 'textBox' || (chartType === 'textBox' && !isStatic)))
-    return <CircularProgress className={progress} />;
+  if (loading && !isStaticTextBox())
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center' heigth='100%'>
+        <CircularProgress />
+      </Box>
+    );
 
-  if (error || data.length === 0) return <NoData sourceType={sourceType} error={error} />;
+  if (error || (data.length === 0 && !isStaticTextBox()))
+    return <NoData sourceType={sourceType} error={error} />;
 
   return (
     <Fragment>
       {chartComp}
-      {data.length >= 5000 && (
-        <Typography className={warningMsg} display='block'>
+      <Snackbar open={warningSnackbar} autoHideDuration={8000} onClose={() => setWarningSnackbar(false)}>
+        <MuiAlert elevation={6} variant='filled' onClose={() => setWarningSnackbar(false)} severity='warning'>
           Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further to
           improve chart render time.
-        </Typography>
-      )}
-      {data.length < 5000 && data.length === countParamValue && (
-        <Typography className={warningMsg} display='block'>
+        </MuiAlert>
+      </Snackbar>
+      <Snackbar open={infoSnackbar} autoHideDuration={8000} onClose={() => setInfoSnackbar(false)}>
+        <MuiAlert elevation={6} variant='filled' onClose={() => setInfoSnackbar(false)} severity='success'>
           The number of returned rows is being altered by a chart level parameter.
-        </Typography>
-      )}
+        </MuiAlert>
+      </Snackbar>
     </Fragment>
   );
 };

@@ -33,13 +33,12 @@ const HistogramChart = ({ configuration, data, pdfPreview }) => {
   data = _orderBy(data, [`sort${xValue}`], [sortOrder]);
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
     binField: xValue,
     binWidth,
+    appendPadding: [40, 0, 0, 0],
     data,
-    forceFit: true,
+    autoFit: true,
     legend: { position: 'right-top' },
-    padding: 'auto',
     tooltip: { showContent: !pdfPreview },
     xAxis: {
       min: 0,
