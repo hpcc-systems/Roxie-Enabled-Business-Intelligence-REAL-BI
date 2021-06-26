@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       name: createString(DataTypes),
       workspaceID: createFKField(DataTypes),
       clusterID: createFKField(DataTypes),
+      layout: {
+        type: DataTypes.TEXT('long'),
+      },
       ...createDateTimeStamps(DataTypes),
     },
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.dashboard },
