@@ -1,45 +1,55 @@
 /* eslint-disable no-unused-vars */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Container, Paper } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import _orderBy from 'lodash/orderBy';
+import { useSnackbar } from 'notistack';
 
 // React Components
-import Toolbar from './Toolbar';
-import NewChartDialog from '../Dialog/newChart';
 import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
-import EditChartDialog from '../Dialog/editChart';
-import FilterDrawer from '../Drawers/Filters';
+import DataSnippetDialog from '../Dialog/DataSnippet';
 import DeleteChartDialog from '../Dialog/DeleteChart';
+import SharedWithDialog from '../Dialog/SharedWith';
+import EditChartDialog from '../Dialog/editChart';
+import NewChartDialog from '../Dialog/newChart';
+import FilterDrawer from '../Drawers/Filters';
+import ChartsGrid from './ChartsGrid';
 import Relations from '../Dialog/Relations';
 import ChartTile from './ChartTile';
 import PdfDialog from '../Dialog/PDF';
-import DataSnippetDialog from '../Dialog/DataSnippet';
-import SharedWithDialog from '../Dialog/SharedWith';
+import Toolbar from './Toolbar';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
 // Utils
+import { updateDashboardLayout } from '../../utils/dashboard';
 import { getChartData } from '../../utils/chart';
-
-// React Grid Layout
-import ChartsGrid from './ChartsGrid';
 import _ from 'lodash';
 
 const Dashboard = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [interactiveObj, setInteractiveObj] = useState({});
   const [chartLayouts, setChartLayouts] = useState(null); //layouts for RGL library
   const [sourceID, setSourceID] = useState(null);
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
 
-  const [dashboard, charts = [], cluster, dashboardID, relations] = useSelector(({ dashboard }) => [
+  const [
+    dashboard,
+    dashboardID,
+    charts = [],
+    dashboardLayout,
+    cluster,
+    relations,
+  ] = useSelector(({ dashboard }) => [
     dashboard.dashboard,
-    dashboard.dashboard.charts,
-    dashboard.dashboard.cluster,
     dashboard.dashboard.id,
+    dashboard.dashboard.charts,
+    dashboard.dashboard.layout,
+    dashboard.dashboard.cluster,
     dashboard.dashboard.relations,
   ]);
 
@@ -141,58 +151,45 @@ const Dashboard = () => {
   useEffect(() => {
     if (dashboard.id && charts.length > 0) {
       dataCall(chartIDs, {});
-      // creating chartLayouts on initial load.
-      createLayout();
+      createLayout(); // creating layouts for drag and resize lib on initial load.
     }
-    // Unsubscribe from state updates
-    return () => (isMounted.current = false);
+    return () => (isMounted.current = false); // Unsubscribe from state updates
   }, []);
-
-  const handleLayoutChange = (layout, allLayouts) => {
-    const currentLayout = JSON.stringify(allLayouts);
-    localStorage.setItem(dashboardID, currentLayout);
-    // console.log('i just got triggered  create handleLayoutChange:>> ', allLayouts);
-    // console.log('i just got triggered  create handleLayoutChange:>>  CURRENT', layout);
-    setChartLayouts(allLayouts);
-  };
 
   const createLayout = () => {
     if (!isMounted.current) return null;
-    //1.check in localStorage/db if there is a chart Layour object.
-    const lastSavedLayout = JSON.parse(localStorage.getItem(dashboardID));
-    if (lastSavedLayout) {
-      // console.log('i just got triggered  lastSavedLayout:>>', lastSavedLayout);
-      setChartLayouts(lastSavedLayout);
+    //1.check in redux store if there is a dashboardLayout.
+    if (dashboardLayout) {
+      setChartLayouts(JSON.parse(dashboardLayout)); //Layouts available, apply layouts on initial load
     } else {
-      //2.if not then it is a dash with no charts and we will create new standart layou
-      const initlayout = chartIDs.map((id, index) => ({
-        i: id.toString(),
-        x: index % 2 ? 6 : 0,
-        y: index * 20,
-        w: 6,
-        h: 20,
-        minW: 3,
-        maxW: 12,
-        minH: 20,
-      }));
-      // console.log(' create initlayout :>> ', initlayout);
+      const initlayout = mapChartIdToLayout(chartIDs); //2.No layout found, either new dash or no charts yet, create standart layout base on chartIds.
       setChartLayouts({ lg: initlayout });
     }
   };
 
-  const createChart = layout => {
-    const chart = charts.find(el => el.id === layout.i);
+  // this function takes only array of ids, if u have single id put it in array and distructure result
+  const mapChartIdToLayout = chartIdArray =>
+    chartIdArray.map((id, index) => ({
+      i: id.toString(),
+      x: index % 2 ? 6 : 0,
+      y: Infinity,
+      w: 6,
+      h: 20,
+      minW: 3,
+      maxW: 12,
+      minH: 20,
+    }));
 
+  const createChart = layoutIndex => {
+    const chart = charts.find(el => el.id === layoutIndex);
     const eclDataset = chart?.configuration?.ecl?.dataset || '';
     const chartData = compData[chart.id] || compData[eclDataset] || {};
-
     return (
       <Paper key={chart.id}>
         <ChartTile
           key={chart.id}
           chart={chart}
           compData={chartData}
-          dashboard={dashboard}
           interactiveClick={interactiveClick}
           interactiveObj={interactiveObj}
           removeChart={removeChart}
@@ -203,28 +200,53 @@ const Dashboard = () => {
     );
   };
 
+  const handleLayoutChange = async (layout, allLayouts) => {
+    if (_.isEqual(chartLayouts, allLayouts)) {
+      console.log('-----layout is equal, update is no triggered, exited handleLayoutChange-----');
+      return;
+    }
+    const oldLayouts = { ...chartLayouts }; // 1. copy old Layout.
+    setChartLayouts(() => allLayouts); // 2. setChartLayouts to new Layout
+    try {
+      await updateDashboardLayout(allLayouts, dashboardID); // 3. Make an update in DB
+    } catch (error) {
+      setChartLayouts(() => oldLayouts); // 4. if DB !200 revert to old layout
+      // 5. show snack that we couldnt update layout.
+      enqueueSnackbar(`Something went wrong, we could not save your layout. ${error.message}`, {
+        anchorOrigin: { horizontal: 'right', vertical: 'top' },
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
+  };
+
   const addChartToLayout = chart => {
-    console.log('chart :>> ', chart);
-    console.log('chartIDs :>> ', chartIDs);
-    const newLayoutItem = {
-      i: chart.id,
-      x: chartIDs.length % 2 ? 6 : 0,
-      y: Infinity,
-      w: 6,
-      h: 20,
-      minW: 3,
-      maxW: 12,
-      minH: 20,
-    };
-    const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
-    // console.log('updatedLayouts :>> ', updatedLayouts);
-    setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
+    const [newLayoutItem] = mapChartIdToLayout([chart.id]);
+    if (chartLayouts) {
+      const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
+      setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
+      enqueueSnackbar('New item has been added to dashboard', {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'left',
+        },
+      });
+    } else {
+      setChartLayouts({ lg: [newLayoutItem] });
+    }
   };
 
   const removeChartLayout = chartID => {
     const updatedLayouts = _.reject(chartLayouts.lg, { i: chartID });
-    // console.log('updatedLayouts :>> ', updatedLayouts);
     setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
+    enqueueSnackbar('Item deleted successfully!', {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'left',
+      },
+    });
   };
 
   // console.log('rerender dashboard :>>  ');
@@ -246,9 +268,13 @@ const Dashboard = () => {
       />
       {/* MAIN CONTENT START! */}
       <Container maxWidth='xl' style={{ overflow: 'hidden', paddingBottom: '50px' }}>
-        {chartLayouts && (
-          <ChartsGrid layouts={chartLayouts} handleLayoutChange={handleLayoutChange}>
-            {_.map(chartLayouts?.lg, layout => createChart(layout))}
+        {chartLayouts && isMounted.current && (
+          <ChartsGrid
+            layouts={chartLayouts}
+            handleLayoutChange={handleLayoutChange}
+            permission={dashboard.permission}
+          >
+            {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
           </ChartsGrid>
         )}
         {/* MAIN CONTENT END! */}

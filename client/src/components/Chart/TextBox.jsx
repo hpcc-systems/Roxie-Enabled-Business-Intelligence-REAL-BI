@@ -30,9 +30,7 @@ const TextBox = ({ data, configuration }) => {
 
   return (
     <div className={div}>
-      <Typography align='left' color='inherit' className={textDesc}>
-        {description}
-      </Typography>
+      <Typography className={textDesc}>{description}</Typography>
       <ReactMarkdown>{textBoxContent}</ReactMarkdown>
     </div>
   );

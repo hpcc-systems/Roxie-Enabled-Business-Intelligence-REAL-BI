@@ -24,6 +24,7 @@
     "lodash": "^4.17.21",
     "mapbox-gl": "^2.2.0",
     "moment": "^2.29.1",
+    "notistack": "^1.0.9",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-color": "^2.19.3",

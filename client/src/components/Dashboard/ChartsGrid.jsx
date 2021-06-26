@@ -16,6 +16,8 @@ function ChartsGrid(props) {
           draggableHandle='.dragElement'
           // verticalCompact={false}
           resizeHandles={['se']}
+          isDraggable={props.permission === 'Owner'}
+          isResizable={props.permission === 'Owner'}
         >
           {props.children}
         </ResponsiveGridLayout>

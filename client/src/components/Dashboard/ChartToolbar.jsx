@@ -1,19 +1,20 @@
 import React, { useState, useRef } from 'react';
 
-import { Grid, Typography } from '@material-ui/core';
 import { MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core/styles';
 import DragHandleIcon from '@material-ui/icons/DragHandle';
+import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Typography } from '@material-ui/core';
 
 // React Components
 import ToolbarSubMenu from './ToolbarSubMenu';
 import CustomTooltip from '../Common/Tooltip';
 
 // Utils
-import { canEditCharts } from '../../utils/misc';
 import useTooltipHover from '../../hooks/useTooltipHover';
+import { canEditCharts } from '../../utils/misc';
+import { useSelector } from 'react-redux';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   centerSvg: {
     display: 'flex',
     alignItems: 'center',
@@ -22,19 +23,20 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartToolbar = props => {
-  const { chart, dashboard, lastModifiedDate, pdfPreview } = props;
+  const classes = useStyles();
+  const { chart, lastModifiedDate, pdfPreview } = props;
   const { configuration, sourceType } = chart;
-  const { permission } = dashboard;
-  const { chartDescription = '', isStatic, showLastExecuted, size = 12, title = '', type } = configuration;
+  const { chartDescription = '', isStatic, showLastExecuted, title = '' } = configuration;
+
+  const permission = useSelector(state => state.dashboard.dashboard.permission);
+
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const classes = useStyles();
-
-  const titleRef = useRef();
   const descriptionRef = useRef();
+  const titleRef = useRef();
 
-  const titleHoverStatus = useTooltipHover(titleRef);
   const descriptionoverStatus = useTooltipHover(descriptionRef);
+  const titleHoverStatus = useTooltipHover(titleRef);
 
   const showMenu = event => {
     setAnchorEl(event.currentTarget);
@@ -48,7 +50,9 @@ const ChartToolbar = props => {
     <>
       <Grid container justify='space-between' alignItems='center' wrap='nowrap'>
         <Grid item className={classes.centerSvg}>
-          <DragHandleIcon className='dragElement' style={{ cursor: 'pointer' }} />
+          {canEditCharts(permission) && (
+            <DragHandleIcon className='dragElement' style={{ cursor: 'pointer' }} />
+          )}
         </Grid>
         <Grid item xs={10}>
           <CustomTooltip title={title} disableHoverListener={titleHoverStatus}>

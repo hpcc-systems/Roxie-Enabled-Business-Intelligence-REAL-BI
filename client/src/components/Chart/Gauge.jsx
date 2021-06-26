@@ -1,7 +1,7 @@
 import React from 'react';
 import { Gauge } from '@ant-design/charts';
 import PropTypes from 'prop-types';
-import { chartFillColor } from '../../constants';
+// import { chartFillColor } from '../../constants';
 
 const GaugeChart = ({ data, configuration }) => {
   const { axis1: { value } = {} } = configuration;
@@ -32,8 +32,10 @@ const GaugeChart = ({ data, configuration }) => {
     statistic: {
       title: {
         formatter: data => `${(data.percent * 100).toFixed(2)}%`,
+        // style: { chartFillColor, fontSize: '36px', lineHeight: 1 },
       },
       content: {
+        // style: { color: chartFillColor, fontSize: '24px' },
         formatter: () => value,
       },
     },

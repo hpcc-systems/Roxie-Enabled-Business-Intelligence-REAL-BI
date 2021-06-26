@@ -1,8 +1,8 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, Fragment } from 'react';
+import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { Box, CircularProgress, Typography } from '@material-ui/core';
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+
+import { useSnackbar } from 'notistack';
 
 //React Components
 import BarChart from './Bar';
@@ -28,8 +28,7 @@ const ChartComp = ({
   sourceType,
 }) => {
   // Snackbar warning about data size
-  const [warningSnackbar, setWarningSnackbar] = useState(false);
-  const [infoSnackbar, setInfoSnackbar] = useState(false);
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   let relations = useSelector(state => state.dashboard.dashboard.relations);
 
@@ -53,12 +52,28 @@ const ChartComp = ({
 
   const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
 
+  const closeSnackbarButton = key => {
+    const onClose = () => closeSnackbar(key);
+    return <Button onClick={onClose}>Dismiss</Button>;
+  };
+
   useEffect(() => {
     if (data.length >= 5000) {
-      setWarningSnackbar(true);
+      enqueueSnackbar(
+        'Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further to improve chart render time',
+        {
+          anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+          variant: 'warning',
+          action: closeSnackbarButton,
+        },
+      );
     }
     if (data.length < 5000 && data.length === countParamValue) {
-      setInfoSnackbar(true);
+      enqueueSnackbar('The number of returned rows is being altered by a chart level parameter.', {
+        anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+        variant: 'info',
+        action: closeSnackbarButton,
+      });
     }
   }, [data]);
 
@@ -163,22 +178,7 @@ const ChartComp = ({
   if (error || (data.length === 0 && !isStaticTextBox()))
     return <NoData sourceType={sourceType} error={error} />;
 
-  return (
-    <Fragment>
-      {chartComp}
-      <Snackbar open={warningSnackbar} autoHideDuration={8000} onClose={() => setWarningSnackbar(false)}>
-        <MuiAlert elevation={6} variant='filled' onClose={() => setWarningSnackbar(false)} severity='warning'>
-          Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further to
-          improve chart render time.
-        </MuiAlert>
-      </Snackbar>
-      <Snackbar open={infoSnackbar} autoHideDuration={8000} onClose={() => setInfoSnackbar(false)}>
-        <MuiAlert elevation={6} variant='filled' onClose={() => setInfoSnackbar(false)} severity='success'>
-          The number of returned rows is being altered by a chart level parameter.
-        </MuiAlert>
-      </Snackbar>
-    </Fragment>
-  );
+  return <Fragment>{chartComp}</Fragment>;
 };
 
 export default ChartComp;
