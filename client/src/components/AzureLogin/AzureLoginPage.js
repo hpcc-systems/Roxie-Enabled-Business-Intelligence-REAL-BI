@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
-import { InteractionRequiredAuthError, InteractionType } from '@azure/msal-browser';
+import React, { useEffect } from 'react';
+import { InteractionType } from '@azure/msal-browser';
 import { MsalAuthenticationTemplate, useMsal } from '@azure/msal-react';
 import { Redirect } from 'react-router';
 import { apiScopes, loginScopes } from './authConfig';
@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUserStateWithAzure } from '../../features/auth/actions';
 import ErrorLoginComponent from './ErrorLoginComponent';
 import _ from 'lodash';
+import { Box, CircularProgress } from '@material-ui/core';
 
 function AzureLoginPage() {
   /* useMsal is hook that returns the PublicClientApplication instance */
@@ -34,9 +35,7 @@ function AzureLoginPage() {
           dispatch(getUserStateWithAzure());
         } catch (error) {
           /* in case if silent token acquisition fails, fallback to an interactive method */
-          if (error instanceof InteractionRequiredAuthError) {
-            await instance.acquireTokenRedirect(loginScopes);
-          }
+          instance.acquireTokenRedirect(loginScopes);
         }
       })();
     }
@@ -49,6 +48,9 @@ function AzureLoginPage() {
         authenticationRequest={loginScopes} /*set of scopes to pre-consent to while sign in */
         errorComponent={ErrorLoginComponent}
       >
+        <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
+          <CircularProgress color='primary' size={80} />
+        </Box>
         {!_.isEmpty(authError) && <ErrorLoginComponent />}
         {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace}` || ''} />}
       </MsalAuthenticationTemplate>

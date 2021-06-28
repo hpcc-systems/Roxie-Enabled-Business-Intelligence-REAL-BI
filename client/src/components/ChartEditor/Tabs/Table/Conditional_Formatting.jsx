@@ -63,9 +63,10 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
         text: getConstrastTextColor(value),
       };
     } else {
-      const val = isNaN(value) ? value : Number(value);
-
-      newConditionalArr[tabIndex].rules[index] = { ...newConditionalArr[tabIndex].rules[index], [name]: val };
+      newConditionalArr[tabIndex].rules[index] = {
+        ...newConditionalArr[tabIndex].rules[index],
+        [name]: value,
+      };
     }
 
     // Add new object to end of array for next entry
@@ -150,7 +151,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
           <Grid item xs={12}>
             <Grid container spacing={2}>
               {conditionRules.map(({ operand, value, color }, index) => {
-                const isPopulated = Boolean(value) || color !== '#FFF';
+                const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
 
                 return (
                   <Fragment key={index}>
@@ -182,10 +183,11 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                     </Grid>
                     <Grid item xs={3} style={{ marginTop: '32px' }}>
                       <TextField
+                        type='number'
                         fullWidth
                         placeholder='value'
                         name='value'
-                        value={value || ''}
+                        value={value}
                         onChange={event => updateRule(event, index)}
                       />
                     </Grid>
