@@ -10,6 +10,8 @@ import ErrorLoginComponent from './ErrorLoginComponent';
 import _ from 'lodash';
 import { Box, CircularProgress } from '@material-ui/core';
 
+const { REACT_APP_AZURE_REDIRECT_URI } = process.env;
+
 function AzureLoginPage() {
   /* useMsal is hook that returns the PublicClientApplication instance */
   const { instance, accounts, inProgress } = useMsal();
@@ -21,6 +23,7 @@ function AzureLoginPage() {
   const silentTokenOptions = {
     ...loginScopes,
     account: account,
+    redirectUri: REACT_APP_AZURE_REDIRECT_URI + '/auth.html',
   };
 
   useEffect(() => {
