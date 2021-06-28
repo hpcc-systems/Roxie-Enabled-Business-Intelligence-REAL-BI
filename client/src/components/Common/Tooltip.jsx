@@ -21,7 +21,6 @@ function Tooltip({ title, disableHoverListener, children }) {
       {children}
     </CustomTooltip>
   );
-  s;
 }
 
 export default Tooltip;

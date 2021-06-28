@@ -56,7 +56,6 @@ const ColumnLineChart = ({ configuration, data, pdfPreview }) => {
     legend: { position: 'right-top' },
     data: [data, data],
     geometryOptions: [{ geometry: 'column' }, { geometry: 'line', point: 4 }],
-    legend: { position: 'right-top' },
     meta: {
       [yValue]: {
         formatter: value =>

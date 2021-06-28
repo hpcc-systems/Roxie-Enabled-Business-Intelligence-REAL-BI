@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { ListItemIcon, ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
+import { ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import { Close as CloseIcon, Edit as EditIcon, TableChart as TableChartIcon } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({

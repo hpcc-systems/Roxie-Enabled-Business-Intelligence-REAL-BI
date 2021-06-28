@@ -61,7 +61,6 @@ const DualAxesLineChart = ({ configuration, data, pdfPreview }) => {
         point: 4,
       },
     ],
-    legend: { position: 'right-top' },
     meta: {
       [yValue]: {
         formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
