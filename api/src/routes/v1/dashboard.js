@@ -7,6 +7,8 @@ const {
   getDashboardByID,
   getSharedDashboardUsers,
   updateDashboardByID,
+  updateDashboardLayout,
+  getDashboardPermission,
 } = require('../../utils/dashboard');
 const { createDashboardPermission } = require('../../utils/dashboardPermission');
 
@@ -127,6 +129,26 @@ router.get('/shared_with', async (req, res, next) => {
     return res.status(200).json(users);
   } catch (error) {
     return next(error);
+  }
+});
+
+router.post('/update_layouts', async (req, res, next) => {
+  const { newLayout, dashboadrId } = req.body;
+  const user = req.user;
+  const newLayoutToJson = JSON.stringify(newLayout);
+
+  try {
+    //1. check if user has rights to modify layout
+    const permission = await getDashboardPermission(dashboadrId, user.id);
+    if (permission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+    //2. update layout in DB
+    await updateDashboardLayout(dashboadrId, newLayoutToJson);
+    res.status(200).send('ok');
+  } catch (error) {
+    next(error);
   }
 });
 

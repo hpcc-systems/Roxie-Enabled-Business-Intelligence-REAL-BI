@@ -2,7 +2,6 @@ import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -20,7 +19,34 @@ import { updateChart } from '../../features/dashboard/actions';
 const useStyles = makeStyles(() => ({
   activeCell: { fontWeight: 'bold' },
   columnHeader: { textTransform: 'capitalize' },
-  tableCell: { '&:hover': { cursor: 'pointer' } },
+  tableCell: {
+    padding: '5px',
+    '&:hover': { cursor: 'pointer' },
+  },
+  tableContainer: {
+    height: 'calc(100% - 45px)',
+  },
+  paginationRoot: {
+    '& .MuiToolbar-root ': {
+      justifyContent: 'flex-end',
+      maxWidth: '100%',
+    },
+    '& .MuiToolbar-gutters': {
+      padding: 0,
+    },
+    '& .MuiTablePagination-actions': {
+      margin: 0,
+    },
+    '& .MuiTablePagination-spacer	': {
+      display: 'none',
+    },
+    '& .MuiIconButton-root': {
+      padding: '4px',
+    },
+    '& .MuiTablePagination-selectRoot': {
+      margin: 0,
+    },
+  },
 }));
 
 const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
@@ -38,7 +64,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const [orderBy, setOrderBy] = useState(configOrderBy);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(configRowsPerPage);
-  const { activeCell, columnHeader, tableCell } = useStyles();
+  const { paginationRoot, activeCell, columnHeader, tableCell, tableContainer } = useStyles();
 
   // Update chart in DB and store
   const updateConfig = async keys => {
@@ -94,8 +120,8 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
 
   return (
     <Fragment>
-      <TableContainer component={Paper}>
-        <Table size='small'>
+      <TableContainer className={tableContainer}>
+        <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
               {fields.map(({ label, name }, index) => {
@@ -152,6 +178,9 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
         </Table>
       </TableContainer>
       <TablePagination
+        classes={{
+          root: paginationRoot,
+        }}
         rowsPerPageOptions={[5, 10, 20]}
         component='div'
         count={rowCount}

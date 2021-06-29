@@ -1,83 +1,124 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
-import { Container, Grid } from '@material-ui/core';
+/* eslint-disable no-unused-vars */
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { Container, Paper } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import _orderBy from 'lodash/orderBy';
+import { useSnackbar } from 'notistack';
 
 // React Components
-import Toolbar from './Toolbar';
-import NewChartDialog from '../Dialog/newChart';
 import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
-import EditChartDialog from '../Dialog/editChart';
-import FilterDrawer from '../Drawers/Filters';
+import DataSnippetDialog from '../Dialog/DataSnippet';
 import DeleteChartDialog from '../Dialog/DeleteChart';
+import SharedWithDialog from '../Dialog/SharedWith';
+import EditChartDialog from '../Dialog/editChart';
+import NewChartDialog from '../Dialog/newChart';
+import FilterDrawer from '../Drawers/Filters';
+import ChartsGrid from './ChartsGrid';
 import Relations from '../Dialog/Relations';
 import ChartTile from './ChartTile';
 import PdfDialog from '../Dialog/PDF';
-import DataSnippetDialog from '../Dialog/DataSnippet';
-import SharedWithDialog from '../Dialog/SharedWith';
+import Toolbar from './Toolbar';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
-// Redux Action
-import { updateChart } from '../../features/dashboard/actions';
-
 // Utils
+import { updateDashboardLayout } from '../../utils/dashboard';
 import { getChartData } from '../../utils/chart';
+import _ from 'lodash';
 
 const Dashboard = () => {
-  const [chartID, setChartID] = useState(null);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [interactiveObj, setInteractiveObj] = useState({});
+  const [chartLayouts, setChartLayouts] = useState(null); //layouts for RGL library
   const [sourceID, setSourceID] = useState(null);
   const [compData, setCompData] = useState({});
-  const [interactiveObj, setInteractiveObj] = useState({});
-  const {
+  const [chartID, setChartID] = useState(null);
+
+  const [
     dashboard,
-    dashboard: { charts = [], cluster, id: dashboardID, relations },
-  } = useSelector(state => state.dashboard);
-  const { showDialog: newChartShow, toggleDialog: newChartToggle } = useDialog(false);
-  const { showDialog: shareLinkShow, toggleDialog: shareLinkToggle } = useDialog(false);
-  const { showDialog: editChartShow, toggleDialog: editChartToggle } = useDialog(false);
-  const { showDialog: relationsShow, toggleDialog: relationsToggle } = useDialog(false);
-  const { showDialog: deleteChartShow, toggleDialog: deleteChartToggle } = useDialog(false);
-  const { showDialog: pdfShow, toggleDialog: pdfToggle } = useDialog(false);
-  const { showDialog: dataShow, toggleDialog: dataToggle } = useDialog(false);
-  const { showDialog: sharedWithShow, toggleDialog: sharedWithToggle } = useDialog(false);
-  const { showDrawer: showFilterDrawer, toggleDrawer: toggleFilterDrawer } = useDrawer(false);
-  const dragItemID = useRef(null);
-  const dragNode = useRef(null);
-  const targetItemID = useRef(null);
-  const isDifferentNode = useRef(null);
-  const [dragging, setDragging] = useState(false);
-  const dispatch = useDispatch();
+    dashboardID,
+    charts = [],
+    dashboardLayout,
+    cluster,
+    relations,
+  ] = useSelector(({ dashboard }) => [
+    dashboard.dashboard,
+    dashboard.dashboard.id,
+    dashboard.dashboard.charts,
+    dashboard.dashboard.layout,
+    dashboard.dashboard.cluster,
+    dashboard.dashboard.relations,
+  ]);
+
+  const [deleteChartShow, deleteChartToggle] = useDialog(false);
+  const [sharedWithShow, sharedWithToggle] = useDialog(false);
+  const [shareLinkShow, shareLinkToggle] = useDialog(false);
+  const [editChartShow, editChartToggle] = useDialog(false);
+  const [relationsShow, relationsToggle] = useDialog(false);
+  const [newChartShow, newChartToggle] = useDialog(false);
+  const [dataShow, dataToggle] = useDialog(false);
+  const [pdfShow, pdfToggle] = useDialog(false);
+
+  const [showFilterDrawer, toggleFilterDrawer] = useDrawer(false);
+
+  const isMounted = useRef(true); // Using this variable to unsubscibe from state update if component is unmounted
+
   const chartIDs = charts.map(({ id }) => id);
 
-  const editChart = chartID => {
-    setChartID(chartID);
-    editChartToggle();
-  };
+  const editChart = useCallback(
+    chartID => {
+      setChartID(chartID);
+      editChartToggle();
+    },
+    [chartID],
+  );
 
-  const showData = chartID => {
-    setChartID(chartID);
-    dataToggle();
-  };
+  const showData = useCallback(
+    chartID => {
+      setChartID(chartID);
+      dataToggle();
+    },
+    [chartID],
+  );
 
-  const removeChart = async (chartID, sourceID) => {
-    setChartID(chartID);
-    setSourceID(sourceID);
+  const removeChart = useCallback(
+    async (chartID, sourceID) => {
+      setChartID(chartID);
+      setSourceID(sourceID);
 
-    deleteChartToggle();
-  };
+      deleteChartToggle();
+    },
+    [chartID, sourceID],
+  );
+
+  const interactiveClick = useCallback(
+    (chartID, field, clickValue) => {
+      const effectedCharts = relations
+        .filter(({ sourceID }) => sourceID === chartID)
+        .map(({ targetID }) => targetID);
+
+      // Remove duplicate Id's from array
+      const effectedChartIds = Array.from(new Set(effectedCharts.map(Id => Id))).map(Id => {
+        return effectedCharts.find(Id2 => Id2 === Id);
+      });
+
+      setInteractiveObj(prevState => ({ ...prevState, chartID, field, value: clickValue, effectedChartIds }));
+    },
+    [interactiveObj],
+  );
 
   const dataCall = (chartIDs, interactiveObj) => {
     // Set initial object keys and loading
     chartIDs.forEach(Id => setCompData(prevState => ({ ...prevState, [Id]: { loading: true } })));
-
     // Fetch data for each chart
     chartIDs.forEach(Id => {
       (async () => {
         try {
           const results = await getChartData(Id, cluster.id, dashboardID, interactiveObj);
+          if (!isMounted.current) return null;
           setCompData(prevState => ({
             ...prevState,
             [Id]: {
@@ -88,82 +129,11 @@ const Dashboard = () => {
             },
           }));
         } catch (error) {
+          if (!isMounted.current) return null;
           setCompData(prevState => ({ ...prevState, [Id]: { error: error.message, loading: false } }));
         }
       })();
     });
-  };
-
-  const interactiveClick = (chartID, field, clickValue) => {
-    const effectedCharts = relations
-      .filter(({ sourceID }) => sourceID === chartID)
-      .map(({ targetID }) => targetID);
-
-    // Remove duplicate Id's from array
-    const effectedChartIds = Array.from(new Set(effectedCharts.map(Id => Id))).map(Id => {
-      return effectedCharts.find(Id2 => Id2 === Id);
-    });
-
-    setInteractiveObj(prevState => ({ ...prevState, chartID, field, value: clickValue, effectedChartIds }));
-  };
-
-  // Initial data call when component is loaded
-  useEffect(() => {
-    if (dashboard.id && charts.length > 0) {
-      dataCall(chartIDs, {});
-    }
-  }, []);
-
-  const handleDragStart = (event, chartID) => {
-    dragItemID.current = chartID;
-    dragNode.current = event.target;
-    dragNode.current.addEventListener('dragend', handleDragEnd);
-
-    // Create minor asynchronous delay before changing state and 'draggedDiv' style getting applied
-    // This allows us to have the ghost image being dragged around but the component not display as a duplicate
-    setTimeout(() => {
-      setDragging(true);
-    }, 0);
-  };
-
-  const handleDragEnter = (event, chartID) => {
-    if (chartID !== dragItemID.current) {
-      isDifferentNode.current = true;
-      targetItemID.current = chartID;
-    } else {
-      isDifferentNode.current = false;
-      targetItemID.current = null;
-    }
-  };
-
-  const handleDragEnd = async () => {
-    dragNode.current.removeEventListener('dragend', handleDragEnd);
-
-    if (isDifferentNode.current) {
-      // Get chart objects and sort values
-      const draggedChart = charts.find(({ id }) => id === dragItemID.current);
-      const targetChart = charts.find(({ id }) => id === targetItemID.current);
-      const dragSortVal = draggedChart.configuration.sort;
-      const targetSortVal = targetChart.configuration.sort;
-
-      // Switch sort values in chart objects
-      draggedChart.configuration.sort = targetSortVal;
-      targetChart.configuration.sort = dragSortVal;
-
-      try {
-        const actions = await Promise.all([
-          updateChart(draggedChart, dashboard.id),
-          updateChart(targetChart, dashboard.id),
-        ]);
-        batch(() => actions.forEach(action => dispatch(action)));
-      } catch (error) {
-        dispatch(error);
-      }
-    }
-
-    dragItemID.current = null;
-    dragNode.current = null;
-    setDragging(false);
   };
 
   const resetDashboardCharts = chartIDs => {
@@ -176,6 +146,110 @@ const Dashboard = () => {
     const chartIDs = interactiveObj.effectedChartIds || [];
     dataCall(chartIDs, interactiveObj);
   }, [interactiveObj]);
+
+  // Initial data call when component is loaded
+  useEffect(() => {
+    if (dashboard.id && charts.length > 0) {
+      dataCall(chartIDs, {});
+      createLayout(); // creating layouts for drag and resize lib on initial load.
+    }
+    return () => (isMounted.current = false); // Unsubscribe from state updates
+  }, []);
+
+  const createLayout = () => {
+    if (!isMounted.current) return null;
+    //1.check in redux store if there is a dashboardLayout.
+    if (dashboardLayout) {
+      setChartLayouts(JSON.parse(dashboardLayout)); //Layouts available, apply layouts on initial load
+    } else {
+      const initlayout = mapChartIdToLayout(chartIDs); //2.No layout found, either new dash or no charts yet, create standart layout base on chartIds.
+      setChartLayouts({ lg: initlayout });
+    }
+  };
+
+  // this function takes only array of ids, if u have single id put it in array and distructure result
+  const mapChartIdToLayout = chartIdArray =>
+    chartIdArray.map((id, index) => ({
+      i: id.toString(),
+      x: index % 2 ? 6 : 0,
+      y: Infinity,
+      w: 6,
+      h: 20,
+      minW: 3,
+      maxW: 12,
+      minH: 20,
+    }));
+
+  const createChart = layoutIndex => {
+    const chart = charts.find(el => el.id === layoutIndex);
+    const eclDataset = chart?.configuration?.ecl?.dataset || '';
+    const chartData = compData[chart.id] || compData[eclDataset] || {};
+    return (
+      <Paper key={chart.id}>
+        <ChartTile
+          key={chart.id}
+          chart={chart}
+          compData={chartData}
+          interactiveClick={interactiveClick}
+          interactiveObj={interactiveObj}
+          removeChart={removeChart}
+          toggleData={showData}
+          toggleEdit={editChart}
+        />
+      </Paper>
+    );
+  };
+
+  const handleLayoutChange = async (layout, allLayouts) => {
+    if (_.isEqual(chartLayouts, allLayouts)) {
+      console.log('-----layout is equal, update is no triggered, exited handleLayoutChange-----');
+      return;
+    }
+    const oldLayouts = { ...chartLayouts }; // 1. copy old Layout.
+    setChartLayouts(() => allLayouts); // 2. setChartLayouts to new Layout
+    try {
+      await updateDashboardLayout(allLayouts, dashboardID); // 3. Make an update in DB
+    } catch (error) {
+      setChartLayouts(() => oldLayouts); // 4. if DB !200 revert to old layout
+      // 5. show snack that we couldnt update layout.
+      enqueueSnackbar(`Something went wrong, we could not save your layout. ${error.message}`, {
+        anchorOrigin: { horizontal: 'right', vertical: 'top' },
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
+  };
+
+  const addChartToLayout = chart => {
+    const [newLayoutItem] = mapChartIdToLayout([chart.id]);
+    if (chartLayouts) {
+      const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
+      setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
+      enqueueSnackbar('New item has been added to dashboard', {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'left',
+        },
+      });
+    } else {
+      setChartLayouts({ lg: [newLayoutItem] });
+    }
+  };
+
+  const removeChartLayout = chartID => {
+    const updatedLayouts = _.reject(chartLayouts.lg, { i: chartID });
+    setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
+    enqueueSnackbar('Item deleted successfully!', {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'left',
+      },
+    });
+  };
+
+  // console.log('rerender dashboard :>>  ');
 
   return (
     <Fragment>
@@ -192,31 +266,18 @@ const Dashboard = () => {
         toggleShare={shareLinkToggle}
         toggleSharedWith={sharedWithToggle}
       />
-      <Container maxWidth='xl'>
-        <Grid container direction='row' spacing={3}>
-          {_orderBy(charts, [({ configuration }) => configuration?.sort || ''], ['asc']).map(
-            (chart, index) => {
-              return (
-                <ChartTile
-                  key={index}
-                  chart={chart}
-                  compData={compData}
-                  dashboard={dashboard}
-                  dragging={dragging}
-                  dragItemID={dragItemID}
-                  handleDragEnter={handleDragEnter}
-                  handleDragStart={handleDragStart}
-                  interactiveClick={interactiveClick}
-                  interactiveObj={interactiveObj}
-                  removeChart={removeChart}
-                  toggleData={showData}
-                  toggleEdit={editChart}
-                />
-              );
-            },
-          )}
-        </Grid>
-
+      {/* MAIN CONTENT START! */}
+      <Container maxWidth='xl' style={{ overflow: 'hidden', paddingBottom: '50px' }}>
+        {chartLayouts && isMounted.current && (
+          <ChartsGrid
+            layouts={chartLayouts}
+            handleLayoutChange={handleLayoutChange}
+            permission={dashboard.permission}
+          >
+            {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
+          </ChartsGrid>
+        )}
+        {/* MAIN CONTENT END! */}
         {showFilterDrawer && (
           <FilterDrawer
             dashboard={dashboard}
@@ -226,7 +287,12 @@ const Dashboard = () => {
           />
         )}
         {newChartShow && (
-          <NewChartDialog show={newChartShow} toggleDialog={newChartToggle} getChartData={dataCall} />
+          <NewChartDialog
+            show={newChartShow}
+            toggleDialog={newChartToggle}
+            getChartData={dataCall}
+            addChartToLayout={addChartToLayout}
+          />
         )}
         {shareLinkShow && <ShareWorkspaceDialog show={shareLinkShow} toggleDialog={shareLinkToggle} />}
         {editChartShow && (
@@ -244,6 +310,7 @@ const Dashboard = () => {
             sourceID={sourceID}
             show={deleteChartShow}
             toggleDialog={deleteChartToggle}
+            removeChartLayout={removeChartLayout}
           />
         )}
         {relationsShow && <Relations show={relationsShow} toggleDialog={relationsToggle} />}

@@ -33,3 +33,11 @@ export const getSharedWithUsers = async dashboardID => {
     throw error.response.data;
   }
 };
+
+export const updateDashboardLayout = async (newLayout, dashboadrId) => {
+  const respond = await axios.post('/api/v1/dashboard/update_layouts', {
+    newLayout,
+    dashboadrId,
+  });
+  return respond.data;
+};

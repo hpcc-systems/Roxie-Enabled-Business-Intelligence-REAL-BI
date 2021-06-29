@@ -66,12 +66,7 @@ export const canAddCharts = permission => {
   return permissions.indexOf(permission) > -1;
 };
 
-export const canEditCharts = permission => {
-  const permissions = ['Owner'];
-
-  // Return boolean
-  return permissions.indexOf(permission) > -1;
-};
+export const canEditCharts = permission => permission === 'Owner';
 
 export const canDeleteCharts = permission => {
   const permissions = ['Owner'];

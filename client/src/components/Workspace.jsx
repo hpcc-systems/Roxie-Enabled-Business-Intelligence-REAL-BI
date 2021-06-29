@@ -46,7 +46,7 @@ const Workspace = () => {
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
-  const { showDrawer, toggleDrawer } = useDrawer(false);
+  const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, span, tab } = useStyles();
 

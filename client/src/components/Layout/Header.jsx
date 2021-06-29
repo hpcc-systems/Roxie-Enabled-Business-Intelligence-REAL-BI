@@ -54,9 +54,9 @@ const Header = ({ toggleDrawer }) => {
   const [open2, setOpen2] = useState(false);
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
-  const { showDialog: showNewWorkspace, toggleDialog: toggleNewWorkspace } = useDialog(false);
-  const { showDialog: showEditWorkspace, toggleDialog: toggleEditWorkspace } = useDialog(false);
-  const { showDialog: showDeleteWorkspace, toggleDialog: toggleDeleteWorkspace } = useDialog(false);
+  const [showNewWorkspace, toggleNewWorkspace] = useDialog(false);
+  const [showEditWorkspace, toggleEditWorkspace] = useDialog(false);
+  const [showDeleteWorkspace, toggleDeleteWorkspace] = useDialog(false);
   const { iconBtn, toolbar, typography, typography2, workspaceDiv } = useStyles();
 
   const handleToggle = dropdownNum => {

@@ -154,10 +154,32 @@ const getSharedDashboardUsers = async (dashboardID, userID) => {
   return users;
 };
 
+const getDashboardPermission = async (dashboadrId, userId) => {
+  const dashboard = await Dashboard.findOne({
+    where: { id: dashboadrId },
+    include: [
+      {
+        model: DashboardPermission,
+        as: 'permission',
+        where: { userId },
+        required: true,
+        include: { model: Role, attributes: ['name'], required: true },
+      },
+    ],
+  });
+  return dashboard.permission[0].role.name;
+};
+
+const updateDashboardLayout = async (dashboadrId, newLayout) => {
+  return await Dashboard.update({ layout: newLayout }, { where: { id: dashboadrId } });
+};
+
 module.exports = {
   createDashboard,
   deleteDashboardByID,
   getDashboardByID,
   getSharedDashboardUsers,
   updateDashboardByID,
+  updateDashboardLayout,
+  getDashboardPermission,
 };
