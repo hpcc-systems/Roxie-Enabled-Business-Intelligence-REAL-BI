@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   CircularProgress,
   FormControl,
@@ -9,9 +10,12 @@ import {
   MenuItem,
   Select,
   TextField,
+  Paper,
 } from '@material-ui/core';
-import { Remove as RemoveIcon } from '@material-ui/icons';
-import { TwitterPicker } from 'react-color';
+import ClearIcon from '@material-ui/icons/Clear';
+
+import LinkCheckBox from './LinkCheckbox';
+import ColorPicker from './ColorPicker';
 
 // Utils
 import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
@@ -20,10 +24,15 @@ import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
 import { messages } from '../../../../constants';
 
 const useStyles = makeStyles(theme => ({
-  button: {
-    margin: theme.spacing(2.5, 0, 0, 1),
-    minWidth: 30,
-    padding: 0,
+  buttonBox: {
+    display: 'flex',
+    alignItems: 'center',
+    '& .MuiButton-root': {
+      minWidth: 0,
+    },
+  },
+  colorPicker: {
+    height: '40px',
   },
   colorDiv: {
     margin: '0 auto',
@@ -41,22 +50,25 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
   const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
   const { fields = [] } = selectedDataset;
   const { fields: configFields = [] } = configuration;
-  const { button, colorDiv, grid, progress } = useStyles();
+  const { buttonBox, grid, progress } = useStyles();
 
   const updateField = (event, index) => {
     const { name, value } = event.target;
     const newFieldsArr = new Array(...configFields);
 
     // Update index
-    if (name === 'color') {
+    if (name === 'asLink') {
+      newFieldsArr[index] = { ...newFieldsArr[index], [name]: event.target.checked };
+    } else if (name === 'color') {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: value, text: getConstrastTextColor(value) };
     } else {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
     }
 
+    console.log('newFieldsArr[index] :>> ', newFieldsArr[index]);
     // Add new object to end of array for next entry
     if (newFieldsArr.length - 1 === index) {
-      newFieldsArr.push({ label: '', name: '' });
+      newFieldsArr.push({ color: '#ffff', label: '', name: '', asLink: false, linkBase: '' });
     }
 
     return handleChangeObj(null, { name: 'configuration:fields', value: newFieldsArr });
@@ -83,60 +95,80 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
       {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
         <CircularProgress className={progress} size={20} />
       ) : (
-        <Grid container spacing={2}>
-          {configFields.map(({ color, label, name }, index) => {
-            const isPopulated = Boolean(name);
+        <Fragment>
+          {configFields.map(({ color, label, name, asLink, linkBase }, index) => {
+            const isPopulated = name !== '' && !messages.includes(name);
             return (
-              <Fragment key={index}>
-                {isPopulated && (
-                  <Grid item xs={1}>
-                    <Button className={button} onClick={() => removeParam(index)}>
-                      <RemoveIcon />
-                    </Button>
+              <Box component={Paper} mb={1} py={1} px={2} key={index}>
+                <Grid container spacing={1} justify='flex-end' wrap='wrap' alignItems='flex-end'>
+                  <Grid item xs={1} className={buttonBox}>
+                    {isPopulated && (
+                      <Button onClick={() => removeParam(index)}>
+                        <ClearIcon />
+                      </Button>
+                    )}
                   </Grid>
-                )}
-                <Grid item xs={3}>
-                  <FormControl fullWidth>
-                    <InputLabel>Field</InputLabel>
-                    <Select name='name' value={name || ''} onChange={event => updateField(event, index)}>
-                      {fieldsArr.map(({ name }, index) => {
-                        return (
-                          <MenuItem key={index} value={name}>
-                            {name}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
+
+                  <Grid item xs={4}>
+                    <FormControl fullWidth size='small'>
+                      <InputLabel>Field</InputLabel>
+                      <Select name='name' value={name || ''} onChange={event => updateField(event, index)}>
+                        {fieldsArr.map(({ name }, index) => {
+                          return (
+                            <MenuItem key={index} value={name}>
+                              {name}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <TextField
+                      size='small'
+                      fullWidth
+                      label='Label'
+                      name='label'
+                      value={label || ''}
+                      onChange={event => updateField(event, index)}
+                      autoComplete='off'
+                    />
+                  </Grid>
+
+                  <Grid item xs={1}>
+                    <ColorPicker color={color} updateField={updateField} index={index} />
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <LinkCheckBox
+                      disabled={!isPopulated} // disable checkbox if 'select' is not choosen
+                      value={asLink}
+                      updateField={updateField}
+                      index={index}
+                    />
+                  </Grid>
+
+                  <Grid item xs={11}>
+                    {asLink && (
+                      <TextField
+                        placeholder='https://'
+                        size='small'
+                        fullWidth
+                        label='Link base'
+                        name='linkBase'
+                        helperText='use ${Field} in address to form a link. Example: https://webpage.com/${Field}/risk'
+                        value={linkBase || ''}
+                        onChange={event => updateField(event, index)}
+                        autoComplete='off'
+                      />
+                    )}
+                  </Grid>
                 </Grid>
-                <Grid item xs={isPopulated ? 3 : 4}>
-                  <TextField
-                    fullWidth
-                    label='Label'
-                    name='label'
-                    value={label || ''}
-                    onChange={event => updateField(event, index)}
-                    autoComplete='off'
-                  />
-                </Grid>
-                <Grid item xs={1}>
-                  <div className={colorDiv} style={{ backgroundColor: color }} />
-                </Grid>
-                <Grid item xs={4}>
-                  <TwitterPicker
-                    colors={[]}
-                    color={color || '#FFF'}
-                    triangle='hide'
-                    onChangeComplete={color =>
-                      updateField({ target: { name: 'color', value: color.hex } }, index)
-                    }
-                    width='100%'
-                  />
-                </Grid>
-              </Fragment>
+              </Box>
             );
           })}
-        </Grid>
+        </Fragment>
       )}
     </Grid>
   );

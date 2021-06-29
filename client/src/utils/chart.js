@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash';
 import _orderBy from 'lodash/orderBy';
 
 // Constants
@@ -195,51 +196,50 @@ const validateConfigOptions = newConfig => {
 
 export const evaluateFormattingRules = (value, color, textColor, rules) => {
   let styleObj = { backgroundColor: color, color: textColor };
+  // dont understand logic, each data row has default rules, if rules are different then user provided rules, new styles applied
+  const defaultRule = [{ color: '#FFF', operand: '>', value: '' }];
+  if (_.isEqual(defaultRule, rules)) return styleObj;
 
-  if (rules.length > 0) {
-    const greaterThanRules = rules.filter(({ operand, value }) => value !== '' && operand.indexOf('>') > -1);
-    const lessThanRules = rules.filter(({ operand, value }) => value !== '' && operand.indexOf('<') > -1);
-    const equalRules = rules.filter(({ operand, value }) => value !== '' && operand === '==');
-    styleObj = { backgroundColor: '#FFF', color: '#000' };
+  const greaterThanRules = rules.filter(({ operand, value }) => value !== '' && operand === '>');
+  const lessThanRules = rules.filter(({ operand, value }) => value !== '' && operand === '<');
+  const equalRules = rules.filter(({ operand, value }) => value !== '' && operand === '==');
+  for (const rule of _orderBy(greaterThanRules, ['value'], ['asc'])) {
+    const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
-    for (const rule of _orderBy(greaterThanRules, ['value'], ['asc'])) {
-      const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
-
-      switch (operand) {
-        case '>=':
-          if (value >= ruleVal) {
-            styleObj = { backgroundColor: color, color: textColor };
-          }
-          break;
-        default:
-          if (value > ruleVal) {
-            styleObj = { backgroundColor: color, color: textColor };
-          }
-      }
+    switch (operand) {
+      case '>=':
+        if (value >= ruleVal) {
+          styleObj = { backgroundColor: color, color: textColor };
+        }
+        break;
+      default:
+        if (value > ruleVal) {
+          styleObj = { backgroundColor: color, color: textColor };
+        }
     }
+  }
 
-    for (const rule of _orderBy(lessThanRules, ['value'], ['desc'])) {
-      const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
+  for (const rule of _orderBy(lessThanRules, ['value'], ['desc'])) {
+    const { operand, value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
-      switch (operand) {
-        case '<=':
-          if (value <= ruleVal) {
-            styleObj = { backgroundColor: color, color: textColor };
-          }
-          break;
-        default:
-          if (value < ruleVal) {
-            styleObj = { backgroundColor: color, color: textColor };
-          }
-      }
+    switch (operand) {
+      case '<=':
+        if (value <= ruleVal) {
+          styleObj = { backgroundColor: color, color: textColor };
+        }
+        break;
+      default:
+        if (value < ruleVal) {
+          styleObj = { backgroundColor: color, color: textColor };
+        }
     }
+  }
 
-    for (const rule of _orderBy(equalRules, ['value'], ['asc'])) {
-      const { value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
+  for (const rule of _orderBy(equalRules, ['value'], ['asc'])) {
+    const { value: ruleVal, color = '#FFF', text: textColor = '#000' } = rule;
 
-      if (value == ruleVal) {
-        styleObj = { backgroundColor: color, color: textColor };
-      }
+    if (value == ruleVal) {
+      styleObj = { backgroundColor: color, color: textColor };
     }
   }
 

@@ -14,8 +14,9 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
-import { Remove as RemoveIcon } from '@material-ui/icons';
-import { TwitterPicker } from 'react-color';
+import ClearIcon from '@material-ui/icons/Clear';
+
+import ColorPicker from './ColorPicker';
 
 // Utils
 import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
@@ -49,7 +50,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
   const { conditionals = [] } = configuration;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
-  const { appbar, button, colorDiv, grid, progress, typography } = useStyles();
+  const { appbar, button, grid, progress, typography } = useStyles();
 
   const updateRule = (event, index) => {
     const { name, value } = event.target;
@@ -149,22 +150,21 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
             </AppBar>
           </Grid>
           <Grid item xs={12}>
-            <Grid container spacing={2}>
+            <Fragment>
+              <FormLabel>Comparison</FormLabel>
               {conditionRules.map(({ operand, value, color }, index) => {
                 const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
-
                 return (
-                  <Fragment key={index}>
-                    {isPopulated && (
-                      <Grid item xs={1} style={{ marginTop: '16px' }}>
+                  <Grid key={index} container spacing={2}>
+                    <Grid item xs={1}>
+                      {isPopulated && (
                         <Button className={button} onClick={() => removeRule(index)}>
-                          <RemoveIcon />
+                          <ClearIcon />
                         </Button>
-                      </Grid>
-                    )}
+                      )}
+                    </Grid>
                     <Grid item xs={3}>
                       <FormControl fullWidth>
-                        <FormLabel>Comparison</FormLabel>
                         <Select
                           fullWidth
                           name='operand'
@@ -181,7 +181,8 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={3} style={{ marginTop: '32px' }}>
+
+                    <Grid item xs={3}>
                       <TextField
                         type='number'
                         fullWidth
@@ -191,24 +192,14 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                         onChange={event => updateRule(event, index)}
                       />
                     </Grid>
-                    <Grid item xs={1} style={{ marginTop: '10px' }}>
-                      <div className={colorDiv} style={{ backgroundColor: color }} />
+
+                    <Grid item xs={1}>
+                      <ColorPicker color={color} updateField={updateRule} index={index} />
                     </Grid>
-                    <Grid item xs={4} style={{ marginTop: '10px' }}>
-                      <TwitterPicker
-                        colors={[]}
-                        color={color || '#FFF'}
-                        triangle='hide'
-                        onChangeComplete={color =>
-                          updateRule({ target: { name: 'color', value: color.hex } }, index)
-                        }
-                        width='80%'
-                      />
-                    </Grid>
-                  </Fragment>
+                  </Grid>
                 );
               })}
-            </Grid>
+            </Fragment>
           </Grid>
         </Grid>
       ) : (

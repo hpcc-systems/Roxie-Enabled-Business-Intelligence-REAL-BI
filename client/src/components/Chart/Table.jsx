@@ -11,6 +11,8 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Typography,
+  Link,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import _orderBy from 'lodash/orderBy';
@@ -92,6 +94,25 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const sliceLength = page * rowsPerPage + rowsPerPage;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
 
+  const createTableCellValue = (asLink, linkBase, cellValue) => {
+    if (asLink) {
+      const link = linkBase.replace('${Field}', cellValue);
+      return (
+        <Typography variant='body2'>
+          <Link href={link} target='_blank' rel='noopener'>
+            {cellValue}
+          </Link>
+        </Typography>
+      );
+    } else {
+      return (
+        <Typography variant='body2' component='p'>
+          {cellValue}
+        </Typography>
+      );
+    }
+  };
+
   return (
     <Fragment>
       <TableContainer component={Paper}>
@@ -118,7 +139,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
             {data.slice(sliceStart, sliceLength).map((row, index) => {
               return (
                 <TableRow key={index}>
-                  {fields.map(({ color = '#FFF', name, text = '#000' }, index) => {
+                  {fields.map(({ color = '#FFF', name, text = '#000', asLink, linkBase }, index) => {
                     const conditionIndex = conditionals.findIndex(({ field }) => field === name);
                     const conditionalRules = conditionIndex > -1 ? conditionals[conditionIndex].rules : [];
 
@@ -136,7 +157,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                         style={evaluateFormattingRules(row[name], color, text, conditionalRules)}
                         onClick={() => interactiveClick(chartID, name, row[name])}
                       >
-                        {row[name]}
+                        {createTableCellValue(asLink, linkBase, row[name])}
                       </TableCell>
                     );
                   })}
