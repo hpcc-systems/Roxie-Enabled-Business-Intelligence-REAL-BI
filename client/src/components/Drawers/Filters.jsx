@@ -59,7 +59,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
   const { filters = [], id: dashboardID, permission } = dashboard;
   const [filter, setFilter] = useState(null);
   const [compData, setCompData] = useState({});
-  const { showDialog: showFilter, toggleDialog: toggleFilter } = useDialog(false);
+  const [showFilter, toggleFilter] = useDialog(false);
   const dispatch = useDispatch();
   const {
     button,

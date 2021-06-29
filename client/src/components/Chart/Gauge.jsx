@@ -1,7 +1,7 @@
 import React from 'react';
 import { Gauge } from '@ant-design/charts';
 import PropTypes from 'prop-types';
-import { chartFillColor } from '../../constants';
+// import { chartFillColor } from '../../constants';
 
 const GaugeChart = ({ data, configuration }) => {
   const { axis1: { value } = {} } = configuration;
@@ -15,17 +15,15 @@ const GaugeChart = ({ data, configuration }) => {
   data = data.map(row => ({ ...row, [value]: Number(row[value]) }));
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    autoFit: true,
     axis: {
       label: { formatter: v => v * 100 },
       subTickLine: { count: 3 },
     },
-    forceFit: true,
     indicator: {
       pointer: { style: { stroke: '#AAA' } },
       pin: { style: { stroke: '#AAA' } },
     },
-    padding: 'auto',
     percent: data[0][value],
     range: {
       color: ['l(0) 0:#B8E1FF 1:#3D76DD'],
@@ -34,11 +32,10 @@ const GaugeChart = ({ data, configuration }) => {
     statistic: {
       title: {
         formatter: data => `${(data.percent * 100).toFixed(2)}%`,
-        style: { chartFillColor, fontSize: '36px', lineHeight: 1 },
+        // style: { chartFillColor, fontSize: '36px', lineHeight: 1 },
       },
       content: {
-        offsetY: 36,
-        style: { color: chartFillColor, fontSize: '24px' },
+        // style: { color: chartFillColor, fontSize: '24px' },
         formatter: () => value,
       },
     },

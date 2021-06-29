@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog }) => {
+const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChartLayout }) => {
   const { clusterID, id: dashboardID, filters, name } = dashboard;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
@@ -46,6 +46,7 @@ const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog }) => {
         const action = await updateDashboard(clusterID, dashboardID, name);
         batch(() => {
           [...actions, action].forEach(action => dispatch(action));
+          removeChartLayout(chartID);
           toggleDialog();
         });
       });

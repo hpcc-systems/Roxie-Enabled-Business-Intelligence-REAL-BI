@@ -1,30 +1,18 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { ListItemIcon, ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
+import { ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import { Close as CloseIcon, Edit as EditIcon, TableChart as TableChartIcon } from '@material-ui/icons';
 
-// Constants
-import { chartSizes } from '../../constants';
-
 const useStyles = makeStyles(theme => ({
-  menuIcon: { minWidth: 35, maxWidth: 35 },
+  menuIcon: { minWidth: 35, maxWidth: 35, cursor: 'pointer' },
   outlined: { padding: 0 },
   select: { marginLeft: theme.spacing(1), padding: theme.spacing(1, 0, 1, 1.5) },
 }));
 
-const ToolbarSubMenu = ({
-  anchorEl,
-  chart,
-  setAnchorEl,
-  toggleData,
-  toggleEdit,
-  removeChart,
-  updateChartWidth,
-}) => {
-  const { configuration, id: chartID, sourceID } = chart;
-  const { size = 12 } = configuration;
+const ToolbarSubMenu = ({ anchorEl, chart, setAnchorEl, toggleData, toggleEdit, removeChart }) => {
+  const { id: chartID, sourceID } = chart;
+
   const { menuIcon } = useStyles();
-  const { outlined, select } = useStyles();
 
   const closeMenu = () => {
     setAnchorEl(null);
@@ -32,28 +20,6 @@ const ToolbarSubMenu = ({
 
   return (
     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-      <MenuItem>
-        <ListItemText>Chart Width:</ListItemText>
-        <Select
-          autoWidth
-          className={select}
-          variant='outlined'
-          classes={{ outlined }}
-          value={size || 12}
-          onChange={event => {
-            updateChartWidth(event, chart);
-            closeMenu();
-          }}
-        >
-          {chartSizes.map(({ label, value }, index) => {
-            return (
-              <MenuItem key={index} value={value}>
-                {label}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </MenuItem>
       <MenuItem
         onClick={() => {
           toggleData(chartID);

@@ -76,14 +76,12 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const { workspace } = useSelector(state => state.workspace);
   const { directory = [], id: workspaceID } = workspace;
   const dispatch = useDispatch();
-  const { showDialog: showNewDashboardDialog, toggleDialog: toggleNewDashboardDialog } = useDialog(false);
-  const { showDialog: showEditDashboardDialog, toggleDialog: toggleEditDashboardDialog } = useDialog(false);
-  const { showDialog: showNewFolderDialog, toggleDialog: toggleNewFolderDialog } = useDialog(false);
-  const { showDialog: showEditFolderDialog, toggleDialog: toggleEditFolderDialog } = useDialog(false);
-  const { showDialog: showDeleteFolderDialog, toggleDialog: toggleDeleteFolderDialog } = useDialog(false);
-  const { showDialog: showDeleteDashboardDialog, toggleDialog: toggleDeleteDashboardDialog } = useDialog(
-    false,
-  );
+  const [showNewDashboardDialog, toggleNewDashboardDialog] = useDialog(false);
+  const [showEditDashboardDialog, toggleEditDashboardDialog] = useDialog(false);
+  const [showNewFolderDialog, toggleNewFolderDialog] = useDialog(false);
+  const [showEditFolderDialog, toggleEditFolderDialog] = useDialog(false);
+  const [showDeleteFolderDialog, toggleDeleteFolderDialog] = useDialog(false);
+  const [showDeleteDashboardDialog, toggleDeleteDashboardDialog] = useDialog(false);
   const { drawer, drawerPaper, typography } = useStyles();
 
   // Update directory depth localState

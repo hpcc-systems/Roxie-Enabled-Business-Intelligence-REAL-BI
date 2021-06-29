@@ -1,79 +1,33 @@
 import React from 'react';
-import { Grid, Paper } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
-import clsx from 'clsx';
+import { Box } from '@material-ui/core';
+import { SnackbarProvider } from 'notistack';
 
 // React Components
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
-import { canReOrganizeDashboards } from '../../utils/misc';
 
-const useStyles = makeStyles(theme => ({
-  chartDiv: { clear: 'both', margin: theme.spacing(1) },
-  div: { cursor: 'pointer', height: '100%', opacity: 1 },
-  draggedDiv: {
-    border: `1px dashed ${grey[400]}`,
-    borderRadius: 4,
-    opacity: 0.75,
-    '& > div': {
-      opacity: 0,
-    },
-  },
-}));
+// console.log('rerender ChartTile id :>>  ', chart.id);
 
 const ChartTile = props => {
-  const {
-    chart,
-    compData,
-    dashboard,
-    dragging,
-    dragItemID,
-    handleDragEnter,
-    handleDragStart,
-    interactiveClick,
-    interactiveObj,
-    pdfPreview = false,
-  } = props;
-  const { id: chartID, configuration } = chart;
-  const { ecl = {}, size = 12 } = configuration;
-  const eclDataset = ecl.dataset || '';
-  const { chartDiv, div, draggedDiv } = useStyles();
-
-  const dataObj = compData[chartID] || compData[eclDataset] || {};
-  const lastModifiedDate = dataObj.lastModifiedDate ? dataObj.lastModifiedDate : null;
-
-  const tile = () => (
-    <Paper variant='outlined' style={{ position: 'relative' }}>
-      <ChartToolbar {...props} lastModifiedDate={lastModifiedDate} />
-      <div className={chartDiv}>
-        <Chart
-          chart={chart}
-          dataObj={dataObj}
-          interactiveClick={interactiveClick}
-          interactiveObj={interactiveObj}
-          pdfPreview={pdfPreview}
-        />
-      </div>
-    </Paper>
-  );
-
+  const { chart, compData, interactiveClick, interactiveObj, pdfPreview = false } = props;
   return (
-    <Grid item md={size}>
-      {!pdfPreview && canReOrganizeDashboards(dashboard.permission) ? (
-        <div
-          className={clsx(div, { [draggedDiv]: dragging && dragItemID.current === chartID })}
-          draggable
-          onDragStart={event => handleDragStart(event, chartID)}
-          onDragEnter={dragging ? event => handleDragEnter(event, chartID) : null}
-        >
-          {tile()}
-        </div>
-      ) : (
-        tile()
-      )}
-    </Grid>
+    <Box p={1} height='100%'>
+      {/* chart info size is about 77px */}
+      <ChartToolbar {...props} lastModifiedDate={compData.lastModifiedDate} />
+      {/* use calc to find out how much space is left to fit a chart in */}
+      <Box height='calc(100% - 77px)'>
+        <SnackbarProvider>
+          <Chart
+            chart={chart}
+            dataObj={compData}
+            interactiveClick={interactiveClick}
+            interactiveObj={interactiveObj}
+            pdfPreview={pdfPreview}
+          />
+        </SnackbarProvider>
+      </Box>
+    </Box>
   );
 };
 
-export default ChartTile;
+export default React.memo(ChartTile);
