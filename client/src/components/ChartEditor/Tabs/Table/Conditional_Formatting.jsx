@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -14,8 +14,9 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core';
-import { Remove as RemoveIcon } from '@material-ui/icons';
-import { TwitterPicker } from 'react-color';
+import ClearIcon from '@material-ui/icons/Clear';
+
+import ColorPicker from './ColorPicker';
 
 // Utils
 import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
@@ -24,19 +25,18 @@ import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
 import { comparisonOperands, messages } from '../../../../constants';
 
 const useStyles = makeStyles(theme => ({
+  buttonBox: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    '& .MuiButton-root': {
+      minWidth: 0,
+    },
+  },
+  textBox: {
+    display: 'flex',
+    alignItems: 'flex-end',
+  },
   appbar: { marginBottom: theme.spacing(1) },
-  button: {
-    margin: theme.spacing(2.5, 0, 0, 1),
-    minWidth: 30,
-    padding: 0,
-  },
-  colorDiv: {
-    margin: '0 auto',
-    marginTop: theme.spacing(1.75),
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-  },
   grid: { marginTop: theme.spacing(3) },
   progress: { margin: 0, marginTop: 50 },
   typography: { marginTop: 20 },
@@ -49,7 +49,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
   const { conditionals = [] } = configuration;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
-  const { appbar, button, colorDiv, grid, progress, typography } = useStyles();
+  const { appbar, grid, progress, typography, buttonBox, textBox } = useStyles();
 
   const updateRule = (event, index) => {
     const { name, value } = event.target;
@@ -117,7 +117,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
       const percentage = (100 / fieldsArr.length).toFixed(1);
       setTabPercentage(`${percentage}%`);
     }
-  });
+  }, [fieldsArr]);
 
   const conditionRules = conditionals[tabIndex]?.rules || [];
 
@@ -149,66 +149,59 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
             </AppBar>
           </Grid>
           <Grid item xs={12}>
-            <Grid container spacing={2}>
-              {conditionRules.map(({ operand, value, color }, index) => {
-                const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
-
-                return (
-                  <Fragment key={index}>
-                    {isPopulated && (
-                      <Grid item xs={1} style={{ marginTop: '16px' }}>
-                        <Button className={button} onClick={() => removeRule(index)}>
-                          <RemoveIcon />
-                        </Button>
+            {fieldsArr.map((field, index) => (
+              <TabPanel key={index} value={tabIndex} index={index}>
+                <FormLabel>Comparison {field.name}</FormLabel>
+                {conditionRules.map(({ operand, value, color }, index) => {
+                  const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
+                  return (
+                    <Grid key={index} container spacing={1}>
+                      <Grid item xs={1} className={buttonBox}>
+                        {isPopulated && (
+                          <Button onClick={() => removeRule(index)}>
+                            <ClearIcon />
+                          </Button>
+                        )}
                       </Grid>
-                    )}
-                    <Grid item xs={3}>
-                      <FormControl fullWidth>
-                        <FormLabel>Comparison</FormLabel>
-                        <Select
+
+                      <Grid item xs={3} className={textBox}>
+                        <FormControl fullWidth>
+                          <Select
+                            fullWidth
+                            name='operand'
+                            value={operand || '>'}
+                            onChange={event => updateRule(event, index)}
+                          >
+                            {comparisonOperands.map(({ label, value }, index) => {
+                              return (
+                                <MenuItem key={index} value={value}>
+                                  {label}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={3} className={textBox}>
+                        <TextField
+                          type='number'
                           fullWidth
-                          name='operand'
-                          value={operand || '>'}
+                          placeholder='value'
+                          name='value'
+                          value={value}
                           onChange={event => updateRule(event, index)}
-                        >
-                          {comparisonOperands.map(({ label, value }, index) => {
-                            return (
-                              <MenuItem key={index} value={value}>
-                                {label}
-                              </MenuItem>
-                            );
-                          })}
-                        </Select>
-                      </FormControl>
+                        />
+                      </Grid>
+
+                      <Grid item xs={1}>
+                        <ColorPicker color={color} updateField={updateRule} index={index} />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={3} style={{ marginTop: '32px' }}>
-                      <TextField
-                        type='number'
-                        fullWidth
-                        placeholder='value'
-                        name='value'
-                        value={value}
-                        onChange={event => updateRule(event, index)}
-                      />
-                    </Grid>
-                    <Grid item xs={1} style={{ marginTop: '10px' }}>
-                      <div className={colorDiv} style={{ backgroundColor: color }} />
-                    </Grid>
-                    <Grid item xs={4} style={{ marginTop: '10px' }}>
-                      <TwitterPicker
-                        colors={[]}
-                        color={color || '#FFF'}
-                        triangle='hide'
-                        onChangeComplete={color =>
-                          updateRule({ target: { name: 'color', value: color.hex } }, index)
-                        }
-                        width='80%'
-                      />
-                    </Grid>
-                  </Fragment>
-                );
-              })}
-            </Grid>
+                  );
+                })}
+              </TabPanel>
+            ))}
           </Grid>
         </Grid>
       ) : (
@@ -221,3 +214,19 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
 };
 
 export default TableConditionalFormatting;
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role='tabpanel'
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <>{children}</>}
+    </div>
+  );
+}
