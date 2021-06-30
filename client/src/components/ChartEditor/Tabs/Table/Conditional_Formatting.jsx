@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -118,7 +118,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
       const percentage = (100 / fieldsArr.length).toFixed(1);
       setTabPercentage(`${percentage}%`);
     }
-  });
+  }, [fieldsArr]);
 
   const conditionRules = conditionals[tabIndex]?.rules || [];
 
@@ -150,56 +150,59 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
             </AppBar>
           </Grid>
           <Grid item xs={12}>
-            <Fragment>
-              <FormLabel>Comparison</FormLabel>
-              {conditionRules.map(({ operand, value, color }, index) => {
-                const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
-                return (
-                  <Grid key={index} container spacing={2}>
-                    <Grid item xs={1}>
-                      {isPopulated && (
-                        <Button className={button} onClick={() => removeRule(index)}>
-                          <ClearIcon />
-                        </Button>
-                      )}
-                    </Grid>
-                    <Grid item xs={3}>
-                      <FormControl fullWidth>
-                        <Select
+            {fieldsArr.map((field, index) => (
+              <TabPanel key={index} value={tabIndex} index={index}>
+                <FormLabel>Comparison {field.name}</FormLabel>
+                {conditionRules.map(({ operand, value, color }, index) => {
+                  const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
+                  return (
+                    <Grid key={index} container spacing={2}>
+                      <Grid item xs={1}>
+                        {isPopulated && (
+                          <Button className={button} onClick={() => removeRule(index)}>
+                            <ClearIcon />
+                          </Button>
+                        )}
+                      </Grid>
+
+                      <Grid item xs={3}>
+                        <FormControl fullWidth>
+                          <Select
+                            fullWidth
+                            name='operand'
+                            value={operand || '>'}
+                            onChange={event => updateRule(event, index)}
+                          >
+                            {comparisonOperands.map(({ label, value }, index) => {
+                              return (
+                                <MenuItem key={index} value={value}>
+                                  {label}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={3}>
+                        <TextField
+                          type='number'
                           fullWidth
-                          name='operand'
-                          value={operand || '>'}
+                          placeholder='value'
+                          name='value'
+                          value={value}
                           onChange={event => updateRule(event, index)}
-                        >
-                          {comparisonOperands.map(({ label, value }, index) => {
-                            return (
-                              <MenuItem key={index} value={value}>
-                                {label}
-                              </MenuItem>
-                            );
-                          })}
-                        </Select>
-                      </FormControl>
-                    </Grid>
+                        />
+                      </Grid>
 
-                    <Grid item xs={3}>
-                      <TextField
-                        type='number'
-                        fullWidth
-                        placeholder='value'
-                        name='value'
-                        value={value}
-                        onChange={event => updateRule(event, index)}
-                      />
+                      <Grid item xs={1}>
+                        <ColorPicker color={color} updateField={updateRule} index={index} />
+                      </Grid>
                     </Grid>
-
-                    <Grid item xs={1}>
-                      <ColorPicker color={color} updateField={updateRule} index={index} />
-                    </Grid>
-                  </Grid>
-                );
-              })}
-            </Fragment>
+                  );
+                })}
+              </TabPanel>
+            ))}
           </Grid>
         </Grid>
       ) : (
@@ -212,3 +215,19 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
 };
 
 export default TableConditionalFormatting;
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role='tabpanel'
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <>{children}</>}
+    </div>
+  );
+}

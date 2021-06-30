@@ -13,13 +13,13 @@ import {
   Typography,
   Link,
 } from '@material-ui/core';
-import clsx from 'clsx';
+
 import _orderBy from 'lodash/orderBy';
 import { evaluateFormattingRules } from '../../utils/chart';
 import { updateChart } from '../../features/dashboard/actions';
 
 const useStyles = makeStyles(() => ({
-  activeCell: { fontWeight: 'bold' },
+  activeCell: { fontWeight: '700', textDecoration: 'underline' },
   columnHeader: { textTransform: 'capitalize' },
   tableCell: {
     padding: '5px',
@@ -120,19 +120,20 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const sliceLength = page * rowsPerPage + rowsPerPage;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
 
-  const createTableCellValue = (asLink, linkBase, cellValue) => {
+  const createTableCellValue = (asLink, linkBase, cellValue, activeItem) => {
+    // apply active class on clicked item
+    const activeClass = activeItem ? activeCell : null;
+
     if (asLink) {
       const link = linkBase.replace('${Field}', cellValue);
       return (
-        <Typography variant='body2'>
-          <Link href={link} target='_blank' rel='noopener'>
-            {cellValue}
-          </Link>
-        </Typography>
+        <Link className={activeClass} href={link} target='_blank' rel='noopener'>
+          {cellValue}
+        </Link>
       );
     } else {
       return (
-        <Typography variant='body2' component='p'>
+        <Typography variant='body2' component='span' className={activeClass}>
           {cellValue}
         </Typography>
       );
@@ -168,22 +169,20 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
                   {fields.map(({ color = '#FFF', name, text = '#000', asLink, linkBase }, index) => {
                     const conditionIndex = conditionals.findIndex(({ field }) => field === name);
                     const conditionalRules = conditionIndex > -1 ? conditionals[conditionIndex].rules : [];
-
+                    const activeItem =
+                      chartID === interactiveChartID &&
+                      name === interactiveField &&
+                      row[name] === interactiveValue;
                     return (
                       <TableCell
                         key={index}
                         component='th'
                         scope='row'
-                        className={clsx(tableCell, {
-                          [activeCell]:
-                            chartID === interactiveChartID &&
-                            name === interactiveField &&
-                            row[name] === interactiveValue,
-                        })}
+                        className={tableCell}
                         style={evaluateFormattingRules(row[name], color, text, conditionalRules)}
                         onClick={() => interactiveClick(chartID, name, row[name])}
                       >
-                        {createTableCellValue(asLink, linkBase, row[name])}
+                        {createTableCellValue(asLink, linkBase, row[name], activeItem)}
                       </TableCell>
                     );
                   })}

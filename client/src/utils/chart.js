@@ -1,5 +1,5 @@
 import axios from 'axios';
-import _ from 'lodash';
+// import _ from 'lodash';
 import _orderBy from 'lodash/orderBy';
 
 // Constants
@@ -197,8 +197,8 @@ const validateConfigOptions = newConfig => {
 export const evaluateFormattingRules = (value, color, textColor, rules) => {
   let styleObj = { backgroundColor: color, color: textColor };
   // dont understand logic, each data row has default rules, if rules are different then user provided rules, new styles applied
-  const defaultRule = [{ color: '#FFF', operand: '>', value: '' }];
-  if (_.isEqual(defaultRule, rules)) return styleObj;
+  // const defaultRule = [{ color: '#FFF', operand: '>', value: '' }];
+  // if (_.isEqual(defaultRule, rules)) return styleObj;
 
   const greaterThanRules = rules.filter(({ operand, value }) => value !== '' && operand === '>');
   const lessThanRules = rules.filter(({ operand, value }) => value !== '' && operand === '<');
