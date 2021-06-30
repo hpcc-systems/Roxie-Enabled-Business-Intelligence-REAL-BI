@@ -10,7 +10,6 @@ import {
   MenuItem,
   Select,
   TextField,
-  Paper,
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 
@@ -34,13 +33,7 @@ const useStyles = makeStyles(theme => ({
   colorPicker: {
     height: '40px',
   },
-  colorDiv: {
-    margin: '0 auto',
-    marginTop: theme.spacing(1.75),
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-  },
+
   grid: { marginTop: theme.spacing(2) },
   progress: { margin: 0, marginTop: 50 },
 }));
@@ -65,7 +58,6 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
     }
 
-    console.log('newFieldsArr[index] :>> ', newFieldsArr[index]);
     // Add new object to end of array for next entry
     if (newFieldsArr.length - 1 === index) {
       newFieldsArr.push({ color: '#ffff', label: '', name: '', asLink: false, linkBase: '' });
@@ -99,7 +91,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
           {configFields.map(({ color, label, name, asLink, linkBase }, index) => {
             const isPopulated = name !== '' && !messages.includes(name);
             return (
-              <Box component={Paper} mb={1} py={1} px={2} key={index}>
+              <Box component={'div'} mb={1} py={1} px={2} key={index}>
                 <Grid container spacing={1} justify='flex-end' wrap='wrap' alignItems='flex-end'>
                   <Grid item xs={1} className={buttonBox}>
                     {isPopulated && (

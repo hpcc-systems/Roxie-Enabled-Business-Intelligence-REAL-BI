@@ -25,19 +25,18 @@ import { getConstrastTextColor, getMessage } from '../../../../utils/misc';
 import { comparisonOperands, messages } from '../../../../constants';
 
 const useStyles = makeStyles(theme => ({
+  buttonBox: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    '& .MuiButton-root': {
+      minWidth: 0,
+    },
+  },
+  textBox: {
+    display: 'flex',
+    alignItems: 'flex-end',
+  },
   appbar: { marginBottom: theme.spacing(1) },
-  button: {
-    margin: theme.spacing(2.5, 0, 0, 1),
-    minWidth: 30,
-    padding: 0,
-  },
-  colorDiv: {
-    margin: '0 auto',
-    marginTop: theme.spacing(1.75),
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-  },
   grid: { marginTop: theme.spacing(3) },
   progress: { margin: 0, marginTop: 50 },
   typography: { marginTop: 20 },
@@ -50,7 +49,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
   const { conditionals = [] } = configuration;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
-  const { appbar, button, grid, progress, typography } = useStyles();
+  const { appbar, grid, progress, typography, buttonBox, textBox } = useStyles();
 
   const updateRule = (event, index) => {
     const { name, value } = event.target;
@@ -156,16 +155,16 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                 {conditionRules.map(({ operand, value, color }, index) => {
                   const isPopulated = Boolean(value) || color !== '#FFF' || value === 0;
                   return (
-                    <Grid key={index} container spacing={2}>
-                      <Grid item xs={1}>
+                    <Grid key={index} container spacing={1}>
+                      <Grid item xs={1} className={buttonBox}>
                         {isPopulated && (
-                          <Button className={button} onClick={() => removeRule(index)}>
+                          <Button onClick={() => removeRule(index)}>
                             <ClearIcon />
                           </Button>
                         )}
                       </Grid>
 
-                      <Grid item xs={3}>
+                      <Grid item xs={3} className={textBox}>
                         <FormControl fullWidth>
                           <Select
                             fullWidth
@@ -184,7 +183,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                         </FormControl>
                       </Grid>
 
-                      <Grid item xs={3}>
+                      <Grid item xs={3} className={textBox}>
                         <TextField
                           type='number'
                           fullWidth

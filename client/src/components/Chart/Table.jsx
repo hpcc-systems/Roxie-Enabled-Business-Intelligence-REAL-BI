@@ -121,11 +121,17 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
 
   const createTableCellValue = (asLink, linkBase, cellValue, activeItem) => {
-    // apply active class on clicked item
-    const activeClass = activeItem ? activeCell : null;
+    const activeClass = activeItem ? activeCell : null; // apply active class on clicked item
+    let replaceValue = String(cellValue).trim();
+    if (asLink && linkBase) {
+      let link = linkBase.replace('${Field}', replaceValue);
+      const pattern = /^http/i;
+      const validLink = pattern.test(link);
 
-    if (asLink) {
-      const link = linkBase.replace('${Field}', cellValue);
+      if (!validLink) {
+        link = `http://${link}`;
+      }
+
       return (
         <Link className={activeClass} href={link} target='_blank' rel='noopener'>
           {cellValue}

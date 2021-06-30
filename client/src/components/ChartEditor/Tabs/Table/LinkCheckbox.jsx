@@ -8,7 +8,12 @@ export default function Checkboxes({ disabled, value, updateField, index }) {
 
   return (
     <>
-      <Checkbox disabled={disabled} checked={value} name='asLink' onChange={handleChange} />
+      <Checkbox
+        disabled={disabled}
+        checked={disabled ? false : value}
+        name='asLink'
+        onChange={handleChange}
+      />
       <span>Show as a link</span>
     </>
   );
