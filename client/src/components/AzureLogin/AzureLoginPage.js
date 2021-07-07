@@ -51,10 +51,13 @@ function AzureLoginPage() {
         authenticationRequest={loginScopes} /*set of scopes to pre-consent to while sign in */
         errorComponent={ErrorLoginComponent}
       >
-        <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
-          <CircularProgress color='primary' size={80} />
-        </Box>
-        {!_.isEmpty(authError) && <ErrorLoginComponent />}
+        {_.isEmpty(authError) ? (
+          <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
+            <CircularProgress color='primary' size={80} />
+          </Box>
+        ) : (
+          <ErrorLoginComponent />
+        )}
         {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace}` || ''} />}
       </MsalAuthenticationTemplate>
     </>

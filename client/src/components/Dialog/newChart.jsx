@@ -42,6 +42,8 @@ const initState = {
   selectedDataset: {},
   selectedSource: {},
   sourceType: 'query',
+  keywordfromExplorer: false,
+  isAutoCompleteLoading: false,
 };
 
 // Create styles
@@ -63,9 +65,14 @@ const useStyles = makeStyles(theme => ({
 
 const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) => {
   const [showDialog, toggleData] = useDialog(false);
-  const { values: localState, handleChange, handleChangeArr, handleChangeObj, handleCheckbox } = useForm(
-    initState,
-  );
+  const {
+    values: localState,
+    handleChange,
+    handleChangeArr,
+    handleChangeObj,
+    handleCheckbox,
+    formFieldsUpdate,
+  } = useForm(initState);
   const eclRef = useRef({});
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
@@ -190,6 +197,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
             handleChangeArr={handleChangeArr}
             handleChangeObj={handleChangeObj}
             handleCheckbox={handleCheckbox}
+            formFieldsUpdate={formFieldsUpdate}
             localState={localState}
           />
         </DialogContent>

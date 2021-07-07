@@ -4,6 +4,7 @@ const {
   getFilesFromCluster,
   getFileDatasetFromCluster,
   getFileDataFromCluster,
+  getTreeViewDataFromCluster,
 } = require('../../utils/hpccFiles');
 const {
   getQueriesFromCluster,
@@ -34,6 +35,19 @@ router.get('/keyword', async (req, res, next) => {
     }
 
     return res.status(200).json(results);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/treeViewData', async (req, res, next) => {
+  const user = req.user;
+  const cluserId = req.body.clusterId;
+  const scope = req.body.scope;
+  try {
+    const cluster = await getClusterByID(cluserId);
+    const result = await getTreeViewDataFromCluster(cluster, user.id, scope);
+    res.send(result);
   } catch (error) {
     next(error);
   }

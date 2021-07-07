@@ -43,7 +43,24 @@ const useForm = initState => {
 
   const resetState = useCallback(state => setValues(state), []);
 
-  return { values, handleChange, handleChangeArr, handleChangeObj, handleCheckbox, resetState };
+  const formFieldsUpdate = useCallback(
+    newFieldsObj =>
+      setValues(preState => ({
+        ...preState,
+        ...newFieldsObj,
+      })),
+    [],
+  );
+
+  return {
+    values,
+    handleChange,
+    handleChangeArr,
+    handleChangeObj,
+    handleCheckbox,
+    resetState,
+    formFieldsUpdate,
+  };
 };
 
 export default useForm;

@@ -77,4 +77,14 @@ export const getECLParams = async (clusterID, Wuid) => {
     throw error.response.data;
   }
 };
+
+export const getTreeViewData = async (scope, clusterId) => {
+  try {
+    const response = await axios.post('/api/v1/hpcc/treeViewData', { scope, clusterId });
+
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
 /* eslint-enable no-throw-literal */
