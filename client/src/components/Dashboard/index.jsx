@@ -201,10 +201,7 @@ const Dashboard = () => {
   };
 
   const handleLayoutChange = async (layout, allLayouts) => {
-    if (_.isEqual(chartLayouts, allLayouts)) {
-      console.log('-----layout is equal, update is no triggered, exited handleLayoutChange-----');
-      return;
-    }
+    if (_.isEqual(chartLayouts, allLayouts)) return; // Do not updated DB if layouts hasnt changed
     const oldLayouts = { ...chartLayouts }; // 1. copy old Layout.
     setChartLayouts(() => allLayouts); // 2. setChartLayouts to new Layout
     try {

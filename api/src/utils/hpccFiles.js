@@ -3,6 +3,30 @@ const moment = require('moment');
 const { getClusterCreds } = require('./clusterCredentials');
 const { getValueType } = require('./misc');
 
+const getTreeViewDataFromCluster = async (cluster, userId, scope) => {
+  const { host, id, infoPort } = cluster;
+
+  try {
+    const clusterCreds = await getClusterCreds(id, userId);
+
+    const request = {
+      DFUFileViewRequest: {
+        Scope: scope,
+        IncludeSuperOwner: false,
+      },
+    };
+
+    const response = await axios.post(`${host}:${infoPort}/WsDfu/DFUFileView.json`, request, {
+      auth: clusterCreds,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log(`error`, error);
+    throw new Error(`${error?.response?.data || error.message || 'Unknown error'}`);
+  }
+};
+
 const getFilesFromCluster = async (cluster, keyword, userID) => {
   const { host, id: clusterID, infoPort } = cluster;
   const clusterCreds = await getClusterCreds(clusterID, userID);
@@ -159,4 +183,5 @@ module.exports = {
   getFileDatasetFromCluster,
   getFileLastModifiedDate,
   getFilesFromCluster,
+  getTreeViewDataFromCluster,
 };
