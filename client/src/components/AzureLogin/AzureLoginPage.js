@@ -58,7 +58,7 @@ function AzureLoginPage() {
         ) : (
           <ErrorLoginComponent />
         )}
-        {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace}` || ''} />}
+        {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace || ''}`} />}
       </MsalAuthenticationTemplate>
     </>
   );

@@ -14,6 +14,7 @@ const useStyles = makeStyles(() => ({
     transform: 'translateY(-80%)',
   },
   base: {
+    margin: 'auto',
     height: '40px',
     width: '40px',
     cursor: 'pointer',
