@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import _orderBy from 'lodash/orderBy';
 import { useSnackbar } from 'notistack';
 
+//TEST TOMBOLO INTEGATION
+import TestTomboloIntegration from './TestTomboloIntegration';
+
 // React Components
 import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
 import DataSnippetDialog from '../Dialog/DataSnippet';
@@ -274,6 +277,7 @@ const Dashboard = () => {
             {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
           </ChartsGrid>
         )}
+        <TestTomboloIntegration />
         {/* MAIN CONTENT END! */}
         {showFilterDrawer && (
           <FilterDrawer

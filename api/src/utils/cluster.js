@@ -8,6 +8,8 @@ const getClusterByID = async id => {
   return cluster;
 };
 
+const getClusterByHost = async host => await Cluster.findOne({ where: { host } });
+
 const getAllClusters = async () => {
   let clusters = await Cluster.findAll(removeFields([]));
   clusters = clusters.map(cluster => unNestSequelizeObj(cluster));
@@ -22,4 +24,4 @@ const createCluster = async cluster => {
   return newCluster;
 };
 
-module.exports = { getClusterByID, createCluster, getAllClusters };
+module.exports = { getClusterByID, createCluster, getAllClusters, getClusterByHost };

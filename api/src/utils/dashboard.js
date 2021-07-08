@@ -174,6 +174,16 @@ const updateDashboardLayout = async (dashboadrId, newLayout) => {
   return await Dashboard.update({ layout: newLayout }, { where: { id: dashboadrId } });
 };
 
+const getDashboardByWokspaceAndCluster = async (workspaceID, clusterID, userID, name) => {
+  const dashboard = await Dashboard.findOne({
+    where: { workspaceID, clusterID, name },
+  });
+  if (dashboard && dashboard.id) {
+    return await getDashboardByID(dashboard.id, userID);
+  }
+  return null;
+};
+
 module.exports = {
   createDashboard,
   deleteDashboardByID,
@@ -182,4 +192,5 @@ module.exports = {
   updateDashboardByID,
   updateDashboardLayout,
   getDashboardPermission,
+  getDashboardByWokspaceAndCluster,
 };
