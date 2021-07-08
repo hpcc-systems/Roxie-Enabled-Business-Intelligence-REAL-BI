@@ -30,7 +30,18 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
   const [expanded, setExpanded] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
 
+  const isMounted = React.useRef(true); // Using this variable to unsubscibe from state update if component is unmounted
+
   const classes = useStyles();
+
+  React.useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      setExpanded([]);
+      setSelected([]);
+      setClusterFiles(initial);
+    };
+  }, []);
 
   const handleToggle = (event, nodeIds) => {
     const clickedNodeId = nodeIds.filter(x => !expanded.includes(x))[0];
@@ -49,6 +60,7 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
         sources: [currentNodeRef],
         selectedSource: currentNodeRef,
       });
+      setExpanded(expanded.filter(id => id !== 'root'));
       enqueueSnackbar(`${currentNodeRef.name} file selected`, {
         variant: 'success',
         autoHideDuration: 3000,
@@ -99,6 +111,7 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
 
     const [currentNode, path] = findNodeRef(clusterFiles, nodeId);
 
+    if (currentNode.children.length > 0) return; // this node has been opened before, no need to refetch
     currentNode.isLoading = true;
 
     const results = await getTreeViewData(path, clusterId);
@@ -109,10 +122,12 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
       currentNode.isLoading = false;
       currentNode.emptyDir = false;
       currentNode.children = formatFilesToTreeview(files);
+      if (!isMounted.current) return null;
       setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
     } else {
       currentNode.isLoading = false;
       currentNode.emptyDir = true;
+      if (!isMounted.current) return null;
       setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
     }
   };
