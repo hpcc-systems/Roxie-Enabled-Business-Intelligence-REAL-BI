@@ -2,14 +2,15 @@ const router = require('express').Router();
 const passport = require('passport');
 const { createUser, getUserByEmail } = require('../../utils/user');
 
-router.get(
+router.post(
   '/loginAzure',
   passport.authenticate('oauth-bearer', {
     session: false,
   }),
   async (req, res, next) => {
-    const email = req.authInfo.preferred_username;
-    const username = req.authInfo.name;
+    console.log(`req.body`, req.body);
+    const email = req.body.mail;
+    const [username] = req.body.userPrincipalName.split('@');
     // Getting user from DB if not exist then creat and return to front
     try {
       let user = await getUserByEmail(email);

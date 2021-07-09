@@ -3,12 +3,13 @@ import React, { useEffect } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { MsalAuthenticationTemplate, useMsal } from '@azure/msal-react';
 import { Redirect } from 'react-router';
-import { apiScopes, loginScopes } from './authConfig';
+import { apiScopes, loginScopes, msGraphMeEndpoint } from './authConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserStateWithAzure } from '../../features/auth/actions';
 import ErrorLoginComponent from './ErrorLoginComponent';
 import _ from 'lodash';
 import { Box, CircularProgress } from '@material-ui/core';
+import { callApiWithToken } from '../../utils/auth';
 
 const { REACT_APP_AZURE_REDIRECT_URI } = process.env;
 
@@ -34,8 +35,10 @@ function AzureLoginPage() {
         //Aquire fresh tokens to send initial user info request
         try {
           //to aquire tokens silently we need to provide account.
-          await instance.acquireTokenSilent(silentTokenOptions);
-          dispatch(getUserStateWithAzure());
+          const token = await instance.acquireTokenSilent(silentTokenOptions);
+          const user = await callApiWithToken(token.accessToken, msGraphMeEndpoint);
+          console.log(`user`, user);
+          dispatch(getUserStateWithAzure(user));
         } catch (error) {
           /* in case if silent token acquisition fails, fallback to an interactive method */
           instance.acquireTokenRedirect(loginScopes);
@@ -55,7 +58,7 @@ function AzureLoginPage() {
           <CircularProgress color='primary' size={80} />
         </Box>
         {!_.isEmpty(authError) && <ErrorLoginComponent />}
-        {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace}` || ''} />}
+        {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace || ''}`} />}
       </MsalAuthenticationTemplate>
     </>
   );
