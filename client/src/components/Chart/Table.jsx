@@ -2,7 +2,6 @@ import React, { Fragment, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -11,16 +10,45 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Typography,
+  Link,
 } from '@material-ui/core';
-import clsx from 'clsx';
+
 import _orderBy from 'lodash/orderBy';
 import { evaluateFormattingRules } from '../../utils/chart';
 import { updateChart } from '../../features/dashboard/actions';
 
 const useStyles = makeStyles(() => ({
-  activeCell: { fontWeight: 'bold' },
+  activeCell: { fontWeight: '700', textDecoration: 'underline' },
   columnHeader: { textTransform: 'capitalize' },
-  tableCell: { '&:hover': { cursor: 'pointer' } },
+  tableCell: {
+    padding: '5px',
+    '&:hover': { cursor: 'pointer' },
+  },
+  tableContainer: {
+    height: 'calc(100% - 45px)',
+  },
+  paginationRoot: {
+    '& .MuiToolbar-root ': {
+      justifyContent: 'flex-end',
+      maxWidth: '100%',
+    },
+    '& .MuiToolbar-gutters': {
+      padding: 0,
+    },
+    '& .MuiTablePagination-actions': {
+      margin: 0,
+    },
+    '& .MuiTablePagination-spacer	': {
+      display: 'none',
+    },
+    '& .MuiIconButton-root': {
+      padding: '4px',
+    },
+    '& .MuiTablePagination-selectRoot': {
+      margin: 0,
+    },
+  },
 }));
 
 const TableComp = ({ chartID, configuration, data, interactiveClick, interactiveObj }) => {
@@ -38,7 +66,7 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const [orderBy, setOrderBy] = useState(configOrderBy);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(configRowsPerPage);
-  const { activeCell, columnHeader, tableCell } = useStyles();
+  const { paginationRoot, activeCell, columnHeader, tableCell, tableContainer } = useStyles();
 
   // Update chart in DB and store
   const updateConfig = async keys => {
@@ -92,10 +120,36 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
   const sliceLength = page * rowsPerPage + rowsPerPage;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowCount - page * rowsPerPage);
 
+  const createTableCellValue = (asLink, linkBase, cellValue, activeItem) => {
+    const activeClass = activeItem ? activeCell : null; // apply active class on clicked item
+    let replaceValue = String(cellValue).trim();
+    if (asLink && linkBase) {
+      let link = linkBase.replace('${Field}', replaceValue);
+      const pattern = /^http/i;
+      const validLink = pattern.test(link);
+
+      if (!validLink) {
+        link = `http://${link}`;
+      }
+
+      return (
+        <Link className={activeClass} href={link} target='_blank' rel='noopener'>
+          {cellValue}
+        </Link>
+      );
+    } else {
+      return (
+        <Typography variant='body2' component='span' className={activeClass}>
+          {cellValue}
+        </Typography>
+      );
+    }
+  };
+
   return (
     <Fragment>
-      <TableContainer component={Paper}>
-        <Table size='small'>
+      <TableContainer className={tableContainer}>
+        <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
               {fields.map(({ label, name }, index) => {
@@ -118,25 +172,23 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
             {data.slice(sliceStart, sliceLength).map((row, index) => {
               return (
                 <TableRow key={index}>
-                  {fields.map(({ color = '#FFF', name, text = '#000' }, index) => {
+                  {fields.map(({ color = '#FFF', name, text = '#000', asLink, linkBase }, index) => {
                     const conditionIndex = conditionals.findIndex(({ field }) => field === name);
                     const conditionalRules = conditionIndex > -1 ? conditionals[conditionIndex].rules : [];
-
+                    const activeItem =
+                      chartID === interactiveChartID &&
+                      name === interactiveField &&
+                      row[name] === interactiveValue;
                     return (
                       <TableCell
                         key={index}
                         component='th'
                         scope='row'
-                        className={clsx(tableCell, {
-                          [activeCell]:
-                            chartID === interactiveChartID &&
-                            name === interactiveField &&
-                            row[name] === interactiveValue,
-                        })}
+                        className={tableCell}
                         style={evaluateFormattingRules(row[name], color, text, conditionalRules)}
                         onClick={() => interactiveClick(chartID, name, row[name])}
                       >
-                        {row[name]}
+                        {createTableCellValue(asLink, linkBase, row[name], activeItem)}
                       </TableCell>
                     );
                   })}
@@ -152,6 +204,9 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
         </Table>
       </TableContainer>
       <TablePagination
+        classes={{
+          root: paginationRoot,
+        }}
         rowsPerPageOptions={[5, 10, 20]}
         component='div'
         count={rowCount}

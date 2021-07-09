@@ -43,16 +43,15 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
   }
 
   const chartConfig = {
-    appendPadding: [24, 0, 0, 0],
+    appendPadding: [40, 0, 0, 0],
     data,
-    forceFit: true,
+    autoFit: true,
     legend: { position: 'right-top' },
     meta: {
       [yValue]: {
         formatter: value => (isNaN(value) ? value : Intl.NumberFormat('en-US').format(value)),
       },
     },
-    padding: 'auto',
     point: { size: 4 },
     tooltip: {
       formatter: datum => {

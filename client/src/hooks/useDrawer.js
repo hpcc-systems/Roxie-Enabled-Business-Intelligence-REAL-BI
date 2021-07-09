@@ -7,7 +7,7 @@ const useDrawer = initState => {
     return setShowDrawer(prevState => !prevState);
   };
 
-  return { showDrawer, toggleDrawer };
+  return [showDrawer, toggleDrawer];
 };
 
 export default useDrawer;

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "build": "GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false react-scripts --max_old_space_size=4096 build",
     "start": "react-scripts start"
   },
   "proxy": "http://localhost:3001/",
@@ -24,11 +24,13 @@
     "lodash": "^4.17.21",
     "mapbox-gl": "^2.2.0",
     "moment": "^2.29.1",
+    "notistack": "^1.0.9",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-color": "^2.19.3",
     "react-date-picker": "^8.0.7",
     "react-dom": "^17.0.1",
+    "react-grid-layout": "^1.2.5",
     "react-map-gl": "^6.1.11",
     "react-markdown": "^5.0.3",
     "react-redux": "^7.2.2",
@@ -36,6 +38,7 @@
     "react-scripts": "^4.0.1",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "uuid": "^8.3.2",
     "worker-loader": "^3.0.8"
   },
   "browserslist": {

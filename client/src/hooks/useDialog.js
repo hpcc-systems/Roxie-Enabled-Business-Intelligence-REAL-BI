@@ -7,7 +7,7 @@ const useDialog = initState => {
     return setShowDialog(prevState => !prevState);
   };
 
-  return { showDialog, toggleDialog };
+  return [showDialog, toggleDialog];
 };
 
 export default useDialog;
