@@ -20,29 +20,29 @@ export const msalConfig = {
     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
   },
   // Uncomment for logs in console
-  system: {
-    loggerOptions: {
-      loggerCallback: (level, message, containsPii) => {
-        if (containsPii) {
-          return;
-        }
-        switch (level) {
-          case LogLevel.Error:
-            console.error(message);
-            return;
-          case LogLevel.Info:
-            console.info(message);
-            return;
-          case LogLevel.Verbose:
-            console.debug(message);
-            return;
-          case LogLevel.Warning:
-            console.warn(message);
-            return;
-        }
-      },
-    },
-  },
+  // system: {
+  //   loggerOptions: {
+  //     loggerCallback: (level, message, containsPii) => {
+  //       if (containsPii) {
+  //         return;
+  //       }
+  //       switch (level) {
+  //         case LogLevel.Error:
+  //           console.error(message);
+  //           return;
+  //         case LogLevel.Info:
+  //           console.info(message);
+  //           return;
+  //         case LogLevel.Verbose:
+  //           console.debug(message);
+  //           return;
+  //         case LogLevel.Warning:
+  //           console.warn(message);
+  //           return;
+  //       }
+  //     },
+  //   },
+  // },
 };
 
 /**
@@ -57,5 +57,3 @@ export const loginScopes = {
 // export const apiScopes = {
 //   scopes: ['api://cc565084-7256-48d5-88f1-b00f25766f9b/access_as_user'],
 // };
-
-export const msGraphMeEndpoint = 'https://graph.microsoft.com/v1.0/me';
