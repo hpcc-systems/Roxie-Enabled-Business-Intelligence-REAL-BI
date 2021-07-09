@@ -60,7 +60,6 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
         sources: [currentNodeRef],
         selectedSource: currentNodeRef,
       });
-      setExpanded(expanded.filter(id => id !== 'root'));
       enqueueSnackbar(`${currentNodeRef.name} file selected`, {
         variant: 'success',
         autoHideDuration: 3000,
