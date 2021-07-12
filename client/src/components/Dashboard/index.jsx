@@ -204,8 +204,8 @@ const Dashboard = () => {
   };
 
   const handleLayoutChange = async (layout, allLayouts) => {
-    if (_.isEqual(chartLayouts, allLayouts)) return; // Do not updated DB if layouts hasnt changed
-    const oldLayouts = { ...chartLayouts }; // 1. copy old Layout.
+    if (_.isEqual(chartLayouts, allLayouts)) return;
+    const oldLayouts = chartLayouts; // 1. copy old Layout.
     setChartLayouts(() => allLayouts); // 2. setChartLayouts to new Layout
     try {
       await updateDashboardLayout(allLayouts, dashboardID); // 3. Make an update in DB
@@ -222,34 +222,33 @@ const Dashboard = () => {
 
   const addChartToLayout = chart => {
     const [newLayoutItem] = mapChartIdToLayout([chart.id]);
+    console.log('newLayoutItem :>> ', newLayoutItem);
     if (chartLayouts) {
       const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
-      setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
-      enqueueSnackbar('New item has been added to dashboard', {
-        variant: 'success',
-        anchorOrigin: {
-          vertical: 'top',
-          horizontal: 'left',
-        },
-      });
+      handleLayoutChange(null, { ...chartLayouts, lg: updatedLayouts });
     } else {
-      setChartLayouts({ lg: [newLayoutItem] });
+      handleLayoutChange(null, { lg: [newLayoutItem] });
     }
-  };
-
-  const removeChartLayout = chartID => {
-    const updatedLayouts = _.reject(chartLayouts.lg, { i: chartID });
-    setChartLayouts(chartLayouts => ({ ...chartLayouts, lg: updatedLayouts }));
-    enqueueSnackbar('Item deleted successfully!', {
+    enqueueSnackbar('New item has been added to dashboard', {
       variant: 'success',
       anchorOrigin: {
-        vertical: 'top',
+        vertical: 'bottom',
         horizontal: 'left',
       },
     });
   };
 
-  // console.log('rerender dashboard :>>  ');
+  const removeChartLayout = chartID => {
+    const updatedLayouts = _.reject(chartLayouts.lg, { i: chartID });
+    handleLayoutChange(null, { ...chartLayouts, lg: updatedLayouts });
+    enqueueSnackbar('Item deleted successfully!', {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'left',
+      },
+    });
+  };
 
   return (
     <Fragment>

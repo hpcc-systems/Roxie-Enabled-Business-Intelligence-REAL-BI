@@ -121,14 +121,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       const sourceObj = createSourceObj(localState, eclRef.current);
       const newChartObj = createChartObj(localState, eclRef.current);
 
-      console.log('-------------------');
-      console.log('localState :>> ', localState);
-      console.log('-------------------');
-      console.log('newChartObj :>> ', newChartObj);
-      console.log('-------------------');
-
       try {
-        console.log('create a source --  sourceObj :>> ', sourceObj);
         const newSource = await createSource(sourceObj);
         sourceID = newSource.id;
         sourceName = newSource.name;
@@ -138,18 +131,6 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       }
 
       try {
-        console.log('createChart');
-        console.log('newChartObj :>> ', newChartObj);
-        console.log('-------------------');
-        console.log('dashboardID :>> ', dashboardID);
-        console.log('-------------------');
-        console.log('sourceID :>> ', sourceID);
-        console.log('-------------------');
-        console.log('sourceName :>> ', sourceName);
-        console.log('-------------------');
-        console.log('sourceType :>> ', sourceType);
-        console.log('-------------------');
-
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
         dispatch(action);
         getChartData([action.payload.id], {});
