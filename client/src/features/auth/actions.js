@@ -46,10 +46,10 @@ export const logoutUser = () => {
   return { type: SET_AUTH_USER, payload: {} };
 };
 
-export const getUserStateWithAzure = () => async dispatch => {
+export const getUserStateWithAzure = token => async dispatch => {
   // 1.Get user from DB or Create a User
   try {
-    const { data: userFromDB } = await axios.get('/api/v1/azure/loginAzure');
+    const { data: userFromDB } = await axios.post('/api/v1/azure/loginAzure', token);
     dispatch({ type: SET_AUTH_USER, payload: userFromDB });
   } catch (error) {
     dispatch({ type: SET_AUTH_ERRORS, payload: error.message });
