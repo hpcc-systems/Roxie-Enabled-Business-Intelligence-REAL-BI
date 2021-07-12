@@ -1,25 +1,28 @@
 const router = require('express').Router();
 const passport = require('passport');
-const { createUser, getUserByEmail } = require('../../utils/user');
+const { createUser } = require('../../utils/user');
+const axios = require('axios');
 
-router.get(
+router.post(
   '/loginAzure',
   passport.authenticate('oauth-bearer', {
     session: false,
   }),
   async (req, res, next) => {
-    const email = req.authInfo.preferred_username;
-    const username = req.authInfo.name;
-    // Getting user from DB if not exist then creat and return to front
-    try {
-      let user = await getUserByEmail(email);
-      if (!user) {
-        user = await createUser(email, username);
+    let user = req.user; // this user object came to us via passport middleware
+    if (!user) {
+      try {
+        const response = await axios.get('https://graph.microsoft.com/v1.0/me', {
+          headers: { Authorization: `Bearer ${req.body.accessToken}` },
+        });
+        const azureUser = response.data;
+        const [username] = azureUser.userPrincipalName.split('@');
+        user = await createUser(azureUser.mail, username);
+      } catch (error) {
+        next(error);
       }
-      res.send({ id: user.id, username, lastViewedWorkspace: user.lastViewedWorkspace });
-    } catch (error) {
-      next(error);
     }
+    res.send({ id: user.id, username: user.username, lastViewedWorkspace: user.lastViewedWorkspace });
   },
 );
 

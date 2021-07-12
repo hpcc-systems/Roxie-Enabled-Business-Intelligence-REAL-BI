@@ -13,7 +13,6 @@ import { Box, CircularProgress } from '@material-ui/core';
 const { REACT_APP_AZURE_REDIRECT_URI } = process.env;
 
 function AzureLoginPage() {
-  /* useMsal is hook that returns the PublicClientApplication instance */
   const { instance, accounts, inProgress } = useMsal();
   const account = accounts[0] || null;
 
@@ -28,17 +27,14 @@ function AzureLoginPage() {
 
   useEffect(() => {
     if (account && inProgress === 'none') {
-      /* set account to Active for Axios interceptor to send HTTPS with fresh tokens */
-      instance.setActiveAccount(account);
+      instance.setActiveAccount(account); // set account to Active for Axios interceptor to send HTTPS with fresh tokens
       (async () => {
         //Aquire fresh tokens to send initial user info request
         try {
-          //to aquire tokens silently we need to provide account.
-          await instance.acquireTokenSilent(silentTokenOptions);
-          dispatch(getUserStateWithAzure());
+          const token = await instance.acquireTokenSilent(silentTokenOptions); //to aquire tokens silently we need to provide account.
+          dispatch(getUserStateWithAzure(token));
         } catch (error) {
-          /* in case if silent token acquisition fails, fallback to an interactive method */
-          instance.acquireTokenRedirect(loginScopes);
+          instance.acquireTokenRedirect(loginScopes); //in case if silent token acquisition fails, fallback to an interactive method
         }
       })();
     }
@@ -48,7 +44,7 @@ function AzureLoginPage() {
     <>
       <MsalAuthenticationTemplate
         interactionType={InteractionType.Redirect}
-        authenticationRequest={loginScopes} /*set of scopes to pre-consent to while sign in */
+        authenticationRequest={loginScopes} //set of scopes to pre-consent to while sign in
         errorComponent={ErrorLoginComponent}
       >
         {_.isEmpty(authError) ? (

@@ -22,15 +22,16 @@ module.exports = new BearerStrategy(options, async (token, done) => {
   logger.info('User presented valid token');
   // When we verify token as middleware we need to create req.user because our routes rely on it
   try {
-    // Get username from response
-    const username = token.name;
+    const [username] = token.preferred_username.split('@');
     const dbUser = await User.findOne({ where: { username } });
     if (dbUser) {
-      // Send user info using the second argument
-      done(null, { id: dbUser.id, username }, token);
+      done(
+        null,
+        { id: dbUser.id, username: dbUser.username, lastViewedWorkspace: dbUser.lastViewedWorkspace },
+        token,
+      ); // Send user info using the second argument
     } else {
-      // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
-      done(null, {}, token);
+      done(null, null, token); // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
     }
   } catch (error) {
     done(error);
