@@ -14,6 +14,7 @@ export const msalConfig = {
     authority: `https://login.microsoftonline.com/${REACT_APP_AZURE_TENANT_ID}`,
     redirectUri: REACT_APP_AZURE_REDIRECT_URI,
     postLogoutRedirectUri: REACT_APP_AZURE_REDIRECT_URI,
+    navigateToLoginRequestUrl: true,
   },
   cache: {
     cacheLocation: 'localStorage', // This configures where your cache will be stored

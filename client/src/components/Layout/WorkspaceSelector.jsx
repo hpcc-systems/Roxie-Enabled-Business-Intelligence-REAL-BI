@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 
 const WorkspaceSelector = () => {
   const { user = {} } = useSelector(state => state.auth);
-  const { workspaces = [] } = useSelector(state => state.workspace);
+  const { workspaces = [], workspace: currentOpenWorkspace } = useSelector(state => state.workspace);
   const { lastViewedWorkspace } = user;
   const history = useHistory();
   const dispatch = useDispatch();
@@ -85,7 +85,7 @@ const WorkspaceSelector = () => {
       <InputLabel className={inputLabel}>{selectorLabel}</InputLabel>
       <Select
         className={select}
-        value={lastViewedWorkspace || ''}
+        value={currentOpenWorkspace?.id || ''}
         onChange={selectWorkspace}
         inputProps={{ classes: { icon: icon } }}
       >

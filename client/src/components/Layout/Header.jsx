@@ -16,6 +16,7 @@ import NewWorkspace from '../Dialog/newWorkspace';
 import HelpDropDown from './HelpDropdown';
 import EditWorkspace from '../Dialog/EditWorkspace';
 import DeleteWorkspace from '../Dialog/DeleteWorkpace';
+import _ from 'lodash';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -47,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 
 const Header = ({ toggleDrawer }) => {
   const { user = {} } = useSelector(state => state.auth);
-  const { workspace, workspaces } = useSelector(state => state.workspace);
+  const { workspace, workspaces, errorObj } = useSelector(state => state.workspace);
   const { id: userID, lastViewedWorkspace, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -103,7 +104,7 @@ const Header = ({ toggleDrawer }) => {
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar}>
-          {!!workspaces?.length && !isChangePwdScreen && (
+          {workspaces && _.isEmpty(errorObj) && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>

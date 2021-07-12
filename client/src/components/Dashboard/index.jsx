@@ -276,7 +276,12 @@ const Dashboard = () => {
             {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
           </ChartsGrid>
         )}
+
+        {/*------------------------------------------------ */}
+        {/* send HTTP request like third party but with valid token */}
         <TestTomboloIntegration />
+        {/*------------------------------------------------ */}
+
         {/* MAIN CONTENT END! */}
         {showFilterDrawer && (
           <FilterDrawer

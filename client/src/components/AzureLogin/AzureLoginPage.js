@@ -2,17 +2,19 @@
 import React, { useEffect } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { MsalAuthenticationTemplate, useMsal } from '@azure/msal-react';
-import { Redirect } from 'react-router';
 import { apiScopes, loginScopes } from './authConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserStateWithAzure } from '../../features/auth/actions';
 import ErrorLoginComponent from './ErrorLoginComponent';
 import _ from 'lodash';
 import { Box, CircularProgress } from '@material-ui/core';
+import { useHistory } from 'react-router';
 
 const { REACT_APP_AZURE_REDIRECT_URI } = process.env;
 
 function AzureLoginPage() {
+  const history = useHistory();
+
   const { instance, accounts, inProgress } = useMsal();
   const account = accounts[0] || null;
 
@@ -24,6 +26,8 @@ function AzureLoginPage() {
     account: account,
     redirectUri: REACT_APP_AZURE_REDIRECT_URI + '/auth.html',
   };
+
+  const redirectedFrom = history.location?.state?.from;
 
   useEffect(() => {
     if (account && inProgress === 'none') {
@@ -40,23 +44,30 @@ function AzureLoginPage() {
     }
   }, [account, inProgress]);
 
+  useEffect(() => {
+    if (user.id) {
+      if (redirectedFrom) {
+        history.push(redirectedFrom);
+      } else {
+        history.push(`/workspace/${user.lastViewedWorkspace || ''}`);
+      }
+    }
+  }, [user]);
+
   return (
-    <>
-      <MsalAuthenticationTemplate
-        interactionType={InteractionType.Redirect}
-        authenticationRequest={loginScopes} //set of scopes to pre-consent to while sign in
-        errorComponent={ErrorLoginComponent}
-      >
-        {_.isEmpty(authError) ? (
-          <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
-            <CircularProgress color='primary' size={80} />
-          </Box>
-        ) : (
-          <ErrorLoginComponent />
-        )}
-        {user?.id && <Redirect push to={`/workspace/${user.lastViewedWorkspace || ''}`} />}
-      </MsalAuthenticationTemplate>
-    </>
+    <MsalAuthenticationTemplate
+      interactionType={InteractionType.Redirect}
+      authenticationRequest={loginScopes} //set of scopes to pre-consent to while sign in
+      errorComponent={ErrorLoginComponent}
+    >
+      {_.isEmpty(authError) ? (
+        <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
+          <CircularProgress color='primary' size={80} />
+        </Box>
+      ) : (
+        <ErrorLoginComponent />
+      )}
+    </MsalAuthenticationTemplate>
   );
 }
 
