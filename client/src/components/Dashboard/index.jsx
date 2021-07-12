@@ -225,7 +225,7 @@ const Dashboard = () => {
       enqueueSnackbar('New item has been added to dashboard', {
         variant: 'success',
         anchorOrigin: {
-          vertical: 'top',
+          vertical: 'bottom',
           horizontal: 'left',
         },
       });
@@ -240,7 +240,7 @@ const Dashboard = () => {
     enqueueSnackbar('Item deleted successfully!', {
       variant: 'success',
       anchorOrigin: {
-        vertical: 'top',
+        vertical: 'bottom',
         horizontal: 'left',
       },
     });
