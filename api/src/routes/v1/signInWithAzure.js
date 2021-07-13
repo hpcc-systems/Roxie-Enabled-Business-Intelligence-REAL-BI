@@ -10,7 +10,7 @@ router.post(
   }),
   async (req, res, next) => {
     let user = req.user; // this user object came to us via passport middleware
-    if (!user) {
+    if (!user.id) {
       try {
         const response = await axios.get('https://graph.microsoft.com/v1.0/me', {
           headers: { Authorization: `Bearer ${req.body.accessToken}` },
