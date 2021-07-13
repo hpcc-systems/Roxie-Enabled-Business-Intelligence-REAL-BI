@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from 'react';
 import { Route, Redirect, useHistory } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
@@ -49,7 +48,6 @@ const PrivateRoute = ({ component, ...options }) => {
             dispatch(action2);
           });
         } catch (error) {
-          dispatch(error);
           history.push('/', { from: history.location.pathname });
         }
       })();

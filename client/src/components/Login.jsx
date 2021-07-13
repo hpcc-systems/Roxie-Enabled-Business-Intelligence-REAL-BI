@@ -140,6 +140,8 @@ const Login = () => {
         });
       } catch (error) {
         dispatch(error);
+        handleChange(null, { name: 'loading', value: false });
+        setIsInitializing(() => false);
       }
     })();
   }, []);

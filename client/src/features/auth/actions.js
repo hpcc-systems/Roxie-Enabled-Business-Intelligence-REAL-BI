@@ -29,7 +29,7 @@ export const getLatestUserData = async () => {
 
     return { action: { type: SET_AUTH_USER, payload: response.data }, lastViewedWorkspace };
   } catch (err) {
-    throw { type: SET_AUTH_ERRORS, payload: err.response };
+    throw { type: SET_AUTH_ERRORS, payload: err.response || { message: err.message } };
   }
 };
 
