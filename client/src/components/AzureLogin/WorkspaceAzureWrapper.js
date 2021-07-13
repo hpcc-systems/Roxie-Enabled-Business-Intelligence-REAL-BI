@@ -13,7 +13,6 @@ const WorkspaceAzureWrapper = props => {
   const { user } = useSelector(state => state.auth);
   const { accounts } = useMsal();
   const account = accounts[0] || null;
-
   const history = useHistory();
 
   useEffect(() => {

@@ -222,7 +222,6 @@ const Dashboard = () => {
 
   const addChartToLayout = chart => {
     const [newLayoutItem] = mapChartIdToLayout([chart.id]);
-    console.log('newLayoutItem :>> ', newLayoutItem);
     if (chartLayouts) {
       const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
       handleLayoutChange(null, { ...chartLayouts, lg: updatedLayouts });

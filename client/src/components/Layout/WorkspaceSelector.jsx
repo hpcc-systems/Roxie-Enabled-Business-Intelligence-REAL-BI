@@ -63,8 +63,6 @@ const WorkspaceSelector = () => {
     if (value !== '') {
       (async () => {
         try {
-          const action = await updateLastWorkspace(value);
-          dispatch(action);
           history.push(`/workspace/${value}`);
         } catch (error) {
           dispatch(error);

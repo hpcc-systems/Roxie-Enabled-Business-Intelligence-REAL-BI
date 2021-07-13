@@ -50,10 +50,10 @@ const Workspace = () => {
     if (workspaceID) {
       dispatch(clearDashboard());
       getWorkspace(workspaceID)
-        .then(action => dispatch(action))
+        .then(actions => actions.forEach(action => dispatch(action)))
         .catch(action => dispatch(action));
     }
-  }, [dispatch, history, workspaceID]);
+  }, [workspaceID]);
 
   const getDashboardInfo = useCallback(
     index => {

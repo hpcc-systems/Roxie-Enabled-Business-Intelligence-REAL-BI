@@ -112,7 +112,7 @@ router.get('/find', async (req, res, next) => {
 
   try {
     const workspace = await getWorkspaceByID(workspaceID, userID);
-
+    await updateLastViewedWorkspace(workspaceID, userID);
     return res.status(200).json(workspace);
   } catch (err) {
     return next(err);

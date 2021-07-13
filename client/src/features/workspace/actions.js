@@ -1,5 +1,6 @@
 /* eslint-disable no-throw-literal */
 import axios from 'axios';
+import { SET_LAST_WORKSPACE } from '../auth/actions';
 
 // Action Types
 export const GET_WORKSPACES = 'GET_WORKSPACES';
@@ -21,7 +22,10 @@ export const getWorkspaces = async () => {
 export const getWorkspace = async workspaceID => {
   try {
     const response = await axios.get('/api/v1/workspace/find', { params: { workspaceID } });
-    return { type: GET_WORKSPACE, payload: response.data };
+    return [
+      { type: GET_WORKSPACE, payload: response.data },
+      { type: SET_LAST_WORKSPACE, payload: response.data.id },
+    ];
   } catch (error) {
     throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
   }
