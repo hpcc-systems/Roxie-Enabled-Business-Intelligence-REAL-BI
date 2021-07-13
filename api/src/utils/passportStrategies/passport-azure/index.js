@@ -29,9 +29,9 @@ module.exports = new BearerStrategy(options, async (token, done) => {
         null,
         { id: dbUser.id, username: dbUser.username, lastViewedWorkspace: dbUser.lastViewedWorkspace },
         token,
-      ); // Send user info using the second argument
+      ); // Send user info using the sevi cond argument
     } else {
-      done(null, null, token); // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
+      done(null, {}, token); // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
     }
   } catch (error) {
     done(error);
