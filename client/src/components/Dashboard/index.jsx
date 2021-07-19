@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Container, Paper } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import _orderBy from 'lodash/orderBy';
 import { useSnackbar } from 'notistack';
-
-//TEST TOMBOLO INTEGATION
-import TestTomboloIntegration from './TestTomboloIntegration';
 
 // React Components
 import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
@@ -30,6 +27,7 @@ import useDrawer from '../../hooks/useDrawer';
 import { updateDashboardLayout } from '../../utils/dashboard';
 import { getChartData } from '../../utils/chart';
 import _ from 'lodash';
+import { updateChartConfigObject } from '../../features/dashboard/actions';
 
 const Dashboard = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -55,6 +53,7 @@ const Dashboard = () => {
     dashboard.dashboard.cluster,
     dashboard.dashboard.relations,
   ]);
+  const dispatch = useDispatch();
 
   const [deleteChartShow, deleteChartToggle] = useDialog(false);
   const [sharedWithShow, sharedWithToggle] = useDialog(false);
@@ -121,6 +120,10 @@ const Dashboard = () => {
       (async () => {
         try {
           const results = await getChartData(Id, cluster.id, dashboardID, interactiveObj);
+          if (results.updatedChartConfiguration) {
+            // update chart config obj in redux
+            dispatch(updateChartConfigObject({ id: Id, configuration: results.updatedChartConfiguration }));
+          }
           if (!isMounted.current) return null;
           setCompData(prevState => ({
             ...prevState,
@@ -275,12 +278,6 @@ const Dashboard = () => {
             {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
           </ChartsGrid>
         )}
-
-        {/*------------------------------------------------ */}
-        {/* send HTTP request like third party but with valid token */}
-        <TestTomboloIntegration />
-        {/*------------------------------------------------ */}
-
         {/* MAIN CONTENT END! */}
         {showFilterDrawer && (
           <FilterDrawer

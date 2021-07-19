@@ -32,16 +32,13 @@ import {
   getDashboardsFromDirectory,
   getDirectoryDepth,
   getFavoriteDashboards,
-  getObjectNames,
   updateDashboardObj,
   updateFolderOpen,
   updateObjectInDirectory,
 } from '../../utils/directory';
-import { createClusterCreds, updateClusterCreds } from '../../utils/clusterCredentials';
+import { checkForClusterCreds, createClusterCreds, updateClusterCreds } from '../../utils/clusterCredentials';
 import { existsInArray } from '../../utils/misc';
-
-// Constants
-import { directoryObjNameRegexp } from '../../constants';
+import { v4 as uuidv4 } from 'uuid';
 
 const initState = {
   clusterID: '',
@@ -96,9 +93,14 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     }
   };
 
-  const openDashboard = async dashboardID => {
+  const openDashboard = async directoryObj => {
     try {
-      const action = await openDashboardInWorkspace(dashboardID, workspaceID);
+      const { payload: dashboard } = await getDashboard(directoryObj.id);
+      const clusterCredentials = await checkForClusterCreds(dashboard.cluster.id);
+      if (!clusterCredentials) {
+        return editDashboard(directoryObj);
+      }
+      const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
       dispatch(action);
       toggleDrawer();
     } catch (error) {
@@ -108,14 +110,18 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
   const createNewDashboard = async () => {
     const { clusterID, hasClusterCreds, name, parentID, password, username } = localState;
-    const objNames = getObjectNames(directory, []);
+
+    const parentNode = findNodeRef(directory, parentID);
+
+    const objNames = parentNode.children.map(el => !el.children && el.name);
+
     let dashboard;
 
     try {
       // Check for duplicate names in directory
       if (existsInArray(objNames, name.toLowerCase().trim())) {
         throw new Error('Name already used');
-      } else if (!directoryObjNameRegexp.test(name)) {
+      } else if (name.length === 0) {
         throw new Error(`"${name}" is not a valid dashboard name`);
       }
     } catch (error) {
@@ -133,6 +139,12 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       handleChange(null, { name: 'error', value: '' });
     } catch (error) {
       setLoading(false);
+      if (error?.status === 401) {
+        return handleChange(null, {
+          name: 'error',
+          value: 'Invalid credentials, please check your username and password.',
+        });
+      }
       return handleChange(null, { name: 'error', value: error.message });
     }
 
@@ -149,19 +161,20 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       const action = await updateWorkspaceDirectory(newDirectory, workspaceID);
       dispatch(action);
       toggleNewDashboardDialog();
-      openDashboard(dashboard.id);
+      openDashboard(dashboard);
     } catch (error) {
       setLoading(false);
       dispatch(error);
     }
+    setLoading(false);
   };
 
   const updateExistingDashboard = async () => {
     const { clusterID, directoryObj, hasClusterCreds, name, password, updateCreds, username } = localState;
 
     try {
-      if (!directoryObjNameRegexp.test(name)) {
-        throw new Error(`"${name}" is not a valid folder name`);
+      if (name.length === 0) {
+        throw new Error(`"${name}" is not a valid File name`);
       }
     } catch (error) {
       return handleChange(null, { name: 'error', value: error });
@@ -169,7 +182,6 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
     try {
       setLoading(true);
-
       // Update directoryObj
       const newDirectoryObj = { ...directoryObj, name, clusterID };
       const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
@@ -192,32 +204,62 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       batch(() => {
         const allActions = [action, ...otherActions];
         allActions.forEach(action => dispatch(action));
-
-        toggleEditDashboardDialog();
-        setLoading(false);
       });
+
+      setLoading(false);
+      toggleEditDashboardDialog();
+      openDashboard(directoryObj);
     } catch (error) {
       setLoading(false);
+      if (error?.status === 401) {
+        return handleChange(null, {
+          name: 'error',
+          value: 'Invalid credentials, please check your username and password.',
+        });
+      }
       return dispatch(error);
     }
   };
 
+  const findNodeRef = (directory, searchedId) => {
+    if (searchedId === 'root')
+      return {
+        id: searchedId,
+        name: searchedId,
+        open: true,
+        children: directory,
+      };
+
+    for (const node of directory) {
+      if (node.id === searchedId) {
+        return node;
+      }
+      if (node.children) {
+        const found = findNodeRef(node.children, searchedId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const createFolder = async () => {
     const { name, parentID } = localState;
-    const objNames = getObjectNames(directory, []);
+
+    const parentNode = findNodeRef(directory, parentID);
+    const objNames = parentNode.children.map(el => el.name);
 
     try {
       // Check for duplicate names in directory
       if (existsInArray(objNames, name.toLowerCase().trim())) {
         throw new Error('Name already used');
-      } else if (!directoryObjNameRegexp.test(name)) {
+      } else if (name.length === 0) {
         throw new Error(`"${name}" is not a valid folder name`);
       }
     } catch (error) {
       return handleChange(null, { name: 'error', value: error.message });
     }
 
-    const newFolderObj = { id: name.trim(), name: name.trim(), children: [], open: false };
+    const newFolderObj = { id: uuidv4(), name: name.trim(), children: [], open: false };
     const newDirectory = addObjectToDirectory(directory, parentID, newFolderObj);
 
     try {
@@ -234,7 +276,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
 
     try {
       // Check for compliance with RegExp
-      if (!directoryObjNameRegexp.test(name)) {
+      if (name.length === 0) {
         throw new Error(`"${name}" is not a valid folder name`);
       }
     } catch (error) {
@@ -242,14 +284,13 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
     }
 
     setLoading(true);
-
     // Update directoryObj
-    const newDirectoryObj = { ...directoryObj, id: name, name };
-    const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
-
+    const updatedDirectoryObj = { ...directoryObj, name };
+    const newDirectory = updateObjectInDirectory(directory, updatedDirectoryObj.id, updatedDirectoryObj);
     try {
       const action = await updateWorkspaceDirectory(newDirectory, workspaceID);
       dispatch(action);
+      setLoading(false);
       return toggleEditFolderDialog();
     } catch (error) {
       setLoading(false);
@@ -298,6 +339,7 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
   const editDashboard = async directoryObj => {
     try {
       const { payload } = await getDashboard(directoryObj.id);
+
       const { cluster, name } = payload;
 
       handleChange(null, { name: 'clusterID', value: cluster.id });
@@ -385,7 +427,6 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
       )}
       {showEditFolderDialog && (
         <EditFolderDialog
-          editFolder={editFolder}
           handleChange={handleChange}
           localState={localState}
           show={showEditFolderDialog}

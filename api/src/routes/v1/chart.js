@@ -14,6 +14,7 @@ const { getDashboardByID } = require('../../utils/dashboard');
 const { getDashboardFiltersWithValues } = require('../../utils/dashboardFilter');
 const { getWorkunitDataFromCluster, getWorkunitDataFromClusterWithParams } = require('../../utils/hpccEcl');
 const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelation');
+const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
 
 router.post('/', async (req, res, next) => {
   const {
@@ -48,7 +49,35 @@ router.get('/data', async (req, res, next) => {
 
   try {
     const cluster = await getClusterByID(clusterID);
-    const { configuration, source } = await getChartByID(chartID);
+    let { configuration, source } = await getChartByID(chartID);
+    // isIntegrationChart field means that this chart was created with another app, it has no data, we need to fetch the data now.
+    if (configuration.isIntegrationChart) {
+      try {
+        const dataSets = await getFileDatasetFromCluster(cluster, source, req.user.id);
+        // [fields] & [params] in config should be overwritten with datasets values.
+        const newFields = dataSets.fields.map(field => ({
+          color: '#FFF',
+          label: field.name,
+          name: field.name,
+          asLink: false,
+          linkBase: '',
+        }));
+        const newParams = [
+          ...configuration.params,
+          ...dataSets.fields.map(field => ({ name: field.name, type: 'string', value: '' })),
+        ];
+        const newConfiguration = { ...configuration };
+        newConfiguration.params = newParams;
+        newConfiguration.fields = newFields;
+        newConfiguration.isIntegrationChart = false; // take off flag so next time we dont need to rewrite config structure.
+        await updateChartByID({ id: chartID, configuration: newConfiguration }, source.id);
+        newConfiguration.isUpdated = true; // this flag is send to frontend so we can rebuild config in redux. Othervise we will have to refetch whole dashboard.
+        configuration = newConfiguration;
+      } catch (error) {
+        return next(error);
+      }
+    }
+
     const dashboardFilters = await getDashboardFiltersWithValues(chartID, dashboardID, userID);
 
     let data;
@@ -135,6 +164,11 @@ router.get('/data', async (req, res, next) => {
         break;
       default:
         data = await getQueryDataFromCluster(cluster, { ...options, dataset: configuration.dataset }, userID);
+    }
+    // attach new config for redux only if it was updated.
+    if (configuration.isUpdated) {
+      delete configuration.isUpdated;
+      data.updatedChartConfiguration = configuration;
     }
 
     return res.status(200).json(data);

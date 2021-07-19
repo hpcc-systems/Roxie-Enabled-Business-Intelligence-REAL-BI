@@ -26,7 +26,9 @@ const FolderSubMenu = ({
 }) => {
   const { blueIcon, menuIcon } = useStyles();
 
-  const closeMenu = () => {
+  const closeMenu = event => {
+    event.preventDefault();
+    event.stopPropagation();
     setAnchorEl(null);
     setAnchorName('');
   };
@@ -34,9 +36,9 @@ const FolderSubMenu = ({
   return (
     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
       <MenuItem
-        onClick={() => {
-          addNewDashboard(root ? 'root' : directoryObj.name);
-          closeMenu();
+        onClick={event => {
+          addNewDashboard(root ? 'root' : directoryObj.id);
+          closeMenu(event);
         }}
       >
         <ListItemIcon className={menuIcon}>
@@ -45,9 +47,9 @@ const FolderSubMenu = ({
         <Typography>Create Dashboard</Typography>
       </MenuItem>
       <MenuItem
-        onClick={() => {
-          addNewFolder(root ? 'root' : directoryObj.name);
-          closeMenu();
+        onClick={event => {
+          addNewFolder(root ? 'root' : directoryObj.id);
+          closeMenu(event);
         }}
       >
         <ListItemIcon className={menuIcon}>
@@ -57,9 +59,9 @@ const FolderSubMenu = ({
       </MenuItem>
       {!root && (
         <MenuItem
-          onClick={() => {
+          onClick={event => {
             editFolder(directoryObj);
-            closeMenu();
+            closeMenu(event);
           }}
         >
           <ListItemIcon className={menuIcon}>
@@ -70,9 +72,9 @@ const FolderSubMenu = ({
       )}
       {!root && (
         <MenuItem
-          onClick={() => {
+          onClick={event => {
             removeFolder(directoryObj);
-            closeMenu();
+            closeMenu(event);
           }}
         >
           <ListItemIcon className={menuIcon}>

@@ -1,17 +1,13 @@
 import _orderBy from 'lodash/orderBy';
 
-export const getDashboardIDsFromFolder = (directoryObj, dashboardIDs) => {
-  directoryObj.children.forEach(child => {
-    const { children = false, id } = child;
-
-    // Recurse through the children []
-    if (children) {
-      return getDashboardsFromDirectory(children, dashboardIDs);
+export const getDashboardIDsFromFolder = (directoryObj, dashboardIDs = []) => {
+  for (let child of directoryObj.children) {
+    if (child.children) {
+      getDashboardIDsFromFolder(child, dashboardIDs);
     } else {
-      dashboardIDs.push(id);
+      dashboardIDs.push(child.id);
     }
-  });
-
+  }
   return dashboardIDs;
 };
 
@@ -40,11 +36,10 @@ export const getDashboardsFromDirectory = (directory, dashboards) => {
 
 export const getDirectoryDepth = (directory, depth) => {
   directory.forEach(obj => {
-    const { children = false, name, open } = obj;
-
+    const { children = false, id, open } = obj;
     // Recurse through the children []
+    if (open) depth.push(id);
     if (children) {
-      if (open) depth.push(name);
       return getDirectoryDepth(children, depth);
     }
   });
@@ -119,19 +114,15 @@ export const updateFolderOpen = (directory, searchArr) => {
   const newDirectory = directory;
 
   // Loop through the array for each index
-  // Used over a forEach() to allow for break;
+
   for (const obj of newDirectory) {
     const { children = false, id: objID } = obj;
     const foundID = searchArr.indexOf(objID) > -1;
-
-    if (!children) break;
-
     if (foundID) {
       obj.open = true;
     } else {
       obj.open = false;
     }
-
     // Has a nested children []
     // Recurse through the children []
     if (children) {
@@ -181,7 +172,7 @@ export const addObjectToDirectory = (directory, searchID, newObj) => {
 
   // Loop through the array for each index
   // Used over a forEach() to allow for break;
-  for (const obj of directory) {
+  for (const obj of newDirectory) {
     const { children = false, id: objID } = obj;
     const foundID = objID === searchID;
 

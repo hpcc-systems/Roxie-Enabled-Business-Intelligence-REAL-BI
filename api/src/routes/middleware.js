@@ -65,8 +65,9 @@ const notFound = (req, res, next) => {
 const errorHandler = (error, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   logger.error(error.stack);
-
   res.status(statusCode).json({
+    status: error?.response?.status,
+    statusText: error?.response?.statusText,
     message: error.message,
     stack: NODE_ENV === 'production' ? '🥞' : error.stack,
   });

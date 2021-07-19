@@ -35,8 +35,8 @@ function AzureLoginPage() {
       (async () => {
         //Aquire fresh tokens to send initial user info request
         try {
-          const token = await instance.acquireTokenSilent(silentTokenOptions); //to aquire tokens silently we need to provide account.
-          dispatch(getUserStateWithAzure(token));
+          await instance.acquireTokenSilent(silentTokenOptions); //to aquire tokens silently we need to provide account.
+          dispatch(getUserStateWithAzure());
         } catch (error) {
           instance.acquireTokenRedirect(loginScopes); //in case if silent token acquisition fails, fallback to an interactive method
         }

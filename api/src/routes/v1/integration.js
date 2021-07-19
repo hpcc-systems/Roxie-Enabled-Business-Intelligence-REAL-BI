@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { getChartsByDashboardID, createChart, getChartByID } = require('../../utils/chart');
 const { getClusterByHost, createCluster } = require('../../utils/cluster');
-const { checkForClusterCreds, createClusterCreds } = require('../../utils/clusterCredentials');
 const {
   getDashboardByWokspaceAndCluster,
   createDashboard,
@@ -9,8 +8,8 @@ const {
   updateDashboardLayout,
 } = require('../../utils/dashboard');
 const { createDashboardPermission } = require('../../utils/dashboardPermission');
-const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
 const { getSourceByHpccID, createSource } = require('../../utils/source');
+const { getUserByEmail } = require('../../utils/user');
 const { getWorkspacesByUserID, getWorkspaceByID, createWorkspace } = require('../../utils/workspace');
 const {
   getWorkspaceDirectory,
@@ -19,40 +18,28 @@ const {
 } = require('../../utils/workspaceDirectory');
 const { createWorkspacePermission } = require('../../utils/workspacePermission');
 
+const SHARE_URL = process.env.SHARE_URL;
+
 const router = require('express').Router();
 
 router.post('/', async (req, res, next) => {
-  //  name : 'testCluster', host: 'http://10.173.147.1', infoPort: '8010', dataPort: '8002',
-  const cluster = { name: 'testCluster', host: 'http://10.173.147.1', infoPort: '8010', dataPort: '8002' };
-  const clusterCreds = { username: 'username', password: 'password' };
-  // this goes to get datasets
-  const selectedSource = {
-    cluster: 'mythor', // hpcc file object has ClusterName key in it
-    hpccID: 'zz3283::run1', // hpcc file object has Name key in it
-    name: 'zz3283::run1',
-    target: 'file',
-  };
-
-  req.body.cluster = cluster;
-  req.body.clusterCreds = clusterCreds;
-
   try {
-    const workspace = await findOrCreateWorkspace(req.user.id, 'Tombolo');
+    const user = await getUserByEmail(req.body.user.email);
+    const workspace = await findOrCreateWorkspace(user.id, req.body.workspaceName);
     const cluster = await findOrCreateCluster(req.body.cluster);
-    const clusterCreds = await findOrCreateClusterCreds(cluster.id, req.body.clusterCreds, req.user.id);
-    const dashboard = await findOrCreateDashboard(workspace.id, cluster.id, req.user.id, 'Tombolo');
-    await updateOrCreateWorkspaceDirectory(dashboard, workspace.id, req.user.id); // this one is for directories to appear in drawer
-    const source = await findOrCreateSource(selectedSource);
-    const dataSets = await getFileDatasetFromCluster(cluster, selectedSource, req.user.id);
-    const [latestDash, newChart] = await createNewChart(dataSets, dashboard, source.id, req.user.id);
+    const dashboard = await findOrCreateDashboard(workspace.id, cluster.id, user.id, req.body.dashboardName);
+    await updateOrCreateWorkspaceDirectory(dashboard, workspace.id, user.id); // this one is for directories to appear in drawer
+    const source = await findOrCreateSource(req.body.selectedSource);
+    const dataSets = { name: source.name, fields: [] };
+    const dbNewChart = await createNewChart(dataSets, dashboard, source.id, user.id);
 
-    return res.status(200).send(latestDash);
+    const url = SHARE_URL || 'http://localhost:3000';
+    const link = `${url}/workspace/${workspace.id}`;
+    return res.status(200).send(link);
   } catch (error) {
     return next(error);
   }
 });
-
-module.exports = router;
 
 const findOrCreateWorkspace = async (userID, workspaceName) => {
   const allWorkspacesInfo = await getWorkspacesByUserID(userID);
@@ -73,18 +60,6 @@ const findOrCreateCluster = async cluster => {
   return await createCluster(cluster);
 };
 
-const findOrCreateClusterCreds = async (clusterID, clusterCreds, userID) => {
-  const clusterCredentials = await checkForClusterCreds(clusterID, userID);
-  if (clusterCredentials) return clusterCredentials;
-  const newClusterCreds = await createClusterCreds(
-    clusterID,
-    clusterCreds.password,
-    userID,
-    clusterCreds.username,
-  );
-  return newClusterCreds;
-};
-
 const findOrCreateDashboard = async (workspaceID, clusterID, userID, dashboardName) => {
   const dashboard = await getDashboardByWokspaceAndCluster(workspaceID, clusterID, userID, dashboardName);
   if (dashboard) return dashboard;
@@ -94,23 +69,24 @@ const findOrCreateDashboard = async (workspaceID, clusterID, userID, dashboardNa
 };
 
 const updateOrCreateWorkspaceDirectory = async (dashboard, workspaceID, userID) => {
-  const workspaceDirectoryObj = {
-    id: dashboard.id,
-    name: dashboard.name,
+  /* workspaceFile represents a dashboard, Ids and name should be the same as dashboard*/
+  const workspaceFile = {
+    id: dashboard.id, // should be unique
+    name: dashboard.name, // should be unique
     favorite: false,
     shared: false,
   };
 
   const workspaceDirectoriesArray = await getWorkspaceDirectory(workspaceID, userID);
+
   if (workspaceDirectoriesArray?.directory) {
     const { directory } = workspaceDirectoriesArray;
-    const duplicate = directory.find(el => el.name === workspaceDirectoryObj.name);
-    if (duplicate) return;
-    const newDirectory = [...directory, workspaceDirectoryObj];
-    await updateWorkspaceDirectory(newDirectory, workspaceID, userID);
+    const existingFile = directory.find(el => el.name === workspaceFile.name);
+    if (existingFile) return;
+    return await updateWorkspaceDirectory([...directory, workspaceFile], workspaceID, userID);
   } else {
-    const directory = [workspaceDirectoryObj];
-    await createWorkspaceDirectory(directory, workspaceID, userID);
+    const newDirectory = [workspaceFile];
+    return await createWorkspaceDirectory(newDirectory, workspaceID, userID);
   }
 };
 
@@ -156,13 +132,13 @@ const createNewChart = async (dataSets, dashboard, sourceID, userID) => {
     stacked: false,
     title: `Title: ${dataSets.name}`,
     type: 'table',
+    isIntegrationChart: true,
   };
 
   const charts = await getChartsByDashboardID(dashboard.id);
-  const { id } = await createChart(chart, dashboard.id, sourceID, charts.length);
-  const chartLayout = mapChartIdToLayout(id, charts.length);
+  const dbNewChart = await createChart(chart, dashboard.id, sourceID, charts.length);
+  const chartLayout = mapChartIdToLayout(dbNewChart.id, charts.length);
   if (!dashboard.layout) {
-    // chartLayout.y = 0; //first layout object must have number in coordinates.
     const initialLayout = { lg: [chartLayout] };
     const initialLayoutToJson = JSON.stringify(initialLayout);
     await updateDashboardLayout(dashboard.id, initialLayoutToJson);
@@ -172,10 +148,7 @@ const createNewChart = async (dataSets, dashboard, sourceID, userID) => {
     const newLayout = JSON.stringify(dashLayout);
     await updateDashboardLayout(dashboard.id, newLayout);
   }
-
-  const latestDashboard = await getDashboardByID(dashboard.id, userID);
-  const newChart = await getChartByID(id);
-  return [latestDashboard, newChart];
+  return dbNewChart;
 };
 
 const defaultParams = [
@@ -185,11 +158,13 @@ const defaultParams = [
 
 const mapChartIdToLayout = (chartId, totalCharts) => ({
   i: chartId.toString(),
-  x: totalCharts % 2 ? 6 : 0,
+  x: 0,
   y: totalCharts * 20,
-  w: 6,
+  w: 12,
   h: 20,
   minW: 3,
   maxW: 12,
   minH: 20,
 });
+
+module.exports = router;

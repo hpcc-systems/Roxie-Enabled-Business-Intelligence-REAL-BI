@@ -22,8 +22,13 @@ const getTreeViewDataFromCluster = async (cluster, userId, scope) => {
 
     return response.data;
   } catch (error) {
-    console.log(`error`, error);
-    throw new Error(`${error?.response?.data || error.message || 'Unknown error'}`);
+    if (error.response.status === 401) {
+      throw new Error(
+        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+      );
+    } else {
+      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    }
   }
 };
 
@@ -41,7 +46,13 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
 
     files = response?.data?.DFUQueryResponse;
   } catch (error) {
-    throw new Error(`${error?.response?.data || 'Unknown error'}`);
+    if (error.response.status === 401) {
+      throw new Error(
+        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+      );
+    } else {
+      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    }
   }
 
   if (!files?.DFULogicalFiles) {
@@ -75,7 +86,13 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
       { auth: clusterCreds },
     );
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    if (error.response.status === 401) {
+      throw new Error(
+        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+      );
+    } else {
+      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    }
   }
 
   if (response.data.Exceptions) {
@@ -124,8 +141,13 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
 
     data = response.data.WUResultResponse;
   } catch (error) {
-    console.error(error);
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    if (error.response.status === 401) {
+      throw new Error(
+        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+      );
+    } else {
+      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    }
   }
 
   const lastModifiedDate = await getFileLastModifiedDate(cluster, source.name, clusterCreds);

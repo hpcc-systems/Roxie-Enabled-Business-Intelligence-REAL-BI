@@ -9,6 +9,7 @@ export const DELETE_FILTER = 'DELETE_FILTER';
 export const GET_DASHBOARD = 'GET_DASHBOARD';
 export const SET_DASHBOARD_ERRORS = 'SET_DASHBOARD_ERRORS';
 export const UPDATE_CHART = 'UPDATE_CHART';
+export const UPDATE_CHART_CONFIG = 'UPDATE_CHART_CONFIG';
 export const UPDATE_DASHBOARD = 'UPDATE_DASHBOARD';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
 export const UPDATE_RELATIONS = 'UPDATE_RELATIONS';
@@ -152,5 +153,12 @@ export const deleteExistingRelations = async (dashboardID, relationsArr) => {
   } catch (error) {
     throw { type: SET_DASHBOARD_ERRORS, payload: error.response };
   }
+};
+
+export const updateChartConfigObject = newChart => {
+  return {
+    type: UPDATE_CHART_CONFIG,
+    payload: newChart,
+  };
 };
 /* eslint-enable no-throw-literal */

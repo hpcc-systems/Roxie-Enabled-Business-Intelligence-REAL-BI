@@ -10,6 +10,7 @@ import {
   UPDATE_DASHBOARD,
   UPDATE_FILTER,
   UPDATE_RELATIONS,
+  UPDATE_CHART_CONFIG,
 } from './actions';
 const initState = { dashboard: {}, errorObj: {} };
 
@@ -56,6 +57,13 @@ export default (state = initState, { type, payload }) => {
         errorObj: {},
         dashboard: { ...state.dashboard, relations: payload },
       };
+    case UPDATE_CHART_CONFIG: {
+      const newState = { ...state };
+      const chart = newState.dashboard.charts.find(el => el.id === payload.id);
+      chart.configuration = payload.configuration;
+      return newState;
+    }
+
     default:
       return state;
   }

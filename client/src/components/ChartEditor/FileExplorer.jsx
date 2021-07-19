@@ -113,21 +113,26 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
     if (currentNode.children.length > 0) return; // this node has been opened before, no need to refetch
     currentNode.isLoading = true;
 
-    const results = await getTreeViewData(path, clusterId);
+    try {
+      const results = await getTreeViewData(path, clusterId);
 
-    const files = results.DFUFileViewResponse?.DFULogicalFiles?.DFULogicalFile;
+      const files = results.DFUFileViewResponse?.DFULogicalFiles?.DFULogicalFile;
 
-    if (files) {
+      if (files) {
+        currentNode.isLoading = false;
+        currentNode.emptyDir = false;
+        currentNode.children = formatFilesToTreeview(files);
+        if (!isMounted.current) return null;
+        setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
+      } else {
+        currentNode.isLoading = false;
+        currentNode.emptyDir = true;
+        if (!isMounted.current) return null;
+        setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
+      }
+    } catch (error) {
       currentNode.isLoading = false;
-      currentNode.emptyDir = false;
-      currentNode.children = formatFilesToTreeview(files);
-      if (!isMounted.current) return null;
-      setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
-    } else {
-      currentNode.isLoading = false;
-      currentNode.emptyDir = true;
-      if (!isMounted.current) return null;
-      setClusterFiles(prevTree => ({ ...prevTree, currentNode }));
+      formFieldsUpdate({ error: error.message });
     }
   };
 

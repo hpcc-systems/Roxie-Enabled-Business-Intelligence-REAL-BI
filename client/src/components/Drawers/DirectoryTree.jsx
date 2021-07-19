@@ -16,11 +16,10 @@ import FolderSubMenu from './FolderSubMenu';
 import DashboardSubMenu from './DashboardSubMenu';
 
 const useStyles = makeStyles(theme => ({
-  itemDiv: { display: 'flex' },
   iconColor: { color: grey[50] },
   labelDiv: {
     display: 'flex',
-    padding: theme.spacing(1, 0),
+    alignItems: 'center',
   },
   labelIcon: { marginRight: theme.spacing(1), color: grey[50] },
   labelText: {
@@ -41,7 +40,7 @@ const useStyles = makeStyles(theme => ({
 
 const RecursiveTreeView = props => {
   const { directory, directoryDepth, openDashboard, updateDirectoryDepth, workspace } = props;
-  const { iconColor, itemDiv, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
+  const { iconColor, labelDiv, labelIcon, labelText, rootDiv, rootText, treeItem } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorName, setAnchorName] = useState('');
   const permission = workspace?.permission || 'Read-Only';
@@ -51,7 +50,7 @@ const RecursiveTreeView = props => {
       <Typography className={rootText}>Directory</Typography>
       {permission !== 'Read-Only' && (
         <div>
-          <IconButton onClick={event => showMenu(event, { name: 'root' })}>
+          <IconButton onClick={event => showMenu(event, { id: 'root' })}>
             <MoreHorizIcon className={iconColor} />
           </IconButton>
           {'root' === anchorName && (
@@ -70,13 +69,15 @@ const RecursiveTreeView = props => {
   );
 
   const showMenu = (event, directoryObj) => {
+    event.preventDefault();
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    setAnchorName(directoryObj.name);
+    setAnchorName(directoryObj.id);
   };
 
   const renderTree = directoryObj => {
     const { children, id, name } = directoryObj;
-    const isFolder = Boolean(children);
+    const isFolder = directoryObj.children ? true : false;
     const label = (
       <div className={labelDiv}>
         {isFolder ? (
@@ -85,24 +86,11 @@ const RecursiveTreeView = props => {
           <DashboardIcon color='inherit' className={labelIcon} />
         )}
         <Typography className={labelText}>{name}</Typography>
-      </div>
-    );
-
-    return (
-      <div key={id} className={itemDiv}>
-        <TreeItem
-          className={treeItem}
-          nodeId={String(id)}
-          label={label}
-          onClick={!isFolder ? () => openDashboard(id) : null}
-        >
-          {isFolder ? children.map(node => renderTree(node)) : null}
-        </TreeItem>
         <div>
           <IconButton onClick={event => showMenu(event, directoryObj)}>
             <MoreHorizIcon className={iconColor} />
           </IconButton>
-          {directoryObj.name === anchorName &&
+          {directoryObj.id === anchorName &&
             (isFolder ? (
               permission !== 'Read-Only' ? (
                 <FolderSubMenu
@@ -126,6 +114,18 @@ const RecursiveTreeView = props => {
             ))}
         </div>
       </div>
+    );
+
+    return (
+      <TreeItem
+        key={id}
+        className={treeItem}
+        nodeId={String(id)}
+        label={label}
+        onClick={!isFolder ? () => openDashboard(directoryObj) : null}
+      >
+        {isFolder ? children.map(node => renderTree(node)) : null}
+      </TreeItem>
     );
   };
 

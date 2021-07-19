@@ -16,7 +16,7 @@ const user = require('./user');
 const workspace = require('./workspace');
 const workspaceDirectory = require('./workspaceDirectory');
 const signInWithAzure = require('./signInWithAzure');
-const tomboloIntegration = require('./tomboloIntegration');
+const integration = require('./integration');
 
 // Open Routes
 router.use('/auth', auth);
@@ -24,11 +24,11 @@ router.use('/auth', auth);
 // Sign in with Azure
 router.use('/azure', signInWithAzure);
 
+//integration route
+router.use('/integration', integration);
+
 // Authenticate token before proceeding to route
 router.use(authenticateToken);
-
-//integration route
-router.use('/tombolo', tomboloIntegration);
 
 // Authenticated routes
 router.use('/chart', chart);
