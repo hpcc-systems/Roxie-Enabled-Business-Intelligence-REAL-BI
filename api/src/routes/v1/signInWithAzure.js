@@ -1,9 +1,8 @@
 const router = require('express').Router();
 const passport = require('passport');
 const { createUser } = require('../../utils/user');
-const axios = require('axios');
 
-router.post(
+router.get(
   '/loginAzure',
   passport.authenticate('oauth-bearer', {
     session: false,
@@ -12,14 +11,11 @@ router.post(
     let user = req.user; // this user object came to us via passport middleware
     if (!user.id) {
       try {
-        const response = await axios.get('https://graph.microsoft.com/v1.0/me', {
-          headers: { Authorization: `Bearer ${req.body.accessToken}` },
-        });
-        const azureUser = response.data;
-        const [username] = azureUser.userPrincipalName.split('@');
-        user = await createUser(azureUser.mail, username);
+        const [username] = req.authInfo.preferred_username.split('@');
+        const email = req.authInfo.email;
+        user = await createUser(email, username);
       } catch (error) {
-        next(error);
+        return next(error);
       }
     }
     res.send({ id: user.id, username: user.username, lastViewedWorkspace: user.lastViewedWorkspace });

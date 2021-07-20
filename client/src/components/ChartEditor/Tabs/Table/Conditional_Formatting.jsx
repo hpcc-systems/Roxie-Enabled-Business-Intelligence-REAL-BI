@@ -104,8 +104,6 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
         rules: [{ operand: '>', value: '', color: '#FFF' }],
       }));
 
-      console.log(conditionalsArr);
-
       handleChangeObj(null, { name: 'configuration:conditionals', value: conditionalsArr });
     }
   }, []);

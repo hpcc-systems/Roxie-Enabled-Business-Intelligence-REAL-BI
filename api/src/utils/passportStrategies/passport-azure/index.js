@@ -22,12 +22,17 @@ module.exports = new BearerStrategy(options, async (token, done) => {
   logger.info('User presented valid token');
   // When we verify token as middleware we need to create req.user because our routes rely on it
   try {
-    const [username] = token.preferred_username.split('@');
-    const dbUser = await User.findOne({ where: { username } });
+    const email = token.email;
+    const dbUser = await User.findOne({ where: { email } });
     if (dbUser) {
       done(
         null,
-        { id: dbUser.id, username: dbUser.username, lastViewedWorkspace: dbUser.lastViewedWorkspace },
+        {
+          id: dbUser.id,
+          username: dbUser.username,
+          email: dbUser.email,
+          lastViewedWorkspace: dbUser.lastViewedWorkspace,
+        },
         token,
       ); // Send user info using the sevi cond argument
     } else {

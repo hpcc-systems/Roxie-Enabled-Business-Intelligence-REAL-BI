@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { useState, Fragment, useCallback } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
@@ -77,12 +77,13 @@ const initState = {
 const Login = () => {
   const { values: localState, handleChange } = useForm(initState);
   const { loading, password, username } = localState;
-  const { errorObj, user } = useSelector(state => state.auth);
+  const { errorObj } = useSelector(state => state.auth);
   const { errors = [], message: errMessage = '' } = errorObj;
   const dispatch = useDispatch();
   const history = useHistory();
   const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
   const hasAuthError = Object.keys(errorObj).length > 0;
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const { token, valid } = checkForToken();
@@ -90,32 +91,18 @@ const Login = () => {
       if (valid && !hasAuthError) {
         // There is a valid token in storage
         setAuthHeader(token);
-
-        (async () => {
-          try {
-            const { action, lastViewedWorkspace } = await getLatestUserData();
-            const action2 = await getWorkspaces();
-
-            // Send data to redux store
-            batch(() => {
-              dispatch(action);
-              dispatch(action2);
-
-              // Generate new url and navigate there
-              const location = lastViewedWorkspace ? `/workspace/${lastViewedWorkspace}` : '/workspace';
-              history.push(location);
-            });
-          } catch (error) {
-            dispatch(error);
-          }
-        })();
+        getUserData();
       } else {
+        setIsInitializing(() => false);
         // There is an invalid token in storage
         localStorage.removeItem(tokenName);
         setAuthHeader();
       }
+    } else {
+      setIsInitializing(() => false);
     }
-  }, [user, hasAuthError]);
+    return () => setIsInitializing(() => false);
+  }, []);
 
   const loginUserFn = async event => {
     event.preventDefault();
@@ -127,14 +114,37 @@ const Login = () => {
       // Set local storage and auth header
       localStorage.setItem(tokenName, token);
       setAuthHeader(token);
-
       dispatch(action);
+      getUserData();
     } catch (error) {
       handleChange(null, { name: 'loading', value: false });
       dispatch(error);
     }
   };
 
+  const getUserData = useCallback(async () => {
+    (async () => {
+      try {
+        const { action, lastViewedWorkspace } = await getLatestUserData();
+        const action2 = await getWorkspaces();
+
+        // Send data to redux store
+        batch(() => {
+          dispatch(action);
+          dispatch(action2);
+
+          // Generate new url and navigate there
+          const redirectedFrom = history.location?.state?.from;
+          let location = lastViewedWorkspace ? `/workspace/${lastViewedWorkspace}` : '/workspace';
+          history.push(redirectedFrom || location);
+        });
+      } catch (error) {
+        dispatch(error);
+        handleChange(null, { name: 'loading', value: false });
+        setIsInitializing(() => false);
+      }
+    })();
+  }, []);
   const usernameErr = errors.find(err => err['username']);
   const passwordErr = errors.find(err => err['password']);
 
@@ -144,62 +154,66 @@ const Login = () => {
       <Container maxWidth='xl'>
         <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
           <Grid item>
-            <form onSubmit={loginUserFn}>
-              <Card>
-                <CardHeader className={header} title='Login' />
-                <CardContent className={content}>
-                  {errMessage && (
-                    <Typography className={errMsg} align='center'>
-                      {errMessage}
-                    </Typography>
-                  )}
-                  <TextField
-                    className={textfield}
-                    label='Username'
-                    name='username'
-                    value={username}
-                    onChange={handleChange}
-                    fullWidth
-                    error={usernameErr !== undefined}
-                    helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
-                  />
-                  <TextField
-                    className={textfield}
-                    label='Password'
-                    name='password'
-                    type='password'
-                    value={password}
-                    onChange={handleChange}
-                    autoComplete='false'
-                    fullWidth
-                    error={passwordErr !== undefined}
-                    helperText={passwordErr !== undefined ? passwordErr['password'] : ''}
-                  />
-                  <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
-                    <Grid item>
-                      <Button className={button} variant='contained' type='submit' disabled={loading}>
-                        {loading && <CircularProgress color='inherit' size={20} className={progress} />}
-                        Login
-                      </Button>
+            {isInitializing ? (
+              <CircularProgress />
+            ) : (
+              <form onSubmit={loginUserFn}>
+                <Card>
+                  <CardHeader className={header} title='Login' />
+                  <CardContent className={content}>
+                    {errMessage && (
+                      <Typography className={errMsg} align='center'>
+                        {errMessage}
+                      </Typography>
+                    )}
+                    <TextField
+                      className={textfield}
+                      label='Username'
+                      name='username'
+                      value={username}
+                      onChange={handleChange}
+                      fullWidth
+                      error={usernameErr !== undefined}
+                      helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
+                    />
+                    <TextField
+                      className={textfield}
+                      label='Password'
+                      name='password'
+                      type='password'
+                      value={password}
+                      onChange={handleChange}
+                      autoComplete='false'
+                      fullWidth
+                      error={passwordErr !== undefined}
+                      helperText={passwordErr !== undefined ? passwordErr['password'] : ''}
+                    />
+                    <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
+                      <Grid item>
+                        <Button className={button} variant='contained' type='submit' disabled={loading}>
+                          {loading && <CircularProgress color='inherit' size={20} className={progress} />}
+                          Login
+                        </Button>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </CardContent>
-                <CardActions className={actions}>
-                  <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
-                    <Grid item>
-                      <Link className={options} onClick={() => history.push('/forgot-password')}>
-                        Forgot password?
-                      </Link>
+                  </CardContent>
+                  <CardActions className={actions}>
+                    <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
+                      <Grid item>
+                        <Link className={options} onClick={() => history.push('/forgot-password')}>
+                          Forgot password?
+                        </Link>
+                      </Grid>
+                      <Grid item>
+                        <Link className={options} onClick={() => history.push('/register')}>
+                          Register
+                        </Link>
+                      </Grid>
                     </Grid>
-                    <Grid item>
-                      <Link className={options} onClick={() => history.push('/register')}>
-                        Register
-                      </Link>
-                    </Grid>
-                  </Grid>
-                </CardActions>
-              </Card>
-            </form>
+                  </CardActions>
+                </Card>
+              </form>
+            )}
           </Grid>
         </Grid>
       </Container>

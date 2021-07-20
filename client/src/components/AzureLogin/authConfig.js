@@ -14,6 +14,7 @@ export const msalConfig = {
     authority: `https://login.microsoftonline.com/${REACT_APP_AZURE_TENANT_ID}`,
     redirectUri: REACT_APP_AZURE_REDIRECT_URI,
     postLogoutRedirectUri: REACT_APP_AZURE_REDIRECT_URI,
+    navigateToLoginRequestUrl: true,
   },
   cache: {
     cacheLocation: 'localStorage', // This configures where your cache will be stored
@@ -52,7 +53,7 @@ export const msalConfig = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginScopes = {
-  scopes: ['User.read'],
+  scopes: ['User.read', 'email'],
 };
 // export const apiScopes = {
 //   scopes: ['api://cc565084-7256-48d5-88f1-b00f25766f9b/access_as_user'],

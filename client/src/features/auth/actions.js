@@ -29,7 +29,7 @@ export const getLatestUserData = async () => {
 
     return { action: { type: SET_AUTH_USER, payload: response.data }, lastViewedWorkspace };
   } catch (err) {
-    throw { type: SET_AUTH_ERRORS, payload: err.response };
+    throw { type: SET_AUTH_ERRORS, payload: err.response || { message: err.message } };
   }
 };
 
@@ -46,10 +46,10 @@ export const logoutUser = () => {
   return { type: SET_AUTH_USER, payload: {} };
 };
 
-export const getUserStateWithAzure = token => async dispatch => {
+export const getUserStateWithAzure = () => async dispatch => {
   // 1.Get user from DB or Create a User
   try {
-    const { data: userFromDB } = await axios.post('/api/v1/azure/loginAzure', token);
+    const { data: userFromDB } = await axios.get('/api/v1/azure/loginAzure');
     dispatch({ type: SET_AUTH_USER, payload: userFromDB });
   } catch (error) {
     dispatch({ type: SET_AUTH_ERRORS, payload: error.message });

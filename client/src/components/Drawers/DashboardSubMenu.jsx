@@ -27,7 +27,9 @@ const DashboardSubMenu = ({
   const { favorite, id } = directoryObj;
   const { menuIcon, redIcon } = useStyles();
 
-  const closeMenu = () => {
+  const closeMenu = event => {
+    event.preventDefault();
+    event.stopPropagation();
     setAnchorEl(null);
     setAnchorName('');
   };
@@ -35,9 +37,9 @@ const DashboardSubMenu = ({
   return (
     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
       <MenuItem
-        onClick={() => {
+        onClick={event => {
           updateDirectoryObj(id, 'favorite', !favorite);
-          closeMenu();
+          closeMenu(event);
         }}
       >
         <ListItemIcon className={menuIcon}>
@@ -48,9 +50,9 @@ const DashboardSubMenu = ({
       {permission === 'Owner' && (
         <div>
           <MenuItem
-            onClick={() => {
+            onClick={event => {
               editDashboard(directoryObj);
-              closeMenu();
+              closeMenu(event);
             }}
           >
             <ListItemIcon className={menuIcon}>
@@ -59,9 +61,9 @@ const DashboardSubMenu = ({
             <Typography>Edit</Typography>
           </MenuItem>
           <MenuItem
-            onClick={() => {
+            onClick={event => {
               removeDashboard(id);
-              closeMenu();
+              closeMenu(event);
             }}
           >
             <ListItemIcon className={menuIcon}>

@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
 import clsx from 'clsx';
-
+// import TestTomboloIntegration from '../TestTomboloIntegration';
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
@@ -16,6 +16,7 @@ import NewWorkspace from '../Dialog/newWorkspace';
 import HelpDropDown from './HelpDropdown';
 import EditWorkspace from '../Dialog/EditWorkspace';
 import DeleteWorkspace from '../Dialog/DeleteWorkpace';
+import _ from 'lodash';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -47,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 
 const Header = ({ toggleDrawer }) => {
   const { user = {} } = useSelector(state => state.auth);
-  const { workspace, workspaces } = useSelector(state => state.workspace);
+  const { workspace, workspaces, errorObj } = useSelector(state => state.workspace);
   const { id: userID, lastViewedWorkspace, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -103,7 +104,7 @@ const Header = ({ toggleDrawer }) => {
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar}>
-          {!!workspaces?.length && !isChangePwdScreen && (
+          {!_.isEmpty(workspaces) && _.isEmpty(errorObj) && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>
@@ -174,6 +175,10 @@ const Header = ({ toggleDrawer }) => {
       {showDeleteWorkspace && (
         <DeleteWorkspace show={showDeleteWorkspace} toggleDialog={toggleDeleteWorkspace} />
       )}
+      {/*------------------------------------------------ */}
+      {/* send HTTP request like third party but with valid token */}
+      {/* <TestTomboloIntegration /> */}
+      {/*------------------------------------------------ */}
     </Fragment>
   );
 };

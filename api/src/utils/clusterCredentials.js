@@ -1,6 +1,7 @@
 const { cluster_credentials: clusterCredentials } = require('../models');
 const { decryptHash, encryptPassword } = require('./auth');
 const { unNestSequelizeObj } = require('./sequelize');
+const axios = require('axios');
 
 const createClusterCreds = async (clusterID, password, userID, username) => {
   let hash = null;
@@ -46,4 +47,16 @@ const updateClusterCreds = async (clusterID, password, userID, username) => {
   return await clusterCredentials.update({ username, hash }, { where: { userID, clusterID } });
 };
 
-module.exports = { checkForClusterCreds, createClusterCreds, getClusterCreds, updateClusterCreds };
+const isClusterCredsValid = async (cluster, username, password) => {
+  return await axios.get(`${cluster.host}:${cluster.infoPort}/WsTopology/TpListTargetClusters.json`, {
+    auth: { username, password },
+  });
+};
+
+module.exports = {
+  checkForClusterCreds,
+  createClusterCreds,
+  getClusterCreds,
+  updateClusterCreds,
+  isClusterCredsValid,
+};
