@@ -35,7 +35,7 @@ router.post('/', async (req, res, next) => {
 
     const url = SHARE_URL || 'http://localhost:3000';
     const link = `${url}/workspace/${workspace.id}`;
-    return res.status(200).send(link);
+    return res.status(200).send({ workspaceUrl: link });
   } catch (error) {
     return next(error);
   }
