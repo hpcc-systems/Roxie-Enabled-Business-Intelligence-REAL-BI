@@ -41,7 +41,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
               formFieldsUpdate({ selectedSource });
             }
           } catch (error) {
-            formFieldsUpdate({ error: error.message });
+            formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });
           }
         })();
       }

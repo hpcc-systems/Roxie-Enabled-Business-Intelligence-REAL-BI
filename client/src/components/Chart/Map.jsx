@@ -1,113 +1,122 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import ReactMapGL, { Marker, Popup } from 'react-map-gl';
 import mapboxgl from 'mapbox-gl';
 import { makeStyles } from '@material-ui/core/styles';
-import pinIcon from '../../assets/images/map-pin.svg';
 import { Fragment } from 'react';
-import { Typography } from '@material-ui/core';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { Divider, Box, Paper, Typography } from '@material-ui/core';
+import MaterialIcon from './MaterialIcon';
+import _ from 'lodash';
 
 mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
-const useStyles = makeStyles(theme => ({
-  mapError: {
-    marginBottom: theme.spacing(2),
-    marginTop: 0,
-  },
-  mapPin: {
-    height: 24,
-    width: 24,
-    transform: 'translate(-50%, -100%)',
-  },
-  popup: { zIndex: 1 },
+const useStyles = makeStyles(() => ({
+  popUp: { zIndex: 1, cursor: 'pointer', maxWidth: '40%' },
+  popUpText: { paddingBottom: '10px' },
 }));
 
-const Map = ({ configuration, data }) => {
-  const [apiKey, setApiKey] = useState(null);
-  const [apiError, setApiError] = useState(null);
+const Map = ({ chartID, configuration, data }) => {
   const [viewport, setViewport] = useState({
-    latitude: 44.968243,
-    longitude: -103.771556,
-    zoom: 2.5,
-  });
-  const [showPopup, setShowPopup] = useState({});
-  const { mapError, mapPin, popup } = useStyles();
+    latitude: 33.79481085083743,
+    longitude: -84.36616178412112,
+    zoom: 4,
+  }); // default Atlanta,GE
 
-  const { axis1: { value: longValue } = {}, axis2: { value: latValue } = {}, mapFields = [] } = configuration;
+  const [showPopup, setShowPopup] = useState({});
+  const classes = useStyles();
+
+  const saveToLs = (settings, chartID) => {
+    const initialSettings = {
+      latitude: settings.latitude,
+      longitude: settings.longitude,
+      zoom: settings.zoom,
+    };
+    const stringifySettings = JSON.stringify(initialSettings);
+    localStorage.setItem(`${chartID}viewport`, stringifySettings);
+  };
+
+  const deboucedSaveToLS = useCallback(_.debounce(saveToLs, 1500), []);
+
+  const handleViewportChange = viewport => {
+    deboucedSaveToLS(viewport, chartID);
+    setViewport(viewport);
+  };
+
+  useEffect(() => {
+    const settings = localStorage.getItem(`${chartID}viewport`);
+    if (settings) {
+      setViewport(JSON.parse(settings));
+    }
+  }, []);
 
   // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0 || !longValue || !latValue) {
+  if (!data || data.length === 0) {
     return null;
   }
 
-  // Convert necessary values to specified data type
-  data = data.map(row => ({
-    ...row,
-    [longValue]: Number(row[longValue]),
-    [latValue]: Number(row[latValue]),
-  }));
+  const [emptyMarker, ...mapMarkers] = configuration.mapMarkers;
+  data.length = 200; // THIS IS TEMP HACK TO AVOID BIG SETS OF DATA DISPLAY
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const resp = await axios.get('/api/v1/keys/map_key');
-        setApiError(null);
-        setApiKey(resp.data.key);
-      } catch (error) {
-        setApiError(error.response.data.message);
-      }
-    })();
-  }, []);
-
-  return apiError ? (
-    <Typography variant='h6' align='center' className={mapError}>
-      {apiError}
-    </Typography>
-  ) : apiKey ? (
+  return (
     <ReactMapGL
       {...viewport}
       width='100%'
-      height={400}
-      className='map'
-      onViewportChange={viewport => setViewport(viewport)}
+      height='100%'
+      onViewportChange={handleViewportChange}
       mapStyle='mapbox://styles/chrishuman/ckmus4lae0pew17p3kk58y1ia'
-      mapboxApiAccessToken={apiKey}
+      mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
     >
       {data.map((row, index) => {
-        return (
-          <Fragment key={index}>
-            <Marker latitude={row[latValue]} longitude={row[longValue]}>
-              <div onClick={() => setShowPopup({ [index]: true })}>
-                <img className={mapPin} src={pinIcon} />
-              </div>
-            </Marker>
-            {showPopup[index] && (
-              <Popup
-                latitude={row[latValue]}
-                longitude={row[longValue]}
-                closeButton={true}
-                closeOnClick={false}
-                onClose={() => setShowPopup({ [index]: false })}
-                dynamicPosition={true}
-                anchor='top'
-                className={popup}
-              >
-                <div>
-                  {mapFields.map(({ label, name }) => {
-                    return (
-                      <p key={name}>
-                        <strong>{label || name}</strong>: {row[name]}
-                      </p>
-                    );
-                  })}
-                </div>
-              </Popup>
-            )}
-          </Fragment>
-        );
+        return mapMarkers.map(marker => {
+          const latitude = Number(row[marker.latitude]);
+          const longitude = Number(row[marker.longitude]);
+          const popUps = _.dropRight(marker.popUpInfo);
+          return (
+            <Fragment key={index + marker.id}>
+              <Marker latitude={latitude} longitude={longitude}>
+                <Box
+                  onClick={() => setShowPopup({ [index + marker.id]: true })}
+                  bgcolor={marker.markerColor}
+                  p={0.2}
+                  borderRadius={4}
+                >
+                  <MaterialIcon icon={marker.markerIcon} color={marker.markerColor} />
+                </Box>
+              </Marker>
+              {popUps.length > 0 && showPopup[index + marker.id] && (
+                <Popup
+                  className={classes.popUp}
+                  offsetLeft={0}
+                  offsetTop={0}
+                  latitude={latitude}
+                  longitude={longitude}
+                  closeButton={true}
+                  closeOnClick={false}
+                  onClose={() => setShowPopup({ [index + marker.id]: false })}
+                  anchor='bottom'
+                >
+                  <Box m={1}>
+                    {popUps.map(popup => (
+                      <Box key={popup.id}>
+                        <Typography component='span' variant='body1'>
+                          <strong>{popup.label}</strong>:{' '}
+                        </Typography>
+                        <Typography className={classes.popUpText} component='span' variant='body2'>
+                          {row[popup.datafieldName]}
+                        </Typography>
+                        <Divider />
+                      </Box>
+                    ))}
+                  </Box>
+                </Popup>
+              )}
+            </Fragment>
+          );
+        });
       })}
     </ReactMapGL>
-  ) : null;
+  );
 };
 
 export default Map;
