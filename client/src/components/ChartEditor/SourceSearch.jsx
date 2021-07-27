@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useCallback } from 'react';
 import { CircularProgress, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 import Paper from '@material-ui/core/Paper';
@@ -28,22 +28,26 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   const selectedSource = _.isEmpty(localState.selectedSource) ? null : localState.selectedSource; // autocomplete fix
 
+  const updateAutocomplete = async (clusterID, keyword, sourceType) => {
+    formFieldsUpdate({ isAutoCompleteLoading: true });
+    try {
+      const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
+      formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
+      if (chartID) {
+        const selectedSource = data.find(({ name }) => name === keyword);
+        formFieldsUpdate({ selectedSource });
+      }
+    } catch (error) {
+      formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });
+    }
+  };
+
+  const updateAutocompleteDebounced = useCallback(_.debounce(updateAutocomplete, 1000), []);
+
   useEffect(() => {
     if (keyword) {
       if (!keywordfromExplorer) {
-        (async () => {
-          formFieldsUpdate({ isAutoCompleteLoading: true });
-          try {
-            const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
-            formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
-            if (chartID) {
-              const selectedSource = data.find(({ name }) => name === keyword);
-              formFieldsUpdate({ selectedSource });
-            }
-          } catch (error) {
-            formFieldsUpdate({ error: error.message });
-          }
-        })();
+        updateAutocompleteDebounced(clusterID, keyword, sourceType);
       }
       formFieldsUpdate({ keywordfromExplorer: false });
     }
@@ -51,14 +55,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {
-    event.persist();
-    const { value } = event.target;
-
-    // Check if the user has typed in at least 3 characters and a request is not already in progress
-    if (value.length >= 3 && !isAutoCompleteLoading) {
-      // Update 'keyword' field in state
-      handleChange(event);
-    }
+    handleChange(event);
   };
 
   const handleOnChange = (event, newValue) => {
