@@ -5,7 +5,16 @@ const ReactMarkdown = require('react-markdown');
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  div: { padding: theme.spacing(0, 1), wordBreak: 'break-all', height: '110%', overflow: 'auto' },
+  div: {
+    padding: theme.spacing(0, 1),
+    wordBreak: 'break-all',
+    height: '120%',
+    overflowY: 'auto',
+    '&::-webkit-scrollbar': {
+      width: 0 /* Remove scrollbar space */,
+      background: 'transparent' /* Optional: just make scrollbar invisible */,
+    },
+  },
   textDesc: { color: 'grey', fontSize: 12 },
 }));
 

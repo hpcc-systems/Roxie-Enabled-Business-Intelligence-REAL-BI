@@ -18,27 +18,29 @@ const options = {
   // scope: EXPOSED_SCOPES,
 };
 
-module.exports = new BearerStrategy(options, async (token, done) => {
-  logger.info('User presented valid token');
-  // When we verify token as middleware we need to create req.user because our routes rely on it
-  try {
-    const email = token.email;
-    const dbUser = await User.findOne({ where: { email } });
-    if (dbUser) {
-      done(
-        null,
-        {
-          id: dbUser.id,
-          username: dbUser.username,
-          email: dbUser.email,
-          lastViewedWorkspace: dbUser.lastViewedWorkspace,
-        },
-        token,
-      ); // Send user info using the sevi cond argument
-    } else {
-      done(null, {}, token); // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
+if (process.env.REACT_APP_AUTH_METHOD === 'ADFS') {
+  module.exports = new BearerStrategy(options, async (token, done) => {
+    logger.info('User presented valid token');
+    // When we verify token as middleware we need to create req.user because our routes rely on it
+    try {
+      const email = token.email;
+      const dbUser = await User.findOne({ where: { email } });
+      if (dbUser) {
+        done(
+          null,
+          {
+            id: dbUser.id,
+            username: dbUser.username,
+            email: dbUser.email,
+            lastViewedWorkspace: dbUser.lastViewedWorkspace,
+          },
+          token,
+        ); // Send user info using the sevi cond argument
+      } else {
+        done(null, {}, token); // If token was valid an no user was found it means user came from '/loginAzure' route, not hitting protected routes.
+      }
+    } catch (error) {
+      done(error);
     }
-  } catch (error) {
-    done(error);
-  }
-});
+  });
+}

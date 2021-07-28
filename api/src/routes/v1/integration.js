@@ -159,12 +159,12 @@ const defaultParams = [
 const mapChartIdToLayout = (chartId, totalCharts) => ({
   i: chartId.toString(),
   x: 0,
-  y: totalCharts * 20,
+  y: parseInt(totalCharts * 20),
   w: 12,
   h: 20,
-  minW: 3,
+  minW: 2,
   maxW: 12,
-  minH: 20,
+  minH: 3,
 });
 
 module.exports = router;
