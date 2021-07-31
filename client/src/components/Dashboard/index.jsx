@@ -181,9 +181,9 @@ const Dashboard = () => {
       y: Infinity,
       w: 6,
       h: 20,
-      minW: 3,
+      minW: 2,
       maxW: 12,
-      minH: 20,
+      minH: 3,
     }));
 
   const createChart = layoutIndex => {
