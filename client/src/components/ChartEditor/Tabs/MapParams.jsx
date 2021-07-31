@@ -232,10 +232,7 @@ const MarkerSetting = props => {
                 </Grid>
                 {popUpInfoArray.length - 1 !== index && (
                   <Grid item xs={1}>
-                    <Remove
-                      className={classes.cancelSetting}
-                      onClick={event => handleRemovePopup(popUpField)}
-                    />
+                    <Remove className={classes.cancelSetting} onClick={() => handleRemovePopup(popUpField)} />
                   </Grid>
                 )}
               </Grid>

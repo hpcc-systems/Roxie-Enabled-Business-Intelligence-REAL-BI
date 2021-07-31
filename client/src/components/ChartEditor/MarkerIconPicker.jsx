@@ -8,7 +8,7 @@ import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlin
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 import LocalTaxiIcon from '@material-ui/icons/LocalTaxi';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
-import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 import { SketchPicker } from 'react-color';
 
