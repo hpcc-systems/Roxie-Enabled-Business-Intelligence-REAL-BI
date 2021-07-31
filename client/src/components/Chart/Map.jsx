@@ -1,180 +1,216 @@
-import React, { useState, useEffect, useCallback } from 'react';
-
-import ReactMapGL, { Marker, Popup } from 'react-map-gl';
-import mapboxgl from 'mapbox-gl';
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
-import { Divider, Box, Paper, Typography } from '@material-ui/core';
-import MaterialIcon from './MaterialIcon';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import MapIcons from './MapIcons';
+import mapboxgl from '!mapbox-gl';
 import _ from 'lodash';
 
-mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
-
 const useStyles = makeStyles(() => ({
-  popUp: { zIndex: 1, maxWidth: '40%' },
-  popUpText: { paddingBottom: '10px' },
-  marker: { cursor: 'ponter' },
+  mapWrapper: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
+  mapContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  popup: { width: '240px' },
 }));
 
-const Map = ({ chartID, configuration, data }) => {
-  const [showPopup, setShowPopup] = useState({});
-  const [viewport, setViewport] = useState({
-    latitude: 33.79481085083743,
-    longitude: -84.36616178412112,
-    zoom: 4,
-  }); // default Atlanta,GE
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
+function Map({ chartID, configuration, data }) {
   const classes = useStyles();
+  const mapContainer = useRef(null);
 
-  const saveToLs = (settings, chartID) => {
-    const initialSettings = {
-      latitude: settings.latitude,
-      longitude: settings.longitude,
-      zoom: settings.zoom,
-    };
-    const stringifySettings = JSON.stringify(initialSettings);
-    localStorage.setItem(`${chartID}viewport`, stringifySettings);
-  };
+  const mapWrapper = useRef(null);
 
-  const deboucedSaveToLS = useCallback(_.debounce(saveToLs, 1500), []);
+  const [map, setMap] = useState(null);
 
-  const handleViewportChange = viewport => {
-    deboucedSaveToLS(viewport, chartID);
-    setViewport(viewport);
-  };
+  const [settings, setSettings] = useState({
+    longitude: -73.935242,
+    latitude: 40.73061,
+    zoom: 9,
+  });
+
+  const saveToLs = (settings, chartID) =>
+    localStorage.setItem(`${chartID}viewport`, JSON.stringify(settings));
+
+  const deboucedSaveToLS = _.debounce(saveToLs, 1000);
 
   useEffect(() => {
-    const settings = localStorage.getItem(`${chartID}viewport`);
-    if (settings) {
-      setViewport(JSON.parse(settings));
+    //creating array of features to show on map
+    const [emptyMarker, ...mapMarkers] = configuration.mapMarkers;
+
+    const geoFeatures = data
+      .map(row =>
+        mapMarkers.map(marker => {
+          //first el in marker.popUpInfo is always empty, we dont want to loop over it
+          const popUps = _.dropRight(marker.popUpInfo);
+          return {
+            type: 'Feature',
+            properties: {
+              icon: marker.markerIcon,
+              color: marker.markerColor,
+              popup: popUps.map(el => ({ ...el, data: row[el.datafieldName] })),
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [Number(row[marker.longitude]), Number(row[marker.latitude])],
+            },
+          };
+        }),
+      )
+      .flat(Infinity);
+
+    // getting settings from LS
+    const LSsettings = localStorage.getItem(`${chartID}viewport`);
+    let cashedSettings;
+    if (LSsettings) {
+      cashedSettings = JSON.parse(LSsettings);
+      setSettings(cashedSettings);
     }
-  }, []);
 
-  // Confirm all necessary values are present before trying to render the chart
-  if (!data || data.length === 0) {
-    return null;
-  }
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      // style: 'mapbox://styles/chrishuman/ckmus4lae0pew17p3kk58y1ia',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [
+        parseFloat(cashedSettings.longitude) || settings.longitude,
+        parseFloat(cashedSettings.latitude) || settings.latitude,
+      ],
+      zoom: parseFloat(cashedSettings.zoom) || settings.zoom,
+    })
+      .addControl(new mapboxgl.FullscreenControl())
+      .addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
 
-  const [emptyMarker, ...mapMarkers] = configuration.mapMarkers;
-  data.length = 200; // THIS IS TEMP HACK TO AVOID BIG SETS OF DATA DISPLAY
+    map.addControl(
+      new mapboxgl.ScaleControl({
+        maxWidth: 80,
+        unit: 'imperial',
+      }),
+    );
 
-  const MemoMarker = React.memo(
-    ({ latitude, longitude, marker, index }) => {
-      const handleMarkerClick = event => {
-        event.stopPropagation();
-        console.log('i got triggered :>> ');
-        setShowPopup(prev => ({ ...prev, [index + marker.id]: true }));
+    map.on('move', () => {
+      const currentSettings = {
+        longitude: map.getCenter().lng.toFixed(4),
+        latitude: map.getCenter().lat.toFixed(4),
+        zoom: map.getZoom().toFixed(2),
       };
-      console.log('MemoMarker :>> ');
-      return (
-        <Marker latitude={latitude} longitude={longitude}>
-          <Box onClick={handleMarkerClick} bgcolor={marker.markerColor} p={0.2} borderRadius={4}>
-            <MaterialIcon icon={marker.markerIcon} color={marker.markerColor} />
-          </Box>
-        </Marker>
-      );
-    },
-    (prevProps, nextProps) => {
-      return prevProps.latitude === nextProps.latitude && prevProps.longitude === nextProps.longitude;
-    },
-  );
+      deboucedSaveToLS(currentSettings, chartID);
+      setSettings(currentSettings);
+    });
 
-  const markers = React.useMemo(() => {
-    return data.map((row, index) => {
-      console.log('i ran markers :>> ');
-      return mapMarkers.map(marker => {
-        const latitude = Number(row[marker.latitude]);
-        const longitude = Number(row[marker.longitude]);
-        return (
-          <MemoMarker
-            key={index + marker.id}
-            index={index}
-            latitude={latitude}
-            longitude={longitude}
-            marker={marker}
-          />
-        );
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'data', function () {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'data', function () {
+      map.getCanvas().style.cursor = '';
+    });
+
+    //Main event, adding source and layer.
+    map.on('load', async function () {
+      //In order to use addImage() we need to provide HTMLimageDOMelment and it doesnt want to work synchronosly.
+      const imgPromises = Promise.all(
+        mapMarkers.map(
+          marker =>
+            new Promise(resolve => {
+              const img = document.createElement('img');
+              img.style.width = 48;
+              img.style.height = 48;
+              img.src = MapIcons[marker.markerIcon];
+              resolve({ domElement: img, iconName: marker.markerIcon });
+            }),
+        ),
+      );
+
+      imgPromises.then(imgs => {
+        imgs.forEach(img => {
+          if (!map.hasImage(img.iconName)) {
+            map.addImage(img.iconName, img.domElement, { sdf: true });
+          }
+        });
+
+        // Add a data source containing one point feature.
+        map.addSource('chart', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: geoFeatures,
+          },
+        });
+
+        // Add a layer to use the image to represent the data.
+        map.addLayer({
+          id: 'data',
+          type: 'symbol',
+          source: 'chart', // reference the data source
+          layout: {
+            'icon-allow-overlap': true,
+            'icon-image': ['get', 'icon'], // reference the image
+            'icon-size': 0.5,
+          },
+          paint: {
+            'icon-color': ['get', 'color'],
+            'icon-halo-color': '#ffffff',
+            'icon-halo-blur': 1,
+            'icon-halo-width': 1,
+          },
+        });
+      });
+
+      // Creating Popup
+      map.on('click', function (e) {
+        map.resize();
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['data'],
+        });
+        if (!features.length) return;
+        const feature = features[0];
+        const isZoomed = map.getZoom().toFixed(2) > 11;
+
+        const flyObject = {
+          center: feature.geometry.coordinates,
+          speed: 0.4,
+        };
+
+        if (!isZoomed) flyObject.zoom = 11;
+
+        map.flyTo(flyObject);
+
+        const popupArray = JSON.parse(feature.properties.popup);
+
+        const text = popupArray
+          .map(popup => `<p><strong>${popup.label.toUpperCase()}</strong> : ${popup.data}</p>`)
+          .join('');
+
+        const popup = new mapboxgl.Popup({
+          offset: [115, -20],
+          anchor: 'center',
+          className: classes.popup,
+        })
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML(text)
+          .addTo(map);
       });
     });
+    //setting map to state if we need to reference it later
+    setMap(map);
+    // Clean up on unmount
+    return () => map.remove();
   }, []);
 
-  // const MemoPopup = React.memo(
-  //   ({ latitude, longitude, marker, index, popUps, row }) => {
-  //     console.log('i ran MemoPopup :>> ');
-  //     const handleClosePopup = () => setShowPopup(prev => ({ ...prev, [index + marker.id]: false }));
-  //     return (
-  //       <Popup
-  //         className={classes.popUp}
-  //         offsetLeft={0}
-  //         offsetTop={0}
-  //         latitude={latitude}
-  //         longitude={longitude}
-  //         closeButton={true}
-  //         closeOnClick={false}
-  //         onClose={handleClosePopup}
-  //         anchor='bottom'
-  //       >
-  //         <Box m={1}>
-  //           {popUps.map(popup => (
-  //             <Box key={popup.id}>
-  //               <Typography component='span' variant='body1'>
-  //                 <strong>{popup.label}</strong>:{' '}
-  //               </Typography>
-  //               <Typography className={classes.popUpText} component='span' variant='body2'>
-  //                 {row[popup.datafieldName]}
-  //               </Typography>
-  //               <Divider />
-  //             </Box>
-  //           ))}
-  //         </Box>
-  //       </Popup>
-  //     );
-  //   },
-  //   (prevProps, nextProps) => {
-  //     return prevProps.latitude === nextProps.latitude && prevProps.longitude === nextProps.longitude;
-  //   },
-  // );
-
-  // const popUps = React.useMemo(
-  //   () =>
-  //     data.map((row, index) => {
-  //       console.log('i ran popUps :>> ');
-  //       return mapMarkers.map(marker => {
-  //         const popUps = _.dropRight(marker.popUpInfo);
-  //         if (popUps.length === 0) return;
-  //         const latitude = Number(row[marker.latitude]);
-  //         const longitude = Number(row[marker.longitude]);
-  //         return (
-  //           showPopup[index + marker.id] && (
-  //             <MemoPopup
-  //               latitude={latitude}
-  //               longitude={longitude}
-  //               marker={marker}
-  //               index={index}
-  //               popUps={popUps}
-  //               row={row}
-  //               key={index + marker.id}
-  //             />
-  //           )
-  //         );
-  //       });
-  //     }),
-  //   [showPopup],
-  // );
-
   return (
-    <ReactMapGL
-      {...viewport}
-      width='100%'
-      height='100%'
-      onViewportChange={handleViewportChange}
-      mapStyle='mapbox://styles/chrishuman/ckmus4lae0pew17p3kk58y1ia'
-      mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-    >
-      {markers}
-      {/* {popUps} */}
-    </ReactMapGL>
+    <div ref={mapWrapper} className={classes.mapWrapper}>
+      <div ref={mapContainer} className={classes.mapContainer} />
+    </div>
   );
-};
+}
 
 export default Map;

@@ -152,7 +152,7 @@ const MarkerSetting = props => {
         </Box>
         {/* First row */}
         <Grid container alignItems='flex-end' spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <FormControl fullWidth>
               <InputLabel>Latitude</InputLabel>
               <Select required value={latitude} onChange={event => setLatitude(event.target.value)}>
@@ -167,7 +167,7 @@ const MarkerSetting = props => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <FormControl fullWidth>
               <InputLabel>Longitude</InputLabel>
               <Select required value={longitude} onChange={event => setLongitude(event.target.value)}>
@@ -182,7 +182,7 @@ const MarkerSetting = props => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <MarkerIconPicker
               markerColor={markerColor}
               setMarkerColor={setMarkerColor}
@@ -200,7 +200,7 @@ const MarkerSetting = props => {
           {popUpInfoArray.map((popUpField, index) => {
             return (
               <Grid key={index} container spacing={2} alignItems='flex-end'>
-                <Grid item xs={4}>
+                <Grid item xs={5}>
                   <TextField
                     required={popUpInfoArray[index].datafieldName !== ''}
                     fullWidth
@@ -211,9 +211,9 @@ const MarkerSetting = props => {
                     autoComplete='off'
                   />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={5}>
                   <FormControl fullWidth>
-                    <InputLabel>Select a data that will correspond to field</InputLabel>
+                    <InputLabel>Select corresponding field</InputLabel>
                     <Select
                       required={popUpInfoArray[index].label !== ''}
                       name='datafieldName'
@@ -231,7 +231,7 @@ const MarkerSetting = props => {
                   </FormControl>
                 </Grid>
                 {popUpInfoArray.length - 1 !== index && (
-                  <Grid item xs={2}>
+                  <Grid item xs={1}>
                     <Remove
                       className={classes.cancelSetting}
                       onClick={event => handleRemovePopup(popUpField)}
