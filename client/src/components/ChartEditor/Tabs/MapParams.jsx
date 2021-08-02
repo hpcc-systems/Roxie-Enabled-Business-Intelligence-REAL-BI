@@ -1,151 +1,258 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+import { useSnackbar } from 'notistack';
 import {
+  Box,
   Button,
-  CircularProgress,
   FormControl,
   Grid,
   InputLabel,
   makeStyles,
   MenuItem,
+  Paper,
   Select,
   TextField,
+  Typography,
 } from '@material-ui/core';
-import { Remove as RemoveIcon } from '@material-ui/icons';
-import ConfigOptions from '../AxisConfig/ConfigOptions';
+
 import { getMessage } from '../../../utils/misc';
 import { messages } from '../../../constants';
 
-const useStyles = makeStyles(theme => ({
-  button: {
-    margin: theme.spacing(2.5, 0, 0, 1),
-    minWidth: 30,
-    padding: 0,
+import MarkerIconPicker from '../MarkerIconPicker';
+import ClearIcon from '@material-ui/icons/Clear';
+import Remove from '@material-ui/icons/Remove';
+
+import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
+
+const useStyles = makeStyles(() => ({
+  cancelSetting: {
+    cursor: 'pointer',
   },
-  colorDiv: {
-    margin: '0 auto',
-    marginTop: theme.spacing(1.75),
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-  },
-  grid: { marginTop: theme.spacing(2) },
-  progress: { margin: 0, marginTop: 50 },
+  submitButton: {},
 }));
 
 const MapParams = props => {
-  const { eclRef, handleChangeObj, localState } = props;
+  const { eclRef, localState } = props;
   const { schema = [] } = eclRef.current;
-  const { chartID, configuration, selectedDataset = {}, sourceType } = localState;
+  const { chartID, selectedDataset = {}, sourceType } = localState;
   const { fields = [] } = selectedDataset;
-  const { mapFields = [] } = configuration;
-  const { button, grid, progress } = useStyles();
-
-  const updateField = (event, index) => {
-    const { name, value } = event.target;
-    const newFieldsArr = new Array(...mapFields);
-
-    // Update index
-    newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
-
-    // Add new object to end of array for next entry
-    if (newFieldsArr.length - 1 === index) {
-      newFieldsArr.push({ label: '', name: '' });
-    }
-
-    return handleChangeObj(null, { name: 'configuration:mapFields', value: newFieldsArr });
-  };
-
-  const removeParam = index => {
-    const newFieldsArr = new Array(...mapFields);
-
-    newFieldsArr.splice(index, 1);
-
-    // Array is empty, add an empty object
-    if (newFieldsArr.length === 0) {
-      newFieldsArr.push({ label: '', name: '' });
-    }
-
-    return handleChangeObj(null, { name: 'configuration:mapFields', value: newFieldsArr });
-  };
+  const mapMarkers = props.localState.configuration.mapMarkers;
 
   const fieldsArr =
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
-  return (
-    <Fragment>
-      <Grid item xs={6}>
-        <Grid container spacing={2}>
-          <ConfigOptions
-            {...props}
-            field='axis2'
-            label='Latitude'
-            showDataTypeOption={false}
-            showAxisLabelOption={false}
-            showLabelOption={false}
-          />
-        </Grid>
-      </Grid>
-      <Grid item xs={6}>
-        <Grid container spacing={2}>
-          <ConfigOptions
-            {...props}
-            field='axis1'
-            label='Longitude'
-            showDataTypeOption={false}
-            showAxisLabelOption={false}
-            showLabelOption={false}
-          />
-        </Grid>
-      </Grid>
+  if (chartID && messages.indexOf(fieldsArr[0].name) > -1) return null;
 
-      <h3 style={{ marginBottom: 0 }}>Popup Config</h3>
-      <Grid item md={12} className={grid}>
-        {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
-          <CircularProgress className={progress} size={20} />
-        ) : (
-          <Grid container spacing={2}>
-            {mapFields.map(({ label, name }, index) => {
-              const isPopulated = Boolean(name);
-              return (
-                <Fragment key={index}>
-                  {isPopulated && (
-                    <Grid item xs={1}>
-                      <Button className={button} onClick={() => removeParam(index)}>
-                        <RemoveIcon />
-                      </Button>
-                    </Grid>
-                  )}
-                  <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Field</InputLabel>
-                      <Select name='name' value={name || ''} onChange={event => updateField(event, index)}>
-                        {fieldsArr.map(({ name }, index) => {
-                          return (
-                            <MenuItem key={index} value={name}>
-                              {name}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={isPopulated ? 5 : 6}>
-                    <TextField
-                      fullWidth
-                      label='Label'
-                      name='label'
-                      value={label || ''}
-                      onChange={event => updateField(event, index)}
-                      autoComplete='off'
-                    />
-                  </Grid>
-                </Fragment>
-              );
-            })}
+  return (
+    <Grid item xs={12}>
+      <Box p={1}>
+        {mapMarkers.map(marker => (
+          <MarkerSetting key={marker.id || uuidv4()} marker={marker} fieldsArr={fieldsArr} {...props} />
+        ))}
+      </Box>
+    </Grid>
+  );
+};
+
+const MarkerSetting = props => {
+  const { marker, handleChangeObj, fieldsArr } = props;
+  const mapMarkers = props.localState.configuration.mapMarkers;
+
+  const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
+  const [latitude, setLatitude] = React.useState(marker.latitude);
+  const [longitude, setLongitude] = React.useState(marker.longitude);
+  const [markerIcon, setMarketIcon] = React.useState(marker.markerIcon);
+  const [markerColor, setMarkerColor] = React.useState(marker.markerColor);
+  const [popUpInfoArray, setPopUpInfoArray] = React.useState(marker.popUpInfo);
+
+  const handleRemovePopup = popUpField => {
+    const filtered = popUpInfoArray.filter(el => el.id !== popUpField.id);
+    setPopUpInfoArray(filtered);
+  };
+
+  const handlePopUpArrayChange = (event, index) => {
+    const { name, value } = event.target;
+    const newPopUpInfoArray = [...popUpInfoArray];
+    const newPopUp = { ...newPopUpInfoArray[index] };
+    if (!newPopUp.id) newPopUp.id = uuidv4();
+
+    newPopUpInfoArray[index] = { ...newPopUp, [name]: value };
+
+    // Add new object to end of array for next entry
+    if (newPopUpInfoArray.length - 1 === index) {
+      newPopUpInfoArray.push({ id: null, label: '', datafieldName: '' });
+    }
+    setPopUpInfoArray(newPopUpInfoArray);
+  };
+
+  const handeRemoveMarker = (event, marker) => {
+    event.preventDefault();
+    const filtered = mapMarkers.filter(el => el.id !== marker.id);
+    handleChangeObj(null, { name: 'configuration:mapMarkers', value: filtered });
+    enqueueSnackbar('Marker has been removed', {
+      variant: 'info',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+    });
+  };
+
+  const handleSaveSetting = event => {
+    event.preventDefault();
+    const newMarker = {
+      id: marker.id || uuidv4(),
+      popUpInfo: popUpInfoArray,
+      latitude,
+      longitude,
+      markerIcon,
+      markerColor,
+    };
+    const existingMarkerIndex = mapMarkers.findIndex(el => el.id === newMarker.id);
+    enqueueSnackbar(`${existingMarkerIndex > -1 ? 'Marker has been updated' : 'New marker created'}`, {
+      variant: 'success',
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
+    });
+    if (existingMarkerIndex > -1) {
+      mapMarkers[existingMarkerIndex] = newMarker;
+      return handleChangeObj(null, { name: 'configuration:mapMarkers', value: [...mapMarkers] });
+    }
+    handleChangeObj(null, { name: 'configuration:mapMarkers', value: [...mapMarkers, newMarker] });
+  };
+
+  const isParamsChanged = () => {
+    return !_.isEqual(marker, {
+      id: marker.id,
+      popUpInfo: popUpInfoArray,
+      latitude,
+      longitude,
+      markerIcon,
+      markerColor,
+    });
+  };
+
+  return (
+    <Box component={Paper} elevation={3} p={2} my={1} width='100%'>
+      <form onSubmit={handleSaveSetting}>
+        <Box display='flex' justifyContent='space-between'>
+          <Typography variant='subtitle2' component='h1'>
+            {marker.id
+              ? 'Marker settings:'
+              : `Create new Marker: You currently have ${mapMarkers.length - 1} active ${
+                  mapMarkers.length - 1 == 1 ? 'marker' : 'markers'
+                } `}
+          </Typography>
+          {marker.id && (
+            <ClearIcon className={classes.cancelSetting} onClick={e => handeRemoveMarker(e, marker)} />
+          )}
+        </Box>
+        {/* First row */}
+        <Grid container alignItems='flex-end' spacing={2}>
+          <Grid item xs={3}>
+            <FormControl fullWidth>
+              <InputLabel>Latitude</InputLabel>
+              <Select required value={latitude} onChange={event => setLatitude(event.target.value)}>
+                {fieldsArr.map(({ name }, index) => {
+                  return (
+                    <MenuItem key={index} value={name}>
+                      {name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
           </Grid>
-        )}
-      </Grid>
-    </Fragment>
+
+          <Grid item xs={3}>
+            <FormControl fullWidth>
+              <InputLabel>Longitude</InputLabel>
+              <Select required value={longitude} onChange={event => setLongitude(event.target.value)}>
+                {fieldsArr.map(({ name }, index) => {
+                  return (
+                    <MenuItem key={index} value={name}>
+                      {name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={5}>
+            <MarkerIconPicker
+              markerColor={markerColor}
+              setMarkerColor={setMarkerColor}
+              markerIcon={markerIcon}
+              setMarketIcon={setMarketIcon}
+            />
+          </Grid>
+        </Grid>
+        {/* End First row */}
+        {/* Second row */}
+        <Box my={2}>
+          <Typography variant='subtitle2' component='h1'>
+            Marker pop up information:
+          </Typography>
+          {popUpInfoArray.map((popUpField, index) => {
+            return (
+              <Grid key={index} container spacing={2} alignItems='flex-end'>
+                <Grid item xs={5}>
+                  <TextField
+                    required={popUpInfoArray[index].datafieldName !== ''}
+                    fullWidth
+                    label='Popup field name'
+                    name='label'
+                    value={popUpInfoArray[index].label}
+                    onChange={event => handlePopUpArrayChange(event, index)}
+                    autoComplete='off'
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <FormControl fullWidth>
+                    <InputLabel>Select corresponding field</InputLabel>
+                    <Select
+                      required={popUpInfoArray[index].label !== ''}
+                      name='datafieldName'
+                      value={popUpInfoArray[index].datafieldName}
+                      onChange={event => handlePopUpArrayChange(event, index)}
+                    >
+                      {fieldsArr.map(({ name }, index) => {
+                        return (
+                          <MenuItem key={index} value={name}>
+                            {name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {popUpInfoArray.length - 1 !== index && (
+                  <Grid item xs={1}>
+                    <Remove className={classes.cancelSetting} onClick={() => handleRemovePopup(popUpField)} />
+                  </Grid>
+                )}
+              </Grid>
+            );
+          })}
+        </Box>
+        <Box m={2} display='flex' justifyContent='flex-end'>
+          {marker.id && isParamsChanged() && (
+            <Button className={classes.submitButton} type='submit'>
+              Edit Marker
+            </Button>
+          )}
+          {!marker.id && (
+            <Button className={classes.submitButton} type='submit'>
+              Create New Marker
+            </Button>
+          )}
+        </Box>
+      </form>
+    </Box>
   );
 };
 

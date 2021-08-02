@@ -31,6 +31,16 @@ const initState = {
     mapFields: [{ label: '', name: '' }],
     type: 'bar',
     textBoxAlignText: 'left',
+    mapMarkers: [
+      {
+        id: null,
+        longitude: '',
+        latitude: '',
+        markerIcon: '',
+        markerColor: '#C62136',
+        popUpInfo: [{ id: null, datafieldName: '', label: '' }],
+      },
+    ],
   },
   dataObj: { loading: false },
   dataset: '',
