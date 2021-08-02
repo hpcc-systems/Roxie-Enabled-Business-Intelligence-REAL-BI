@@ -30,6 +30,7 @@ const initState = {
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
     mapFields: [{ label: '', name: '' }],
     type: 'bar',
+    textBoxAlignText: 'left',
   },
   dataObj: { loading: false },
   dataset: '',
