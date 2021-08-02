@@ -33,7 +33,9 @@ function Map({ chartID, configuration, data }) {
   const [settings, setSettings] = useState({
     longitude: -73.935242,
     latitude: 40.73061,
-    zoom: 9,
+    zoom: 2.66,
+    bearing: 0,
+    pitch: 0,
   });
 
   const saveToLs = (settings, chartID) =>
@@ -76,13 +78,14 @@ function Map({ chartID, configuration, data }) {
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      // style: 'mapbox://styles/chrishuman/ckmus4lae0pew17p3kk58y1ia',
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [
-        parseFloat(cashedSettings.longitude) || settings.longitude,
-        parseFloat(cashedSettings.latitude) || settings.latitude,
+        cashedSettings?.longitude || settings.longitude,
+        cashedSettings?.latitude || settings.latitude,
       ],
-      zoom: parseFloat(cashedSettings.zoom) || settings.zoom,
+      bearing: cashedSettings?.bearing || settings.bearing,
+      pitch: cashedSettings?.pitch || settings.pitch,
+      zoom: cashedSettings?.zoom || settings.zoom,
     })
       .addControl(new mapboxgl.FullscreenControl())
       .addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
@@ -99,6 +102,8 @@ function Map({ chartID, configuration, data }) {
         longitude: map.getCenter().lng.toFixed(4),
         latitude: map.getCenter().lat.toFixed(4),
         zoom: map.getZoom().toFixed(2),
+        bearing: map.getBearing().toFixed(2),
+        pitch: map.getPitch().toFixed(2),
       };
       deboucedSaveToLS(currentSettings, chartID);
       setSettings(currentSettings);
@@ -186,9 +191,9 @@ function Map({ chartID, configuration, data }) {
 
         const popupArray = JSON.parse(feature.properties.popup);
 
-        const text = popupArray
-          .map(popup => `<p><strong>${popup.label.toUpperCase()}</strong> : ${popup.data}</p>`)
-          .join('');
+        const text = popupArray.reduce((wholeText, popup) => {
+          return wholeText + `<p><strong>${popup.label.toUpperCase()}</strong> : ${popup.data}</p>`;
+        }, '');
 
         const popup = new mapboxgl.Popup({
           offset: [115, -20],
