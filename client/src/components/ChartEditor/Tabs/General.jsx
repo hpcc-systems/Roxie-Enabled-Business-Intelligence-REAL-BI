@@ -124,204 +124,216 @@ const GeneralTab = props => {
   const isDualAxesChart = type === 'columnline' || type === 'dualline';
 
   return (
-    <Grid container direction='row' alignContent='space-between' spacing={1}>
-      <Grid
-        item
-        xs={
-          hasHorizontalOption(type) || hasDynamicOption(type)
-            ? hasDataLabelOption(type)
+    <>
+      {/* FIRST ROW */}
+      <Grid container spacing={1}>
+        <Grid
+          item
+          xs={
+            hasHorizontalOption(type) || hasDynamicOption(type)
+              ? hasDataLabelOption(type)
+                ? isDualAxesChart
+                  ? 3
+                  : 6
+                : 9
+              : hasDataLabelOption(type)
               ? isDualAxesChart
-                ? 3
-                : 6
-              : 9
-            : hasDataLabelOption(type)
-            ? isDualAxesChart
-              ? 6
-              : 9
-            : 12
-        }
-        className={topFormControl}
-      >
-        <FormControl fullWidth>
-          <InputLabel>Chart Type</InputLabel>
-          <Select name='configuration:type' value={type} onChange={handleTypeChange}>
-            {charts.map(({ name, value }, index) => {
-              return (
-                <MenuItem key={index} value={value}>
-                  {(() => {
-                    switch (value) {
-                      case 'bar':
-                        return <BarChartIcon className={menuIcon} />;
-                      case 'columnline':
-                        return <img src={ColumnLineIcon} className={svgIcon} />;
-                      case 'donut':
-                        return <DonutChartIcon className={menuIcon} />;
-                      case 'dualline':
-                        return <MultilineChartIcon className={menuIcon} />;
-                      case 'histogram':
-                        return <PollIcon className={menuIcon} />;
-                      case 'heatmap':
-                        return <HeatmapIcon className={menuIcon} />;
-                      case 'gauge':
-                        return <AvTimerIcon className={menuIcon} />;
-                      case 'line':
-                        return <LineChartIcon className={menuIcon} />;
-                      case 'map':
-                        return <PublicIcon className={menuIcon} />;
-                      case 'pie':
-                        return <PieChartIcon className={menuIcon} />;
-                      case 'scatter':
-                        return <ScatterPlotIcon className={menuIcon} />;
-                      case 'table':
-                        return <TableChartIcon className={menuIcon} />;
-                      case 'textBox':
-                        return <TextFieldsIcon className={menuIcon} />;
-                      default:
-                        return null;
-                    }
-                  })()}
-                  {name}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+                ? 6
+                : 9
+              : 12
+          }
+          className={topFormControl}
+        >
+          <FormControl fullWidth>
+            <InputLabel>Chart Type</InputLabel>
+            <Select name='configuration:type' value={type} onChange={handleTypeChange}>
+              {charts.map(({ name, value }, index) => {
+                return (
+                  <MenuItem key={index} value={value}>
+                    {(() => {
+                      switch (value) {
+                        case 'bar':
+                          return <BarChartIcon className={menuIcon} />;
+                        case 'columnline':
+                          return <img src={ColumnLineIcon} className={svgIcon} />;
+                        case 'donut':
+                          return <DonutChartIcon className={menuIcon} />;
+                        case 'dualline':
+                          return <MultilineChartIcon className={menuIcon} />;
+                        case 'histogram':
+                          return <PollIcon className={menuIcon} />;
+                        case 'heatmap':
+                          return <HeatmapIcon className={menuIcon} />;
+                        case 'gauge':
+                          return <AvTimerIcon className={menuIcon} />;
+                        case 'line':
+                          return <LineChartIcon className={menuIcon} />;
+                        case 'map':
+                          return <PublicIcon className={menuIcon} />;
+                        case 'pie':
+                          return <PieChartIcon className={menuIcon} />;
+                        case 'scatter':
+                          return <ScatterPlotIcon className={menuIcon} />;
+                        case 'table':
+                          return <TableChartIcon className={menuIcon} />;
+                        case 'textBox':
+                          return <TextFieldsIcon className={menuIcon} />;
+                        default:
+                          return null;
+                      }
+                    })()}
+                    {name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+        {hasHorizontalOption(type) && (
+          <Grid item xs={3} className={topFormControl}>
+            <FormControlLabel
+              className={topCheckbox}
+              control={
+                <Checkbox
+                  name='configuration:horizontal'
+                  checked={horizontal || false}
+                  onChange={checkboxUpdated}
+                  color='primary'
+                />
+              }
+              label='Horizontal'
+              labelPlacement='end'
+            />
+          </Grid>
+        )}
+        {hasDynamicOption(type) && (
+          <Grid item xs={3} className={topFormControl}>
+            <FormControlLabel
+              className={staticCheckbox}
+              control={
+                <Checkbox
+                  name='configuration:isStatic'
+                  checked={isStatic || false}
+                  onChange={checkboxUpdated}
+                  color='primary'
+                />
+              }
+              label='Static'
+              labelPlacement='end'
+            />
+          </Grid>
+        )}
+        {hasDataLabelOption(type) && (
+          <Grid item xs={3} className={topFormControl}>
+            <FormControlLabel
+              className={clsx(topCheckbox, { [topCheckbox2]: isDualAxesChart })}
+              control={
+                <Checkbox
+                  name='configuration:showDataLabels'
+                  checked={showDataLabels || false}
+                  onChange={checkboxUpdated}
+                  color='primary'
+                />
+              }
+              label={
+                type === 'columnline'
+                  ? 'Data Labels (Column)'
+                  : type === 'dualline'
+                  ? 'Data Labels (Line)'
+                  : 'Data Labels'
+              }
+              labelPlacement={isDualAxesChart ? 'top' : 'end'}
+            />
+          </Grid>
+        )}
+        {hasDataLabelOption(type) && isDualAxesChart && (
+          <Grid item xs={3} className={topFormControl}>
+            <FormControlLabel
+              className={topCheckbox2}
+              control={
+                <Checkbox
+                  name='configuration:showDataLabels2'
+                  checked={showDataLabels2 || false}
+                  onChange={checkboxUpdated}
+                  color='primary'
+                />
+              }
+              label={
+                type === 'columnline'
+                  ? 'Data Labels (Line)'
+                  : type === 'dualline'
+                  ? 'Data Labels (Line 2)'
+                  : 'Data Labels'
+              }
+              labelPlacement='top'
+            />
+          </Grid>
+        )}
       </Grid>
-      {hasHorizontalOption(type) && (
-        <Grid item xs={3} className={topFormControl}>
+      {/* END FIRST ROW  */}
+      {/* SECOND ROW */}
+      <Grid container>
+        <Grid item xs={8}>
+          <TextField
+            fullWidth
+            label='Chart Title'
+            name='configuration:title'
+            value={title || ''}
+            onChange={handleChangeObj}
+            autoComplete='off'
+          />
+        </Grid>
+        <Grid item xs={4}>
           <FormControlLabel
             className={topCheckbox}
             control={
               <Checkbox
-                name='configuration:horizontal'
-                checked={horizontal || false}
+                name='configuration:showLastExecuted'
+                checked={showLastExecuted || false}
                 onChange={checkboxUpdated}
                 color='primary'
               />
             }
-            label='Horizontal'
+            label='Show Last Executed'
             labelPlacement='end'
           />
         </Grid>
-      )}
-      {hasDynamicOption(type) && (
-        <Grid item xs={3} className={topFormControl}>
-          <FormControlLabel
-            className={staticCheckbox}
-            control={
-              <Checkbox
-                name='configuration:isStatic'
-                checked={isStatic || false}
-                onChange={checkboxUpdated}
-                color='primary'
-              />
-            }
-            label='Static'
-            labelPlacement='end'
-          />
-        </Grid>
-      )}
-      {hasDataLabelOption(type) && (
-        <Grid item xs={3} className={topFormControl}>
-          <FormControlLabel
-            className={clsx(topCheckbox, { [topCheckbox2]: isDualAxesChart })}
-            control={
-              <Checkbox
-                name='configuration:showDataLabels'
-                checked={showDataLabels || false}
-                onChange={checkboxUpdated}
-                color='primary'
-              />
-            }
-            label={
-              type === 'columnline'
-                ? 'Data Labels (Column)'
-                : type === 'dualline'
-                ? 'Data Labels (Line)'
-                : 'Data Labels'
-            }
-            labelPlacement={isDualAxesChart ? 'top' : 'end'}
-          />
-        </Grid>
-      )}
-      {hasDataLabelOption(type) && isDualAxesChart && (
-        <Grid item xs={3} className={topFormControl}>
-          <FormControlLabel
-            className={topCheckbox2}
-            control={
-              <Checkbox
-                name='configuration:showDataLabels2'
-                checked={showDataLabels2 || false}
-                onChange={checkboxUpdated}
-                color='primary'
-              />
-            }
-            label={
-              type === 'columnline'
-                ? 'Data Labels (Line)'
-                : type === 'dualline'
-                ? 'Data Labels (Line 2)'
-                : 'Data Labels'
-            }
-            labelPlacement='top'
-          />
-        </Grid>
-      )}
-      <Grid item xs={8}>
-        <TextField
-          fullWidth
-          label='Chart Title'
-          name='configuration:title'
-          value={title || ''}
-          onChange={handleChangeObj}
-          autoComplete='off'
-        />
       </Grid>
-      <Grid item xs={4}>
-        <FormControlLabel
-          className={topCheckbox}
-          control={
-            <Checkbox
-              name='configuration:showLastExecuted'
-              checked={showLastExecuted || false}
-              onChange={checkboxUpdated}
-              color='primary'
-            />
-          }
-          label='Show Last Executed'
-          labelPlacement='end'
-        />
+      {/* END SECOND ROW */}
+      {/* THIRD ROW */}
+      <TextField
+        fullWidth
+        label='Chart Description (Optional)'
+        name='configuration:chartDescription'
+        value={chartDescription || ''}
+        onChange={handleChangeObj}
+        autoComplete='off'
+      />
+      {/*END THIRD ROW */}
+      {/* FOURTH ROW */}
+      <Grid container>
+        {type === 'dualline' || type === 'columnline' ? (
+          <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
+        ) : type === 'gauge' ? (
+          <GaugeParams {...props} />
+        ) : type === 'heatmap' ? (
+          <HeatmapParams {...props} />
+        ) : type === 'histogram' ? (
+          <HistogramParams {...props} />
+        ) : type === 'pie' || type === 'donut' ? (
+          <PieParams {...props} />
+        ) : type === 'map' ? (
+          <MapParams {...props} />
+        ) : type === 'table' ? (
+          <TableParams {...props} />
+        ) : type === 'textBox' ? (
+          <TextBoxParams {...props} />
+        ) : (
+          <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
+        )}
       </Grid>
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label='Chart Description (Optional)'
-          name='configuration:chartDescription'
-          value={chartDescription || ''}
-          onChange={handleChangeObj}
-          autoComplete='off'
-        />
-      </Grid>
-      {type === 'dualline' || type === 'columnline' ? (
-        <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
-      ) : type === 'gauge' ? (
-        <GaugeParams {...props} />
-      ) : type === 'heatmap' ? (
-        <HeatmapParams {...props} />
-      ) : type === 'histogram' ? (
-        <HistogramParams {...props} />
-      ) : type === 'pie' || type === 'donut' ? (
-        <PieParams {...props} />
-      ) : type === 'map' ? (
-        <MapParams {...props} />
-      ) : type === 'table' ? (
-        <TableParams {...props} />
-      ) : type === 'textBox' ? (
-        <TextBoxParams {...props} />
-      ) : (
-        <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
-      )}
-    </Grid>
+      {/* END FOURTH ROW */}
+    </>
   );
 };
 

@@ -30,6 +30,16 @@ const initState = {
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
     mapFields: [{ label: '', name: '' }],
     type: 'bar',
+    mapMarkers: [
+      {
+        id: null,
+        longitude: '',
+        latitude: '',
+        markerIcon: '',
+        markerColor: '#C62136',
+        popUpInfo: [{ id: null, datafieldName: '', label: '' }],
+      },
+    ],
   },
   dataObj: { loading: false },
   dataset: '',

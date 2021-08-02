@@ -144,7 +144,7 @@ const ChartComp = ({
       chartComp = <Heatmap data={data} configuration={configuration} pdfPreview={pdfPreview} />;
       break;
     case 'map':
-      chartComp = <Map data={data} configuration={configuration} pdfPreview={pdfPreview} />;
+      chartComp = <Map chartID={chartID} data={data} configuration={configuration} pdfPreview={pdfPreview} />;
       break;
     case 'gauge':
       chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
