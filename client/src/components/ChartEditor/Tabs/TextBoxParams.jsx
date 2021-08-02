@@ -1,6 +1,20 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormControl, Grid, TextField, CircularProgress, InputLabel, Select } from '@material-ui/core';
+import {
+  FormControl,
+  Grid,
+  TextField,
+  CircularProgress,
+  InputLabel,
+  Select,
+  Box,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from '@material-ui/core';
+import FormatAlignLeftIcon from '@material-ui/icons/FormatAlignLeft';
+import FormatAlignCenterIcon from '@material-ui/icons/FormatAlignCenter';
+import FormatAlignRightIcon from '@material-ui/icons/FormatAlignRight';
 
 // Utils
 import { getMessage } from '../../../utils/misc';
@@ -12,18 +26,19 @@ const useStyles = makeStyles(theme => ({
   formControl: { marginTop: theme.spacing(1) },
   progress: { margin: 0, marginTop: 50 },
   textfield: { paddingTop: theme.spacing(0.5) },
+  textAlign: { color: theme.palette.info.main },
 }));
 
 const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
   const { schema = [] } = eclRef.current;
   const {
     chartID,
-    configuration: { dataFields, isStatic = false, textBoxContent },
+    configuration: { dataFields, isStatic = false, textBoxContent, textBoxAlignText },
     selectedDataset = {},
     sourceType,
   } = localState;
   const { fields = [] } = selectedDataset;
-  const { formControl, progress, textfield } = useStyles();
+  const { formControl, progress, textfield, textAlign } = useStyles();
 
   const updateArr = ({ target }) => {
     const { name, options } = target;
@@ -43,6 +58,45 @@ const TextBoxParams = ({ eclRef, handleChangeObj, localState }) => {
 
   return (
     <Grid item md={12}>
+      <Box mt={1}>
+        <FormControl component='fieldset'>
+          <RadioGroup
+            name='configuration:textBoxAlignText'
+            value={textBoxAlignText}
+            onChange={handleChangeObj}
+          >
+            <Box display='flex'>
+              <FormControlLabel
+                value='left'
+                control={
+                  <Radio
+                    checkedIcon={<FormatAlignLeftIcon className={textAlign} />}
+                    icon={<FormatAlignLeftIcon />}
+                  />
+                }
+              />
+              <FormControlLabel
+                value='center'
+                control={
+                  <Radio
+                    checkedIcon={<FormatAlignCenterIcon className={textAlign} />}
+                    icon={<FormatAlignCenterIcon />}
+                  />
+                }
+              />
+              <FormControlLabel
+                value='right'
+                control={
+                  <Radio
+                    checkedIcon={<FormatAlignRightIcon className={textAlign} />}
+                    icon={<FormatAlignRightIcon />}
+                  />
+                }
+              />
+            </Box>
+          </RadioGroup>
+        </FormControl>
+      </Box>
       <Grid container spacing={2}>
         <Grid item md={!isStatic ? 8 : 12}>
           <FormControl className={formControl} fullWidth>

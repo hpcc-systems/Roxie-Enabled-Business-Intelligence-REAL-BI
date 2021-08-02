@@ -14,6 +14,9 @@ const useStyles = makeStyles(theme => ({
       width: 0 /* Remove scrollbar space */,
       background: 'transparent' /* Optional: just make scrollbar invisible */,
     },
+    '& *': {
+      textAlign: props => props.textBoxAlignText,
+    },
   },
   textDesc: { color: 'grey', fontSize: 12 },
 }));
@@ -21,7 +24,7 @@ const useStyles = makeStyles(theme => ({
 const TextBox = ({ data, configuration }) => {
   const { description } = configuration;
   let { textBoxContent = '' } = configuration;
-  const { div, textDesc } = useStyles();
+  const { div, textDesc } = useStyles(configuration);
 
   if (data && data.length > 0) {
     const dataField = data[0];
