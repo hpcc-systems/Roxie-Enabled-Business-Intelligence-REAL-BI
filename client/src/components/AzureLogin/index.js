@@ -14,6 +14,7 @@ function AzureAppContainer() {
       <Router>
         <Switch>
           <Route path='/workspace/:workspaceID?' component={WorkspaceAzureWrapper} />
+          <Route path='/:appname/:filename?' component={WorkspaceAzureWrapper} />
           <Route path='*' component={AzureLoginPage} />
         </Switch>
       </Router>

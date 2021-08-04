@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  const { workspaceID } = useParams();
+  const { workspaceID, appname, filename } = useParams();
   const history = useHistory();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
@@ -52,6 +52,10 @@ const Workspace = () => {
       getWorkspace(workspaceID)
         .then(actions => actions.forEach(action => dispatch(action)))
         .catch(action => dispatch(action));
+    }
+    if (appname && filename) {
+      console.log('appname :>> ', appname);
+      console.log('filename :>> ', filename);
     }
   }, [workspaceID]);
 

@@ -47,6 +47,7 @@ function AzureLoginPage() {
   useEffect(() => {
     if (user.id) {
       if (redirectedFrom) {
+        console.log(`redirectedFrom`, redirectedFrom);
         history.push(redirectedFrom);
       } else {
         history.push(`/workspace/${user.lastViewedWorkspace || ''}`);
