@@ -33,7 +33,7 @@ const DeleteWorkspace = ({ show, toggleDialog }) => {
         batch(() => {
           actions.forEach(action => dispatch(action));
         });
-
+        localStorage.removeItem(`lastViewedDashIndex:${workspaceID}`);
         toggleDialog();
         history.push('/workspace');
       })
