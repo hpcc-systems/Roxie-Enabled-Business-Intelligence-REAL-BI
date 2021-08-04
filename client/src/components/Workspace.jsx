@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import React, { Fragment, useEffect, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, IconButton, Tab, Tabs, Box, Typography } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Box, Typography } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
 import _orderBy from 'lodash/orderBy';
 import clsx from 'clsx';
@@ -20,6 +20,7 @@ import { getDashboard, clearDashboard } from '../features/dashboard/actions';
 
 // React Hooks
 import useDrawer from '../hooks/useDrawer';
+import _ from 'lodash';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -36,8 +37,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  const { workspaceID, appname, filename } = useParams();
-  const history = useHistory();
+  const { workspaceID } = useParams();
+
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
@@ -50,7 +51,16 @@ const Workspace = () => {
     if (workspaceID) {
       dispatch(clearDashboard());
       getWorkspace(workspaceID)
-        .then(actions => actions.forEach(action => dispatch(action)))
+        .then(actions => {
+          batch(() => {
+            const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
+            actions.forEach(action => dispatch(action));
+            setTabIndex(0);
+            if (lastViewedDash) {
+              setTabIndex(parseInt(lastViewedDash));
+            }
+          });
+        })
         .catch(action => dispatch(action));
     }
     if (appname && filename) {
@@ -59,33 +69,30 @@ const Workspace = () => {
     }
   }, [workspaceID]);
 
-  const getDashboardInfo = useCallback(
-    index => {
-      (async () => {
-        try {
-          const action = await getDashboard(_orderBy(openDashboards, ['updatedAt'], ['asc'])[index].id);
-          dispatch(action);
-        } catch (error) {
-          dispatch(error);
-        }
-      })();
-    },
-    [dispatch, openDashboards],
-  );
+  const getDashboardInfo = async index => {
+    dispatch(clearDashboard());
+    try {
+      const action = await getDashboard(openDashboards[index].id);
+      dispatch(action);
+    } catch (error) {
+      dispatch(error);
+    }
+  };
+
+  const deboucedGetDashboardInfo = useCallback(_.debounce(getDashboardInfo, 500), [openDashboards]);
 
   useEffect(() => {
     if (openDashboards.length > 0) {
-      dispatch(clearDashboard());
-
       // Reset tabIndex to 0 if it falls outside bounds of array
       if (tabIndex >= openDashboards.length) {
         setTabIndex(0);
-        return getDashboardInfo(0);
+        localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, '0');
+        return deboucedGetDashboardInfo(0);
       }
-
-      getDashboardInfo(tabIndex);
+      deboucedGetDashboardInfo(tabIndex);
+      localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, tabIndex.toString());
     }
-  }, [dispatch, getDashboardInfo, openDashboards, tabIndex]);
+  }, [openDashboards, tabIndex]);
 
   useEffect(() => {
     if (openDashboards.length === 0 && dashboardID) {
@@ -93,17 +100,22 @@ const Workspace = () => {
     }
   }, [dashboardID, dispatch, openDashboards]);
 
-  const changeTabIndex = (event, newValue) => setTabIndex(newValue);
+  const changeTabIndex = (event, newValue) => {
+    setTabIndex(newValue);
+  };
 
-  const closeDashboardTab = async dashboardID => {
+  const closeDashboardTab = async (event, dashboardID) => {
+    event.preventDefault();
+    event.stopPropagation();
     try {
       const actions = await Promise.all([
         closeDashboardInWorkspace(dashboardID, workspaceID),
         clearDashboard(),
       ]);
-      // Reset tab position
-      setTabIndex(0);
-      batch(() => actions.forEach(action => dispatch(action)));
+      batch(() => {
+        actions.forEach(action => dispatch(action));
+        setTabIndex(0);
+      });
     } catch (error) {
       dispatch(error);
     }
@@ -118,7 +130,7 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
-            {_orderBy(openDashboards, ['updatedAt'], ['asc']).map((dashboard, index) => {
+            {openDashboards.map((dashboard, index) => {
               return (
                 <Tab
                   component='div'
@@ -132,7 +144,7 @@ const Workspace = () => {
                       </Typography>
                       <CloseIcon
                         className={closeTab}
-                        onClick={() => closeDashboardTab(dashboard.id)}
+                        onClick={event => closeDashboardTab(event, dashboard.id)}
                         fontSize='small'
                       />
                     </Box>

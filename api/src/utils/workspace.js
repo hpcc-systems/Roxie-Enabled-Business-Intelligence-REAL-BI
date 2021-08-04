@@ -73,6 +73,7 @@ const getWorkspaceByID = async (id, userID) => {
         },
       },
     ],
+    order: [[{ model: openDashboard, as: 'openDashboards' }, 'updatedAt', 'ASC']],
   });
   workspace = unNestSequelizeObj(workspace);
   workspace.directory = workspace.directory[0].directory;
