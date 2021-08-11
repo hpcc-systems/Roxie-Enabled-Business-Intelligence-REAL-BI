@@ -44,6 +44,7 @@ const RecursiveTreeView = props => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorName, setAnchorName] = useState('');
   const permission = workspace?.permission || 'Read-Only';
+  const dashboards = workspace?.dashboards;
 
   const rootLabel = (
     <div className={rootDiv}>
@@ -77,6 +78,8 @@ const RecursiveTreeView = props => {
 
   const renderTree = directoryObj => {
     const { children, id, name } = directoryObj;
+    const dash = dashboards.find(dash => dash.id === id);
+    const dashBoardPermission = dash?.permission || permission; // this will check if we have dashboardPermission inplace if not we will fallback to workspace permission.
     const isFolder = directoryObj.children ? true : false;
     const label = (
       <div className={labelDiv}>
@@ -92,7 +95,7 @@ const RecursiveTreeView = props => {
           </IconButton>
           {directoryObj.id === anchorName &&
             (isFolder ? (
-              permission !== 'Read-Only' ? (
+              dashBoardPermission !== 'Read-Only' ? (
                 <FolderSubMenu
                   {...props}
                   anchorEl={anchorEl}
@@ -107,7 +110,7 @@ const RecursiveTreeView = props => {
                 {...props}
                 anchorEl={anchorEl}
                 directoryObj={directoryObj}
-                permission={permission}
+                permission={dashBoardPermission}
                 setAnchorEl={setAnchorEl}
                 setAnchorName={setAnchorName}
               />

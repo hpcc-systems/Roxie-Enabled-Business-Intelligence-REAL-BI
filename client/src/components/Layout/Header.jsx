@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
 import clsx from 'clsx';
 // import TestTomboloIntegration from '../TestTomboloIntegration';
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 'bold',
   },
   typography2: { marginLeft: 0 },
-  workspaceDiv: { flexGrow: 1 },
+  workspaceDiv: { flexGrow: 1, display: 'flex', alignItems: 'center' },
 }));
 
 const Header = ({ toggleDrawer }) => {
@@ -98,7 +98,8 @@ const Header = ({ toggleDrawer }) => {
   }, [open, open2]);
 
   const isChangePwdScreen = location.pathname === '/changepwd';
-  const permission = workspace?.permission || 'Read-Only';
+  const isWorkspaceOwner = workspace?.permission === 'Owner';
+  const isPublic = workspace?.visibility === 'public';
 
   return (
     <Fragment>
@@ -122,7 +123,7 @@ const Header = ({ toggleDrawer }) => {
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
                   <WorkspaceSelector />
-                  {lastViewedWorkspace && permission !== 'Read-Only' && (
+                  {lastViewedWorkspace && isWorkspaceOwner && (
                     <Fragment>
                       <IconButton
                         edge='start'
@@ -135,16 +136,37 @@ const Header = ({ toggleDrawer }) => {
                       <IconButton
                         edge='start'
                         color='inherit'
-                        onClick={toggleDeleteWorkspace}
+                        onClick={toggleNewWorkspace}
                         className={iconBtn}
                       >
-                        <DeleteIcon fontSize='small' />
+                        <AddCircle fontSize='small' />
                       </IconButton>
                     </Fragment>
                   )}
-                  <IconButton edge='start' color='inherit' onClick={toggleNewWorkspace} className={iconBtn}>
-                    <AddCircle fontSize='small' />
-                  </IconButton>
+                  {workspace?.id && (
+                    <IconButton
+                      edge='start'
+                      color='inherit'
+                      onClick={toggleDeleteWorkspace}
+                      className={iconBtn}
+                    >
+                      <DeleteIcon fontSize='small' />
+                    </IconButton>
+                  )}
+                  {isPublic && (
+                    <Box ml={3}>
+                      <Typography variant='body2' component='span'>
+                        This workspace is public!
+                      </Typography>
+                    </Box>
+                  )}
+                  {!isWorkspaceOwner && workspace?.id && (
+                    <Box ml={1}>
+                      <Typography variant='body2' component='span'>
+                        You have limited access to this workspace {workspace?.permission}
+                      </Typography>
+                    </Box>
+                  )}
                 </div>
               ) : (
                 <div style={{ flexGrow: 1 }}></div>

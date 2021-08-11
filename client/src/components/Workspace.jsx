@@ -37,8 +37,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  const { workspaceID } = useParams();
-
+  const { workspaceID, fileName, dashID } = useParams();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
@@ -47,25 +46,23 @@ const Workspace = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab } = useStyles();
 
+  const isTabfromURLparamsUpdated = React.useRef(false); // we will keep a track to run tab switch only once and only if we have dashID and filename in URL
+
   useEffect(() => {
+    const handleTabsAndActions = actions => {
+      batch(() => {
+        const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
+        lastViewedDash ? setTabIndex(parseInt(lastViewedDash)) : setTabIndex(0);
+        actions.forEach(action => dispatch(action));
+      });
+    };
+
     if (workspaceID) {
       dispatch(clearDashboard());
-      getWorkspace(workspaceID)
-        .then(actions => {
-          batch(() => {
-            const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
-            actions.forEach(action => dispatch(action));
-            setTabIndex(0);
-            if (lastViewedDash) {
-              setTabIndex(parseInt(lastViewedDash));
-            }
-          });
-        })
+      dashID ? dashID : null;
+      getWorkspace(workspaceID, dashID)
+        .then(handleTabsAndActions)
         .catch(action => dispatch(action));
-    }
-    if (appname && filename) {
-      console.log('appname :>> ', appname);
-      console.log('filename :>> ', filename);
     }
   }, [workspaceID]);
 
@@ -79,17 +76,24 @@ const Workspace = () => {
     }
   };
 
-  const deboucedGetDashboardInfo = useCallback(_.debounce(getDashboardInfo, 500), [openDashboards]);
+  const debouncedGetDashboardInfo = useCallback(_.debounce(getDashboardInfo, 500), [openDashboards]);
 
   useEffect(() => {
     if (openDashboards.length > 0) {
+      if (dashID && fileName) {
+        if (!isTabfromURLparamsUpdated.current) {
+          const urldashIDIndex = openDashboards.findIndex(dash => dash.id === dashID);
+          urldashIDIndex > -1 && setTabIndex(urldashIDIndex);
+        }
+        isTabfromURLparamsUpdated.current = true;
+      }
       // Reset tabIndex to 0 if it falls outside bounds of array
       if (tabIndex >= openDashboards.length) {
         setTabIndex(0);
         localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, '0');
-        return deboucedGetDashboardInfo(0);
+        return debouncedGetDashboardInfo(0);
       }
-      deboucedGetDashboardInfo(tabIndex);
+      debouncedGetDashboardInfo(tabIndex);
       localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, tabIndex.toString());
     }
   }, [openDashboards, tabIndex]);

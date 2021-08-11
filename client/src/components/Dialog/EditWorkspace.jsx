@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
+  Switch,
   TextField,
   Typography,
 } from '@material-ui/core';
+import { blue } from '@material-ui/core/colors';
 
 // Redux Actions
 import { updateWorkspace } from '../../features/workspace/actions';
@@ -25,17 +28,44 @@ const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: 24 },
 }));
 
+const BlueSwitch = withStyles({
+  switchBase: {
+    color: blue[300],
+    '&$checked': {
+      color: blue[500],
+    },
+    '&$checked + $track': {
+      backgroundColor: blue[500],
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
+
 const EditWorkspace = ({ show, toggleDialog }) => {
   const { errorObj, workspace } = useSelector(state => state.workspace);
   const { message: errMessage = '' } = errorObj;
   const { id: workspaceID, name } = workspace;
   const [workspaceName, setWorkspaceName] = useState(name);
+  const [publicWorkspace, setPublicWorkspace] = React.useState(false);
+
+  React.useEffect(() => {
+    if (workspace?.visibility) {
+      const publicWorkspace = workspace.visibility === 'private' ? false : true;
+      setPublicWorkspace(publicWorkspace);
+    }
+  }, [workspace]);
+
+  const handleWorkspaceVisibility = event => {
+    setPublicWorkspace(event.target.checked);
+  };
+
   const dispatch = useDispatch();
   const { button, errMsg, formControl } = useStyles();
 
   const editWorkspace = async () => {
     try {
-      const actions = await updateWorkspace(workspaceName, workspaceID);
+      const actions = await updateWorkspace({ workspaceName, publicWorkspace }, workspaceID);
       batch(() => {
         actions.forEach(action => dispatch(action));
         toggleDialog();
@@ -61,6 +91,14 @@ const EditWorkspace = ({ show, toggleDialog }) => {
           value={workspaceName}
           onChange={e => setWorkspaceName(e.target.value)}
         />
+
+        <Grid component='label' container alignItems='center' spacing={1}>
+          <Grid item>Private</Grid>
+          <Grid item>
+            <BlueSwitch checked={publicWorkspace} onChange={handleWorkspaceVisibility} />
+          </Grid>
+          <Grid item>Public</Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
         <Button color='secondary' variant='contained' onClick={toggleDialog}>

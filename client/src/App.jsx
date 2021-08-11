@@ -51,7 +51,7 @@ const App = () => {
                 <Route exact path='/register/:shareID?' component={Register} />
                 <Route exact path='/forgot-password' component={ForgotPwd} />
                 <Route exact path='/reset-password/:resetUUID?' component={ResetPwd} />
-                <PrivateRoute path='/workspace/:workspaceID?' component={Workspace} />
+                <PrivateRoute path='/workspace/:workspaceID?/:dashID?/:fileName?/' component={Workspace} />
                 <PrivateRoute exact path='/changepwd' component={ChangePwd} />
                 <Route path='/' component={Login} />
               </Switch>

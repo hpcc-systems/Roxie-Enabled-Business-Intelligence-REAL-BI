@@ -13,8 +13,7 @@ function AzureAppContainer() {
     <MsalProvider instance={msalInstance}>
       <Router>
         <Switch>
-          <Route path='/workspace/:workspaceID?' component={WorkspaceAzureWrapper} />
-          <Route path='/:appname/:filename?' component={WorkspaceAzureWrapper} />
+          <Route path='/workspace/:workspaceID?/:dashID?/:fileName?/' component={WorkspaceAzureWrapper} />
           <Route path='*' component={AzureLoginPage} />
         </Switch>
       </Router>

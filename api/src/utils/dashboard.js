@@ -12,6 +12,7 @@ const {
   source_type: SourceType,
   user: User,
 } = require('../models');
+const { createOrUpdateDashboardPermission } = require('./dashboardPermission');
 const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
 const getDashboardByID = async (id, userID) => {
@@ -24,8 +25,8 @@ const getDashboardByID = async (id, userID) => {
         model: DashboardPermission,
         as: 'permission',
         where: { userID },
-        required: true,
-        include: { model: Role, attributes: ['name'], required: true },
+        required: false,
+        include: { model: Role, attributes: ['name'], required: false },
       },
       {
         model: DashboardFilter,
@@ -80,7 +81,7 @@ const getDashboardByID = async (id, userID) => {
     ],
   });
   dashboard = unNestSequelizeObj(dashboard);
-  dashboard.permission = dashboard.permission[0].role.name;
+  dashboard.permission = dashboard?.permission?.[0]?.role?.name || 'Read-Only'; // if now permission is in DB then user came via shared link and should have read only permission
   dashboard.cluster = unNestSequelizeObj(dashboard.cluster);
   dashboard.charts = dashboard.charts.map(chart => {
     chart = unNestSequelizeObj(chart);
@@ -174,17 +175,30 @@ const updateDashboardLayout = async (dashboadrId, newLayout) => {
   return await Dashboard.update({ layout: newLayout }, { where: { id: dashboadrId } });
 };
 
-const getDashboardByWokspaceAndCluster = async (workspaceID, clusterID, userID, name) => {
+const getDashboardByWorkspaceAndCluster = async (workspaceID, clusterID, name) => {
   const dashboard = await Dashboard.findOne({
     where: { workspaceID, clusterID, name },
   });
-  if (dashboard && dashboard.id) {
-    return await getDashboardByID(dashboard.id, userID);
+  return dashboard;
+};
+
+const getDashboardsByWorkspaceID = async workspaceID => {
+  return await Dashboard.findAll({ where: { workspaceID } });
+};
+
+const findOrCreateDashboard = async (workspaceID, clusterID, userID, dashboardName) => {
+  const dashboard = await getDashboardByWorkspaceAndCluster(workspaceID, clusterID, dashboardName);
+  let dashbordID = dashboard?.id;
+  if (!dashboard) {
+    dashbordID = await createDashboard({ name: dashboardName, clusterID }, workspaceID);
   }
-  return null;
+  await createOrUpdateDashboardPermission(dashbordID, userID, 'Owner');
+  return await getDashboardByID(dashbordID, userID);
 };
 
 module.exports = {
+  getDashboardsByWorkspaceID,
+  findOrCreateDashboard,
   createDashboard,
   deleteDashboardByID,
   getDashboardByID,
@@ -192,5 +206,5 @@ module.exports = {
   updateDashboardByID,
   updateDashboardLayout,
   getDashboardPermission,
-  getDashboardByWokspaceAndCluster,
+  getDashboardByWokspaceAndCluster: getDashboardByWorkspaceAndCluster,
 };

@@ -19,12 +19,13 @@ export const getWorkspaces = async () => {
   }
 };
 
-export const getWorkspace = async workspaceID => {
+export const getWorkspace = async (workspaceID, dashID) => {
   try {
-    const response = await axios.get('/api/v1/workspace/find', { params: { workspaceID } });
+    const response = await axios.get('/api/v1/workspace/find', { params: { workspaceID, dashID } });
     return [
-      { type: GET_WORKSPACE, payload: response.data },
-      { type: SET_LAST_WORKSPACE, payload: response.data.id },
+      { type: GET_WORKSPACE, payload: response.data.workspace }, //big object with all assets for workspace and dashboards
+      { type: GET_WORKSPACES, payload: response.data.workspaces }, //populate dropdown
+      { type: SET_LAST_WORKSPACE, payload: response.data.workspace.id },
     ];
   } catch (error) {
     throw { type: SET_WORKSPACE_ERROR, payload: error.response.data };
@@ -42,13 +43,13 @@ export const createNewWorkspace = async localState => {
   }
 };
 
-export const updateWorkspace = async (name, workspaceID) => {
+export const updateWorkspace = async (options, workspaceID) => {
   try {
-    const response = await axios.put('/api/v1/workspace/', { name, workspaceID });
+    const response = await axios.put('/api/v1/workspace/', { ...options, workspaceID });
 
     const actions = [
-      { type: GET_WORKSPACES, payload: response.data },
-      { type: GET_WORKSPACE, payload: response.data.find(({ id }) => id === workspaceID) },
+      { type: GET_WORKSPACES, payload: response.data.workspaces },
+      { type: GET_WORKSPACE, payload: response.data.currentWorkspace },
     ];
 
     return actions;

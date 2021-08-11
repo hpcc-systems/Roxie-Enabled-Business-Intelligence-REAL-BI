@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
 import { Refresh as RefreshIcon, TableChart as TableChartIcon } from '@material-ui/icons';
 import clsx from 'clsx';
+import { useHistory, useParams } from 'react-router-dom';
 
 // Redux Actions
 import { createChart } from '../../features/dashboard/actions';
@@ -55,6 +56,7 @@ const initState = {
   sourceType: 'query',
   keywordfromExplorer: false,
   isAutoCompleteLoading: false,
+  isIntegration: false,
 };
 
 // Create styles
@@ -89,6 +91,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const dispatch = useDispatch();
   const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
 
+  const { workspaceID, dashID, fileName } = useParams();
+  const history = useHistory();
   // Reference values
   const {
     dataObj: { data = [], loading },
@@ -98,6 +102,16 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   } = localState;
   const sourceKeys = Object.keys(selectedSource).length;
   const datasetKeys = Object.keys(selectedDataset).length;
+
+  useEffect(() => {
+    if (fileName) {
+      formFieldsUpdate({
+        isIntegration: true,
+        sourceType: 'file',
+        keyword: fileName,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     handleChange(null, { name: 'errors', value: [] });
@@ -146,6 +160,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         dispatch(action);
         getChartData([action.payload.id], {});
         addChartToLayout(action.payload);
+        history.push(`/workspace/${workspaceID}/${dashID}`);
         return toggleDialog();
       } catch (error) {
         return dispatch(error);

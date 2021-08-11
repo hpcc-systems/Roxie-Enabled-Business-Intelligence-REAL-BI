@@ -1,5 +1,6 @@
 const {
   dashboard: Dashboard,
+  dashboard_permission: DashboardPermission,
   open_dashboard: openDashboard,
   role: Role,
   workspace: Workspace,
@@ -9,10 +10,11 @@ const {
 const { unNestSequelizeObj, removeFields } = require('./sequelize');
 const logger = require('../config/logger');
 const transporter = require('../config/nodemailer');
+const { createOrUpdateWorkspacePermission } = require('./workspacePermission');
 const { SHARE_FROM_EMAIL, SHARE_URL } = process.env;
 
-const createWorkspace = async (name, ownerID) => {
-  let workspace = await Workspace.create({ name, ownerID });
+const createWorkspace = async (name, ownerID, visibility = 'private') => {
+  let workspace = await Workspace.create({ name, ownerID, visibility });
   await workspaceDirectory.create({ workspaceID: workspace.id, userID: ownerID });
   workspace = unNestSequelizeObj(workspace);
 
@@ -48,7 +50,7 @@ const getWorkspaceByID = async (id, userID) => {
       {
         model: workspaceDirectory,
         as: 'directory',
-        where: { userID },
+        where: { workspaceID: id },
         required: true,
       },
       {
@@ -72,10 +74,31 @@ const getWorkspaceByID = async (id, userID) => {
           required: true,
         },
       },
+      {
+        model: Dashboard,
+        as: 'dashboards',
+        attributes: ['id', 'name'],
+        include: {
+          model: DashboardPermission,
+          as: 'permission',
+          attributes: ['id', 'userID'],
+          include: {
+            model: Role,
+            attributes: ['name'],
+          },
+        },
+      },
     ],
     order: [[{ model: openDashboard, as: 'openDashboards' }, 'updatedAt', 'ASC']],
   });
+
   workspace = unNestSequelizeObj(workspace);
+  // console.log('-----------------------');
+  // console.log(
+  //   `workspace`,
+  //   workspace.dashboards.map(dash => dash.permission[0].toJSON()),
+  // );
+  // console.log('-----------------------');
   workspace.directory = workspace.directory[0].directory;
   workspace.permission = workspace.permission[0].role.name;
   workspace.openDashboards = workspace.openDashboards.map(openDashboard => {
@@ -85,12 +108,28 @@ const getWorkspaceByID = async (id, userID) => {
 
     return openDashboard;
   });
+  workspace.dashboards = workspace.dashboards.map(dashboard => {
+    const dashObject = dashboard.toJSON();
+    let dashboardPermission;
+    if (dashObject.permission.length > 0) {
+      const userPermission = dashObject.permission.find(permission => permission.userID === userID);
+      dashboardPermission = userPermission ? userPermission.role.name : 'Read-Only';
+    } else {
+      dashboardPermission = 'Read-Only';
+    }
+    dashObject.permission = dashboardPermission;
+    return dashObject;
+  });
+
+  console.log('-----------');
+  console.log(`workspace`, workspace);
+  console.log('-----------');
 
   return workspace;
 };
 
-const updateWorkspaceByID = async (name, id) => {
-  return await Workspace.update({ name }, { where: { id } });
+const updateWorkspaceByID = async (updatedFields, id) => {
+  return await Workspace.update({ ...updatedFields }, { where: { id } });
 };
 
 const deleteWorkspaceByID = async id => {
@@ -113,7 +152,21 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
   return logger.info(`Email sent with share id ${shareID} and message id ${info.messageId}`);
 };
 
+const findOrCreatePublicWorkspace = async (userID, workspaceName) => {
+  let workspace = await await Workspace.findOne({ where: { name: workspaceName, visibility: 'public' } });
+  if (!workspace) {
+    workspace = await createWorkspace(workspaceName, userID, 'public');
+  }
+  await createOrUpdateWorkspacePermission(workspace.id, userID, 'Owner'); // everybody who hit this route are workspace owners cuz it is public. this will add ws to dropdown list in ui
+  return workspace;
+};
+const getWorkspaceFromDB = async condition => {
+  return await Workspace.findOne({ where: condition });
+};
+
 module.exports = {
+  getWorkspaceFromDB,
+  findOrCreatePublicWorkspace,
   createWorkspace,
   deleteWorkspaceByID,
   getWorkspaceByID,

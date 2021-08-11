@@ -22,6 +22,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     sources,
     keywordfromExplorer,
     sourceType,
+    isIntegration,
     isAutoCompleteLoading,
   } = localState;
   const { id: clusterID } = dashboard.cluster;
@@ -33,9 +34,13 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     try {
       const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
       formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
-      if (chartID) {
+      if (chartID || isIntegration) {
         const selectedSource = data.find(({ name }) => name === keyword);
-        formFieldsUpdate({ selectedSource });
+        if (isIntegration) {
+          handleOnChange(null, selectedSource);
+        } else {
+          formFieldsUpdate({ selectedSource });
+        }
       }
     } catch (error) {
       formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });

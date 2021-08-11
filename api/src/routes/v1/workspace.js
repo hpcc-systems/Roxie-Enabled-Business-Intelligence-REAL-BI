@@ -1,10 +1,14 @@
 const router = require('express').Router();
+
+const { getDashboardsByWorkspaceID } = require('../../utils/dashboard');
+const { changeDashboardsPermissionByWorkspaceID } = require('../../utils/dashboardPermission');
 const {
   getOpenDashboardsByUser,
   createOpenDashboard,
   getOpenDashboard,
   restoreOpenDashboard,
   deleteOpenDashboard,
+  addDashboardAsOpenDashboad,
 } = require('../../utils/openDashboards');
 const { updateLastViewedWorkspace } = require('../../utils/user');
 const {
@@ -13,8 +17,15 @@ const {
   deleteWorkspaceByID,
   getWorkspacesByUserID,
   getWorkspaceByID,
+  getWorkspaceFromDB,
 } = require('../../utils/workspace');
-const { createWorkspacePermission } = require('../../utils/workspacePermission');
+
+const {
+  createWorkspacePermission,
+  deleteWorkspacePermission,
+  createOrUpdateWorkspacePermission,
+  isWorkspacePermissionRole,
+} = require('../../utils/workspacePermission');
 
 router.get('/all', async (req, res, next) => {
   try {
@@ -45,7 +56,7 @@ router.post('/', async (req, res, next) => {
 
 router.put('/', async (req, res, next) => {
   const {
-    body: { name, workspaceID },
+    body: { workspaceName, publicWorkspace, workspaceID },
     user: { id: userID },
   } = req;
 
@@ -56,11 +67,12 @@ router.put('/', async (req, res, next) => {
       const error = new Error('Permission Denied');
       throw error;
     }
-
-    await updateWorkspaceByID(name, workspaceID);
+    const updates = { name: workspaceName, visibility: publicWorkspace ? 'public' : 'private' };
+    await updateWorkspaceByID(updates, workspaceID);
+    const currentWorkspace = await getWorkspaceByID(workspaceID, userID); //gets big object
     const workspaces = await getWorkspacesByUserID(userID);
 
-    return res.status(200).send(workspaces);
+    return res.status(200).send({ workspaces, currentWorkspace });
   } catch (error) {
     return next(error);
   }
@@ -73,14 +85,20 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
-    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+    const { permission = 'Read-Only', visibility } = await getWorkspaceByID(workspaceID, userID);
 
-    if (permission !== 'Owner') {
+    if (permission !== 'Owner' && visibility !== 'public') {
       const error = new Error('Permission Denied');
       throw error;
     }
+    // if it was public workspace we want to delete only permission to use this workspace, it will delete record from dropdown and user wont have access to it
+    if (visibility === 'public') {
+      await changeDashboardsPermissionByWorkspaceID(workspaceID, userID, 'Read-Only');
+      await deleteWorkspacePermission(workspaceID, userID);
+    } else {
+      await deleteWorkspaceByID(workspaceID);
+    }
 
-    await deleteWorkspaceByID(workspaceID);
     const workspaces = await getWorkspacesByUserID(userID);
 
     return res.status(200).send(workspaces);
@@ -106,14 +124,38 @@ router.put('/last', async (req, res, next) => {
 
 router.get('/find', async (req, res, next) => {
   const {
-    query: { workspaceID },
+    query: { workspaceID, dashID },
     user: { id: userID },
   } = req;
 
   try {
-    const workspace = await getWorkspaceByID(workspaceID, userID);
+    let workspace = await getWorkspaceFromDB({ id: workspaceID, visibility: 'public' }); //Check if public
+    // console.log('---------------------');
+    // console.log(`workspace`, workspace);
+    // console.log('---------------------');
+
+    if (workspace) {
+      //if user if OWNER dont change his pemission
+      const isOwner = await isWorkspacePermissionRole(workspaceID, userID, 'Owner');
+      // console.log('-----------------------');
+      // console.log(`isOwner`, isOwner);
+      // console.log('-----------------------');
+
+      if (!isOwner) {
+        await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
+      }
+      //1. check if dashboard exists in workspace
+      const dashboards = await getDashboardsByWorkspaceID(workspaceID);
+
+      const currentDash = dashboards && dashboards.find(dash => dash.id === dashID);
+      //2. add dashboard to openDashboard
+      if (currentDash) await addDashboardAsOpenDashboad(dashID, workspaceID, userID);
+    }
+
+    workspace = await getWorkspaceByID(workspaceID, userID);
     await updateLastViewedWorkspace(workspaceID, userID);
-    return res.status(200).json(workspace);
+    const workspaces = await getWorkspacesByUserID(userID); //this is to populate dropdown with workspaces on top of the page
+    return res.status(200).json({ workspace, workspaces });
   } catch (err) {
     return next(err);
   }

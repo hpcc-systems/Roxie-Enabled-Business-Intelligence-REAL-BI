@@ -26,6 +26,7 @@ import clsx from 'clsx';
 
 // Constants
 import { canAddCharts, canShareDashboard } from '../../utils/misc';
+import { useSelector } from 'react-redux';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -99,6 +100,10 @@ const ToolbarComp = ({
     typographyInfo,
   } = useStyles();
 
+  const workspacePermission = useSelector(({ workspace }) => workspace.workspace.permission);
+
+  const isWorkspaceOwner = workspacePermission === 'Owner';
+
   const handleToggle = num => {
     switch (num) {
       case 2:
@@ -157,10 +162,12 @@ const ToolbarComp = ({
       <Grid container>
         <Grid item xs={6}>
           <Typography variant='h2' color='inherit' className={typography} align='right'>
-            {name}{' '}
-            <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
-              <InfoIcon fontSize='small' />
-            </IconButton>
+            {name}
+            {isWorkspaceOwner ? (
+              <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
+                <InfoIcon fontSize='small' />
+              </IconButton>
+            ) : null}
           </Typography>
         </Grid>
         <Grid item xs={6}>
@@ -185,35 +192,39 @@ const ToolbarComp = ({
                 <RefreshIcon />
               </Button>
             </Tooltip>
-            {canAddCharts(permission) ? (
-              <Tooltip title='Add Chart/Relation' placement='bottom'>
-                <Button
-                  className={button}
-                  variant='contained'
-                  color='primary'
-                  onClick={() => handleToggle(1)}
-                  ref={anchorRef}
-                >
-                  <AddCircleIcon />
-                </Button>
-              </Tooltip>
+            {isWorkspaceOwner ? (
+              <>
+                {canAddCharts(permission) ? (
+                  <Tooltip title='Add Chart/Relation' placement='bottom'>
+                    <Button
+                      className={button}
+                      variant='contained'
+                      color='primary'
+                      onClick={() => handleToggle(1)}
+                      ref={anchorRef}
+                    >
+                      <AddCircleIcon />
+                    </Button>
+                  </Tooltip>
+                ) : null}
+                <Tooltip title='Open filter drawer' placement='bottom'>
+                  <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+                    <FilterListIcon />
+                  </Button>
+                </Tooltip>
+                <Tooltip title='Share dashboard' placement='bottom'>
+                  <Button
+                    className={button}
+                    variant='contained'
+                    color='primary'
+                    onClick={() => handleToggle(2)}
+                    ref={anchorRef2}
+                  >
+                    <ShareIcon />
+                  </Button>
+                </Tooltip>
+              </>
             ) : null}
-            <Tooltip title='Open filter drawer' placement='bottom'>
-              <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-                <FilterListIcon />
-              </Button>
-            </Tooltip>
-            <Tooltip title='Share dashboard' placement='bottom'>
-              <Button
-                className={button}
-                variant='contained'
-                color='primary'
-                onClick={() => handleToggle(2)}
-                ref={anchorRef2}
-              >
-                <ShareIcon />
-              </Button>
-            </Tooltip>
           </Toolbar>
         </Grid>
       </Grid>
