@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef } from 'react';
 import { Column } from '@ant-design/charts';
 import _orderBy from 'lodash/orderBy';
@@ -44,7 +45,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     data = _orderBy(data, [sortValue], [order]);
   }
 
-  const chartConfig = {
+  let chartConfig = {
     appendPadding: [40, 0, 0, 0],
     data,
     autoFit: true,
@@ -73,6 +74,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     xAxis: {
       min: 0,
       title: { style: { fill: chartFillColor }, text: customXLabel },
+      label: { autoRotate: true },
     },
     xField: xValue,
     yAxis: {
@@ -80,6 +82,11 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       title: { style: { fill: chartFillColor }, text: customYLabel },
     },
     yField: yValue,
+    // scrollbar: { type: 'vertical' },
+    // slider: {
+    //   start: 0.1,
+    //   end: 0.2,
+    // },
   };
 
   // Add data labels property
@@ -147,20 +154,77 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     chartConfig.isGroup = null;
     chartConfig.seriesField = null;
   }
-
+  console.log('chartConfig :>> ', chartConfig);
   // Add click event
   const ref = useRef();
   useEffect(() => {
-    if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
-      ref.current.on('element:click', args => {
-        const row = args.data.data;
-        interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
+    console.log(' ref.current :>> ', ref.current);
+    ref.current.on('element:click', args => {
+      const changeData = data.map(row => ({
+        ...row,
+        ['deaths']: formatValue('number', row['deaths']),
+        ['stats']: formatValue('number', row['deaths']),
+      }));
+      ref.current.update({
+        ...chartConfig,
+        data: changeData,
+        // xAxis: {
+        //   min: 0,
+        //   title: { style: { fill: chartFillColor }, text: 'stats' },
+        // },
+        // xField: 'stats',
+        yAxis: {
+          min: 0,
+          title: { style: { fill: chartFillColor }, text: 'deaths' },
+        },
+        yField: 'deaths',
       });
-    }
+
+      // const changeData = data.reduce((acc,el)=>{
+      //   const row = {
+      //     location:el.location,
+
+      //   }
+      // },[]);
+
+      // console.log('changeData :>> ', changeData);
+
+      // ref.current.changeData(changeData);
+    });
+
+    console.log('xType :>> ', xType);
+    console.log('row[xValue] :>> ', xValue);
+    console.log('groupByValue :>> ', groupByValue);
+    console.log('yType :>> ', yType);
+    console.log('yValue :>> ', yValue);
+    console.log('ref.current :>> ', ref.current);
+
+    // if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
+    //   ref.current.on('element:click', args => {
+    //     const row = args.data.data;
+    //     interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
+    //   });
+    // }
   }, []);
 
   return <Column {...chartConfig} chartRef={ref} />;
 };
+
+// xAxis:
+// label: {style: {…}}
+// min: 0
+// title:
+// style: {fill: "#333"}
+// text: "location"
+// xField: "location"
+// yAxis:
+// label: {style: {…}}
+// min: 0
+// title:
+// style: {fill: "#333"}
+// text: "cases"
+
+// yField: "cases"
 
 ColumnChart.defaultProps = {
   chartID: '',
