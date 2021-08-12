@@ -51,7 +51,17 @@ const deleteOpenDashboard = async (dashboardID, workspaceID, userID) => {
   return await openDashboard.destroy({ where: { dashboardID, workspaceID, userID } });
 };
 
+const addDashboardAsOpenDashboad = async (dashboardID, workspaceID, userID) => {
+  const openDashboard = await getOpenDashboard(dashboardID, workspaceID, userID);
+  if (openDashboard) {
+    await restoreOpenDashboard(dashboardID, workspaceID, userID);
+  } else {
+    await createOpenDashboard(dashboardID, workspaceID, userID);
+  }
+};
+
 module.exports = {
+  addDashboardAsOpenDashboad,
   createOpenDashboard,
   deleteOpenDashboard,
   getOpenDashboard,

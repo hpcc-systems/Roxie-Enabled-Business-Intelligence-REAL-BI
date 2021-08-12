@@ -97,6 +97,9 @@ function Map({ chartID, configuration, data }) {
       }),
     );
 
+    const resizer = new ResizeObserver(_.debounce(() => map.resize(), 100));
+    resizer.observe(mapWrapper.current);
+
     map.on('move', () => {
       const currentSettings = {
         longitude: map.getCenter().lng.toFixed(4),
@@ -159,7 +162,7 @@ function Map({ chartID, configuration, data }) {
           layout: {
             'icon-allow-overlap': true,
             'icon-image': ['get', 'icon'], // reference the image
-            'icon-size': 0.5,
+            'icon-size': 0.4,
           },
           paint: {
             'icon-color': ['get', 'color'],
@@ -172,7 +175,6 @@ function Map({ chartID, configuration, data }) {
 
       // Creating Popup
       map.on('click', function (e) {
-        map.resize();
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['data'],
         });
@@ -199,6 +201,7 @@ function Map({ chartID, configuration, data }) {
           offset: [115, -20],
           anchor: 'center',
           className: classes.popup,
+          focusAfterOpen: false,
         })
           .setLngLat(feature.geometry.coordinates)
           .setHTML(text)
@@ -208,7 +211,10 @@ function Map({ chartID, configuration, data }) {
     //setting map to state if we need to reference it later
     setMap(map);
     // Clean up on unmount
-    return () => map.remove();
+    return () => {
+      resizer.disconnect();
+      map.remove();
+    };
   }, []);
 
   return (

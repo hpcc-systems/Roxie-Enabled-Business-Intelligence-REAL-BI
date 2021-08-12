@@ -4,12 +4,11 @@ const { getWorkspaceDirectory, updateWorkspaceDirectory } = require('../../utils
 router.put('/', async (req, res, next) => {
   const {
     body: { directory, workspaceID },
-    user: { id: userID },
   } = req;
 
   try {
-    await updateWorkspaceDirectory(directory, workspaceID, userID);
-    const newDirectory = await getWorkspaceDirectory(workspaceID, userID);
+    await updateWorkspaceDirectory(directory, workspaceID);
+    const newDirectory = await getWorkspaceDirectory(workspaceID);
 
     return res.status(200).json(newDirectory);
   } catch (error) {

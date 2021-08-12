@@ -45,9 +45,9 @@ const addSharedResourcesToUser = async (email, username, shareID) => {
 
   if (!workspacePermission) {
     await createWorkspacePermission(workspaceID, user.id, 'Read-Only');
-    await createWorkspaceDirectory(directory, workspaceID, user.id);
+    await createWorkspaceDirectory(directory, workspaceID);
   } else {
-    await updateWorkspaceDirectory(directory, workspaceID, user.id);
+    await updateWorkspaceDirectory(directory, workspaceID);
   }
 
   // Dashboard setup

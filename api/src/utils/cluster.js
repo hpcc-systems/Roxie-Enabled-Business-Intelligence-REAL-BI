@@ -24,4 +24,10 @@ const createCluster = async cluster => {
   return newCluster;
 };
 
-module.exports = { getClusterByID, createCluster, getAllClusters, getClusterByHost };
+const findOrCreateCluster = async cluster => {
+  const dbCluster = await getClusterByHost(cluster.host);
+  if (dbCluster) return dbCluster;
+  return await createCluster(cluster);
+};
+
+module.exports = { getClusterByID, createCluster, getAllClusters, getClusterByHost, findOrCreateCluster };
