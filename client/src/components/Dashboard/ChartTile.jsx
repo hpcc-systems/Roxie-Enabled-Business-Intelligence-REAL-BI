@@ -6,8 +6,6 @@ import { SnackbarProvider } from 'notistack';
 import ChartToolbar from './ChartToolbar';
 import Chart from '../Chart';
 
-// console.log('rerender ChartTile id :>>  ', chart.id);
-
 const ChartTile = props => {
   const { chart, compData, interactiveClick, interactiveObj, pdfPreview = false } = props;
   return (

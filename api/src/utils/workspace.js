@@ -142,7 +142,7 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
 };
 
 const findOrCreatePublicWorkspace = async (userID, workspaceName) => {
-  let workspace = await await Workspace.findOne({ where: { name: workspaceName, visibility: 'public' } });
+  let workspace = await Workspace.findOne({ where: { name: workspaceName, visibility: 'public' } });
   if (!workspace) {
     workspace = await createWorkspace(workspaceName, userID, 'public');
   }
