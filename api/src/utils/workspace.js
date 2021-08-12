@@ -91,14 +91,7 @@ const getWorkspaceByID = async (id, userID) => {
     ],
     order: [[{ model: openDashboard, as: 'openDashboards' }, 'updatedAt', 'ASC']],
   });
-
   workspace = unNestSequelizeObj(workspace);
-  // console.log('-----------------------');
-  // console.log(
-  //   `workspace`,
-  //   workspace.dashboards.map(dash => dash.permission[0].toJSON()),
-  // );
-  // console.log('-----------------------');
   workspace.directory = workspace.directory[0].directory;
   workspace.permission = workspace.permission[0].role.name;
   workspace.openDashboards = workspace.openDashboards.map(openDashboard => {
@@ -120,10 +113,6 @@ const getWorkspaceByID = async (id, userID) => {
     dashObject.permission = dashboardPermission;
     return dashObject;
   });
-
-  console.log('-----------');
-  console.log(`workspace`, workspace);
-  console.log('-----------');
 
   return workspace;
 };

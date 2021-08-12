@@ -130,17 +130,9 @@ router.get('/find', async (req, res, next) => {
 
   try {
     let workspace = await getWorkspaceFromDB({ id: workspaceID, visibility: 'public' }); //Check if public
-    // console.log('---------------------');
-    // console.log(`workspace`, workspace);
-    // console.log('---------------------');
-
     if (workspace) {
       //if user if OWNER dont change his pemission
       const isOwner = await isWorkspacePermissionRole(workspaceID, userID, 'Owner');
-      // console.log('-----------------------');
-      // console.log(`isOwner`, isOwner);
-      // console.log('-----------------------');
-
       if (!isOwner) {
         await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
       }
