@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useDispatch, batch } from 'react-redux';
+import { useDispatch, batch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -12,17 +12,11 @@ import {
   Typography,
 } from '@material-ui/core';
 
-// React Hooks
-import useForm from '../../hooks/useForm';
+import CustomSwitch from '../Common/CustomSwitch';
 
 // Redux Actions
 import { updateLastWorkspace } from '../../features/auth/actions';
-import { createNewWorkspace } from '../../features/workspace/actions';
-
-const initState = {
-  error: '',
-  name: '',
-};
+import { createNewWorkspace, resetWorkspaceError } from '../../features/workspace/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -36,14 +30,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NewWorkspaceDialog = ({ show, toggleDialog }) => {
-  const { values: localState, handleChange } = useForm(initState);
+  const { message: errMessage = '' } = useSelector(state => state.workspace.errorObj);
+  const [newWorkspace, setNewWorkspace] = useState({ name: '', publicWorkspace: false });
   const dispatch = useDispatch();
   const history = useHistory();
   const { button, errMsg, formControl } = useStyles();
 
   const createWorkspace = async () => {
     try {
-      const { action, workspaceID } = await createNewWorkspace(localState);
+      const { action, workspaceID } = await createNewWorkspace(newWorkspace);
       const action2 = await updateLastWorkspace(workspaceID);
 
       batch(() => {
@@ -58,15 +53,28 @@ const NewWorkspaceDialog = ({ show, toggleDialog }) => {
     }
   };
 
-  const { error, name } = localState;
+  const closeDialog = () => {
+    errMessage !== '' && dispatch(resetWorkspaceError());
+    toggleDialog();
+  };
+
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setNewWorkspace(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  const handleWorkspaceVisibility = e => {
+    const { name, checked } = e.target;
+    setNewWorkspace(prevState => ({ ...prevState, [name]: checked }));
+  };
 
   return (
-    <Dialog onClose={toggleDialog} open={show} fullWidth>
+    <Dialog onClose={closeDialog} open={show} fullWidth>
       <DialogTitle>New Workspace</DialogTitle>
       <DialogContent>
-        {error !== '' && (
+        {errMessage && (
           <Typography className={errMsg} align='center'>
-            {error}
+            {errMessage}
           </Typography>
         )}
         <TextField
@@ -74,12 +82,17 @@ const NewWorkspaceDialog = ({ show, toggleDialog }) => {
           fullWidth
           label='Workspace Name'
           name='name'
-          value={name}
-          onChange={handleChange}
+          value={newWorkspace.name}
+          onChange={handleInputChange}
+        />
+        <CustomSwitch
+          name='publicWorkspace'
+          checked={newWorkspace.publicWorkspace}
+          onChange={handleWorkspaceVisibility}
         />
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' variant='contained' onClick={toggleDialog}>
+        <Button color='secondary' variant='contained' onClick={closeDialog}>
           Cancel
         </Button>
         <Button className={button} variant='contained' onClick={createWorkspace}>

@@ -111,9 +111,11 @@ const getDashboardByID = async (id, userID) => {
   return dashboard;
 };
 
-const createDashboard = async (dashboard, workspaceID) => {
+const createDashboard = async (dashboard, workspaceID, fileName = null) => {
   const { clusterID, name } = dashboard;
-  const newDashboard = await Dashboard.create({ name: name.trim(), workspaceID, clusterID });
+
+  const newDashboard = await Dashboard.create({ name: name.trim(), workspaceID, clusterID, fileName });
+
   return newDashboard.id;
 };
 
@@ -186,11 +188,11 @@ const getDashboardsByWorkspaceID = async workspaceID => {
   return await Dashboard.findAll({ where: { workspaceID } });
 };
 
-const findOrCreateDashboard = async (workspaceID, clusterID, userID, dashboardName) => {
+const findOrCreateDashboard = async (workspaceID, clusterID, userID, dashboardName, fileName) => {
   const dashboard = await getDashboardByWorkspaceAndCluster(workspaceID, clusterID, dashboardName);
   let dashbordID = dashboard?.id;
   if (!dashboard) {
-    dashbordID = await createDashboard({ name: dashboardName, clusterID }, workspaceID);
+    dashbordID = await createDashboard({ name: dashboardName, clusterID }, workspaceID, fileName);
   }
   await createOrUpdateDashboardPermission(dashbordID, userID, 'Owner');
   return await getDashboardByID(dashbordID, userID);

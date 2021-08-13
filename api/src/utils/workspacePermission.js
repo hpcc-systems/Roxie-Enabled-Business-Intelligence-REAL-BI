@@ -1,6 +1,7 @@
-const { workspace_permission: WorkspacePermission } = require('../models');
+const { workspace_permission: WorkspacePermission, Sequelize } = require('../models');
 const { getRoleByName } = require('./role');
 const { unNestSequelizeObj } = require('./sequelize');
+const Op = Sequelize.Op;
 
 const createWorkspacePermission = async (workspaceID, userID, role) => {
   const { id: roleID } = await getRoleByName(role);
@@ -47,7 +48,17 @@ const deleteWorkspacePermission = async (workspaceID, userID) => {
   return permission;
 };
 
+const deleteAllWorkspacePermissionExeptOwners = async (workspaceID, userID) => {
+  let permission = await WorkspacePermission.destroy({
+    where: { workspaceID, userID: { [Op.not]: userID } },
+    force: true,
+  });
+  permission = unNestSequelizeObj(permission);
+  return permission;
+};
+
 module.exports = {
+  deleteAllWorkspacePermissionExeptOwners,
   isWorkspacePermissionRole,
   createOrUpdateWorkspacePermission,
   deleteWorkspacePermission,

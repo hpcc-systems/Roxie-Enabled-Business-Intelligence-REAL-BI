@@ -110,6 +110,14 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         sourceType: 'file',
         keyword: fileName,
       });
+    } else {
+      if (dashboard.fileName) {
+        formFieldsUpdate({
+          isIntegration: true,
+          sourceType: 'file',
+          keyword: dashboard.fileName,
+        });
+      }
     }
   }, []);
 
@@ -128,7 +136,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       const chartObj = { ...configuration, dataset, ecl: {} };
 
       try {
-        const action = await createChart(chartObj, dashboardID, null, null, null);
+        const action = await createChart(chartObj, dashboardID, null);
         dispatch(action);
         addChartToLayout(action.payload);
         return toggleDialog();

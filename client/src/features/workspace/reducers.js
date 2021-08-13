@@ -5,6 +5,7 @@ import {
   CLEAR_WORKSPACE,
   UPDATE_WORKSPACE_DASHBOARDS,
   UPDATE_WORKSPACE_DIRECTORY,
+  SET_WORKSPACE_ERROR_EMPTY,
 } from './actions';
 
 export default (state = {}, { type, payload }) => {
@@ -16,6 +17,8 @@ export default (state = {}, { type, payload }) => {
       return { ...state, errorObj: {}, workspace: payload };
     case SET_WORKSPACE_ERROR:
       return { ...state, errorObj: payload };
+    case SET_WORKSPACE_ERROR_EMPTY:
+      return { ...state, errorObj: {} };
     case UPDATE_WORKSPACE_DASHBOARDS:
       return { ...state, errorObj: {}, workspace: { ...state.workspace, openDashboards: payload } };
     case UPDATE_WORKSPACE_DIRECTORY:

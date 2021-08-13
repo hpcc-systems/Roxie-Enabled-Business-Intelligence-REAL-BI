@@ -25,6 +25,7 @@ const {
   deleteWorkspacePermission,
   createOrUpdateWorkspacePermission,
   isWorkspacePermissionRole,
+  deleteAllWorkspacePermissionExeptOwners,
 } = require('../../utils/workspacePermission');
 
 router.get('/all', async (req, res, next) => {
@@ -39,12 +40,17 @@ router.get('/all', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   const {
-    body: { name },
+    body: { name, publicWorkspace },
     user: { id: userID },
   } = req;
 
   try {
-    const workspace = await createWorkspace(name, userID);
+    if (name === 'Tombolo') {
+      const error = new Error('Tombolo is a reserved name, please provide a different name');
+      throw error;
+    }
+    const visibility = publicWorkspace ? 'public' : 'private';
+    const workspace = await createWorkspace(name, userID, visibility);
     await createWorkspacePermission(workspace.id, userID, 'Owner');
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -61,14 +67,31 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
-    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+    const { permission = 'Read-Only', name } = await getWorkspaceByID(workspaceID, userID);
+
+    if (name === 'Tombolo') {
+      const error = new Error('Tombolo is a system workspace, it can not be changed');
+      throw error;
+    }
+
+    if (workspaceName === 'Tombolo') {
+      const error = new Error('Tombolo is a reserved name, please provide a different name');
+      throw error;
+    }
 
     if (permission !== 'Owner') {
       const error = new Error('Permission Denied');
       throw error;
     }
+
     const updates = { name: workspaceName, visibility: publicWorkspace ? 'public' : 'private' };
     await updateWorkspaceByID(updates, workspaceID);
+    //when we access public workspace we assigned with Read-Only workspace permission
+    //only user with owner permission can edit workspace, and if he turn it into private
+    //we need to delete all of the read only permissions for this dash but not the current user who is an 'owner'
+    if (!publicWorkspace) {
+      await deleteAllWorkspacePermissionExeptOwners(workspaceID, userID);
+    }
     const currentWorkspace = await getWorkspaceByID(workspaceID, userID); //gets big object
     const workspaces = await getWorkspacesByUserID(userID);
 
