@@ -25,7 +25,7 @@ const {
   deleteWorkspacePermission,
   createOrUpdateWorkspacePermission,
   isWorkspacePermissionRole,
-  deleteAllWorkspacePermissionExeptOwners,
+  deleteAllWorkspacePermissionExceptOwners,
 } = require('../../utils/workspacePermission');
 
 router.get('/all', async (req, res, next) => {
@@ -90,7 +90,7 @@ router.put('/', async (req, res, next) => {
     //only user with owner permission can edit workspace, and if he turn it into private
     //we need to delete all of the read only permissions for this dash but not the current user who is an 'owner'
     if (!publicWorkspace) {
-      await deleteAllWorkspacePermissionExeptOwners(workspaceID, userID);
+      await deleteAllWorkspacePermissionExceptOwners(workspaceID, userID);
     }
     const currentWorkspace = await getWorkspaceByID(workspaceID, userID); //gets big object
     const workspaces = await getWorkspacesByUserID(userID);

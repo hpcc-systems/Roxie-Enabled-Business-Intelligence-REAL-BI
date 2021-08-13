@@ -48,7 +48,7 @@ const deleteWorkspacePermission = async (workspaceID, userID) => {
   return permission;
 };
 
-const deleteAllWorkspacePermissionExeptOwners = async (workspaceID, userID) => {
+const deleteAllWorkspacePermissionExceptOwners = async (workspaceID, userID) => {
   let permission = await WorkspacePermission.destroy({
     where: { workspaceID, userID: { [Op.not]: userID } },
     force: true,
@@ -58,7 +58,7 @@ const deleteAllWorkspacePermissionExeptOwners = async (workspaceID, userID) => {
 };
 
 module.exports = {
-  deleteAllWorkspacePermissionExeptOwners,
+  deleteAllWorkspacePermissionExceptOwners,
   isWorkspacePermissionRole,
   createOrUpdateWorkspacePermission,
   deleteWorkspacePermission,
