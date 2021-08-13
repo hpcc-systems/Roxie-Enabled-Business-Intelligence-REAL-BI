@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import React, { useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -7,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   TextField,
   Typography,
 } from '@material-ui/core';
@@ -14,6 +16,9 @@ import CustomSwitch from '../Common/CustomSwitch';
 
 // Redux Actions
 import { resetWorkspaceError, updateWorkspace } from '../../features/workspace/actions';
+
+import { useSnackbar } from 'notistack';
+import CloseIcon from '@material-ui/icons/Close';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -35,13 +40,38 @@ const EditWorkspace = ({ show, toggleDialog }) => {
     publicWorkspace: visibility === 'private' ? false : true,
   });
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const dispatch = useDispatch();
   const { button, errMsg, formControl } = useStyles();
+
+  const closeSnackbarButton = key => {
+    const onClose = () => closeSnackbar(key);
+    return (
+      <IconButton onClick={onClose} size='small'>
+        <CloseIcon style={{ color: '#ffffff' }} />
+      </IconButton>
+    );
+  };
+
+  const callSnackbar = visibility => {
+    enqueueSnackbar(`This workspace is ${visibility} `, {
+      variant: 'success',
+      action: closeSnackbarButton,
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'center',
+        preventDuplicate: true,
+      },
+    });
+  };
 
   const editWorkspace = async () => {
     const { name, publicWorkspace } = newWorkspace;
     try {
       const actions = await updateWorkspace({ workspaceName: name, publicWorkspace }, workspaceID);
+      const visibility = newWorkspace.publicWorkspace ? 'public' : 'private';
+      callSnackbar(visibility);
       batch(() => {
         actions.forEach(action => dispatch(action));
         toggleDialog();
@@ -52,6 +82,7 @@ const EditWorkspace = ({ show, toggleDialog }) => {
         name: workspace.name,
         publicWorkspace: workspace.visibility === 'private' ? false : true,
       });
+      callSnackbar(workspace.visibility);
     }
   };
 

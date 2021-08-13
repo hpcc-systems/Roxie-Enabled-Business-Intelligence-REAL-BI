@@ -79,7 +79,9 @@ const ToolbarComp = ({
   const {
     cluster: { name: clusterName, host },
     name,
-    permission,
+    fileName,
+    createdAt,
+    permission: dashboardPermission,
   } = dashboard;
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
@@ -101,8 +103,6 @@ const ToolbarComp = ({
   } = useStyles();
 
   const workspacePermission = useSelector(({ workspace }) => workspace.workspace.permission);
-
-  const isWorkspaceOwner = workspacePermission === 'Owner';
 
   const handleToggle = num => {
     switch (num) {
@@ -157,17 +157,17 @@ const ToolbarComp = ({
     prevOpen3.current = open3;
   }, [open, open2, open3]);
 
+  const dashboardCreatedAt = new Date(createdAt);
+
   return (
     <Fragment>
       <Grid container>
         <Grid item xs={6}>
           <Typography variant='h2' color='inherit' className={typography} align='right'>
             {name}
-            {isWorkspaceOwner ? (
-              <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
-                <InfoIcon fontSize='small' />
-              </IconButton>
-            ) : null}
+            <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
+              <InfoIcon fontSize='small' />
+            </IconButton>
           </Typography>
         </Grid>
         <Grid item xs={6}>
@@ -192,39 +192,37 @@ const ToolbarComp = ({
                 <RefreshIcon />
               </Button>
             </Tooltip>
-            {isWorkspaceOwner ? (
-              <>
-                {canAddCharts(permission) ? (
-                  <Tooltip title='Add Chart/Relation' placement='bottom'>
-                    <Button
-                      className={button}
-                      variant='contained'
-                      color='primary'
-                      onClick={() => handleToggle(1)}
-                      ref={anchorRef}
-                    >
-                      <AddCircleIcon />
-                    </Button>
-                  </Tooltip>
-                ) : null}
-                <Tooltip title='Open filter drawer' placement='bottom'>
-                  <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-                    <FilterListIcon />
-                  </Button>
-                </Tooltip>
-                <Tooltip title='Share dashboard' placement='bottom'>
+            <>
+              {canAddCharts(dashboardPermission) ? (
+                <Tooltip title='Add Chart/Relation' placement='bottom'>
                   <Button
                     className={button}
                     variant='contained'
                     color='primary'
-                    onClick={() => handleToggle(2)}
-                    ref={anchorRef2}
+                    onClick={() => handleToggle(1)}
+                    ref={anchorRef}
                   >
-                    <ShareIcon />
+                    <AddCircleIcon />
                   </Button>
                 </Tooltip>
-              </>
-            ) : null}
+              ) : null}
+              <Tooltip title='Open filter drawer' placement='bottom'>
+                <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+                  <FilterListIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip title='Share dashboard' placement='bottom'>
+                <Button
+                  className={button}
+                  variant='contained'
+                  color='primary'
+                  onClick={() => handleToggle(2)}
+                  ref={anchorRef2}
+                >
+                  <ShareIcon />
+                </Button>
+              </Tooltip>
+            </>
           </Toolbar>
         </Grid>
       </Grid>
@@ -277,7 +275,7 @@ const ToolbarComp = ({
                   >
                     Create PDF
                   </MenuItem>
-                  {canShareDashboard(permission) && (
+                  {canShareDashboard(dashboardPermission) && (
                     <MenuItem
                       className={menuItem}
                       onClick={e => {
@@ -306,7 +304,20 @@ const ToolbarComp = ({
                     Dashboard Info
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Permission:</strong> {permission}
+                    <strong>Workspace permission:</strong> {workspacePermission}
+                  </Typography>
+                  <Typography variant='body2' className={typographyInfo}>
+                    <strong>Dashboard permission:</strong> {dashboardPermission}
+                  </Typography>
+                  {fileName && (
+                    <Typography variant='body2' className={typographyInfo}>
+                      <strong>Assosiated file:</strong> {fileName}
+                    </Typography>
+                  )}
+                  <Typography variant='body2' className={typographyInfo}>
+                    <strong>Created at: </strong>
+                    {dashboardCreatedAt.toDateString()} <br />
+                    {dashboardCreatedAt.toTimeString()}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
                     <strong>Cluster Name:</strong> {clusterName}
@@ -314,17 +325,19 @@ const ToolbarComp = ({
                   <Typography variant='body2' className={typographyInfo}>
                     <strong>Cluster Host:</strong> {host}
                   </Typography>
-                  <Button
-                    variant='contained'
-                    fullWidth
-                    className={shareBtn}
-                    onClick={e => {
-                      handleClose(e, 3);
-                      toggleSharedWith();
-                    }}
-                  >
-                    View Shared
-                  </Button>
+                  {dashboardPermission === 'Owner' && (
+                    <Button
+                      variant='contained'
+                      fullWidth
+                      className={shareBtn}
+                      onClick={e => {
+                        handleClose(e, 3);
+                        toggleSharedWith();
+                      }}
+                    >
+                      View Shared
+                    </Button>
+                  )}
                 </Paper>
               </ClickAwayListener>
             </Paper>

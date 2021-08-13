@@ -34,6 +34,17 @@ const useStyles = makeStyles(theme => ({
   tab: {
     '&:hover svg': { opacity: 1 },
   },
+  tabWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    '& span': {
+      flexGrow: 1,
+      textAlign: 'center',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+  },
 }));
 
 const Workspace = () => {
@@ -44,7 +55,7 @@ const Workspace = () => {
   const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const { appbar, selectedTab, closeTab, tab } = useStyles();
+  const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();
 
   const isTabfromURLparamsUpdated = React.useRef(false); // we will keep a track to run tab switch only once and only if we have dashID and filename in URL
 
@@ -125,8 +136,6 @@ const Workspace = () => {
     }
   };
 
-  const truncateText = text => (text.length >= 31 ? text.substring(0, 28) + '...' : text);
-
   return (
     <Fragment>
       <Header toggleDrawer={toggleDrawer} />
@@ -140,18 +149,19 @@ const Workspace = () => {
                   component='div'
                   key={dashboard.id}
                   className={clsx(tab, { [selectedTab]: index === tabIndex })}
-                  wrapped
+                  classes={{ wrapper: tabWrapper }}
                   label={
-                    <Box component='span' display='flex' alignItems='center' justifyContent='space-between'>
-                      <Typography component='p' variant='body1'>
-                        {truncateText(dashboard.name)}
+                    <>
+                      <Typography component='span' variant='body1'>
+                        {dashboard.name}
                       </Typography>
+
                       <CloseIcon
                         className={closeTab}
                         onClick={event => closeDashboardTab(event, dashboard.id)}
                         fontSize='small'
                       />
-                    </Box>
+                    </>
                   }
                 />
               );
