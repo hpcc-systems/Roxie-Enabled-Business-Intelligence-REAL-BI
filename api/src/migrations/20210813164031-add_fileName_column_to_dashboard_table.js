@@ -11,3 +11,4 @@ module.exports = {
   down: async queryInterface => {
     return await queryInterface.removeColumn(tableNames.dashboard, 'fileName');
   },
+};
