@@ -9,6 +9,9 @@ export const SET_WORKSPACE_ERROR = 'SET_WORKSPACE_ERROR';
 export const CLEAR_WORKSPACE = 'CLEAR_WORKSPACE';
 export const UPDATE_WORKSPACE_DASHBOARDS = 'UPDATE_WORKSPACE_DASHBOARDS';
 export const UPDATE_WORKSPACE_DIRECTORY = 'UPDATE_WORKSPACE_DIRECTORY';
+export const SET_WORKSPACE_ERROR_EMPTY = 'SET_WORKSPACE_ERROR_EMPTY';
+
+export const resetWorkspaceError = () => ({ type: 'SET_WORKSPACE_ERROR_EMPTY' });
 
 export const getWorkspaces = async () => {
   try {

@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: createTablePK(DataTypes),
       name: createString(DataTypes),
+      fileName: createString(DataTypes, 100, true),
       workspaceID: createFKField(DataTypes),
       clusterID: createFKField(DataTypes),
       layout: {

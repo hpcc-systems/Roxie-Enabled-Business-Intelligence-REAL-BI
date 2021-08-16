@@ -68,16 +68,18 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     newValue = newValue ? newValue : {};
 
     handleChange(null, { name: 'selectedSource', value: newValue });
-    enqueueSnackbar(`${newValue.name} file selected`, {
-      variant: 'success',
-      autoHideDuration: 3000,
-      preventDuplicate: true,
-      anchorOrigin: {
-        vertical: 'bottom',
-        horizontal: 'left',
+
+    newValue.name &&
+      enqueueSnackbar(`${newValue.name} file selected`, {
+        variant: 'success',
+        autoHideDuration: 3000,
         preventDuplicate: true,
-      },
-    });
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'left',
+          preventDuplicate: true,
+        },
+      });
   };
 
   const selectedSourceErr = errors.find(err => err['selectedSource']);

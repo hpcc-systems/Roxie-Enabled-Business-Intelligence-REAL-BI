@@ -25,6 +25,7 @@ const {
   deleteWorkspacePermission,
   createOrUpdateWorkspacePermission,
   isWorkspacePermissionRole,
+  deleteAllWorkspacePermissionExceptOwners,
 } = require('../../utils/workspacePermission');
 
 router.get('/all', async (req, res, next) => {
@@ -39,12 +40,17 @@ router.get('/all', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   const {
-    body: { name },
+    body: { name, publicWorkspace },
     user: { id: userID },
   } = req;
 
   try {
-    const workspace = await createWorkspace(name, userID);
+    if (name === 'Tombolo') {
+      const error = new Error('Tombolo is a reserved name, please provide a different name');
+      throw error;
+    }
+    const visibility = publicWorkspace ? 'public' : 'private';
+    const workspace = await createWorkspace(name, userID, visibility);
     await createWorkspacePermission(workspace.id, userID, 'Owner');
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -61,14 +67,31 @@ router.put('/', async (req, res, next) => {
   } = req;
 
   try {
-    const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
+    const { permission = 'Read-Only', name } = await getWorkspaceByID(workspaceID, userID);
+
+    if (name === 'Tombolo') {
+      const error = new Error('Tombolo is a system workspace, it can not be changed');
+      throw error;
+    }
+
+    if (workspaceName === 'Tombolo') {
+      const error = new Error('Tombolo is a reserved name, please provide a different name');
+      throw error;
+    }
 
     if (permission !== 'Owner') {
       const error = new Error('Permission Denied');
       throw error;
     }
+
     const updates = { name: workspaceName, visibility: publicWorkspace ? 'public' : 'private' };
     await updateWorkspaceByID(updates, workspaceID);
+    //when we access public workspace we assigned with Read-Only workspace permission
+    //only user with owner permission can edit workspace, and if he turn it into private
+    //we need to delete all of the read only permissions for this dash but not the current user who is an 'owner'
+    if (!publicWorkspace) {
+      await deleteAllWorkspacePermissionExceptOwners(workspaceID, userID);
+    }
     const currentWorkspace = await getWorkspaceByID(workspaceID, userID); //gets big object
     const workspaces = await getWorkspacesByUserID(userID);
 
@@ -85,14 +108,18 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
-    const { permission = 'Read-Only', visibility } = await getWorkspaceByID(workspaceID, userID);
+    const { permission = 'Read-Only', name, visibility } = await getWorkspaceByID(workspaceID, userID);
 
     if (permission !== 'Owner' && visibility !== 'public') {
       const error = new Error('Permission Denied');
       throw error;
     }
+    //if owner and public and not reserved workspace === delete it
+    if (visibility === 'public' && permission === 'Owner' && name !== 'Tombolo') {
+      await deleteWorkspaceByID(workspaceID);
+    }
     // if it was public workspace we want to delete only permission to use this workspace, it will delete record from dropdown and user wont have access to it
-    if (visibility === 'public') {
+    else if (visibility === 'public') {
       await changeDashboardsPermissionByWorkspaceID(workspaceID, userID, 'Read-Only');
       await deleteWorkspacePermission(workspaceID, userID);
     } else {
@@ -134,7 +161,7 @@ router.get('/find', async (req, res, next) => {
       //if user if OWNER dont change his pemission
       const isOwner = await isWorkspacePermissionRole(workspaceID, userID, 'Owner');
       if (!isOwner) {
-        await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
+        await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-Only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
       }
       //1. check if dashboard exists in workspace
       const dashboards = await getDashboardsByWorkspaceID(workspaceID);

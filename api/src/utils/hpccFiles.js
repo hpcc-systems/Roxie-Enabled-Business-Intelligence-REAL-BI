@@ -61,9 +61,6 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
 
   files = files.DFULogicalFiles.DFULogicalFile;
 
-  // Remove csv files from result set
-  files = files.filter(({ Name }) => Name.indexOf('.csv') === -1 && Name.indexOf('::csv') === -1);
-
   files = files.map(({ ClusterName, Name }) => ({
     cluster: ClusterName,
     hpccID: Name,

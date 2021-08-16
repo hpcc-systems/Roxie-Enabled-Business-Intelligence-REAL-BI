@@ -1,21 +1,24 @@
+/* eslint-disable no-unreachable */
 import React, { useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
-  Switch,
+  IconButton,
   TextField,
   Typography,
 } from '@material-ui/core';
-import { blue } from '@material-ui/core/colors';
+import CustomSwitch from '../Common/CustomSwitch';
 
 // Redux Actions
-import { updateWorkspace } from '../../features/workspace/actions';
+import { resetWorkspaceError, updateWorkspace } from '../../features/workspace/actions';
+
+import { useSnackbar } from 'notistack';
+import CloseIcon from '@material-ui/icons/Close';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -28,55 +31,78 @@ const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: 24 },
 }));
 
-const BlueSwitch = withStyles({
-  switchBase: {
-    color: blue[300],
-    '&$checked': {
-      color: blue[500],
-    },
-    '&$checked + $track': {
-      backgroundColor: blue[500],
-    },
-  },
-  checked: {},
-  track: {},
-})(Switch);
-
 const EditWorkspace = ({ show, toggleDialog }) => {
   const { errorObj, workspace } = useSelector(state => state.workspace);
   const { message: errMessage = '' } = errorObj;
-  const { id: workspaceID, name } = workspace;
-  const [workspaceName, setWorkspaceName] = useState(name);
-  const [publicWorkspace, setPublicWorkspace] = React.useState(false);
+  const { id: workspaceID, name, visibility } = workspace;
+  const [newWorkspace, setNewWorkspace] = useState({
+    name,
+    publicWorkspace: visibility === 'private' ? false : true,
+  });
 
-  React.useEffect(() => {
-    if (workspace?.visibility) {
-      const publicWorkspace = workspace.visibility === 'private' ? false : true;
-      setPublicWorkspace(publicWorkspace);
-    }
-  }, [workspace]);
-
-  const handleWorkspaceVisibility = event => {
-    setPublicWorkspace(event.target.checked);
-  };
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const dispatch = useDispatch();
   const { button, errMsg, formControl } = useStyles();
 
+  const closeSnackbarButton = key => {
+    const onClose = () => closeSnackbar(key);
+    return (
+      <IconButton onClick={onClose} size='small'>
+        <CloseIcon style={{ color: '#ffffff' }} />
+      </IconButton>
+    );
+  };
+
+  const callSnackbar = visibility => {
+    enqueueSnackbar(`This workspace is ${visibility} `, {
+      variant: 'success',
+      action: closeSnackbarButton,
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'center',
+        preventDuplicate: true,
+      },
+    });
+  };
+
   const editWorkspace = async () => {
+    const { name, publicWorkspace } = newWorkspace;
     try {
-      const actions = await updateWorkspace({ workspaceName, publicWorkspace }, workspaceID);
+      const actions = await updateWorkspace({ workspaceName: name, publicWorkspace }, workspaceID);
+      const visibility = newWorkspace.publicWorkspace ? 'public' : 'private';
+      callSnackbar(visibility);
       batch(() => {
         actions.forEach(action => dispatch(action));
         toggleDialog();
       });
     } catch (error) {
       dispatch(error);
+      setNewWorkspace({
+        name: workspace.name,
+        publicWorkspace: workspace.visibility === 'private' ? false : true,
+      });
+      callSnackbar(workspace.visibility);
     }
   };
 
+  const closeDialog = () => {
+    errMessage !== '' && dispatch(resetWorkspaceError());
+    toggleDialog();
+  };
+
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setNewWorkspace(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  const handleWorkspaceVisibility = e => {
+    const { name, checked } = e.target;
+    setNewWorkspace(prevState => ({ ...prevState, [name]: checked }));
+  };
+
   return (
-    <Dialog onClose={toggleDialog} open={show} fullWidth>
+    <Dialog onClose={closeDialog} open={show} fullWidth>
       <DialogTitle>Edit Workspace</DialogTitle>
       <DialogContent>
         {errMessage && (
@@ -88,20 +114,18 @@ const EditWorkspace = ({ show, toggleDialog }) => {
           className={formControl}
           fullWidth
           label='Workspace Name'
-          value={workspaceName}
-          onChange={e => setWorkspaceName(e.target.value)}
+          name='name'
+          value={newWorkspace.name}
+          onChange={handleInputChange}
         />
-
-        <Grid component='label' container alignItems='center' spacing={1}>
-          <Grid item>Private</Grid>
-          <Grid item>
-            <BlueSwitch checked={publicWorkspace} onChange={handleWorkspaceVisibility} />
-          </Grid>
-          <Grid item>Public</Grid>
-        </Grid>
+        <CustomSwitch
+          name='publicWorkspace'
+          checked={newWorkspace.publicWorkspace}
+          onChange={handleWorkspaceVisibility}
+        />
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' variant='contained' onClick={toggleDialog}>
+        <Button color='secondary' variant='contained' onClick={closeDialog}>
           Cancel
         </Button>
         <Button className={button} variant='contained' onClick={editWorkspace}>

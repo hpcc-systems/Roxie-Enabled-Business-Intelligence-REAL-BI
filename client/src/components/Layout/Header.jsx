@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
 import clsx from 'clsx';
 // import TestTomboloIntegration from '../TestTomboloIntegration';
@@ -99,7 +99,6 @@ const Header = ({ toggleDrawer }) => {
 
   const isChangePwdScreen = location.pathname === '/changepwd';
   const isWorkspaceOwner = workspace?.permission === 'Owner';
-  const isPublic = workspace?.visibility === 'public';
 
   return (
     <Fragment>
@@ -152,20 +151,6 @@ const Header = ({ toggleDrawer }) => {
                     >
                       <DeleteIcon fontSize='small' />
                     </IconButton>
-                  )}
-                  {isPublic && (
-                    <Box ml={3}>
-                      <Typography variant='body2' component='span'>
-                        This workspace is public!
-                      </Typography>
-                    </Box>
-                  )}
-                  {!isWorkspaceOwner && workspace?.id && (
-                    <Box ml={1}>
-                      <Typography variant='body2' component='span'>
-                        You have limited access to this workspace {workspace?.permission}
-                      </Typography>
-                    </Box>
                   )}
                 </div>
               ) : (

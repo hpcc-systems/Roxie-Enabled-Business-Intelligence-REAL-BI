@@ -58,6 +58,10 @@ const useStyles = makeStyles(theme => ({
   drawerPaper: {
     backgroundColor: theme.palette.primary.main,
     marginTop: 65,
+    paddingBottom: 80,
+    '&::-webkit-scrollbar': {
+      width: '0' /* Remove scrollbar space */,
+    },
   },
   typography: {
     color: theme.palette.primary.contrastText,

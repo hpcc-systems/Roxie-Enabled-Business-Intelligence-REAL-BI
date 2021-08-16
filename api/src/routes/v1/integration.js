@@ -12,15 +12,21 @@ const router = require('express').Router();
 
 router.post('/', async (req, res, next) => {
   try {
-    const user = await getUserByEmail(req.body.user.email);
-    const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName);
+    const user = await getUserByEmail(req.body.user.email.trim());
+    const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName.trim());
     const cluster = await findOrCreateCluster(req.body.cluster);
-    const dashboard = await findOrCreateDashboard(workspace.id, cluster.id, user.id, req.body.dashboardName);
+    const dashboard = await findOrCreateDashboard(
+      workspace.id,
+      cluster.id,
+      user.id,
+      req.body.dashboardName.trim(),
+      req.body.filename.trim(),
+    );
     await addDashboardAsOpenDashboad(dashboard.id, workspace.id, user.id);
     await updateOrCreateWorkspaceDirectory(dashboard, workspace.id); // this one is for directories to appear in drawer
 
     const url = SHARE_URL || 'http://localhost:3000';
-    const link = `${url}/workspace/${workspace.id}/${dashboard.id}/${req.body.filename}/`;
+    const link = `${url}/workspace/${workspace.id}/${dashboard.id}/${req.body.filename.trim()}/`;
     return res.status(200).send({ workspaceUrl: link });
   } catch (error) {
     return next(error);
