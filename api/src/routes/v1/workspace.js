@@ -108,14 +108,18 @@ router.delete('/', async (req, res, next) => {
   } = req;
 
   try {
-    const { permission = 'Read-Only', visibility } = await getWorkspaceByID(workspaceID, userID);
+    const { permission = 'Read-Only', name, visibility } = await getWorkspaceByID(workspaceID, userID);
 
     if (permission !== 'Owner' && visibility !== 'public') {
       const error = new Error('Permission Denied');
       throw error;
     }
+    //if owner and public and not reserved workspace === delete it
+    if (visibility === 'public' && permission === 'Owner' && name !== 'Tombolo') {
+      await deleteWorkspaceByID(workspaceID);
+    }
     // if it was public workspace we want to delete only permission to use this workspace, it will delete record from dropdown and user wont have access to it
-    if (visibility === 'public') {
+    else if (visibility === 'public') {
       await changeDashboardsPermissionByWorkspaceID(workspaceID, userID, 'Read-Only');
       await deleteWorkspacePermission(workspaceID, userID);
     } else {
@@ -157,7 +161,7 @@ router.get('/find', async (req, res, next) => {
       //if user if OWNER dont change his pemission
       const isOwner = await isWorkspacePermissionRole(workspaceID, userID, 'Owner');
       if (!isOwner) {
-        await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
+        await createOrUpdateWorkspacePermission(workspace.id, userID, 'Read-Only'); // this will add workspace to dropdown and allow you to delete your permission but not workspace itself
       }
       //1. check if dashboard exists in workspace
       const dashboards = await getDashboardsByWorkspaceID(workspaceID);

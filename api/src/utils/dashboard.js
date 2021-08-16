@@ -17,7 +17,7 @@ const { unNestSequelizeObj, removeFields } = require('./sequelize');
 
 const getDashboardByID = async (id, userID) => {
   let dashboard = await Dashboard.findOne({
-    ...removeFields(['workspaceID', 'clusterID']),
+    ...removeFields(['workspaceID', 'clusterID', 'updatedAt', 'deletedAt'], false), // we need createdAt but not the rest
     where: { id },
     include: [
       { model: Cluster, ...removeFields([]), required: true },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -26,6 +26,7 @@ const DeleteWorkspace = ({ show, toggleDialog }) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn, dialog } = useStyles();
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   const confirmDelete = async () => {
     deleteWorkspace(workspaceID)
@@ -40,14 +41,26 @@ const DeleteWorkspace = ({ show, toggleDialog }) => {
       .catch(err => dispatch(err));
   };
 
+  useEffect(() => {
+    if (workspace.permission) {
+      let message;
+      if (workspace.permission === 'Owner') {
+        message =
+          'You are about to delete this workspace and <strong>ALL</strong> of its contents. <br/> <strong>Do you wish to proceed?</strong>';
+      }
+      if (workspace.permission === 'Read-Only' || workspace.name === 'Tombolo') {
+        message =
+          'You are about to delete access to this workspace.<br/> <strong>Do you wish to proceed?</strong>';
+      }
+      setDeleteMessage(message);
+    }
+  }, [workspace]);
+
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth classes={{ paper: dialog }}>
       <DialogTitle>Delete Workspace?</DialogTitle>
       <DialogContent>
-        <Typography>
-          You are about to delete this workspace and <strong>ALL</strong> of its contents. Do you wish to
-          proceed?
-        </Typography>
+        <Typography component='p' variant='body1' dangerouslySetInnerHTML={{ __html: deleteMessage }} />
       </DialogContent>
       <DialogActions>
         <Button className={cancelBtn} variant='contained' onClick={toggleDialog}>
