@@ -23,7 +23,6 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   if (!data || data.length === 0 || !xValue || !yValue) {
     return null;
   }
-
   // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
@@ -82,11 +81,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       title: { style: { fill: chartFillColor }, text: customYLabel },
     },
     yField: yValue,
-    // scrollbar: { type: 'vertical' },
-    // slider: {
-    //   start: 0.1,
-    //   end: 0.2,
-    // },
+    scrollbar: { type: 'horizontal' },
   };
 
   // Add data labels property
@@ -140,7 +135,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     } else if (stacked) {
       chartConfig.isPercent = null;
       chartConfig.isStack = true;
-      chartConfig.isGroup = null;
+      chartConfig.isGroup = true;
     } else {
       chartConfig.isPercent = null;
       chartConfig.isStack = null;
@@ -154,77 +149,78 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     chartConfig.isGroup = null;
     chartConfig.seriesField = null;
   }
-  console.log('chartConfig :>> ', chartConfig);
-  // Add click event
+
   const ref = useRef();
+  const drilled = useRef(false);
+
   useEffect(() => {
-    console.log(' ref.current :>> ', ref.current);
-    ref.current.on('element:click', args => {
-      const changeData = data.map(row => ({
-        ...row,
-        ['deaths']: formatValue('number', row['deaths']),
-        ['stats']: formatValue('number', row['deaths']),
-      }));
-      ref.current.update({
-        ...chartConfig,
-        data: changeData,
-        // xAxis: {
-        //   min: 0,
-        //   title: { style: { fill: chartFillColor }, text: 'stats' },
-        // },
-        // xField: 'stats',
-        yAxis: {
-          min: 0,
-          title: { style: { fill: chartFillColor }, text: 'deaths' },
-        },
-        yField: 'deaths',
-      });
+    const chart = ref.current;
 
-      // const changeData = data.reduce((acc,el)=>{
-      //   const row = {
-      //     location:el.location,
+    chart.on('element:click', evt => {
+      if (drilled.current) {
+        drilled.current = false;
+        return chart.update({
+          ...chartConfig,
+        });
+      }
+      const eventData = evt.data;
+      if (eventData?.data) {
+        const location = eventData.data.location;
+        console.log('location :>> ', location);
 
-      //   }
-      // },[]);
+        const newDataSet = [];
+        for (const key in eventData.data) {
+          if (key !== 'location' && key.length > 0 && key !== 'date' && key !== 'date_string') {
+            const dataObj = { location, category: key, value: eventData.data[key] };
+            newDataSet.push(dataObj);
+          }
+        }
+        console.log('newDataSet :>> ', newDataSet);
+        chart.update({
+          ...chartConfig,
+          data: newDataSet,
+          yField: 'value',
+          yAxis: {
+            min: 0,
+            title: { style: { fill: chartFillColor }, text: 'value' },
+          },
+          xField: 'category',
+          xAxis: {
+            min: 0,
+            title: { style: { fill: chartFillColor }, text: 'category' },
+          },
 
-      // console.log('changeData :>> ', changeData);
-
-      // ref.current.changeData(changeData);
+          tooltip: {
+            formatter: datum => {
+              const value = datum['value'];
+              return {
+                name: groupByValue ? datum[groupByValue] : customYLabel,
+                value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
+              };
+            },
+            showContent: !pdfPreview,
+          },
+        });
+      }
+      drilled.current = true;
     });
 
     console.log('xType :>> ', xType);
-    console.log('row[xValue] :>> ', xValue);
+    console.log('xValue :>> ', xValue);
     console.log('groupByValue :>> ', groupByValue);
     console.log('yType :>> ', yType);
     console.log('yValue :>> ', yValue);
-    console.log('ref.current :>> ', ref.current);
 
-    // if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
-    //   ref.current.on('element:click', args => {
-    //     const row = args.data.data;
-    //     interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
-    //   });
-    // }
+    if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
+      ref.current.on('element:click', args => {
+        const row = args.data.data;
+        interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
+      });
+    }
   }, []);
 
   return <Column {...chartConfig} chartRef={ref} />;
 };
-
-// xAxis:
-// label: {style: {…}}
-// min: 0
-// title:
-// style: {fill: "#333"}
-// text: "location"
-// xField: "location"
-// yAxis:
-// label: {style: {…}}
-// min: 0
-// title:
-// style: {fill: "#333"}
-// text: "cases"
-
-// yField: "cases"
 
 ColumnChart.defaultProps = {
   chartID: '',
