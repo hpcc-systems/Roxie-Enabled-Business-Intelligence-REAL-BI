@@ -67,7 +67,7 @@ const getWorkspaceByID = async (id, userID) => {
       {
         model: openDashboard,
         as: 'openDashboards',
-        attributes: [['dashboardID', 'id'], 'updatedAt'],
+        attributes: [['dashboardID', 'id'], 'updatedAt', 'userID'],
         include: {
           model: Dashboard,
           attributes: ['name'],
@@ -94,6 +94,7 @@ const getWorkspaceByID = async (id, userID) => {
   workspace = unNestSequelizeObj(workspace);
   workspace.directory = workspace.directory[0].directory;
   workspace.permission = workspace.permission[0].role.name;
+
   workspace.openDashboards = workspace.openDashboards.map(openDashboard => {
     openDashboard = unNestSequelizeObj(openDashboard);
     openDashboard.name = openDashboard.dashboard.name;
@@ -101,6 +102,7 @@ const getWorkspaceByID = async (id, userID) => {
 
     return openDashboard;
   });
+
   workspace.dashboards = workspace.dashboards.map(dashboard => {
     const dashObject = dashboard.toJSON();
     let dashboardPermission;

@@ -48,11 +48,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  const { workspaceID, fileName, dashID } = useParams();
+  let { workspaceID, fileName, dashID } = useParams();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
-  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { id: dashboardID, name: dashBoardName } = useSelector(state => state.dashboard.dashboard);
   const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();
@@ -61,6 +61,48 @@ const Workspace = () => {
 
   useEffect(() => {
     const handleTabsAndActions = actions => {
+      // let { payload: workspace } = actions.find(action => action.type === 'GET_WORKSPACE');
+      // if (workspace.visibility === 'public') {
+      //   //1. look into localStorage is there is a opendashboard key assosiated with this workpace pull it.
+      //   let LSopenDashboards = JSON.parse(localStorage.getItem('openDashboards'));
+      //   if (LSopenDashboards) {
+      //     const openDashboardsByWorkspaceID = LSopenDashboards[workspaceID];
+      //     if (openDashboardsByWorkspaceID) {
+      //       if (dashID) {
+      //         const currentDash = openDashboardsByWorkspaceID.find(dash => dash.id === dashID);
+      //         if (!currentDash) {
+      //           const dashboard = workspace.dashboards.find(dash => dash.id === dashID);
+      //           openDashboardsByWorkspaceID.push({
+      //             id: dashboard.id,
+      //             name: dashboard.name,
+      //             updatedAt: new Date().toISOString(),
+      //           });
+      //           localStorage.setItem('openDashboards', JSON.stringify(LSopenDashboards));
+      //         }
+      //       }
+      //       workspace.openDashboards = openDashboardsByWorkspaceID;
+      //     }
+      //   } else {
+      //     if (dashID) {
+      //       const dashboard = workspace.dashboards.find(dash => dash.id === dashID);
+      //       LSopenDashboards = {
+      //         [workspaceID]: [
+      //           {
+      //             id: dashboard.id,
+      //             name: dashboard.name,
+      //             updatedAt: new Date().toISOString(),
+      //           },
+      //         ],
+      //       };
+      //       console.log('LSopenDashboards :>> ', LSopenDashboards);
+      //       localStorage.setItem('openDashboards', JSON.stringify(LSopenDashboards));
+      //       workspace.openDashboards = LSopenDashboards[workspaceID];
+      //     } else {
+      //       workspace.openDashboards = [];
+      //     }
+      //   }
+      // }
+      console.log('workspace :>> ', workspace);
       batch(() => {
         const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
         lastViewedDash ? setTabIndex(parseInt(lastViewedDash)) : setTabIndex(0);
@@ -70,7 +112,7 @@ const Workspace = () => {
 
     if (workspaceID) {
       dispatch(clearDashboard());
-      dashID ? dashID : null;
+      dashID = dashID ? dashID : null;
       getWorkspace(workspaceID, dashID)
         .then(handleTabsAndActions)
         .catch(action => dispatch(action));
@@ -136,6 +178,8 @@ const Workspace = () => {
     }
   };
 
+  const chartDialogOnInitialLoad = React.useRef(false);
+
   return (
     <Fragment>
       <Header toggleDrawer={toggleDrawer} />
@@ -171,7 +215,7 @@ const Workspace = () => {
       ) : (
         <NoCharts />
       )}
-      {dashboardID && <Dashboard />}
+      {dashboardID && <Dashboard isChartDialogCalled={chartDialogOnInitialLoad} />}
     </Fragment>
   );
 };

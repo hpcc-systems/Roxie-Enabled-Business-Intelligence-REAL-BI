@@ -6,9 +6,8 @@ const {
   getOpenDashboardsByUser,
   createOpenDashboard,
   getOpenDashboard,
-  restoreOpenDashboard,
   deleteOpenDashboard,
-  addDashboardAsOpenDashboad,
+  addDashboardAsOpenDashboard,
 } = require('../../utils/openDashboards');
 const { updateLastViewedWorkspace } = require('../../utils/user');
 const {
@@ -157,6 +156,7 @@ router.get('/find', async (req, res, next) => {
 
   try {
     let workspace = await getWorkspaceFromDB({ id: workspaceID, visibility: 'public' }); //Check if public
+
     if (workspace) {
       //if user if OWNER dont change his pemission
       const isOwner = await isWorkspacePermissionRole(workspaceID, userID, 'Owner');
@@ -168,10 +168,12 @@ router.get('/find', async (req, res, next) => {
 
       const currentDash = dashboards && dashboards.find(dash => dash.id === dashID);
       //2. add dashboard to openDashboard
-      if (currentDash) await addDashboardAsOpenDashboad(dashID, workspaceID, userID);
+      if (currentDash) await addDashboardAsOpenDashboard(dashID, workspaceID, userID);
     }
 
     workspace = await getWorkspaceByID(workspaceID, userID);
+    const openDashboards = await getOpenDashboardsByUser(workspaceID, userID);
+    workspace.openDashboards = openDashboards;
     await updateLastViewedWorkspace(workspaceID, userID);
     const workspaces = await getWorkspacesByUserID(userID); //this is to populate dropdown with workspaces on top of the page
     return res.status(200).json({ workspace, workspaces });
@@ -201,12 +203,14 @@ router.post('/open_dashboard', async (req, res, next) => {
   } = req;
 
   try {
-    const openDashboard = await getOpenDashboard(dashboardID, workspaceID, userID);
+    let openDashboard = await getOpenDashboard(dashboardID, workspaceID, userID);
 
-    if (openDashboard) {
-      await restoreOpenDashboard(dashboardID, workspaceID, userID);
+    if (openDashboard?.deletedAt) {
+      await openDashboard.restore();
+      await openDashboard.set('updatedAt', new Date());
+      await openDashboard.save();
       res.status(200);
-    } else {
+    } else if (!openDashboard) {
       await createOpenDashboard(dashboardID, workspaceID, userID);
       res.status(201);
     }
@@ -220,12 +224,12 @@ router.post('/open_dashboard', async (req, res, next) => {
 
 router.delete('/open_dashboard', async (req, res, next) => {
   const {
-    query: { dashboardID, workspaceID },
+    query: { dashboardID, workspaceID, isDeleting = false },
     user: { id: userID },
   } = req;
 
   try {
-    await deleteOpenDashboard(dashboardID, workspaceID, userID);
+    await deleteOpenDashboard(dashboardID, workspaceID, userID, isDeleting);
     const openDashboards = await getOpenDashboardsByUser(workspaceID, userID);
 
     return res.status(200).json(openDashboards);
@@ -241,10 +245,7 @@ router.delete('/open_dashboard/multiple', async (req, res, next) => {
   } = req;
 
   try {
-    const promises = dashboardIDArray.map(dashboardID =>
-      deleteOpenDashboard(dashboardID, workspaceID, userID),
-    );
-    await Promise.all(promises);
+    await deleteOpenDashboard(dashboardIDArray, workspaceID, userID, true);
     const openDashboards = await getOpenDashboardsByUser(workspaceID, userID);
 
     return res.status(200).json(openDashboards);

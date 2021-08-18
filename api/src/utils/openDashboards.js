@@ -6,7 +6,6 @@ const getOpenDashboard = async (dashboardID, workspaceID, userID) => {
     where: { dashboardID, workspaceID, userID },
     paranoid: false,
   });
-  dashboard = unNestSequelizeObj(dashboard);
 
   return dashboard;
 };
@@ -47,21 +46,38 @@ const restoreOpenDashboard = async (dashboardID, workspaceID, userID) => {
   return await dashboard.save();
 };
 
-const deleteOpenDashboard = async (dashboardID, workspaceID, userID) => {
-  return await openDashboard.destroy({ where: { dashboardID, workspaceID, userID } });
-};
-
-const addDashboardAsOpenDashboad = async (dashboardID, workspaceID, userID) => {
-  const openDashboard = await getOpenDashboard(dashboardID, workspaceID, userID);
-  if (openDashboard) {
-    await restoreOpenDashboard(dashboardID, workspaceID, userID);
+const deleteOpenDashboard = async (dashboardID, workspaceID, userID, deleteForAllUsers) => {
+  if (deleteForAllUsers) {
+    return await openDashboard.destroy({ where: { dashboardID, workspaceID } });
   } else {
-    await createOpenDashboard(dashboardID, workspaceID, userID);
+    return await openDashboard.destroy({ where: { dashboardID, workspaceID, userID } });
   }
 };
 
+const addDashboardAsOpenDashboard = async (dashboardID, workspaceID, userID) => {
+  let openDashboard = await getOpenDashboard(dashboardID, workspaceID, userID);
+  if (openDashboard?.deletedAt) {
+    await openDashboard.restore();
+    await openDashboard.set('updatedAt', new Date());
+    await openDashboard.save();
+    console.log('--------------------------------');
+    console.log(`restored`, openDashboard);
+    console.log('--------------------------------');
+  } else if (!openDashboard) {
+    openDashboard = await createOpenDashboard(dashboardID, workspaceID, userID);
+    console.log('--------------------------------');
+    console.log(`recreated`, openDashboard);
+    console.log('--------------------------------');
+  }
+  console.log('-------------------------');
+  console.log(`openDashboard.toJSON()`, openDashboard.toJSON());
+  console.log('-------------------------');
+
+  return openDashboard.toJSON();
+};
+
 module.exports = {
-  addDashboardAsOpenDashboad,
+  addDashboardAsOpenDashboard,
   createOpenDashboard,
   deleteOpenDashboard,
   getOpenDashboard,

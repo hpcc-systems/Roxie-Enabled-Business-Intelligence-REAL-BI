@@ -10,30 +10,30 @@ function TestTomboloIntegration() {
     const result = await axios.post(
       '/api/v1/integration',
 
-      // {
-      //   user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
-      //   cluster: {
-      //     name:'http://10.173.147.1',
-      //     host: 'http://10.173.147.1',
-      //     infoPort: '8010',
-      //     dataPort: '8002',
-      //   },
-      //   filename: 'temp::hfs::taxidata_small',
-      //   workspaceName: 'Tombolo', // Arbitrary name
-      //   dashboardName: 'Tombolo (testCluster)', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
-      // },
       {
-        user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' },
+        user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
         cluster: {
           name: 'http://10.173.147.1',
           host: 'http://10.173.147.1',
           infoPort: '8010',
           dataPort: '8002',
         },
-        filename: 'asdf::aaa::fake_people.csv_thor',
-        workspaceName: 'Tombolo',
-        dashboardName: 'Tombolo dash title', //title
+        filename: 'temp::hfs::taxidata_small',
+        workspaceName: 'Tombolo', // Arbitrary name
+        dashboardName: 'Tombolo (testCluster)', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
       },
+      // {
+      //   user: { email: 'admin@lexisnexisrisk.com' },
+      //   cluster: {
+      //     name: 'http://10.173.147.1',
+      //     host: 'http://10.173.147.1',
+      //     infoPort: '8010',
+      //     dataPort: '8002',
+      //   },
+      //   filename: 'asdf::aaa::fake_people.csv_thor',
+      //   workspaceName: 'Tombolo',
+      //   dashboardName: 'Tombolo dash title', //title
+      // },
       // {
       //   user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
       //   cluster: {

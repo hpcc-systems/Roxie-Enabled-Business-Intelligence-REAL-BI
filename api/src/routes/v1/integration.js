@@ -1,7 +1,7 @@
 const { findOrCreateCluster } = require('../../utils/cluster');
 const { findOrCreateDashboard } = require('../../utils/dashboard');
 
-const { addDashboardAsOpenDashboad } = require('../../utils/openDashboards');
+const { addDashboardAsOpenDashboard } = require('../../utils/openDashboards');
 const { getUserByEmail } = require('../../utils/user');
 const { findOrCreatePublicWorkspace } = require('../../utils/workspace');
 const { updateOrCreateWorkspaceDirectory } = require('../../utils/workspaceDirectory');
@@ -22,7 +22,7 @@ router.post('/', async (req, res, next) => {
       req.body.dashboardName.trim(),
       req.body.filename.trim(),
     );
-    await addDashboardAsOpenDashboad(dashboard.id, workspace.id, user.id);
+    await addDashboardAsOpenDashboard(dashboard.id, workspace.id, user.id);
     await updateOrCreateWorkspaceDirectory(dashboard, workspace.id); // this one is for directories to appear in drawer
 
     const url = SHARE_URL || 'http://localhost:3000';
