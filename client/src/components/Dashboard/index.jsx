@@ -38,21 +38,9 @@ const Dashboard = ({ isChartDialogCalled }) => {
   const [compData, setCompData] = useState({});
   const [chartID, setChartID] = useState(null);
 
-  const [
-    dashboard,
-    dashboardID,
-    charts = [],
-    dashboardLayout,
-    cluster,
-    relations,
-  ] = useSelector(({ dashboard }) => [
-    dashboard.dashboard,
-    dashboard.dashboard.id,
-    dashboard.dashboard.charts,
-    dashboard.dashboard.layout,
-    dashboard.dashboard.cluster,
-    dashboard.dashboard.relations,
-  ]);
+  const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
+  const { dashboardID, charts = [], dashboardLayout, cluster, relations, permission } = dashboard;
+
   const dispatch = useDispatch();
 
   const [deleteChartShow, deleteChartToggle] = useDialog(false);
@@ -159,7 +147,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
       dataCall(chartIDs, {});
       createLayout(); // creating layouts for drag and resize lib on initial load.
     }
-    if (!isChartDialogCalled.current) {
+    if (permission === 'Owner' && !isChartDialogCalled.current) {
       if (dashboard.fileName && charts.length === 0) {
         newChartToggle(true);
         isChartDialogCalled.current = true;

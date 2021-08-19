@@ -11,9 +11,9 @@ function TestTomboloIntegration() {
       '/api/v1/integration',
 
       {
-        user: { email: 'admin@lexisnexisrisk.com' },
-        // user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
-        // editingAllowed: true === owner, falseREa
+        // user: { email: 'admin@lexisnexisrisk.com' },
+        user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
+        editingAllowed: false,
         cluster: {
           name: 'http://10.173.147.1',
           host: 'http://10.173.147.1',
@@ -22,7 +22,7 @@ function TestTomboloIntegration() {
         },
         filename: 'temp::hfs::taxidata_small',
         workspaceName: 'Tombolo', // Arbitrary name
-        dashboardName: 'Tombolo (testCluster)', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
+        dashboardName: 'edtiting allowed test', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
       },
       // {
       //   user: { email: 'admin@lexisnexisrisk.com' },

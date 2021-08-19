@@ -143,14 +143,15 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
   return logger.info(`Email sent with share id ${shareID} and message id ${info.messageId}`);
 };
 
-const findOrCreatePublicWorkspace = async (userID, workspaceName) => {
+const findOrCreatePublicWorkspace = async (userID, workspaceName, userRole) => {
   let workspace = await Workspace.findOne({ where: { name: workspaceName, visibility: 'public' } });
   if (!workspace) {
     workspace = await createWorkspace(workspaceName, userID, 'public');
   }
-  await createOrUpdateWorkspacePermission(workspace.id, userID, 'Owner'); // everybody who hit this route are workspace owners cuz it is public. this will add ws to dropdown list in ui
+  await createOrUpdateWorkspacePermission(workspace.id, userID, userRole); // depending on req.body.editingAllowed field we determing a role of user. "Owner" || "Read-Only";
   return workspace;
 };
+
 const getWorkspaceFromDB = async condition => {
   return await Workspace.findOne({ where: condition });
 };

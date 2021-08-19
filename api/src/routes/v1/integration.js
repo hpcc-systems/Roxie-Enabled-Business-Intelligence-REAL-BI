@@ -11,9 +11,10 @@ const SHARE_URL = process.env.SHARE_URL;
 const router = require('express').Router();
 
 router.post('/', async (req, res, next) => {
+  const userRole = req.body.editingAllowed ? 'Owner' : 'Read-Only';
   try {
     const user = await getUserByEmail(req.body.user.email.trim());
-    const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName.trim());
+    const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName.trim(), userRole);
     const cluster = await findOrCreateCluster(req.body.cluster);
     const dashboard = await findOrCreateDashboard(
       workspace.id,
@@ -21,6 +22,7 @@ router.post('/', async (req, res, next) => {
       user.id,
       req.body.dashboardName.trim(),
       req.body.filename.trim(),
+      userRole,
     );
     await addDashboardAsOpenDashboard(dashboard.id, workspace.id, user.id);
     await updateOrCreateWorkspaceDirectory(dashboard, workspace.id); // this one is for directories to appear in drawer
