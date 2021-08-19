@@ -166,9 +166,11 @@ router.get('/find', async (req, res, next) => {
       //1. check if dashboard exists in workspace
       const dashboards = await getDashboardsByWorkspaceID(workspaceID);
 
-      const currentDash = dashboards && dashboards.find(dash => dash.id === dashID);
       //2. add dashboard to openDashboard
-      if (currentDash) await addDashboardAsOpenDashboard(dashID, workspaceID, userID);
+      if (dashID) {
+        const currentDash = dashboards && dashboards.find(dash => dash.id === dashID);
+        if (currentDash) await addDashboardAsOpenDashboard(dashID, workspaceID, userID);
+      }
     }
 
     workspace = await getWorkspaceByID(workspaceID, userID);
@@ -224,12 +226,12 @@ router.post('/open_dashboard', async (req, res, next) => {
 
 router.delete('/open_dashboard', async (req, res, next) => {
   const {
-    query: { dashboardID, workspaceID, isDeleting = false },
+    query: { dashboardID, workspaceID, isDeleting },
     user: { id: userID },
   } = req;
-
+  const isDeletingToBoolean = isDeleting === 'true';
   try {
-    await deleteOpenDashboard(dashboardID, workspaceID, userID, isDeleting);
+    await deleteOpenDashboard(dashboardID, workspaceID, userID, isDeletingToBoolean);
     const openDashboards = await getOpenDashboardsByUser(workspaceID, userID);
 
     return res.status(200).json(openDashboards);

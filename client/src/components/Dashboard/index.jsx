@@ -28,7 +28,6 @@ import { updateDashboardLayout } from '../../utils/dashboard';
 import { getChartData } from '../../utils/chart';
 import _ from 'lodash';
 import { updateChartConfigObject } from '../../features/dashboard/actions';
-import { useParams } from 'react-router-dom';
 
 const Dashboard = ({ isChartDialogCalled }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -64,8 +63,6 @@ const Dashboard = ({ isChartDialogCalled }) => {
   const [newChartShow, newChartToggle] = useDialog(false);
   const [dataShow, dataToggle] = useDialog(false);
   const [pdfShow, pdfToggle] = useDialog(false);
-
-  const { fileName, dashID } = useParams();
 
   const [showFilterDrawer, toggleFilterDrawer] = useDrawer(false);
 
@@ -162,12 +159,6 @@ const Dashboard = ({ isChartDialogCalled }) => {
       dataCall(chartIDs, {});
       createLayout(); // creating layouts for drag and resize lib on initial load.
     }
-    // if (dashboard.id === dashID) {
-    //   if (charts.length === 0 && fileName && !isChartDialogCalled.current) {
-    //     newChartToggle(true);
-    //     // isChartDialogCalled.current = true;
-    //   }
-    // }
     if (!isChartDialogCalled.current) {
       if (dashboard.fileName && charts.length === 0) {
         newChartToggle(true);

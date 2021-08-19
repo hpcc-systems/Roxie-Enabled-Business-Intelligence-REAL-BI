@@ -46,9 +46,9 @@ const restoreOpenDashboard = async (dashboardID, workspaceID, userID) => {
   return await dashboard.save();
 };
 
-const deleteOpenDashboard = async (dashboardID, workspaceID, userID, deleteForAllUsers) => {
-  if (deleteForAllUsers) {
-    return await openDashboard.destroy({ where: { dashboardID, workspaceID } });
+const deleteOpenDashboard = async (dashboardID, workspaceID, userID, isDeleting) => {
+  if (isDeleting) {
+    return await openDashboard.destroy({ where: { dashboardID, workspaceID } }); //if owner is deleting dashboard it should close it to every user.
   } else {
     return await openDashboard.destroy({ where: { dashboardID, workspaceID, userID } });
   }
@@ -60,18 +60,9 @@ const addDashboardAsOpenDashboard = async (dashboardID, workspaceID, userID) => 
     await openDashboard.restore();
     await openDashboard.set('updatedAt', new Date());
     await openDashboard.save();
-    console.log('--------------------------------');
-    console.log(`restored`, openDashboard);
-    console.log('--------------------------------');
   } else if (!openDashboard) {
     openDashboard = await createOpenDashboard(dashboardID, workspaceID, userID);
-    console.log('--------------------------------');
-    console.log(`recreated`, openDashboard);
-    console.log('--------------------------------');
   }
-  console.log('-------------------------');
-  console.log(`openDashboard.toJSON()`, openDashboard.toJSON());
-  console.log('-------------------------');
 
   return openDashboard.toJSON();
 };

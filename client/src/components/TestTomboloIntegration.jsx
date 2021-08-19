@@ -11,7 +11,9 @@ function TestTomboloIntegration() {
       '/api/v1/integration',
 
       {
-        user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
+        user: { email: 'admin@lexisnexisrisk.com' },
+        // user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
+        // editingAllowed: true === owner, falseREa
         cluster: {
           name: 'http://10.173.147.1',
           host: 'http://10.173.147.1',
@@ -32,7 +34,7 @@ function TestTomboloIntegration() {
       //   },
       //   filename: 'asdf::aaa::fake_people.csv_thor',
       //   workspaceName: 'Tombolo',
-      //   dashboardName: 'Tombolo dash title', //title
+      //   dashboardName: 'This Dash is NEW!', //title
       // },
       // {
       //   user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport

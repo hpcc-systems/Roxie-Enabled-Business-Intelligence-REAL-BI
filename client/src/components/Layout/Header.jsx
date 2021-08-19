@@ -104,7 +104,7 @@ const Header = ({ toggleDrawer }) => {
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar}>
-          {!_.isEmpty(workspaces) && _.isEmpty(errorObj) && !isChangePwdScreen && (
+          {!_.isEmpty(workspace) && _.isEmpty(errorObj) && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>

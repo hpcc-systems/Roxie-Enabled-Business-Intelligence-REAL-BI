@@ -109,10 +109,6 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         isIntegration: true,
         sourceType: 'file',
         keyword: fileName || dashboard.fileName,
-        configuration: {
-          ...localState.configuration,
-          chartDescription: dashboard.fileName + ' (source: Tombolo)',
-        },
       });
     }
   }, []);
