@@ -46,6 +46,20 @@ export const getTargetClustersForEditor = async clusterID => {
   }
 };
 
+export const getECLscriptByFileName = async options => {
+  try {
+    const response = await axios.post('/api/v1/hpcc/editor/filename', options);
+
+    return response.data;
+  } catch (error) {
+    if (error.response.status === 504) {
+      throw { message: 'Gateway Timeout' };
+    }
+
+    throw error.response.data;
+  }
+};
+
 export const submitWorkunit = async (clusterID, targetCluster, eclScript) => {
   try {
     const response = await axios.post('/api/v1/hpcc/editor/submit_workunit', {
