@@ -4,13 +4,15 @@ import { Tooltip as MUItooltip, withStyles } from '@material-ui/core';
 const CustomTooltip = withStyles(theme => ({
   tooltip: {
     maxWidth: '500px',
-    fontSize: theme.typography.pxToRem(16),
+    background: theme.palette.primary.main,
   },
 }))(MUItooltip);
 
-function Tooltip({ title, disableHoverListener, children }) {
+function Tooltip({ title, disableHoverListener = false, children }) {
   return (
     <CustomTooltip
+      arrow
+      placement='top'
       title={title}
       interactive
       enterDelay={2000}

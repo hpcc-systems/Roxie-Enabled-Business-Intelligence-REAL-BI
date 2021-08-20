@@ -12,7 +12,12 @@ const {
   getQueryParamsFromCluster,
   getQueryDataFromCluster,
 } = require('../../utils/hpccQueries');
-const { getTargetClusters, submitWorkunitToCluster, getECLParamsFromScript } = require('../../utils/hpccEcl');
+const {
+  getTargetClusters,
+  submitWorkunitToCluster,
+  getECLParamsFromScript,
+  getECLscript,
+} = require('../../utils/hpccEcl');
 const { validate, validateEclEditorExecution } = require('../../utils/validation');
 
 router.get('/keyword', async (req, res, next) => {
@@ -121,6 +126,31 @@ router.post('/editor/clusters', async (req, res, next) => {
     const targetClusters = await getTargetClusters(cluster, userID);
 
     res.status(200).json(targetClusters);
+  } catch (err) {
+    res.status(err?.response?.status || 500);
+    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
+    return next(error);
+  }
+});
+
+router.post('/editor/filename', async (req, res, next) => {
+  const {
+    body: { fileName, clusterID },
+    user: { id: userID },
+  } = req;
+
+  let cluster;
+
+  try {
+    cluster = await getClusterByID(clusterID);
+  } catch (error) {
+    return next(error);
+  }
+
+  try {
+    const result = await getECLscript(fileName, cluster, userID);
+
+    res.status(200).json(result);
   } catch (err) {
     res.status(err?.response?.status || 500);
     const error = new Error(`${err?.response?.data || 'Unknown error'}`);

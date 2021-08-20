@@ -107,10 +107,10 @@ export const openDashboardInWorkspace = async (dashboardID, workspaceID) => {
   }
 };
 
-export const closeDashboardInWorkspace = async (dashboardID, workspaceID) => {
+export const closeDashboardInWorkspace = async (dashboardID, workspaceID, isDeleting = false) => {
   try {
     const response = await axios.delete('/api/v1/workspace/open_dashboard', {
-      params: { dashboardID, workspaceID },
+      params: { dashboardID, workspaceID, isDeleting },
     });
     return { type: UPDATE_WORKSPACE_DASHBOARDS, payload: response.data };
   } catch (error) {

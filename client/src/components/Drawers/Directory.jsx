@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
+const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   const { values: localState, handleChange } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const [dashboardID, setDashboardID] = useState(null);
@@ -105,7 +105,9 @@ const DirectoryDrawer = ({ showDrawer, toggleDrawer }) => {
         return editDashboard(directoryObj);
       }
       const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
+      const tabIndex = action.payload.findIndex(openDashboard => openDashboard.id === directoryObj.id);
       dispatch(action);
+      changeTabIndex(null, parseInt(tabIndex));
       toggleDrawer();
     } catch (error) {
       dispatch(error);

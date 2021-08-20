@@ -1,3 +1,4 @@
+/* eslint-disable no-fallthrough */
 import React, { useState, useRef } from 'react';
 
 import { MoreHoriz as MoreHorizIcon } from '@material-ui/icons';
@@ -25,18 +26,18 @@ const useStyles = makeStyles(() => ({
 const ChartToolbar = props => {
   const classes = useStyles();
   const { chart, lastModifiedDate, pdfPreview } = props;
-  const { configuration, sourceType } = chart;
+  const { configuration, source, sourceType } = chart;
   const { chartDescription = '', isStatic, showLastExecuted, title = '' } = configuration;
 
-  const permission = useSelector(state => state.dashboard.dashboard.permission);
+  const { permission, fileName } = useSelector(state => state.dashboard.dashboard);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
   const descriptionRef = useRef();
   const titleRef = useRef();
 
-  const descriptionoverStatus = useTooltipHover(descriptionRef);
-  const titleHoverStatus = useTooltipHover(titleRef);
+  const isDecriptionFits = useTooltipHover(descriptionRef);
+  const isTitleFits = useTooltipHover(titleRef);
 
   const showMenu = event => {
     setAnchorEl(event.currentTarget);
@@ -46,33 +47,55 @@ const ChartToolbar = props => {
     lastModifiedDate || ''
   }`;
 
+  const TooltipText = () => {
+    return (
+      <>
+        <Typography variant='caption' component='p' align='center'>
+          {source.name} [{source.target}] {fileName === source.name && ' (source: Tombolo)'}
+        </Typography>
+        {!isTitleFits && (
+          <Typography variant='subtitle1' component='p'>
+            {title}
+          </Typography>
+        )}
+        {!isDecriptionFits && (
+          <Typography variant='body2' component='p'>
+            {chartDescription}
+          </Typography>
+        )}
+      </>
+    );
+  };
+
   return (
     <>
-      <Grid container justify='space-between' alignItems='center' wrap='nowrap'>
-        <Grid item className={classes.centerSvg}>
-          {canEditCharts(permission) && (
-            <DragHandleIcon className='dragElement' style={{ cursor: 'pointer' }} />
-          )}
-        </Grid>
-        <Grid item xs={10}>
-          <CustomTooltip title={title} disableHoverListener={titleHoverStatus}>
+      <CustomTooltip title={<TooltipText />}>
+        <Grid container justify='space-between' alignItems='center' wrap='nowrap'>
+          <Grid item className={classes.centerSvg}>
+            {canEditCharts(permission) && (
+              <DragHandleIcon className='dragElement' style={{ cursor: 'pointer' }} />
+            )}
+          </Grid>
+
+          <Grid item xs={10}>
             <Typography ref={titleRef} variant='h6' component='h1' align='center' noWrap>
               {title}
             </Typography>
-          </CustomTooltip>
+          </Grid>
+
+          <Grid item className={classes.centerSvg}>
+            {canEditCharts(permission) && !pdfPreview && (
+              <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />
+            )}
+            <ToolbarSubMenu {...props} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
+          </Grid>
         </Grid>
-        <Grid item className={classes.centerSvg}>
-          {canEditCharts(permission) && !pdfPreview && (
-            <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />
-          )}
-          <ToolbarSubMenu {...props} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
-        </Grid>
-      </Grid>
-      <CustomTooltip title={chartDescription} disableHoverListener={descriptionoverStatus}>
-        <Typography ref={descriptionRef} variant='body1' component='p' noWrap>
-          {chartDescription}
-        </Typography>
       </CustomTooltip>
+
+      <Typography ref={descriptionRef} variant='body1' component='p' noWrap>
+        {chartDescription}
+      </Typography>
+
       <Typography variant='caption' component='small'>
         {!isStatic && showLastExecuted && datetimeStamp}
       </Typography>

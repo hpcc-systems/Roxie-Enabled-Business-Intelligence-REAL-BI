@@ -18,6 +18,42 @@ const getTargetClusters = async (cluster, userID) => {
   return await topology.fetchTargetClusters();
 };
 
+const getECLscript = async (fileName, cluster, userID) => {
+  const { id: clusterID, host, infoPort } = cluster;
+  const clusterCreds = await getClusterCreds(clusterID, userID);
+
+  try {
+    //Getting ECL script
+    const hpccFile = await axios.post(
+      `${host}:${infoPort}/WsDfu/DFUInfo?ver_=1.55&json_builder_`,
+      {
+        DFUInfoRequest: {
+          Name: fileName,
+        },
+      },
+      { auth: clusterCreds },
+    );
+    const eclScript = hpccFile.data.DFUInfoResponse.FileDetail.Ecl;
+    const nodeGroup = hpccFile.data.DFUInfoResponse.FileDetail.NodeGroup;
+    const wuid = hpccFile.data.DFUInfoResponse.FileDetail.Wuid;
+
+    const hpccWorkUnit = await axios.post(
+      `${host}:${infoPort}/WsWorkunits/WUInfo?ver_=1.78&json_builder_`,
+      {
+        WUInfoRequest: {
+          Wuid: wuid,
+        },
+      },
+      { auth: clusterCreds },
+    );
+    const clusterName = hpccWorkUnit.data.WUInfoResponse.Workunit.Cluster;
+
+    return { eclScript, nodeGroup, wuid, clusterName };
+  } catch (error) {
+    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+  }
+};
+
 const submitWorkunitToCluster = async (cluster, targetCluster, eclScript, userID) => {
   const { id: clusterID, host, infoPort } = cluster;
   const { password, username } = await getClusterCreds(clusterID, userID);
@@ -198,6 +234,7 @@ const createScriptLastModifiedDate = () => {
 };
 
 module.exports = {
+  getECLscript,
   getECLParamsFromScript,
   getTargetClusters,
   getWorkunitDataFromCluster,

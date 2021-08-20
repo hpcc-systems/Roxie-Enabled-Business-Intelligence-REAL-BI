@@ -104,20 +104,12 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const datasetKeys = Object.keys(selectedDataset).length;
 
   useEffect(() => {
-    if (fileName) {
+    if (fileName || dashboard.fileName) {
       formFieldsUpdate({
         isIntegration: true,
         sourceType: 'file',
-        keyword: fileName,
+        keyword: fileName || dashboard.fileName,
       });
-    } else {
-      if (dashboard.fileName) {
-        formFieldsUpdate({
-          isIntegration: true,
-          sourceType: 'file',
-          keyword: dashboard.fileName,
-        });
-      }
     }
   }, []);
 
@@ -134,7 +126,6 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
     if (type === 'textBox' && isStatic) {
       const chartObj = { ...configuration, dataset, ecl: {} };
-
       try {
         const action = await createChart(chartObj, dashboardID, null);
         dispatch(action);

@@ -34,7 +34,7 @@ const DeleteDashboardDialog = ({ dashboardID, show, toggleDialog, workspace }) =
       await deleteExistingDashboard(dashboardID);
 
       const actions = await Promise.all([
-        closeDashboardInWorkspace(dashboardID, workspaceID),
+        closeDashboardInWorkspace(dashboardID, workspaceID, true), // if user deletes dashboard we have to delete openDashboard for everyone who has access to it.
         updateWorkspaceDirectory(newDirectory, workspaceID),
       ]);
 

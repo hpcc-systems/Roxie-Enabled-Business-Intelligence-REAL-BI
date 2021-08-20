@@ -48,11 +48,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  const { workspaceID, fileName, dashID } = useParams();
+  let { workspaceID, fileName, dashID } = useParams();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
-  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
+  const { id: dashboardID, name: dashBoardName } = useSelector(state => state.dashboard.dashboard);
   const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();
@@ -70,7 +70,7 @@ const Workspace = () => {
 
     if (workspaceID) {
       dispatch(clearDashboard());
-      dashID ? dashID : null;
+      dashID = dashID ? dashID : null;
       getWorkspace(workspaceID, dashID)
         .then(handleTabsAndActions)
         .catch(action => dispatch(action));
@@ -136,10 +136,18 @@ const Workspace = () => {
     }
   };
 
+  const chartDialogOnInitialLoad = React.useRef(false);
+
   return (
     <Fragment>
       <Header toggleDrawer={toggleDrawer} />
-      {showDrawer && <DirectoryDrawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} />}
+      {showDrawer && (
+        <DirectoryDrawer
+          changeTabIndex={changeTabIndex}
+          showDrawer={showDrawer}
+          toggleDrawer={toggleDrawer}
+        />
+      )}
       {openDashboards.length > 0 ? (
         <AppBar className={appbar} position='static' color='inherit'>
           <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
@@ -171,7 +179,7 @@ const Workspace = () => {
       ) : (
         <NoCharts />
       )}
-      {dashboardID && <Dashboard />}
+      {dashboardID && <Dashboard isChartDialogCalled={chartDialogOnInitialLoad} />}
     </Fragment>
   );
 };
