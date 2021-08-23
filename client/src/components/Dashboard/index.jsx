@@ -39,7 +39,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
   const [chartID, setChartID] = useState(null);
 
   const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
-  const { dashboardID, charts = [], dashboardLayout, cluster, relations, permission } = dashboard;
+  const { id: dashboardID, charts = [], layout: dashboardLayout, cluster, relations, permission } = dashboard;
 
   const dispatch = useDispatch();
 
@@ -144,6 +144,8 @@ const Dashboard = ({ isChartDialogCalled }) => {
   // Initial data call when component is loaded
   useEffect(() => {
     if (dashboard.id && charts.length > 0) {
+      console.log('dashboard.id :>> ', dashboard.id);
+      console.log('chartIDs :>> ', chartIDs);
       dataCall(chartIDs, {});
       createLayout(); // creating layouts for drag and resize lib on initial load.
     }
