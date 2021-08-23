@@ -52,7 +52,7 @@ const Workspace = () => {
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
-  const { id: dashboardID, name: dashBoardName } = useSelector(state => state.dashboard.dashboard);
+  const { id: dashboardID } = useSelector(state => state.dashboard.dashboard);
   const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();

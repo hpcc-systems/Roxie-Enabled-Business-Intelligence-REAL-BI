@@ -39,7 +39,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
   const [chartID, setChartID] = useState(null);
 
   const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
-  const { dashboardID, charts = [], dashboardLayout, cluster, relations, permission } = dashboard;
+  const { id: dashboardID, charts = [], layout: dashboardLayout, cluster, relations, permission } = dashboard;
 
   const dispatch = useDispatch();
 
