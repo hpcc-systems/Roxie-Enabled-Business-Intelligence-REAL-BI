@@ -153,7 +153,7 @@ router.post('/editor/filename', async (req, res, next) => {
     res.status(200).json(result);
   } catch (err) {
     res.status(err?.response?.status || 500);
-    const error = new Error(`${err?.response?.data || 'Unknown error'}`);
+    const error = new Error(`${err?.response?.data || err.message || 'Unknown error'}`);
     return next(error);
   }
 });
