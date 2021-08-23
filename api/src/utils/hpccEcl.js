@@ -33,9 +33,13 @@ const getECLscript = async (fileName, cluster, userID) => {
       },
       { auth: clusterCreds },
     );
-    const eclScript = hpccFile.data.DFUInfoResponse.FileDetail.Ecl;
-    const nodeGroup = hpccFile.data.DFUInfoResponse.FileDetail.NodeGroup;
-    const wuid = hpccFile.data.DFUInfoResponse.FileDetail.Wuid;
+    const eclScript = hpccFile?.data?.DFUInfoResponse?.FileDetail?.Ecl;
+    const nodeGroup = hpccFile?.data?.DFUInfoResponse?.FileDetail?.NodeGroup;
+    let wuid = hpccFile?.data?.DFUInfoResponse?.FileDetail?.Wuid;
+
+    if (!wuid || !eclScript || !nodeGroup) {
+      throw new Error(`Can not find a script for ${fileName}.`);
+    }
 
     const hpccWorkUnit = await axios.post(
       `${host}:${infoPort}/WsWorkunits/WUInfo?ver_=1.78&json_builder_`,
@@ -50,7 +54,7 @@ const getECLscript = async (fileName, cluster, userID) => {
 
     return { eclScript, nodeGroup, wuid, clusterName };
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    throw new Error(`${error?.response?.data || error.message || 'Unknown error'}`);
   }
 };
 

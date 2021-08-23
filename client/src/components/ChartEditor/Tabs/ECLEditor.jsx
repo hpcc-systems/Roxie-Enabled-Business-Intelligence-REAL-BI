@@ -192,6 +192,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
   ]);
 
   const runScript = async () => {
+    handleChange(null, { name: 'error', value: '' }); // reseting errors to none before running new script
     if (runButton.current.disabled) return;
 
     runButton.current.disabled = true;
@@ -246,16 +247,20 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
     (async () => {
       let clusterName;
       if (dashboard.fileName) {
-        const respond = await getECLscriptByFileName({ clusterID, fileName: dashboard.fileName });
+        try {
+          const respond = await getECLscriptByFileName({ clusterID, fileName: dashboard.fileName });
 
-        let eclScript = respond.eclScript;
-        clusterName = respond.clusterName;
+          let eclScript = respond.eclScript;
+          clusterName = respond.clusterName;
 
-        const modifiedScript =
-          eclScript.replace('RECORD\n', 'Layout := RECORD\n') +
-          `ds := DATASET('~${dashboard.fileName}', Layout, ${clusterName});\noutput(ds);`;
+          const modifiedScript =
+            eclScript.replace('RECORD\n', 'Layout := RECORD\n') +
+            `ds := DATASET('~${dashboard.fileName}', Layout, ${clusterName});\noutput(ds);`;
 
-        script = modifiedScript;
+          script = modifiedScript;
+        } catch (error) {
+          handleChange(null, { name: 'error', value: error.message });
+        }
       }
 
       // Script already defined, update editor
@@ -291,6 +296,8 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
 
       addComponentsToWidget();
     })();
+
+    return () => handleChange(null, { name: 'error', value: '' });
   }, []);
 
   const eclRefErr = errors.find(err => err['eclRef']);
