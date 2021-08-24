@@ -23,7 +23,7 @@ const initial = {
   children: [],
 };
 
-export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
+export default function ControlledTreeView({ clusterId, formFieldsUpdate, selectedSource }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [clusterFiles, setClusterFiles] = React.useState(initial);
@@ -52,7 +52,7 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate }) {
   const handleSelect = (event, nodeIds) => {
     const [currentNodeRef] = findNodeRef(clusterFiles, nodeIds);
 
-    if (!currentNodeRef.isDirectory) {
+    if (!currentNodeRef.isDirectory && selectedSource?.name !== currentNodeRef.name) {
       formFieldsUpdate({
         keywordfromExplorer: true,
         error: '',

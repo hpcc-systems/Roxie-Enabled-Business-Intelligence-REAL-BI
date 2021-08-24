@@ -14,14 +14,14 @@ import _ from 'lodash';
 const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate }) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const isMounted = useRef(true); // Using this variable to unsubscibe from state update if component is unmounted
+  const isMounted = useRef(); // Using this variable to unsubscibe from state update if component is unmounted
 
   const {
     chartID,
     errors,
     keyword,
     configuration: { isStatic = false, type },
-    sources,
+    sources = [],
     keywordfromExplorer,
     sourceType,
     isIntegration,
@@ -31,46 +31,47 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   const selectedSource = _.isEmpty(localState.selectedSource) ? null : localState.selectedSource; // autocomplete fix
 
-  const updateAutocomplete = async (clusterID, keyword, sourceType) => {
+  const updateAutocomplete = async (clusterID, keyword) => {
+    if (!isMounted.current) return;
     formFieldsUpdate({ isAutoCompleteLoading: true });
     try {
       const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
-
-      if (!isMounted.current) return null;
-
+      if (!isMounted.current) return;
       formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
       if (chartID || isIntegration) {
         const selectedSource = data.find(({ name }) => name === keyword);
         if (isIntegration) {
-          handleOnChange(null, selectedSource);
+          handleAutocompleteSelect(null, selectedSource);
         } else {
           formFieldsUpdate({ selectedSource });
         }
       }
     } catch (error) {
-      if (!isMounted.current) return null;
+      if (!isMounted.current) return;
       formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });
     }
   };
 
-  const updateAutocompleteDebounced = useCallback(_.debounce(updateAutocomplete, 1000), []);
+  const updateAutocompleteDebounced = useCallback(_.debounce(updateAutocomplete, 1000), [sourceType]);
 
   useEffect(() => {
-    if (keyword) {
-      if (!keywordfromExplorer) {
-        updateAutocompleteDebounced(clusterID, keyword, sourceType);
+    isMounted.current = true;
+    if (keyword && !selectedSource) {
+      if (isMounted.current) {
+        if (!keywordfromExplorer) {
+          updateAutocompleteDebounced(clusterID, keyword);
+        }
+        formFieldsUpdate({ keywordfromExplorer: false });
       }
-      formFieldsUpdate({ keywordfromExplorer: false });
     }
     return () => (isMounted.current = false);
-  }, [chartID, clusterID, handleChange, keyword, sourceType]);
+  }, [chartID, clusterID, keyword]);
 
-  // Determine when to update 'keyword' field in state
-  const updateKeyword = event => {
-    handleChange(event);
+  const updateKeyword = (event, newInputValue) => {
+    handleChange(null, { name: 'keyword', value: newInputValue });
   };
 
-  const handleOnChange = (event, newValue) => {
+  const handleAutocompleteSelect = (_event, newValue) => {
     // Confirm variable has a value
     newValue = newValue ? newValue : {};
 
@@ -95,19 +96,19 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     <>
       <Box mb={2}>
         <Autocomplete
-          onChange={handleOnChange}
           getOptionSelected={(option, value) => option.name === value.name}
           getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
           options={sources}
-          value={selectedSource}
           loading={isAutoCompleteLoading}
           loadingText='...fetching latest data'
+          value={selectedSource} // this is autocomplete value
+          onChange={handleAutocompleteSelect} // triggeres when autocomplete selected
+          inputValue={keyword} // textfield value
+          onInputChange={updateKeyword} // update textfield
           renderInput={params => (
             <TextField
               {...params}
               name='keyword'
-              value={keyword}
-              onChange={updateKeyword}
               label={sourceType === 'file' ? 'File Name' : 'Query Name'}
               fullWidth
               error={selectedSourceErr !== undefined}
@@ -127,7 +128,11 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
       </Box>
       {sourceType === 'file' ? (
         <Box component={Paper} elevation={2} p={2} my={2} maxHeight='200px' overflow='auto'>
-          <FileExplorer formFieldsUpdate={formFieldsUpdate} clusterId={clusterID} />
+          <FileExplorer
+            formFieldsUpdate={formFieldsUpdate}
+            clusterId={clusterID}
+            selectedSource={selectedSource}
+          />
         </Box>
       ) : null}
     </>
