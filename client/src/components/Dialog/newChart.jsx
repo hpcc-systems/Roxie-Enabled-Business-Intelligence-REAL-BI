@@ -91,7 +91,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const dispatch = useDispatch();
   const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
 
-  const { workspaceID, dashID, fileName } = useParams();
+  const { workspaceID, fileName } = useParams();
   const history = useHistory();
   // Reference values
   const {
@@ -159,7 +159,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         dispatch(action);
         getChartData([action.payload.id], {});
         addChartToLayout(action.payload);
-        history.push(`/workspace/${workspaceID}/${dashID}`);
+        history.push(`/workspace/${workspaceID}`);
         return toggleDialog();
       } catch (error) {
         return dispatch(error);

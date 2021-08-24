@@ -8,12 +8,17 @@ import Chart from '../Chart';
 
 const ChartTile = props => {
   const { chart, compData, interactiveClick, interactiveObj, pdfPreview = false } = props;
+
+  const toolbarHeight = React.useRef(null);
+
   return (
-    <Box p={1} height='100%'>
-      {/* chart info size is about 77px */}
-      <ChartToolbar {...props} lastModifiedDate={compData.lastModifiedDate} />
-      {/* use calc to find out how much space is left to fit a chart in */}
-      <Box height='calc(100% - 77px)'>
+    <Box px={1} pb={2} height='100%'>
+      {/* dynamically check the height of the toolbar with useReff */}
+      <Box ref={toolbarHeight}>
+        <ChartToolbar {...props} lastModifiedDate={compData.lastModifiedDate} />
+      </Box>
+      {/* use calc to find out how much space is left to fit a chart in, this is required by chart library*/}
+      <Box height={`calc(100% - ${toolbarHeight?.current?.offsetHeight || 0}px)`}>
         <SnackbarProvider>
           <Chart
             chart={chart}

@@ -35,9 +35,6 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     formFieldsUpdate({ isAutoCompleteLoading: true });
     try {
       const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
-
-      if (!isMounted.current) return null;
-
       formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
       if (chartID || isIntegration) {
         const selectedSource = data.find(({ name }) => name === keyword);
@@ -48,7 +45,6 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
         }
       }
     } catch (error) {
-      if (!isMounted.current) return null;
       formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });
     }
   };
@@ -63,7 +59,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
       formFieldsUpdate({ keywordfromExplorer: false });
     }
     return () => (isMounted.current = false);
-  }, [chartID, clusterID, handleChange, keyword, sourceType]);
+  }, [chartID, clusterID, keyword, sourceType]);
 
   // Determine when to update 'keyword' field in state
   const updateKeyword = event => {

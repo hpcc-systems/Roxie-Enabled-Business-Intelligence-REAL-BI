@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { Container, Paper } from '@material-ui/core';
+import { Container, makeStyles, Paper } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 import _orderBy from 'lodash/orderBy';
 import { useSnackbar } from 'notistack';
@@ -29,8 +29,14 @@ import { getChartData } from '../../utils/chart';
 import _ from 'lodash';
 import { updateChartConfigObject } from '../../features/dashboard/actions';
 
+const useStyles = makeStyles(() => ({
+  dashboardRoot: { overflow: 'hidden', paddingBottom: '50px' },
+  chartPaper: { overflow: 'hidden' },
+}));
+
 const Dashboard = ({ isChartDialogCalled }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const classes = useStyles();
 
   const [interactiveObj, setInteractiveObj] = useState({});
   const [chartLayouts, setChartLayouts] = useState(null); //layouts for RGL library
@@ -177,7 +183,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
       h: 20,
       minW: 2,
       maxW: 12,
-      minH: 3,
+      minH: 4,
     }));
 
   const createChart = layoutIndex => {
@@ -185,7 +191,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
     const eclDataset = chart?.configuration?.ecl?.dataset || '';
     const chartData = compData[chart.id] || compData[eclDataset] || {};
     return (
-      <Paper key={chart.id}>
+      <Paper className={classes.chartPaper} key={chart.id}>
         <ChartTile
           key={chart.id}
           chart={chart}
@@ -262,7 +268,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
         toggleSharedWith={sharedWithToggle}
       />
       {/* MAIN CONTENT START! */}
-      <Container maxWidth='xl' style={{ overflow: 'hidden', paddingBottom: '50px' }}>
+      <Container maxWidth='xl' className={classes.dashboardRoot}>
         {chartLayouts && isMounted.current && (
           <ChartsGrid
             layouts={chartLayouts}
