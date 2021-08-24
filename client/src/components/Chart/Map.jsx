@@ -86,6 +86,7 @@ function Map({ chartID, configuration, data }) {
       bearing: cashedSettings?.bearing || settings.bearing,
       pitch: cashedSettings?.pitch || settings.pitch,
       zoom: cashedSettings?.zoom || settings.zoom,
+      attributionControl: false,
     })
       .addControl(new mapboxgl.FullscreenControl())
       .addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));

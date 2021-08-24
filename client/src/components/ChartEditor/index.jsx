@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { eclRef, handleChange, localState } = props;
+  const { eclRef, handleChange, formFieldsUpdate, localState, initialChartFormFields } = props;
   const { chartID, configuration, dataObj, dataset, error, sourceType } = localState;
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
   const { isStatic = false, type } = configuration;
@@ -53,8 +53,10 @@ const ChartEditor = props => {
   };
 
   const changeSourceType = event => {
-    handleChange(null, { name: 'selectedSource', value: {} });
-    handleChange(event);
+    formFieldsUpdate({
+      ...initialChartFormFields,
+      sourceType: event.target.value,
+    });
   };
 
   const updateAxisKey = event => {

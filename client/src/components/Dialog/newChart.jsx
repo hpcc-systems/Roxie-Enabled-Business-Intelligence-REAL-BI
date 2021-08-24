@@ -91,7 +91,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const dispatch = useDispatch();
   const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
 
-  const { workspaceID, dashID, fileName } = useParams();
+  const { workspaceID, fileName } = useParams();
   const history = useHistory();
   // Reference values
   const {
@@ -112,10 +112,6 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       });
     }
   }, []);
-
-  useEffect(() => {
-    handleChange(null, { name: 'errors', value: [] });
-  }, [handleChange, sourceType]);
 
   // Add components to DB
   const newChart = async () => {
@@ -159,7 +155,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         dispatch(action);
         getChartData([action.payload.id], {});
         addChartToLayout(action.payload);
-        history.push(`/workspace/${workspaceID}/${dashID}`);
+        history.push(`/workspace/${workspaceID}`);
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
@@ -179,12 +175,15 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
         try {
           const options = { dataset, params: populatedParams, source };
           const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
-
-          handleChange(null, { name: 'error', value: '' });
-          handleChange(null, { name: 'dataObj', value: { data, loading: false } });
+          formFieldsUpdate({
+            error: '',
+            dataObj: { data, loading: false },
+          });
         } catch (error) {
-          handleChange(null, { name: 'error', value: error.message });
-          handleChange(null, { name: 'dataObj', value: { error: error.message, loading: false } });
+          formFieldsUpdate({
+            error: error.message,
+            dataObj: { error: error.message, loading: false },
+          });
         }
       })();
     }
@@ -224,6 +223,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
             handleCheckbox={handleCheckbox}
             formFieldsUpdate={formFieldsUpdate}
             localState={localState}
+            initialChartFormFields={initState}
           />
         </DialogContent>
         <DialogActions>

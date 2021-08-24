@@ -22,12 +22,12 @@ const getTreeViewDataFromCluster = async (cluster, userId, scope) => {
 
     return response.data;
   } catch (error) {
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       throw new Error(
         `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
       );
     } else {
-      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+      throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
     }
   }
 };
@@ -46,12 +46,12 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
 
     files = response?.data?.DFUQueryResponse;
   } catch (error) {
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       throw new Error(
         `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
       );
     } else {
-      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+      throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
     }
   }
 
@@ -83,12 +83,12 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
       { auth: clusterCreds },
     );
   } catch (error) {
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       throw new Error(
         `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
       );
     } else {
-      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+      throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
     }
   }
 
@@ -138,12 +138,12 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
 
     data = response.data.WUResultResponse;
   } catch (error) {
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       throw new Error(
         `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
       );
     } else {
-      throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+      throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
     }
   }
 
@@ -172,7 +172,7 @@ const getFileLastModifiedDate = async (cluster, fileName, clusterCreds) => {
 
     file = response.data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile[0];
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
   }
 
   if (!file) throw new Error('No Matching Filename Found');

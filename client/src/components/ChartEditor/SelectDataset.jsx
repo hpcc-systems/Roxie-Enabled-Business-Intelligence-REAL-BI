@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   errorText: { color: theme.palette.error.dark },
 }));
 
-const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState }) => {
+const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChangeObj, localState }) => {
   const [loading, setLoading] = useState(false);
   const {
     chartID,
@@ -44,13 +44,10 @@ const SelectDataset = ({ dashboard, handleChange, handleChangeObj, localState })
           const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
           const { datasets, fields, name, params: dataParams = [] } = data;
 
-          handleChange(null, { name: 'error', value: '' });
-
           if (sourceType === 'file') {
-            handleChange(null, { name: 'selectedDataset', value: { name, fields } });
-            handleChange(null, { name: 'dataset', value: name });
+            formFieldsUpdate({ selectedDataset: { name, fields }, dataset: name, error: '' });
           } else {
-            handleChange(null, { name: 'datasets', value: datasets });
+            formFieldsUpdate({ datasets: datasets, error: '' });
           }
 
           if (!chartID) {
