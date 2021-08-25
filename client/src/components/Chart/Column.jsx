@@ -4,7 +4,6 @@ import { Column } from '@ant-design/charts';
 import _orderBy from 'lodash/orderBy';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
-import { chartFillColor } from '../../constants';
 
 const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
   const {
@@ -44,8 +43,8 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     data = _orderBy(data, [sortValue], [order]);
   }
 
-  let chartConfig = {
-    appendPadding: [40, 0, 0, 0],
+  const chartConfig = {
+    appendPadding: [20, 5, 0, 5],
     data,
     autoFit: true,
     legend: { position: 'right-top' },
@@ -70,18 +69,36 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       },
       showContent: !pdfPreview,
     },
-    xAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customXLabel },
-      label: { autoRotate: true },
-    },
     xField: xValue,
-    yAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customYLabel },
-    },
     yField: yValue,
-    scrollbar: { type: 'horizontal' },
+    xAxis: {
+      top: true,
+      nice: true,
+      min: 0,
+      title: { autoRotate: true, text: customXLabel },
+      label: {
+        autoHide: false,
+        style: { fontSize: 12 },
+        autoRotate: true,
+        formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
+      },
+    },
+    yAxis: {
+      top: true,
+      nice: true,
+      min: 0,
+      title: { autoRotate: true, text: customYLabel },
+      label: {
+        autoHide: false,
+        style: { fontSize: 12 },
+        autoRotate: true,
+        formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
+      },
+    },
+    slider: {
+      start: 0,
+      end: 1,
+    },
   };
 
   // Add data labels property
@@ -89,39 +106,40 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     chartConfig.label = {
       formatter: row => {
         const value = row[yValue];
-
         return isNaN(value)
           ? value
           : percentageStack
           ? `${(value * 100).toFixed(2)}%`
           : Intl.NumberFormat('en-US').format(value);
       },
-      position: stacked ? 'middle' : 'top',
-      style: { fill: chartFillColor, fontSize: 12 },
+      // position: stacked ? 'middle' : 'top',
+      layout: [{ type: 'interval-adjust-position' }, { type: 'adjust-color' }],
+      style: {
+        fontWeight: 600,
+      },
     };
-  } else {
-    chartConfig.label = null;
   }
 
-  if (xShowTickLabels) {
-    chartConfig.xAxis.label = { style: { fill: chartFillColor } };
-  } else {
+  if (!xShowTickLabels) {
     chartConfig.xAxis.label = null;
   }
 
-  if (yShowTickLabels) {
-    chartConfig.yAxis.label = { style: { fill: chartFillColor } };
-  } else {
+  if (!yShowTickLabels) {
     chartConfig.yAxis.label = null;
   }
 
   // Add groupby and stacked
   if (groupByValue) {
-    if (percentageStack) {
-      chartConfig.isPercent = true;
+    chartConfig.isGroup = true;
+    chartConfig.seriesField = groupByValue;
+
+    if (stacked) {
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
+    }
 
+    if (percentageStack) {
+      chartConfig.isPercent = true;
       chartConfig.tooltip = {
         formatter: datum => {
           const value = datum[yValue];
@@ -130,24 +148,8 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
             value: `${(value * 100).toFixed(2)}%`,
           };
         },
-        showContent: !pdfPreview,
       };
-    } else if (stacked) {
-      chartConfig.isPercent = null;
-      chartConfig.isStack = true;
-      chartConfig.isGroup = true;
-    } else {
-      chartConfig.isPercent = null;
-      chartConfig.isStack = null;
-      chartConfig.isGroup = true;
     }
-
-    chartConfig.seriesField = groupByValue;
-  } else {
-    chartConfig.isPercent = null;
-    chartConfig.isStack = null;
-    chartConfig.isGroup = null;
-    chartConfig.seriesField = null;
   }
 
   const ref = useRef();
@@ -155,7 +157,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
 
   useEffect(() => {
     const chart = ref.current;
-
+    console.log('chart :>> ', chart);
     chart.on('element:click', evt => {
       if (drilled.current) {
         drilled.current = false;
@@ -163,6 +165,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
           ...chartConfig,
         });
       }
+
       const eventData = evt.data;
       if (eventData?.data) {
         const location = eventData.data.location;
@@ -180,16 +183,15 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
           ...chartConfig,
           data: newDataSet,
           yField: 'value',
-          yAxis: {
-            min: 0,
-            title: { style: { fill: chartFillColor }, text: 'value' },
-          },
           xField: 'category',
-          xAxis: {
-            min: 0,
-            title: { style: { fill: chartFillColor }, text: 'category' },
+          yAxis: {
+            ...chartConfig.yAxis,
+            title: { ...chartConfig.yAxis.title, text: 'value' },
           },
-
+          xAxis: {
+            ...chartConfig.xAxis,
+            title: { ...chartConfig.xAxis.title, text: location },
+          },
           tooltip: {
             formatter: datum => {
               const value = datum['value'];

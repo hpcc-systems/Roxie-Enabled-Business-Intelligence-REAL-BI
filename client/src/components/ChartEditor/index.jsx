@@ -44,6 +44,9 @@ const ChartEditor = props => {
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
   const { isStatic = false, type } = configuration;
 
+  console.log('dataObj :>> ', localState.dataObj);
+  console.log('dataset :>> ', localState.dataset);
+  console.log('selectedDataset :>> ', localState.selectedDataset);
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, formControl, gridContainer, typography } = useStyles();
