@@ -14,6 +14,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     showDataLabels,
     sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
     stacked,
+    drillDown = null,
   } = configuration;
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
@@ -112,8 +113,11 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
           ? `${(value * 100).toFixed(2)}%`
           : Intl.NumberFormat('en-US').format(value);
       },
-      // position: stacked ? 'middle' : 'top',
-      layout: [{ type: 'interval-adjust-position' }, { type: 'adjust-color' }],
+      layout: [
+        { type: 'interval-adjust-position' },
+        { type: 'interval-hide-overlap' },
+        { type: 'adjust-color' },
+      ],
       style: {
         fontWeight: 600,
       },
@@ -126,6 +130,12 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
 
   if (!yShowTickLabels) {
     chartConfig.yAxis.label = null;
+  }
+
+  if (drillDown?.hasDrillDown) {
+    chartConfig.columnStyle = {
+      cursor: 'pointer',
+    };
   }
 
   // Add groupby and stacked
@@ -153,65 +163,62 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   }
 
   const ref = useRef();
-  const drilled = useRef(false);
+  const drillDownApplied = useRef(false);
 
   useEffect(() => {
     const chart = ref.current;
-    console.log('chart :>> ', chart);
-    chart.on('element:click', evt => {
-      if (drilled.current) {
-        drilled.current = false;
-        return chart.update({
-          ...chartConfig,
-        });
-      }
+    if (drillDown?.hasDrillDown) {
+      const { drilledByField, drilledOptions } = drillDown;
 
-      const eventData = evt.data;
-      if (eventData?.data) {
-        const location = eventData.data.location;
-        console.log('location :>> ', location);
-
-        const newDataSet = [];
-        for (const key in eventData.data) {
-          if (key !== 'location' && key.length > 0 && key !== 'date' && key !== 'date_string') {
-            const dataObj = { location, category: key, value: eventData.data[key] };
-            newDataSet.push(dataObj);
-          }
+      chart.on('plot:dblclick', () => {
+        // Closing drill down, going back to original chart
+        if (drillDownApplied.current) {
+          drillDownApplied.current = false;
+          return chart.update(chartConfig);
         }
-        console.log('newDataSet :>> ', newDataSet);
-        chart.update({
-          ...chartConfig,
-          data: newDataSet,
-          yField: 'value',
-          xField: 'category',
-          yAxis: {
-            ...chartConfig.yAxis,
-            title: { ...chartConfig.yAxis.title, text: 'value' },
-          },
-          xAxis: {
-            ...chartConfig.xAxis,
-            title: { ...chartConfig.xAxis.title, text: location },
-          },
-          tooltip: {
-            formatter: datum => {
-              const value = datum['value'];
-              return {
-                name: groupByValue ? datum[groupByValue] : customYLabel,
-                value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
-              };
-            },
-            showContent: !pdfPreview,
-          },
-        });
-      }
-      drilled.current = true;
-    });
+      });
 
-    console.log('xType :>> ', xType);
-    console.log('xValue :>> ', xValue);
-    console.log('groupByValue :>> ', groupByValue);
-    console.log('yType :>> ', yType);
-    console.log('yValue :>> ', yValue);
+      chart.on('element:click', evt => {
+        if (drillDownApplied.current) return;
+        const eventData = evt.data; // this relates to plot element we have clicked on
+
+        if (eventData?.data) {
+          const newDataSet = drilledOptions.map(optionName => {
+            const record = {
+              drilledByField: eventData.data[drilledByField],
+              yAxis: eventData.data[optionName],
+              xAxis: optionName,
+            };
+            if (groupByValue) {
+              record[groupByValue] = eventData.data[groupByValue];
+            }
+            return record;
+          });
+
+          chart.update({
+            ...chartConfig, // preserve original chart config
+            data: newDataSet,
+            yField: 'yAxis',
+            xField: 'xAxis',
+            xAxis: {
+              ...chartConfig.xAxis,
+              title: { ...chartConfig.xAxis.title, text: eventData.data[drilledByField] },
+            },
+            tooltip: {
+              formatter: datum => {
+                const value = datum['yAxis'];
+                return {
+                  name: datum['xAxis'],
+                  value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
+                };
+              },
+            },
+          });
+        }
+
+        drillDownApplied.current = true;
+      });
+    }
 
     if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
       ref.current.on('element:click', args => {

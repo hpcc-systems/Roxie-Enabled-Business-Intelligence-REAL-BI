@@ -93,12 +93,22 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
 
   const selectedDatasetErr = errors.find(err => err['selectedDataset']);
 
+  const datasetValue = datasets.length > 0 && dataset.length > 0 ? dataset : ''; // fixing all out of range warnings in console as we have value from config but options are not yet loaded.
+
   return loading ? (
     <CircularProgress className={progress} />
   ) : (
-    <FormControl className={formControl} fullWidth>
+    <FormControl required className={formControl} fullWidth>
       <InputLabel>Dataset</InputLabel>
-      <Select name='dataset' value={dataset} onChange={handleChange} error={selectedDatasetErr !== undefined}>
+      <Select
+        name='dataset'
+        value={datasetValue}
+        onChange={handleChange}
+        error={selectedDatasetErr !== undefined}
+      >
+        <MenuItem value=''>
+          <em>None</em>
+        </MenuItem>
         {datasets.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>

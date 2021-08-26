@@ -28,7 +28,7 @@ const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
-  gridContainer: { overflowY: 'hidden' },
+  gridContainer: { overflowY: 'auto' },
   typography: {
     ...theme.typography.button,
     backgroundColor: theme.palette.error.main,
@@ -44,9 +44,6 @@ const ChartEditor = props => {
   const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
   const { isStatic = false, type } = configuration;
 
-  console.log('dataObj :>> ', localState.dataObj);
-  console.log('dataset :>> ', localState.dataset);
-  console.log('selectedDataset :>> ', localState.selectedDataset);
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, formControl, gridContainer, typography } = useStyles();

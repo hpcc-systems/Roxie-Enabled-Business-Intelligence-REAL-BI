@@ -70,7 +70,8 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   const datasetKeys = Object.keys(selectedDataset).length;
 
   // Update chart in DB and store
-  const editChart = async () => {
+  const editChart = async event => {
+    event.preventDefault();
     const { chartID, configuration, dataset } = localState;
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
@@ -160,26 +161,28 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
             </Button>
           )}
         </Toolbar>
-        <DialogContent>
-          <ChartEditor
-            dashboard={dashboard}
-            eclRef={eclRef}
-            handleChange={handleChange}
-            handleChangeArr={handleChangeArr}
-            handleChangeObj={handleChangeObj}
-            handleCheckbox={handleCheckbox}
-            localState={localState}
-            formFieldsUpdate={formFieldsUpdate}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button variant='contained' color='secondary' onClick={toggleDialog}>
-            Cancel
-          </Button>
-          <Button variant='contained' className={button} onClick={editChart}>
-            Save
-          </Button>
-        </DialogActions>
+        <form onSubmit={editChart}>
+          <DialogContent>
+            <ChartEditor
+              dashboard={dashboard}
+              eclRef={eclRef}
+              handleChange={handleChange}
+              handleChangeArr={handleChangeArr}
+              handleChangeObj={handleChangeObj}
+              handleCheckbox={handleCheckbox}
+              localState={localState}
+              formFieldsUpdate={formFieldsUpdate}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button variant='contained' color='secondary' onClick={toggleDialog}>
+              Cancel
+            </Button>
+            <Button type='submit' variant='contained' className={button}>
+              Save
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
       {showDialog && (
         <DataSnippetDialog
