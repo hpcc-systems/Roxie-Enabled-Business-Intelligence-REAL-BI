@@ -28,6 +28,11 @@ const initState = {
     axis1: { showTickLabels: true },
     axis2: { showTickLabels: true },
     axis3: { showTickLabels: true },
+    drillDown: {
+      hasDrillDown: false,
+      drilledByField: '',
+      drilledOptions: [],
+    },
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
     mapFields: [{ label: '', name: '' }],
     type: 'bar',
@@ -68,9 +73,8 @@ const useStyles = makeStyles(theme => ({
   button2: { minWidth: 20 },
   button3: { marginRight: theme.spacing(1) },
   button4: { marginRight: theme.spacing(2) },
-  paper: {
-    maxHeight: '85vh',
-    minHeight: '63vh',
+  scrollPaper: {
+    maxHeight: '100%',
   },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
@@ -89,7 +93,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const eclRef = useRef({});
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
+  const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
   const { workspaceID, fileName } = useParams();
   const history = useHistory();
@@ -114,7 +118,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   }, []);
 
   // Add components to DB
-  const newChart = async () => {
+  const newChart = async event => {
+    event.preventDefault();
     const { configuration, dataset } = localState;
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
@@ -191,7 +196,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
   return (
     <Fragment>
-      <Dialog open={show} fullWidth maxWidth='xl' classes={{ paper }}>
+      <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
         <Toolbar className={toolbar}>
           <Typography variant='h6' color='inherit' className={typography}>
             New Chart
@@ -213,27 +218,29 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
             </Button>
           )}
         </Toolbar>
-        <DialogContent>
-          <ChartEditor
-            dashboard={dashboard}
-            eclRef={eclRef}
-            handleChange={handleChange}
-            handleChangeArr={handleChangeArr}
-            handleChangeObj={handleChangeObj}
-            handleCheckbox={handleCheckbox}
-            formFieldsUpdate={formFieldsUpdate}
-            localState={localState}
-            initialChartFormFields={initState}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button color='secondary' onClick={toggleDialog}>
-            Cancel
-          </Button>
-          <Button variant='contained' className={button} onClick={newChart}>
-            Save
-          </Button>
-        </DialogActions>
+        <form onSubmit={newChart}>
+          <DialogContent dividers>
+            <ChartEditor
+              dashboard={dashboard}
+              eclRef={eclRef}
+              handleChange={handleChange}
+              handleChangeArr={handleChangeArr}
+              handleChangeObj={handleChangeObj}
+              handleCheckbox={handleCheckbox}
+              formFieldsUpdate={formFieldsUpdate}
+              localState={localState}
+              initialChartFormFields={initState}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button color='secondary' onClick={toggleDialog}>
+              Cancel
+            </Button>
+            <Button type='submit' variant='contained' className={button}>
+              Save
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
       {showDialog && (
         <DataSnippetDialog

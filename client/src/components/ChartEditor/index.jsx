@@ -28,13 +28,23 @@ const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
-  gridContainer: { overflowY: 'hidden' },
+  gridContainer: { overflowY: 'auto' },
   typography: {
     ...theme.typography.button,
     backgroundColor: theme.palette.error.main,
     color: theme.palette.error.contrastText,
     marginBottom: theme.spacing(1),
     padding: theme.spacing(1),
+  },
+  chartSettings: {
+    height: '75vh',
+    overflowY: 'scroll',
+    '&::-webkit-scrollbar': {
+      width: '5px',
+    },
+  },
+  chartView: {
+    height: '75vh',
   },
 }));
 
@@ -46,7 +56,7 @@ const ChartEditor = props => {
 
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
-  const { appbar, formControl, gridContainer, typography } = useStyles();
+  const { appbar, formControl, gridContainer, typography, chartSettings, chartView } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -118,7 +128,7 @@ const ChartEditor = props => {
 
   return (
     <Grid container spacing={4} className={gridContainer}>
-      <Grid item xs={6}>
+      <Grid item xs={6} className={chartSettings}>
         {error !== '' && (
           <Typography className={typography} align='center'>
             {error}
@@ -222,7 +232,7 @@ const ChartEditor = props => {
           }
         })()}
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={6} className={chartView}>
         <Chart
           chart={{ configuration: newConfig }}
           dataObj={chartData}

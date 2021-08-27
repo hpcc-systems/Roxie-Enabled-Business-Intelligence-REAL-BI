@@ -10,8 +10,8 @@ const useStyles = makeStyles(() => ({
     position: 'absolute',
     zIndex: '2',
     top: '0',
-    right: '-240px',
-    transform: 'translateY(-80%)',
+    right: '60px',
+    transform: 'translateY(-40%)',
   },
   base: {
     margin: 'auto',

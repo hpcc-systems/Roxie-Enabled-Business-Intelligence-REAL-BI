@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef } from 'react';
 import { Column } from '@ant-design/charts';
 import _orderBy from 'lodash/orderBy';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
-import { chartFillColor } from '../../constants';
 
 const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
   const {
@@ -14,6 +14,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     showDataLabels,
     sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
     stacked,
+    drillDown = null,
   } = configuration;
   const customXLabel = xLabel ? xLabel : xValue;
   const customYLabel = yLabel ? yLabel : yValue;
@@ -22,7 +23,6 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   if (!data || data.length === 0 || !xValue || !yValue) {
     return null;
   }
-
   // Convert necessary values to specified data type
   data = data.map(row => ({
     ...row,
@@ -45,7 +45,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   }
 
   const chartConfig = {
-    appendPadding: [40, 0, 0, 0],
+    appendPadding: [20, 5, 0, 5],
     data,
     autoFit: true,
     legend: { position: 'right-top' },
@@ -70,16 +70,36 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       },
       showContent: !pdfPreview,
     },
-    xAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customXLabel },
-    },
     xField: xValue,
-    yAxis: {
-      min: 0,
-      title: { style: { fill: chartFillColor }, text: customYLabel },
-    },
     yField: yValue,
+    xAxis: {
+      top: true,
+      nice: true,
+      min: 0,
+      title: { autoRotate: true, text: customXLabel },
+      label: {
+        autoHide: false,
+        style: { fontSize: 12 },
+        autoRotate: true,
+        formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
+      },
+    },
+    yAxis: {
+      top: true,
+      nice: true,
+      min: 0,
+      title: { autoRotate: true, text: customYLabel },
+      label: {
+        autoHide: false,
+        style: { fontSize: 12 },
+        autoRotate: true,
+        formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
+      },
+    },
+    slider: {
+      start: 0,
+      end: 1,
+    },
   };
 
   // Add data labels property
@@ -87,39 +107,49 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     chartConfig.label = {
       formatter: row => {
         const value = row[yValue];
-
         return isNaN(value)
           ? value
           : percentageStack
           ? `${(value * 100).toFixed(2)}%`
           : Intl.NumberFormat('en-US').format(value);
       },
-      position: stacked ? 'middle' : 'top',
-      style: { fill: chartFillColor, fontSize: 12 },
+      layout: [
+        { type: 'interval-adjust-position' },
+        { type: 'interval-hide-overlap' },
+        { type: 'adjust-color' },
+      ],
+      style: {
+        fontWeight: 600,
+      },
     };
-  } else {
-    chartConfig.label = null;
   }
 
-  if (xShowTickLabels) {
-    chartConfig.xAxis.label = { style: { fill: chartFillColor } };
-  } else {
+  if (!xShowTickLabels) {
     chartConfig.xAxis.label = null;
   }
 
-  if (yShowTickLabels) {
-    chartConfig.yAxis.label = { style: { fill: chartFillColor } };
-  } else {
+  if (!yShowTickLabels) {
     chartConfig.yAxis.label = null;
+  }
+
+  if (drillDown?.hasDrillDown) {
+    chartConfig.columnStyle = {
+      cursor: 'pointer',
+    };
   }
 
   // Add groupby and stacked
   if (groupByValue) {
-    if (percentageStack) {
-      chartConfig.isPercent = true;
+    chartConfig.isGroup = true;
+    chartConfig.seriesField = groupByValue;
+
+    if (stacked) {
       chartConfig.isStack = true;
       chartConfig.isGroup = null;
+    }
 
+    if (percentageStack) {
+      chartConfig.isPercent = true;
       chartConfig.tooltip = {
         formatter: datum => {
           const value = datum[yValue];
@@ -128,29 +158,68 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
             value: `${(value * 100).toFixed(2)}%`,
           };
         },
-        showContent: !pdfPreview,
       };
-    } else if (stacked) {
-      chartConfig.isPercent = null;
-      chartConfig.isStack = true;
-      chartConfig.isGroup = null;
-    } else {
-      chartConfig.isPercent = null;
-      chartConfig.isStack = null;
-      chartConfig.isGroup = true;
     }
-
-    chartConfig.seriesField = groupByValue;
-  } else {
-    chartConfig.isPercent = null;
-    chartConfig.isStack = null;
-    chartConfig.isGroup = null;
-    chartConfig.seriesField = null;
   }
 
-  // Add click event
   const ref = useRef();
+  const drillDownApplied = useRef(false);
+
   useEffect(() => {
+    const chart = ref.current;
+    if (drillDown?.hasDrillDown) {
+      const { drilledByField, drilledOptions } = drillDown;
+
+      chart.on('plot:dblclick', () => {
+        // Closing drill down, going back to original chart
+        if (drillDownApplied.current) {
+          drillDownApplied.current = false;
+          return chart.update(chartConfig);
+        }
+      });
+
+      chart.on('element:click', evt => {
+        if (drillDownApplied.current) return;
+        const eventData = evt.data; // this relates to plot element we have clicked on
+
+        if (eventData?.data) {
+          const newDataSet = drilledOptions.map(optionName => {
+            const record = {
+              drilledByField: eventData.data[drilledByField],
+              yAxis: eventData.data[optionName],
+              xAxis: optionName,
+            };
+            if (groupByValue) {
+              record[groupByValue] = eventData.data[groupByValue];
+            }
+            return record;
+          });
+
+          chart.update({
+            ...chartConfig, // preserve original chart config
+            data: newDataSet,
+            yField: 'yAxis',
+            xField: 'xAxis',
+            xAxis: {
+              ...chartConfig.xAxis,
+              title: { ...chartConfig.xAxis.title, text: eventData.data[drilledByField] },
+            },
+            tooltip: {
+              formatter: datum => {
+                const value = datum['yAxis'];
+                return {
+                  name: datum['xAxis'],
+                  value: isNaN(value) ? value : Intl.NumberFormat('en-US').format(value),
+                };
+              },
+            },
+          });
+        }
+
+        drillDownApplied.current = true;
+      });
+    }
+
     if (ref.current && chartRelation && chartRelation?.sourceID === chartID) {
       ref.current.on('element:click', args => {
         const row = args.data.data;
