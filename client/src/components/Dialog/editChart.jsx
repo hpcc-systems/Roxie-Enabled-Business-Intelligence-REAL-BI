@@ -32,9 +32,8 @@ const useStyles = makeStyles(theme => ({
   button3: { marginRight: theme.spacing(1) },
   button4: { marginRight: theme.spacing(2) },
   close: { padding: '10px 0', width: 16 },
-  paper: {
-    maxHeight: '85vh',
-    minHeight: '63vh',
+  scrollPaper: {
+    maxHeight: '100%',
   },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
@@ -57,7 +56,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   } = useForm(initState);
   const eclRef = useRef(eclObj);
   const dispatch = useDispatch();
-  const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
+  const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
   // Reference values
   const {
@@ -139,7 +138,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
 
   return (
     <Fragment>
-      <Dialog open={show} fullWidth maxWidth='xl' classes={{ paper }}>
+      <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
         <Toolbar className={toolbar}>
           <Typography variant='h6' color='inherit' className={typography}>
             Edit Chart
@@ -162,7 +161,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
           )}
         </Toolbar>
         <form onSubmit={editChart}>
-          <DialogContent>
+          <DialogContent dividers>
             <ChartEditor
               dashboard={dashboard}
               eclRef={eclRef}

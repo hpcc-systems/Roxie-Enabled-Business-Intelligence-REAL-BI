@@ -21,8 +21,8 @@ const useStyles = makeStyles(() => ({
     position: 'absolute',
     zIndex: '2',
     top: '0',
-    right: '-240px',
-    transform: 'translateY(-80%)',
+    right: '60px',
+    transform: 'translateY(-40%)',
   },
   base: props => ({
     background: props.markerColor,
@@ -88,13 +88,13 @@ function MarkerIconPicker(props) {
         <ClickAwayListener onClickAway={handlePalletClose}>
           <Paper elevation={2} className={classes.base} onClick={handlePalletOpen}>
             {displayColorPicker ? (
-              <div className={classes.popover}>
+              <Paper elevation={2} className={classes.popover}>
                 <SketchPicker
                   color={markerColor}
                   onChange={color => setMarkerColor(color.hex)}
                   onChangeComplete={color => setMarkerColor(color.hex)}
                 />
-              </div>
+              </Paper>
             ) : null}
           </Paper>
         </ClickAwayListener>

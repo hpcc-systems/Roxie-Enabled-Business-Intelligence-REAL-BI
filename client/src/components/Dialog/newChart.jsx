@@ -73,9 +73,8 @@ const useStyles = makeStyles(theme => ({
   button2: { minWidth: 20 },
   button3: { marginRight: theme.spacing(1) },
   button4: { marginRight: theme.spacing(2) },
-  paper: {
-    maxHeight: '85vh',
-    minHeight: '63vh',
+  scrollPaper: {
+    maxHeight: '100%',
   },
   toolbar: { padding: 0 },
   typography: { flex: 1, marginLeft: 12 },
@@ -94,7 +93,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const eclRef = useRef({});
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
-  const { button, button2, button3, button4, paper, toolbar, typography } = useStyles();
+  const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
   const { workspaceID, fileName } = useParams();
   const history = useHistory();
@@ -197,7 +196,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
   return (
     <Fragment>
-      <Dialog open={show} fullWidth maxWidth='xl' classes={{ paper }}>
+      <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
         <Toolbar className={toolbar}>
           <Typography variant='h6' color='inherit' className={typography}>
             New Chart
@@ -220,7 +219,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
           )}
         </Toolbar>
         <form onSubmit={newChart}>
-          <DialogContent>
+          <DialogContent dividers>
             <ChartEditor
               dashboard={dashboard}
               eclRef={eclRef}
