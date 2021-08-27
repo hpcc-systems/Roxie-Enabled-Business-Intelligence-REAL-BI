@@ -48,8 +48,8 @@ const useStyles = makeStyles(theme => ({
 
 const Header = ({ toggleDrawer }) => {
   const { user = {} } = useSelector(state => state.auth);
-  const { workspace, workspaces, errorObj } = useSelector(state => state.workspace);
-  const { id: userID, lastViewedWorkspace, username } = user;
+  const { workspace, errorObj } = useSelector(state => state.workspace);
+  const { id: userID, username } = user;
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -116,14 +116,14 @@ const Header = ({ toggleDrawer }) => {
           >
             REAL BI
           </Typography>
-          {userID && workspaces && (
+          {userID && (
             <Fragment>
               {/* Workspace Dropdown */}
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
                   <WorkspaceSelector />
-                  {lastViewedWorkspace && isWorkspaceOwner && (
-                    <Fragment>
+                  <Fragment>
+                    {isWorkspaceOwner && (
                       <IconButton
                         edge='start'
                         color='inherit'
@@ -132,16 +132,11 @@ const Header = ({ toggleDrawer }) => {
                       >
                         <EditIcon fontSize='small' />
                       </IconButton>
-                      <IconButton
-                        edge='start'
-                        color='inherit'
-                        onClick={toggleNewWorkspace}
-                        className={iconBtn}
-                      >
-                        <AddCircle fontSize='small' />
-                      </IconButton>
-                    </Fragment>
-                  )}
+                    )}
+                    <IconButton edge='start' color='inherit' onClick={toggleNewWorkspace} className={iconBtn}>
+                      <AddCircle fontSize='small' />
+                    </IconButton>
+                  </Fragment>
                   {workspace?.id && (
                     <IconButton
                       edge='start'
