@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
     zIndex: '2',
     top: '0',
     right: '60px',
-    transform: 'translateY(-40%)',
+    transform: 'translateY(-50%)',
   },
   base: props => ({
     background: props.markerColor,
@@ -57,7 +57,7 @@ function MarkerIconPicker(props) {
       <Box display='flex' alignItems='flex-end'>
         <FormControl style={{ flexGrow: 1 }}>
           <InputLabel>Choose an icon </InputLabel>
-          <Select required value={markerIcon} autoWidth onChange={handleMarkerChange}>
+          <Select value={markerIcon} autoWidth onChange={handleMarkerChange}>
             <MenuItem value='RoomIcon'>
               <RoomIcon />
             </MenuItem>
@@ -88,7 +88,7 @@ function MarkerIconPicker(props) {
         <ClickAwayListener onClickAway={handlePalletClose}>
           <Paper elevation={2} className={classes.base} onClick={handlePalletOpen}>
             {displayColorPicker ? (
-              <Paper elevation={2} className={classes.popover}>
+              <Paper elevation={3} className={classes.popover}>
                 <SketchPicker
                   color={markerColor}
                   onChange={color => setMarkerColor(color.hex)}

@@ -22,9 +22,11 @@ function DrillDownParams(props) {
   const selectDomElement = React.useRef(null);
 
   const handleDrillDownChange = event => {
-    const newDrilldown = { ...drillDown, [event.target.name]: event.target.value || event.target.checked };
-    configuration.drillDown = newDrilldown;
+    const name = event.target.name;
+    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+    configuration.drillDown = { ...drillDown, [name]: value };
     formFieldsUpdate({ configuration });
+
     if (event.target.name === 'hasDrillDown' && event.target.checked) {
       //Dom element is not mounted yet, delay event and scroll when component is there
       setTimeout(() => {
