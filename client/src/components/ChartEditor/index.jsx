@@ -37,11 +37,14 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
   },
   chartSettings: {
-    maxHeight: '75vh',
+    height: '75vh',
     overflowY: 'scroll',
+    '&::-webkit-scrollbar': {
+      width: '5px',
+    },
   },
   chartView: {
-    maxHeight: '75vh',
+    height: '75vh',
   },
 }));
 
