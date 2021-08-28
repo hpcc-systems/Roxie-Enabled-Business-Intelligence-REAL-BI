@@ -38,26 +38,30 @@ const ChartToolbar = props => {
   const titleRef = useRef();
 
   React.useEffect(() => {
+    let active = true; //prevents updating state on unmounted component
     const handleTooltip = debounce(elements => {
       const [title, description] = elements;
       if (title?.target?.scrollWidth > title?.target?.offsetWidth) {
-        setIsTitleFits(false);
+        active && setIsTitleFits(false);
       } else {
-        setIsTitleFits(true);
+        active && setIsTitleFits(true);
       }
 
       if (description?.target?.scrollWidth > description?.target?.offsetWidth) {
-        setIsDecriptionFits(false);
+        active && setIsDecriptionFits(false);
       } else {
-        setIsDecriptionFits(true);
+        active && setIsDecriptionFits(true);
       }
-    }, 500);
+    }, 1000);
 
     const resizer = new ResizeObserver(handleTooltip);
     resizer.observe(titleRef.current);
     resizer.observe(descriptionRef.current);
 
-    return () => resizer.disconnect();
+    return () => {
+      active = false;
+      resizer.disconnect();
+    };
   }, [configuration]);
 
   const showMenu = event => {

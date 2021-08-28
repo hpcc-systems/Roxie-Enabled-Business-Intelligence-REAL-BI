@@ -21,14 +21,20 @@ const useStyles = makeStyles(theme => ({
   formControl: { marginBottom: 24 },
 }));
 
-const NewFolderDialog = ({ createFolder, handleChange, localState, show, toggleDialog }) => {
+const NewFolderDialog = ({
+  createFolder,
+  formFieldsUpdate,
+  handleChange,
+  localState,
+  show,
+  toggleDialog,
+}) => {
   const { error, name } = localState;
   const { button, errMsg, formControl } = useStyles();
 
   // Clear values
   useEffect(() => {
-    handleChange(null, { name: 'name', value: '' });
-    handleChange(null, { name: 'error', value: '' });
+    formFieldsUpdate({ name: '', error: '' });
   }, [handleChange]);
 
   return (
@@ -54,7 +60,7 @@ const NewFolderDialog = ({ createFolder, handleChange, localState, show, toggleD
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button className={button} variant='contained' onClick={createFolder}>
+        <Button className={button} disabled={name.length === 0} variant='contained' onClick={createFolder}>
           Create
         </Button>
       </DialogActions>

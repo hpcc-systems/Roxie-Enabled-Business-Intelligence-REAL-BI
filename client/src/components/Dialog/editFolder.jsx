@@ -52,7 +52,7 @@ const EditFolderDialog = ({ handleChange, localState, show, toggleDialog, update
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button className={button} variant='contained' onClick={updateFolder}>
+        <Button className={button} disabled={name.length === 0} variant='contained' onClick={updateFolder}>
           Save
         </Button>
       </DialogActions>
