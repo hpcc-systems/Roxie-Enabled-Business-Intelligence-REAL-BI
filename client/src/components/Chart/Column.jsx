@@ -78,7 +78,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       min: 0,
       title: { autoRotate: true, text: customXLabel },
       label: {
-        autoHide: false,
+        autoHide: true,
         style: { fontSize: 12 },
         autoRotate: true,
         formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
@@ -90,7 +90,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
       min: 0,
       title: { autoRotate: true, text: customYLabel },
       label: {
-        autoHide: false,
+        autoHide: true,
         style: { fontSize: 12 },
         autoRotate: true,
         formatter: text => (text.length > 13 ? text.substring(0, 13) + '...' : text),
