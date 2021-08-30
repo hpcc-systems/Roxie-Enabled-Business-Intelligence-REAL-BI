@@ -63,7 +63,7 @@ const FavoritesTree = ({ favorites, openDashboard, updateDirectoryObj }) => {
                 className={treeItem}
                 nodeId={String(id)}
                 label={label}
-                onClick={() => openDashboard(id)}
+                onClick={() => openDashboard({ id })}
               />
               <div className={buttonsDiv}>
                 <Button className={button} onClick={() => updateDirectoryObj(id, 'favorite', false)}>

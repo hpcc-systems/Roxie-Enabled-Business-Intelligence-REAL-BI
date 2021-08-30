@@ -38,18 +38,22 @@ const useStyles = makeStyles(theme => ({
   progress: { marginRight: 15 },
 }));
 
-const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDialog, updateDashboard }) => {
+const EditDashboardDialog = ({
+  formFieldsUpdate,
+  handleChange,
+  loading,
+  localState,
+  show,
+  toggleDialog,
+  updateDashboard,
+}) => {
   const { clusterID, error, hasClusterCreds, password, updateCreds, username, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
   const { button, errMsg, checkbox, formControl, progress } = useStyles();
 
   useEffect(() => {
-    handleChange(null, { name: 'username', value: '' });
-    handleChange(null, { name: 'password', value: '' });
-    handleChange(null, { name: 'hasClusterCreds', value: null });
-    handleChange(null, { name: 'updateCreds', value: false });
-    handleChange(null, { name: 'error', value: '' });
+    formFieldsUpdate({ username: '', password: '', hasClusterCreds: null, updateCreds: false, error: '' });
 
     (async () => {
       try {
@@ -159,7 +163,12 @@ const EditDashboardDialog = ({ handleChange, loading, localState, show, toggleDi
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button className={button} variant='contained' disabled={loading} onClick={updateDashboard}>
+        <Button
+          className={button}
+          variant='contained'
+          disabled={loading || name.length === 0}
+          onClick={updateDashboard}
+        >
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Save
         </Button>
