@@ -135,123 +135,134 @@ const MarkerSetting = props => {
     });
   };
 
+  const disableButton = () => {
+    const basicMarkerSettingsCheck =
+      latitude.length === 0 || longitude.length === 0 || markerIcon.length === 0;
+
+    const popUp = popUpInfoArray.length > 1 ? popUpInfoArray[popUpInfoArray.length - 2] : null;
+    if (popUp) {
+      const oneOfPopUpFieldsEmpty =
+        (popUp.label.length === 0 && popUp.datafieldName.length > 0) ||
+        (popUp.label.length > 0 && popUp.datafieldName.length === 0);
+      return basicMarkerSettingsCheck || oneOfPopUpFieldsEmpty;
+    }
+    return basicMarkerSettingsCheck;
+  };
+
   return (
     <Box component={Paper} elevation={3} p={2} my={1} width='100%'>
-      <form onSubmit={handleSaveSetting}>
-        <Box display='flex' justifyContent='space-between'>
-          <Typography variant='subtitle2' component='h1'>
-            {marker.id
-              ? 'Marker settings:'
-              : `Create new Marker: You currently have ${mapMarkers.length - 1} active ${
-                  mapMarkers.length - 1 == 1 ? 'marker' : 'markers'
-                } `}
-          </Typography>
-          {marker.id && (
-            <ClearIcon className={classes.cancelSetting} onClick={e => handeRemoveMarker(e, marker)} />
-          )}
-        </Box>
-        {/* First row */}
-        <Grid container alignItems='flex-end' spacing={2}>
-          <Grid item xs={3}>
-            <FormControl fullWidth>
-              <InputLabel>Latitude</InputLabel>
-              <Select required value={latitude} onChange={event => setLatitude(event.target.value)}>
-                {fieldsArr.map(({ name }, index) => {
-                  return (
-                    <MenuItem key={index} value={name}>
-                      {name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={3}>
-            <FormControl fullWidth>
-              <InputLabel>Longitude</InputLabel>
-              <Select required value={longitude} onChange={event => setLongitude(event.target.value)}>
-                {fieldsArr.map(({ name }, index) => {
-                  return (
-                    <MenuItem key={index} value={name}>
-                      {name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={5}>
-            <MarkerIconPicker
-              markerColor={markerColor}
-              setMarkerColor={setMarkerColor}
-              markerIcon={markerIcon}
-              setMarketIcon={setMarketIcon}
-            />
-          </Grid>
+      <Box display='flex' justifyContent='space-between'>
+        <Typography variant='subtitle2' component='h1'>
+          {marker.id
+            ? 'Marker settings:'
+            : `Create new Marker: You currently have ${mapMarkers.length - 1} active ${
+                mapMarkers.length - 1 == 1 ? 'marker' : 'markers'
+              } `}
+        </Typography>
+        {marker.id && (
+          <ClearIcon className={classes.cancelSetting} onClick={e => handeRemoveMarker(e, marker)} />
+        )}
+      </Box>
+      {/* First row */}
+      <Grid container alignItems='flex-end' spacing={2}>
+        <Grid item xs={3}>
+          <FormControl fullWidth>
+            <InputLabel>Latitude</InputLabel>
+            <Select value={latitude} onChange={event => setLatitude(event.target.value)}>
+              {fieldsArr.map(({ name }, index) => {
+                return (
+                  <MenuItem key={index} value={name}>
+                    {name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Grid>
-        {/* End First row */}
-        {/* Second row */}
-        <Box my={2}>
-          <Typography variant='subtitle2' component='h1'>
-            Marker pop up information:
-          </Typography>
-          {popUpInfoArray.map((popUpField, index) => {
-            return (
-              <Grid key={index} container spacing={2} alignItems='flex-end'>
-                <Grid item xs={5}>
-                  <TextField
-                    required={popUpInfoArray[index].datafieldName !== ''}
-                    fullWidth
-                    label='Popup field name'
-                    name='label'
-                    value={popUpInfoArray[index].label}
-                    onChange={event => handlePopUpArrayChange(event, index)}
-                    autoComplete='off'
-                  />
-                </Grid>
-                <Grid item xs={5}>
-                  <FormControl fullWidth>
-                    <InputLabel>Select corresponding field</InputLabel>
-                    <Select
-                      required={popUpInfoArray[index].label !== ''}
-                      name='datafieldName'
-                      value={popUpInfoArray[index].datafieldName}
-                      onChange={event => handlePopUpArrayChange(event, index)}
-                    >
-                      {fieldsArr.map(({ name }, index) => {
-                        return (
-                          <MenuItem key={index} value={name}>
-                            {name}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {popUpInfoArray.length - 1 !== index && (
-                  <Grid item xs={1}>
-                    <Remove className={classes.cancelSetting} onClick={() => handleRemovePopup(popUpField)} />
-                  </Grid>
-                )}
+
+        <Grid item xs={3}>
+          <FormControl fullWidth>
+            <InputLabel>Longitude</InputLabel>
+            <Select value={longitude} onChange={event => setLongitude(event.target.value)}>
+              {fieldsArr.map(({ name }, index) => {
+                return (
+                  <MenuItem key={index} value={name}>
+                    {name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={5}>
+          <MarkerIconPicker
+            markerColor={markerColor}
+            setMarkerColor={setMarkerColor}
+            markerIcon={markerIcon}
+            setMarketIcon={setMarketIcon}
+          />
+        </Grid>
+      </Grid>
+      {/* End First row */}
+      {/* Second row */}
+      <Box my={2}>
+        <Typography variant='subtitle2' component='h1'>
+          Marker pop up information:
+        </Typography>
+        {popUpInfoArray.map((popUpField, index) => {
+          return (
+            <Grid key={index} container spacing={2} alignItems='flex-end'>
+              <Grid item xs={5}>
+                <TextField
+                  required={popUpInfoArray[index].datafieldName !== ''}
+                  fullWidth
+                  label='Popup field name'
+                  name='label'
+                  value={popUpInfoArray[index].label}
+                  onChange={event => handlePopUpArrayChange(event, index)}
+                  autoComplete='off'
+                />
               </Grid>
-            );
-          })}
-        </Box>
-        <Box m={2} display='flex' justifyContent='flex-end'>
-          {marker.id && isParamsChanged() && (
-            <Button className={classes.submitButton} type='submit'>
-              Edit Marker
-            </Button>
-          )}
-          {!marker.id && (
-            <Button className={classes.submitButton} type='submit'>
-              Create New Marker
-            </Button>
-          )}
-        </Box>
-      </form>
+              <Grid item xs={5}>
+                <FormControl required={popUpInfoArray[index].label !== ''} fullWidth>
+                  <InputLabel>Select corresponding field</InputLabel>
+                  <Select
+                    name='datafieldName'
+                    value={popUpInfoArray[index].datafieldName}
+                    onChange={event => handlePopUpArrayChange(event, index)}
+                  >
+                    {fieldsArr.map(({ name }, index) => {
+                      return (
+                        <MenuItem key={index} value={name}>
+                          {name}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+              </Grid>
+              {popUpInfoArray.length - 1 !== index && (
+                <Grid item xs={1}>
+                  <Remove className={classes.cancelSetting} onClick={() => handleRemovePopup(popUpField)} />
+                </Grid>
+              )}
+            </Grid>
+          );
+        })}
+      </Box>
+      <Box m={2} display='flex' justifyContent='flex-end'>
+        {marker.id && isParamsChanged() && (
+          <Button disabled={disableButton()} className={classes.submitButton} onClick={handleSaveSetting}>
+            Edit Marker
+          </Button>
+        )}
+        {!marker.id && (
+          <Button disabled={disableButton()} className={classes.submitButton} onClick={handleSaveSetting}>
+            Create New Marker
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 };

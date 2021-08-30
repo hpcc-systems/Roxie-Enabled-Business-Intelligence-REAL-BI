@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
-  const { values: localState, handleChange } = useForm(initState);
+  const { values: localState, handleChange, formFieldsUpdate } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const [dashboardID, setDashboardID] = useState(null);
   const [folderObj, setFolderObj] = useState(null);
@@ -177,7 +177,6 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
 
   const updateExistingDashboard = async () => {
     const { clusterID, directoryObj, hasClusterCreds, name, password, updateCreds, username } = localState;
-
     try {
       if (name.length === 0) {
         throw new Error(`"${name}" is not a valid File name`);
@@ -286,7 +285,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
         throw new Error(`"${name}" is not a valid folder name`);
       }
     } catch (error) {
-      return handleChange(null, { name: 'error', value: error });
+      return handleChange(null, { name: 'error', value: error.message });
     }
 
     setLoading(true);
@@ -330,9 +329,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
     const { name } = directoryObj;
 
     // Update local state
-    handleChange(null, { name: 'name', value: name });
-    handleChange(null, { name: 'directoryObj', value: directoryObj });
-
+    formFieldsUpdate({ name, directoryObj });
     // Open edit folder dialog
     toggleEditFolderDialog();
   };
@@ -348,9 +345,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
 
       const { cluster, name } = payload;
 
-      handleChange(null, { name: 'clusterID', value: cluster.id });
-      handleChange(null, { name: 'name', value: name });
-      handleChange(null, { name: 'directoryObj', value: directoryObj });
+      formFieldsUpdate({ clusterID: cluster.id, name, directoryObj });
 
       toggleEditDashboardDialog();
     } catch (error) {
@@ -404,6 +399,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
       </div>
       {showNewDashboardDialog && (
         <NewDashboardDialog
+          formFieldsUpdate={formFieldsUpdate}
           createDashboard={createNewDashboard}
           handleChange={handleChange}
           localState={localState}
@@ -415,6 +411,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
       {showEditDashboardDialog && (
         <EditDashboardDialog
           handleChange={handleChange}
+          formFieldsUpdate={formFieldsUpdate}
           localState={localState}
           loading={loading}
           show={showEditDashboardDialog}
@@ -424,6 +421,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
       )}
       {showNewFolderDialog && (
         <NewFolderDialog
+          formFieldsUpdate={formFieldsUpdate}
           createFolder={createFolder}
           handleChange={handleChange}
           localState={localState}

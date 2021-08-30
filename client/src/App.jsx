@@ -34,6 +34,29 @@ const theme = createTheme({
     secondary: { main: '#6c757d' },
     info: { main: '#007bff' }, // Blue buttons
   },
+  overrides: {
+    MuiCssBaseline: {
+      '@global': {
+        '*': {
+          '&::-webkit-scrollbar': {
+            width: '10px',
+            height: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '40px',
+            backgroundClip: 'content-box',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            },
+          },
+        },
+      },
+    },
+  },
 });
 
 const App = () => {

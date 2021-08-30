@@ -35,7 +35,15 @@ const useStyles = makeStyles(theme => ({
   progress: { marginRight: 15 },
 }));
 
-const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState, show, toggleDialog }) => {
+const NewDashboardDialog = ({
+  formFieldsUpdate,
+  createDashboard,
+  handleChange,
+  loading,
+  localState,
+  show,
+  toggleDialog,
+}) => {
   const { clusterID, error, password, username, hasClusterCreds, name } = localState;
   const { clusters } = useSelector(state => state.cluster);
   const dispatch = useDispatch();
@@ -43,12 +51,14 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
 
   useEffect(() => {
     // Clear name and cluster ID
-    handleChange(null, { name: 'name', value: '' });
-    handleChange(null, { name: 'clusterID', value: '' });
-    handleChange(null, { name: 'hasClusterCreds', value: null });
-    handleChange(null, { name: 'username', value: '' });
-    handleChange(null, { name: 'password', value: '' });
-    handleChange(null, { name: 'error', value: '' });
+    formFieldsUpdate({
+      name: '',
+      clusterID: '',
+      hasClusterCreds: null,
+      username: '',
+      password: '',
+      error: '',
+    });
 
     getClusters()
       .then(action => dispatch(action))
@@ -125,7 +135,12 @@ const NewDashboardDialog = ({ createDashboard, handleChange, loading, localState
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button className={button} variant='contained' disabled={loading} onClick={createDashboard}>
+        <Button
+          className={button}
+          variant='contained'
+          disabled={loading || name.length === 0 || clusterID.length === 0}
+          onClick={createDashboard}
+        >
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Create
         </Button>
