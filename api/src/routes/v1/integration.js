@@ -13,15 +13,41 @@ const router = require('express').Router();
 router.post('/', async (req, res, next) => {
   const userRole = req.body.editingAllowed ? 'Owner' : 'Read-Only';
   const file = req.body?.filename ? req.body.filename.trim() : null;
+  const clusterFromRequest = req.body.cluster || null;
+  const dashboardNameFromRequest = req.body.dashboardName.trim();
+
+  const checkDashNameExists = (workspace, dashboardName) => {
+    if (workspace?.dashboards?.length > 0) {
+      const dublicateDash = workspace.dashboards.find(dash => dash.name === dashboardName);
+      if (dublicateDash) {
+        const link = `${SHARE_URL || 'http://localhost:3000'}/workspace/${workspace.id}/${dublicateDash.id}`;
+        return {
+          succsess: false,
+          message: `Dashboard with name "${dublicateDash.name}" already exists, please provide a different name.`,
+          workspaceUrl: link,
+        };
+      }
+    }
+    return null;
+  };
+
   try {
     const user = await getUserByEmail(req.body.user.email.trim());
     const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName.trim(), userRole);
-    const cluster = await findOrCreateCluster(req.body.cluster);
+    const cluster = clusterFromRequest ? await findOrCreateCluster(clusterFromRequest) : null;
+
+    if (!cluster) {
+      const result = checkDashNameExists(workspace, dashboardNameFromRequest);
+      if (result) {
+        return res.send(result);
+      }
+    }
+
     const dashboard = await findOrCreateDashboard(
       workspace.id,
-      cluster.id,
+      cluster?.id,
       user.id,
-      req.body.dashboardName.trim(),
+      dashboardNameFromRequest,
       file,
       userRole,
     );

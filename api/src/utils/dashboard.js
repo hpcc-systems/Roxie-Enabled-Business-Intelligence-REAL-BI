@@ -20,7 +20,7 @@ const getDashboardByID = async (id, userID) => {
     ...removeFields(['workspaceID', 'clusterID', 'updatedAt', 'deletedAt'], false), // we need createdAt but not the rest
     where: { id },
     include: [
-      { model: Cluster, ...removeFields([]), required: true },
+      { model: Cluster, ...removeFields([]) },
       {
         model: DashboardPermission,
         as: 'permission',
@@ -112,7 +112,7 @@ const getDashboardByID = async (id, userID) => {
 };
 
 const createDashboard = async (dashboard, workspaceID, fileName = null) => {
-  const { clusterID, name } = dashboard;
+  const { clusterID = null, name } = dashboard;
 
   const newDashboard = await Dashboard.create({ name: name.trim(), workspaceID, clusterID, fileName });
 
