@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { AddCircle, Delete as DeleteIcon, Edit as EditIcon, Menu as MenuIcon } from '@material-ui/icons';
 import clsx from 'clsx';
-import TestTomboloIntegration from '../TestTomboloIntegration';
+// import TestTomboloIntegration from '../TestTomboloIntegration';
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 
@@ -179,7 +179,7 @@ const Header = ({ toggleDrawer }) => {
       )}
       {/*------------------------------------------------ */}
       {/* send HTTP request like third party but with valid token */}
-      <TestTomboloIntegration />
+      {/* <TestTomboloIntegration /> */}
       {/*------------------------------------------------ */}
     </Fragment>
   );
