@@ -21,6 +21,7 @@ services:
     volumes:
       - ./db/data:/var/lib/mysql
   api:
+    entrypoint: [sh, ./docker-entry.sh, 'db', '${DB_EXTERNAL_PORT}']
     build:
       context: ./api
       dockerfile: Dockerfile.dev
