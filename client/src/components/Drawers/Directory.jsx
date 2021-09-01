@@ -109,9 +109,12 @@ const DirectoryDrawer = ({
 
       const clusterCredentials = dashboard.cluster ? await checkForClusterCreds(dashboard.cluster.id) : null;
 
-      if (!clusterCredentials || !dashboard.cluster) {
-        return editDashboard(directoryObj);
+      if (dashboard.permission === 'Owner') {
+        if (!clusterCredentials || !dashboard.cluster) {
+          return editDashboard(directoryObj);
+        }
       }
+
       const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
       const tabIndex = action.payload.findIndex(openDashboard => openDashboard.id === directoryObj.id);
       dispatch(action);

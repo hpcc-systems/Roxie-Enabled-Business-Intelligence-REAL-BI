@@ -270,7 +270,9 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
       />
       {/* MAIN CONTENT START! */}
       <Container maxWidth='xl' className={classes.dashboardRoot}>
-        {!cluster && <AddCluster setEditCurrentDashboard={setEditCurrentDashboard} />}
+        {!cluster && permission === 'Owner' && (
+          <AddCluster setEditCurrentDashboard={setEditCurrentDashboard} />
+        )}
         {chartLayouts && isMounted.current && (
           <ChartsGrid
             layouts={chartLayouts}
