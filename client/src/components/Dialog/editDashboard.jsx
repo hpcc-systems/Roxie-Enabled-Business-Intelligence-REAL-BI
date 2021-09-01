@@ -166,7 +166,7 @@ const EditDashboardDialog = ({
         <Button
           className={button}
           variant='contained'
-          disabled={loading || name.length === 0}
+          disabled={loading || name.length === 0 || !clusterID}
           onClick={updateDashboard}
         >
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}

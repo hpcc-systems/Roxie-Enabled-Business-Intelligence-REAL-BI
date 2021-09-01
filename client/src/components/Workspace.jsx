@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Tab, Tabs, Box, Typography } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Typography } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
-import _orderBy from 'lodash/orderBy';
 import clsx from 'clsx';
 
 // React Components
@@ -48,7 +46,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  let { workspaceID, fileName, dashID } = useParams();
+  let { workspaceID, dashID } = useParams();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
@@ -56,6 +54,8 @@ const Workspace = () => {
   const [showDrawer, toggleDrawer] = useDrawer(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();
+
+  const [editCurrentDashboard, setEditCurrentDashboard] = useState(false);
 
   const isTabfromURLparamsUpdated = React.useRef(false); // we will keep a track to run tab switch only once and only if we have dashID and filename in URL
 
@@ -91,7 +91,7 @@ const Workspace = () => {
 
   useEffect(() => {
     if (openDashboards.length > 0) {
-      if (dashID && fileName) {
+      if (dashID) {
         if (!isTabfromURLparamsUpdated.current) {
           const urldashIDIndex = openDashboards.findIndex(dash => dash.id === dashID);
           urldashIDIndex > -1 && setTabIndex(urldashIDIndex);
@@ -114,6 +114,12 @@ const Workspace = () => {
       dispatch(clearDashboard());
     }
   }, [dashboardID, dispatch, openDashboards]);
+
+  useEffect(() => {
+    if (editCurrentDashboard) {
+      toggleDrawer(true);
+    }
+  }, [editCurrentDashboard]);
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -146,6 +152,8 @@ const Workspace = () => {
           changeTabIndex={changeTabIndex}
           showDrawer={showDrawer}
           toggleDrawer={toggleDrawer}
+          editCurrentDashboard={editCurrentDashboard}
+          setEditCurrentDashboard={setEditCurrentDashboard}
         />
       )}
       {openDashboards.length > 0 ? (
@@ -179,7 +187,12 @@ const Workspace = () => {
       ) : (
         <NoCharts />
       )}
-      {dashboardID && <Dashboard isChartDialogCalled={chartDialogOnInitialLoad} />}
+      {dashboardID && (
+        <Dashboard
+          setEditCurrentDashboard={setEditCurrentDashboard}
+          isChartDialogCalled={chartDialogOnInitialLoad}
+        />
+      )}
     </Fragment>
   );
 };

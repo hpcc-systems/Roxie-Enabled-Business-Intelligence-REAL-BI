@@ -144,12 +144,22 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
 };
 
 const findOrCreatePublicWorkspace = async (userID, workspaceName, userRole) => {
-  let workspace = await Workspace.findOne({ where: { name: workspaceName, visibility: 'public' } });
+  let workspace = await Workspace.findOne({
+    where: { name: workspaceName, visibility: 'public' },
+    include: [
+      {
+        model: Dashboard,
+        as: 'dashboards',
+        attributes: ['id', 'name'],
+      },
+    ],
+  });
+
   if (!workspace) {
     workspace = await createWorkspace(workspaceName, userID, 'public');
   }
   await createOrUpdateWorkspacePermission(workspace.id, userID, userRole); // depending on req.body.editingAllowed field we determing a role of user. "Owner" || "Read-Only";
-  return workspace;
+  return workspace.toJSON();
 };
 
 const getWorkspaceFromDB = async condition => {

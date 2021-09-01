@@ -13,10 +13,11 @@ import SharedWithDialog from '../Dialog/SharedWith';
 import EditChartDialog from '../Dialog/editChart';
 import NewChartDialog from '../Dialog/newChart';
 import FilterDrawer from '../Drawers/Filters';
-import ChartsGrid from './ChartsGrid';
 import Relations from '../Dialog/Relations';
-import ChartTile from './ChartTile';
 import PdfDialog from '../Dialog/PDF';
+import ChartsGrid from './ChartsGrid';
+import AddCluster from './AddCluster';
+import ChartTile from './ChartTile';
 import Toolbar from './Toolbar';
 
 // React Hooks
@@ -24,17 +25,17 @@ import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
 // Utils
+import { updateChartConfigObject } from '../../features/dashboard/actions';
 import { updateDashboardLayout } from '../../utils/dashboard';
 import { getChartData } from '../../utils/chart';
 import _ from 'lodash';
-import { updateChartConfigObject } from '../../features/dashboard/actions';
 
 const useStyles = makeStyles(() => ({
   dashboardRoot: { overflow: 'hidden', paddingBottom: '50px' },
   chartPaper: { overflow: 'hidden' },
 }));
 
-const Dashboard = ({ isChartDialogCalled }) => {
+const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
 
@@ -269,6 +270,7 @@ const Dashboard = ({ isChartDialogCalled }) => {
       />
       {/* MAIN CONTENT START! */}
       <Container maxWidth='xl' className={classes.dashboardRoot}>
+        {!cluster && <AddCluster setEditCurrentDashboard={setEditCurrentDashboard} />}
         {chartLayouts && isMounted.current && (
           <ChartsGrid
             layouts={chartLayouts}

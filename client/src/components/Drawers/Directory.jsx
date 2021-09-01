@@ -69,12 +69,18 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
+const DirectoryDrawer = ({
+  changeTabIndex,
+  showDrawer,
+  toggleDrawer,
+  editCurrentDashboard,
+  setEditCurrentDashboard,
+}) => {
   const { values: localState, handleChange, formFieldsUpdate } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const [dashboardID, setDashboardID] = useState(null);
   const [folderObj, setFolderObj] = useState(null);
-  const { workspace } = useSelector(state => state.workspace);
+  const [workspace, dashboard] = useSelector(state => [state.workspace.workspace, state.dashboard.dashboard]);
   const { directory = [], id: workspaceID } = workspace;
   const dispatch = useDispatch();
   const [showNewDashboardDialog, toggleNewDashboardDialog] = useDialog(false);
@@ -100,8 +106,10 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   const openDashboard = async directoryObj => {
     try {
       const { payload: dashboard } = await getDashboard(directoryObj.id);
-      const clusterCredentials = await checkForClusterCreds(dashboard.cluster.id);
-      if (!clusterCredentials) {
+
+      const clusterCredentials = dashboard.cluster ? await checkForClusterCreds(dashboard.cluster.id) : null;
+
+      if (!clusterCredentials || !dashboard.cluster) {
         return editDashboard(directoryObj);
       }
       const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
@@ -345,7 +353,7 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
 
       const { cluster, name } = payload;
 
-      formFieldsUpdate({ clusterID: cluster.id, name, directoryObj });
+      formFieldsUpdate({ clusterID: cluster?.id || '', name, directoryObj });
 
       toggleEditDashboardDialog();
     } catch (error) {
@@ -357,6 +365,13 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
     setDashboardID(dashboardID);
     toggleDeleteDashboardDialog();
   };
+
+  React.useEffect(() => {
+    if (editCurrentDashboard) {
+      editDashboard(dashboard);
+      setEditCurrentDashboard(false);
+    }
+  }, [editCurrentDashboard]);
 
   // Directory references
   const dashboards = getDashboardsFromDirectory(directory, []);
