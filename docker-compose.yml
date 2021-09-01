@@ -21,7 +21,6 @@ services:
     volumes:
       - ./db/data:/var/lib/mysql
   api:
-    entrypoint: [sh, ./docker-entry.sh]
     build:
       context: ./api
       dockerfile: Dockerfile.dev
