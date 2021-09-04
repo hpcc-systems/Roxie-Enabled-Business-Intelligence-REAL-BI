@@ -45,7 +45,7 @@ router.post('/', async (req, res, next) => {
 
     const dashboard = await findOrCreateDashboard(
       workspace.id,
-      cluster?.id,
+      cluster?.id || null,
       user.id,
       dashboardNameFromRequest,
       file,

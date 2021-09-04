@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { decryptHash } = require('../../utils/auth');
 const { getClusterByID } = require('../../utils/cluster');
 const {
   checkForClusterCreds,
@@ -30,8 +31,22 @@ router.get('/check', async (req, res, next) => {
   } = req;
 
   try {
+    let respond = {};
     const clusterCreds = await checkForClusterCreds(clusterID, userID);
-    return res.status(200).json({ hasCreds: Boolean(clusterCreds) });
+    if (clusterCreds) {
+      respond.hasCreds = true;
+      const cluster = await getClusterByID(clusterID);
+      try {
+        await isClusterCredsValid(cluster, clusterCreds.username, decryptHash(clusterCreds.password));
+        respond.isCredsValid = true;
+      } catch (err) {
+        respond.isCredsValid = false;
+      }
+    } else {
+      respond.hasCreds = false;
+      respond.isCredsValid = false;
+    }
+    return res.status(200).json(respond);
   } catch (error) {
     next(error);
   }
