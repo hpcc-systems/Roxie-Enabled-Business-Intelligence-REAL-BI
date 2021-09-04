@@ -1,18 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Container,
   Button,
   ClickAwayListener,
-  Grid,
   Grow,
   IconButton,
   MenuList,
   MenuItem,
   Paper,
   Popper,
-  Toolbar,
   Typography,
   Tooltip,
+  Box,
 } from '@material-ui/core';
 import {
   AddCircle as AddCircleIcon,
@@ -34,11 +34,7 @@ const useStyles = makeStyles(theme => ({
     visibility: props => (props.cluster ? 'visible' : 'hidden'),
   },
   button: { margin: theme.spacing(0.75) },
-  info: {
-    marginBottom: theme.spacing(0.5),
-    marginLeft: theme.spacing(1),
-    padding: 0,
-  },
+  info: { display: 'block' },
   infoCard: { marginTop: theme.spacing(1) },
   menuItem: {
     paddingTop: theme.spacing(0.75),
@@ -58,11 +54,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
   },
-  toolbar: { float: 'right' },
+  toolbar: { float: 'right', marginTop: theme.spacing(-6) },
   typography: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: theme.spacing(3),
+    maxWidth: '40%',
   },
   typographyInfo: { margin: `${theme.spacing(1)}px auto` },
 }));
@@ -159,73 +155,68 @@ const ToolbarComp = ({
   const dashboardCreatedAt = new Date(createdAt);
 
   return (
-    <Fragment>
-      <Grid container className={root}>
-        <Grid item xs={6}>
-          <Typography variant='h2' color='inherit' className={typography} align='right'>
-            {name}
-            <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
-              <InfoIcon fontSize='small' />
-            </IconButton>
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Toolbar className={toolbar}>
-            {hasInteractiveFilter && (
-              <Tooltip title='Remove click filter' placement='bottom'>
-                {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
-                <span>
-                  <Button
-                    className={clsx(button, resetBtn)}
-                    variant='contained'
-                    onClick={resetInteractiveFilter}
-                    disabled={dataFetchInProgress}
-                  >
-                    <RotateLeftIcon />
-                  </Button>
-                </span>
-              </Tooltip>
-            )}
-            <Tooltip title='Refresh page' placement='bottom'>
-              <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
-                <RefreshIcon />
+    <Container maxWidth='xl'>
+      <Box display='flex' alignItems='center' mt={2} justifyContent='center' className={root}>
+        <Typography variant='h2' noWrap color='inherit' className={typography} ref={anchorRef3}>
+          {name}
+        </Typography>
+        <IconButton className={info} onClick={() => handleToggle(3)}>
+          <InfoIcon fontSize='small' />
+        </IconButton>
+      </Box>
+      <Box display='flex' className={toolbar}>
+        {hasInteractiveFilter && (
+          <Tooltip title='Remove click filter' placement='bottom'>
+            {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
+            <span>
+              <Button
+                className={clsx(button, resetBtn)}
+                variant='contained'
+                onClick={resetInteractiveFilter}
+                disabled={dataFetchInProgress}
+              >
+                <RotateLeftIcon />
+              </Button>
+            </span>
+          </Tooltip>
+        )}
+        <Tooltip title='Refresh page' placement='bottom'>
+          <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
+            <RefreshIcon />
+          </Button>
+        </Tooltip>
+        <>
+          {canAddCharts(dashboardPermission) ? (
+            <Tooltip title='Add Chart/Relation' placement='bottom'>
+              <Button
+                className={button}
+                variant='contained'
+                color='primary'
+                onClick={() => handleToggle(1)}
+                ref={anchorRef}
+              >
+                <AddCircleIcon />
               </Button>
             </Tooltip>
-            <>
-              {canAddCharts(dashboardPermission) ? (
-                <Tooltip title='Add Chart/Relation' placement='bottom'>
-                  <Button
-                    className={button}
-                    variant='contained'
-                    color='primary'
-                    onClick={() => handleToggle(1)}
-                    ref={anchorRef}
-                  >
-                    <AddCircleIcon />
-                  </Button>
-                </Tooltip>
-              ) : null}
-              <Tooltip title='Open filter drawer' placement='bottom'>
-                <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-                  <FilterListIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Share dashboard' placement='bottom'>
-                <Button
-                  className={button}
-                  variant='contained'
-                  color='primary'
-                  onClick={() => handleToggle(2)}
-                  ref={anchorRef2}
-                >
-                  <ShareIcon />
-                </Button>
-              </Tooltip>
-            </>
-          </Toolbar>
-        </Grid>
-      </Grid>
-
+          ) : null}
+          <Tooltip title='Open filter drawer' placement='bottom'>
+            <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+              <FilterListIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title='Share dashboard' placement='bottom'>
+            <Button
+              className={button}
+              variant='contained'
+              color='primary'
+              onClick={() => handleToggle(2)}
+              ref={anchorRef2}
+            >
+              <ShareIcon />
+            </Button>
+          </Tooltip>
+        </>
+      </Box>
       {/* Add Element Dropdown */}
       <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
         {({ TransitionProps }) => (
@@ -343,7 +334,7 @@ const ToolbarComp = ({
           </Grow>
         )}
       </Popper>
-    </Fragment>
+    </Container>
   );
 };
 
