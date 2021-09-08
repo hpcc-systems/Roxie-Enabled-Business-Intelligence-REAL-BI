@@ -15,12 +15,7 @@ const getUserByUsername = async username => {
   return user;
 };
 
-const createUser = async (email, username) => {
-  let user = await User.create({ email, username });
-  user = unNestSequelizeObj(user);
-
-  return user;
-};
+const createUser = async (email, username) => await User.create({ email, username });
 
 const getUserDetails = async id => {
   let user = await User.findOne({

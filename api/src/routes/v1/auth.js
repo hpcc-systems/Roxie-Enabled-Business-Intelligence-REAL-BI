@@ -3,7 +3,15 @@ const router = require('express').Router();
 const axios = require('axios');
 const jwtDecode = require('jwt-decode');
 
-const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, EXTERNAL_HTTPS_PORT, HOST_HOSTNAME, NODE_ENV } = process.env;
+const {
+  AUTH_CLIENT_ID,
+  AUTH_PORT,
+  AUTH_URL,
+  EXTERNAL_HTTPS_PORT,
+  HOST_HOSTNAME,
+  NODE_ENV,
+  CREATE_DEMO_WORKSPACE,
+} = process.env;
 
 // Utils
 const { createUser, getUserByEmail } = require('../../utils/user');
@@ -15,6 +23,7 @@ const {
   validateResetPassword,
 } = require('../../utils/validation');
 const { addSharedResourcesToUser } = require('../../utils/share');
+const { createDemoWorkspace } = require('../../utils/createDemoWorkspace');
 
 // Axios config
 const axiosConfig = { httpsAgent: new https.Agent({ rejectUnauthorized: false }) };
@@ -40,9 +49,16 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
 
     if (!user) {
       user = await createUser(email, username);
+      if (CREATE_DEMO_WORKSPACE) {
+        const defaultWorkspaceId = await createDemoWorkspace(user);
+        if (defaultWorkspaceId) {
+          user.lastViewedWorkspace = defaultWorkspaceId;
+          await user.save();
+        }
+      }
     }
 
-    return res.json({ token, id: user.id, username });
+    return res.json({ token, id: user.id, username, lastViewedWorkspace: user.lastViewedWorkspace });
   } catch (error) {
     return next(error);
   }
