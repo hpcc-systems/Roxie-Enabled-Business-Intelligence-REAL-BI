@@ -38,8 +38,11 @@ function Map({ chartID, configuration, data }) {
     pitch: 0,
   });
 
-  const saveToLs = (settings, chartID) =>
-    localStorage.setItem(`${chartID}viewport`, JSON.stringify(settings));
+  const saveToLs = (settings, chartID) => {
+    const mapViewports = JSON.parse(localStorage.getItem('mapViewports'));
+    const newMapViewports = { ...mapViewports, [chartID]: settings };
+    localStorage.setItem(`mapViewports`, JSON.stringify(newMapViewports));
+  };
 
   const deboucedSaveToLS = _.debounce(saveToLs, 1000);
 
@@ -69,10 +72,15 @@ function Map({ chartID, configuration, data }) {
       .flat(Infinity);
 
     // getting settings from LS
-    const LSsettings = localStorage.getItem(`${chartID}viewport`);
+    const LSsettings = JSON.parse(localStorage.getItem('mapViewports'));
     let cashedSettings;
-    if (LSsettings) {
-      cashedSettings = JSON.parse(LSsettings);
+    if (LSsettings?.[chartID]) {
+      cashedSettings = LSsettings[chartID];
+      setSettings(cashedSettings);
+    }
+    // for Demo Workpace only
+    if (!cashedSettings && configuration.defaultChart) {
+      cashedSettings = configuration.defaultChart;
       setSettings(cashedSettings);
     }
 
@@ -199,7 +207,7 @@ function Map({ chartID, configuration, data }) {
         }, '');
 
         const popup = new mapboxgl.Popup({
-          offset: [115, -20],
+          offset: [70, -100],
           anchor: 'center',
           className: classes.popup,
           focusAfterOpen: false,
