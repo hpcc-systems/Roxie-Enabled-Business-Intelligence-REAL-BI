@@ -18,4 +18,6 @@ const tableNames = {
   workspacePermission: 'workspace_permission',
 };
 
-module.exports = { tableNames };
+module.exports = {
+  tableNames,
+};

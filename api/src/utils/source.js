@@ -58,4 +58,21 @@ const deleteSourceByID = async id => {
   return await Source.destroy({ where: { id } });
 };
 
-module.exports = { createSource, deleteSourceByID, getSourceByHpccID, getSourceByID, updateSourceByID };
+const findOrCreateSource = async (sourceName, sourceTypeName) => {
+  const sourceType = await getSourceTypeByName(sourceTypeName);
+  const source = await Source.findOrCreate({
+    where: { hpccID: sourceName },
+    defaults: { name: sourceName, hpccID: sourceName, target: sourceTypeName, typeID: sourceType.id },
+  });
+
+  return source[0];
+};
+
+module.exports = {
+  createSource,
+  deleteSourceByID,
+  getSourceByHpccID,
+  getSourceByID,
+  updateSourceByID,
+  findOrCreateSource,
+};
