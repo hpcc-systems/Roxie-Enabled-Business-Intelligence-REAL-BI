@@ -29,6 +29,12 @@ const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChart
   const { cancelBtn, deleteBtn } = useStyles();
 
   const confirmDelete = async () => {
+    // check if there is settings saved in LS
+    const mapViewports = JSON.parse(localStorage.getItem('mapViewports'));
+    if (mapViewports?.[chartID]) {
+      delete mapViewports[chartID];
+      localStorage.setItem(`mapViewports`, JSON.stringify(mapViewports));
+    }
     // Remove deleted chart from filter targets
     let updatedFilters = filters.map(({ configuration, id, source }) => {
       const updatedParams = configuration.params.filter(({ targetChart }) => targetChart !== chartID);
