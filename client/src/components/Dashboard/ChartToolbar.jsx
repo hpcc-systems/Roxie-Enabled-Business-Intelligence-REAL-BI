@@ -99,7 +99,7 @@ const ChartToolbar = props => {
   return (
     <>
       <CustomTooltip disableHoverListener={disableTooltip} title={<TooltipText />}>
-        <Grid container justify='space-between' alignItems='center' wrap='nowrap'>
+        <Grid container justifyContent='space-between' alignItems='center' wrap='nowrap'>
           <Grid item className={classes.centerSvg}>
             {canEditCharts(permission) && (
               <DragHandleIcon className='dragElement' style={{ cursor: 'pointer' }} />

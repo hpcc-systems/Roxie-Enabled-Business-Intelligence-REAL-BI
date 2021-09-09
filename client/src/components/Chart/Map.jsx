@@ -17,7 +17,12 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     height: '100%',
   },
-  popup: { width: '240px' },
+  popup: {
+    width: '240px',
+    '& p': {
+      margin: '0 0 0 3px',
+    },
+  },
 }));
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -204,8 +209,8 @@ function Map({ chartID, configuration, data }) {
         }, '');
         if (text) {
           new mapboxgl.Popup({
-            offset: [70, -100],
-            anchor: 'center',
+            offset: [0, -20],
+            anchor: 'bottom',
             className: classes.popup,
             focusAfterOpen: false,
           })
