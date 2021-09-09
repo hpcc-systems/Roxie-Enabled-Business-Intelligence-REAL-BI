@@ -73,27 +73,24 @@ function Map({ chartID, configuration, data }) {
 
     // getting settings from LS
     const LSsettings = JSON.parse(localStorage.getItem('mapViewports'));
-    let cashedSettings;
+    let cachedSetting;
     if (LSsettings?.[chartID]) {
-      cashedSettings = LSsettings[chartID];
-      setSettings(cashedSettings);
+      cachedSetting = LSsettings[chartID];
+      setSettings(cachedSetting);
     }
     // for Demo Workpace only
-    if (!cashedSettings && configuration.defaultChart) {
-      cashedSettings = configuration.defaultChart;
-      setSettings(cashedSettings);
+    if (!cachedSetting && configuration.defaultMapSetting) {
+      cachedSetting = configuration.defaultMapSetting;
+      setSettings(cachedSetting);
     }
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [
-        cashedSettings?.longitude || settings.longitude,
-        cashedSettings?.latitude || settings.latitude,
-      ],
-      bearing: cashedSettings?.bearing || settings.bearing,
-      pitch: cashedSettings?.pitch || settings.pitch,
-      zoom: cashedSettings?.zoom || settings.zoom,
+      center: [cachedSetting?.longitude || settings.longitude, cachedSetting?.latitude || settings.latitude],
+      bearing: cachedSetting?.bearing || settings.bearing,
+      pitch: cachedSetting?.pitch || settings.pitch,
+      zoom: cachedSetting?.zoom || settings.zoom,
       attributionControl: false,
     })
       .addControl(new mapboxgl.FullscreenControl())
@@ -205,16 +202,17 @@ function Map({ chartID, configuration, data }) {
         const text = popupArray.reduce((wholeText, popup) => {
           return wholeText + `<p><strong>${popup.label.toUpperCase()}</strong> : ${popup.data}</p>`;
         }, '');
-
-        const popup = new mapboxgl.Popup({
-          offset: [70, -100],
-          anchor: 'center',
-          className: classes.popup,
-          focusAfterOpen: false,
-        })
-          .setLngLat(feature.geometry.coordinates)
-          .setHTML(text)
-          .addTo(map);
+        if (text) {
+          new mapboxgl.Popup({
+            offset: [70, -100],
+            anchor: 'center',
+            className: classes.popup,
+            focusAfterOpen: false,
+          })
+            .setLngLat(feature.geometry.coordinates)
+            .setHTML(text)
+            .addTo(map);
+        }
       });
     });
     //setting map to state if we need to reference it later
