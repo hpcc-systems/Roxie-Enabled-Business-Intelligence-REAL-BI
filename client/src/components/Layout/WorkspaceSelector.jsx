@@ -1,12 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
-
-// Utils
-import { updateLastWorkspace } from '../../features/auth/actions';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -35,39 +32,12 @@ const WorkspaceSelector = () => {
   const { workspaces = [], workspace: currentOpenWorkspace } = useSelector(state => state.workspace);
   const { lastViewedWorkspace } = user;
   const history = useHistory();
-  const dispatch = useDispatch();
   const { formControl, icon, inputLabel, select } = useStyles();
-
-  useEffect(() => {
-    // Check if user has looked at a workspace previously
-    if (lastViewedWorkspace) {
-      (async () => {
-        const workspaceIndex = workspaces.findIndex(({ id }) => lastViewedWorkspace === id);
-
-        if (workspaceIndex === -1) {
-          try {
-            const action = await updateLastWorkspace(null);
-            dispatch(action);
-            history.push('/workspace');
-          } catch (error) {
-            dispatch(error);
-          }
-        }
-      })();
-    }
-  }, [dispatch, history, lastViewedWorkspace, workspaces]);
 
   const selectWorkspace = async event => {
     const { value } = event.target;
-
-    if (value !== '') {
-      (async () => {
-        try {
-          history.push(`/workspace/${value}`);
-        } catch (error) {
-          dispatch(error);
-        }
-      })();
+    if (value) {
+      history.push(`/workspace/${value}`);
     }
   };
 

@@ -11,18 +11,18 @@ function TestTomboloIntegration() {
       '/api/v1/integration',
 
       {
-        // user: { email: 'admin@lexisnexisrisk.com' },
-        user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
+        user: { email: 'admin@lexisnexisrisk.com' },
+        // user: { email: 'Kostiantyn.Agapov@lexisnexisrisk.com' }, // temp hack to avoid passport middleware, this key is added by passport
         editingAllowed: true,
-        cluster: {
-          name: 'http://10.173.147.1',
-          host: 'http://10.173.147.1',
-          infoPort: '8010',
-          dataPort: '8002',
-        },
-        filename: 'temp::hfs::taxidata_small',
+        // cluster: {
+        //   name: 'http://10.173.147.1',
+        //   host: 'http://10.173.147.1',
+        //   infoPort: '8010',
+        //   dataPort: '8002',
+        // },
+        // filename: 'temp::hfs::taxidata_small',
         workspaceName: 'Tombolo', // Arbitrary name
-        dashboardName: 'Tombolo (testCluster)', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
+        dashboardName: 'Workunits123', // this dashboard will show only files form this cluster. if you have files from other cluster, create new dash like "Tombolo ([cluster Name])"
       },
       // {
       //   user: { email: 'admin@lexisnexisrisk.com' },
@@ -56,11 +56,14 @@ function TestTomboloIntegration() {
   return (
     <Box>
       <Button onClick={sendRequest}> Test Tombolo Integration</Button>
-      {/* <pre>{JSON.stringify(respond, null, 2)}</pre> */}
+
       {respond ? (
-        <Link href={respond.workspaceUrl} variant='body2'>
-          {respond.workspaceUrl}
-        </Link>
+        <>
+          <Link href={respond.workspaceUrl} variant='body2'>
+            {respond.workspaceUrl}
+          </Link>
+          <pre>{JSON.stringify(respond, null, 2)}</pre>
+        </>
       ) : null}
     </Box>
   );

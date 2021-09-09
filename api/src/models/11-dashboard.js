@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       name: createString(DataTypes),
       fileName: createString(DataTypes, 100, true),
       workspaceID: createFKField(DataTypes),
-      clusterID: createFKField(DataTypes),
+      clusterID: createFKField(DataTypes, true),
       layout: {
         type: DataTypes.TEXT('long'),
       },

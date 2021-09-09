@@ -30,9 +30,13 @@ import { useSelector } from 'react-redux';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
+  root: {
+    visibility: props => (props.cluster ? 'visible' : 'hidden'),
+  },
   button: { margin: theme.spacing(0.75) },
   info: {
     marginBottom: theme.spacing(0.5),
+    marginLeft: theme.spacing(1),
     padding: 0,
   },
   infoCard: { marginTop: theme.spacing(1) },
@@ -76,13 +80,7 @@ const ToolbarComp = ({
   toggleShare,
   toggleSharedWith,
 }) => {
-  const {
-    cluster: { name: clusterName, host },
-    name,
-    fileName,
-    createdAt,
-    permission: dashboardPermission,
-  } = dashboard;
+  const { cluster, name, fileName, createdAt, permission: dashboardPermission } = dashboard;
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
   const anchorRef3 = useRef(null);
@@ -90,6 +88,7 @@ const ToolbarComp = ({
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
   const {
+    root,
     button,
     info,
     infoCard,
@@ -100,7 +99,7 @@ const ToolbarComp = ({
     toolbar,
     typography,
     typographyInfo,
-  } = useStyles();
+  } = useStyles({ cluster });
 
   const workspacePermission = useSelector(({ workspace }) => workspace.workspace.permission);
 
@@ -161,7 +160,7 @@ const ToolbarComp = ({
 
   return (
     <Fragment>
-      <Grid container>
+      <Grid container className={root}>
         <Grid item xs={6}>
           <Typography variant='h2' color='inherit' className={typography} align='right'>
             {name}
@@ -320,10 +319,10 @@ const ToolbarComp = ({
                     {dashboardCreatedAt.toTimeString()}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Cluster Name:</strong> {clusterName}
+                    <strong>Cluster Name:</strong> {cluster?.name}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Cluster Host:</strong> {host}
+                    <strong>Cluster Host:</strong> {cluster?.host}
                   </Typography>
                   {dashboardPermission === 'Owner' && (
                     <Button
