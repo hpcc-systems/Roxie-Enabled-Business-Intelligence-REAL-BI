@@ -126,7 +126,7 @@ const ChangePwd = () => {
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
-        <Grid container direction='column' justify='center' alignItems='center' className={grid}>
+        <Grid container direction='column' justifyContent='center' alignItems='center' className={grid}>
           <Grid item style={{ maxWidth: '25vw' }}>
             <form onSubmit={handleSubmit}>
               <Card>
@@ -194,7 +194,7 @@ const ChangePwd = () => {
                     error={newPwd2Err !== undefined}
                     helperText={newPwd2Err !== undefined ? newPwd2Err['newPwd2'] : ''}
                   />
-                  <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
+                  <Grid container direction='row' justifyContent='center' alignItems='center' spacing={0}>
                     <Grid item>
                       <Button className={button} variant='contained' type='submit' disabled={loading}>
                         {loading && <CircularProgress color='inherit' size={20} className={progress} />}

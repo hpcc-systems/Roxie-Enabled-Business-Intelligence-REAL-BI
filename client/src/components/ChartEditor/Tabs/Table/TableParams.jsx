@@ -92,7 +92,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
             const isPopulated = name !== '' && !messages.includes(name);
             return (
               <Box component={'div'} mb={1} py={1} px={2} key={index}>
-                <Grid container spacing={1} justify='flex-end' wrap='wrap' alignItems='flex-end'>
+                <Grid container spacing={1} justifyContent='flex-end' wrap='wrap' alignItems='flex-end'>
                   <Grid item xs={1} className={buttonBox}>
                     {isPopulated && (
                       <Button onClick={() => removeParam(index)}>

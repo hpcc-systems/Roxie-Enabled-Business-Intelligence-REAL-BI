@@ -178,7 +178,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
             </Button>
           )}
         </div>
-        <Grid container direction='row' justify='space-between'>
+        <Grid container direction='row' justifyContent='space-between'>
           {filters.map(({ configuration, id, value }, index) => {
             const dataObj = compData[id] || {};
             const { data = [], loading = false } = dataObj;
