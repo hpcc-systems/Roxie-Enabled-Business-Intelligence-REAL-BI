@@ -1,7 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 const useForm = initState => {
   const [values, setValues] = useState(initState);
+
+  const initialFormFields = useMemo(() => initState, []);
 
   const handleChange = useCallback((event, obj) => {
     // Determine if this part of an event or manually passed
@@ -44,11 +46,18 @@ const useForm = initState => {
   const resetState = useCallback(state => setValues(state), []);
 
   const formFieldsUpdate = useCallback(
-    newFieldsObj =>
-      setValues(preState => ({
-        ...preState,
-        ...newFieldsObj,
-      })),
+    params => {
+      if (typeof params === 'function') {
+        const result = params(initialFormFields);
+        setValues(result);
+      } else {
+        setValues(preState => ({
+          ...preState,
+          ...params,
+        }));
+      }
+    },
+
     [],
   );
 

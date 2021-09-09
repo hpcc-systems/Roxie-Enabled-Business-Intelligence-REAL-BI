@@ -16,7 +16,7 @@ import FilterDrawer from '../Drawers/Filters';
 import Relations from '../Dialog/Relations';
 import PdfDialog from '../Dialog/PDF';
 import ChartsGrid from './ChartsGrid';
-import AddCluster from './AddCluster';
+import CheckCluster from './CheckCluster';
 import ChartTile from './ChartTile';
 import Toolbar from './Toolbar';
 
@@ -46,7 +46,15 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   const [chartID, setChartID] = useState(null);
 
   const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
-  const { id: dashboardID, charts = [], layout: dashboardLayout, cluster, relations, permission } = dashboard;
+  const {
+    layout: dashboardLayout,
+    isClusterCredsValid,
+    id: dashboardID,
+    permission,
+    charts = [],
+    relations,
+    cluster,
+  } = dashboard;
 
   const dispatch = useDispatch();
 
@@ -144,13 +152,14 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
 
   // Data call when interactiveObj changes
   useEffect(() => {
+    if (!isClusterCredsValid) return;
     const chartIDs = interactiveObj.effectedChartIds || [];
     dataCall(chartIDs, interactiveObj);
   }, [interactiveObj]);
 
   // Initial data call when component is loaded
   useEffect(() => {
-    if (dashboard.id && charts.length > 0) {
+    if (isClusterCredsValid && charts.length > 0) {
       dataCall(chartIDs, {});
       createLayout(); // creating layouts for drag and resize lib on initial load.
     }
@@ -270,8 +279,7 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
       />
       {/* MAIN CONTENT START! */}
       <Container maxWidth='xl' className={classes.dashboardRoot}>
-        {!cluster && <AddCluster setEditCurrentDashboard={setEditCurrentDashboard} />}
-        {chartLayouts && isMounted.current && (
+        {isClusterCredsValid ? (
           <ChartsGrid
             layouts={chartLayouts}
             handleLayoutChange={handleLayoutChange}
@@ -279,6 +287,8 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
           >
             {_.map(chartLayouts?.lg, layout => createChart(layout.i))}
           </ChartsGrid>
+        ) : (
+          <CheckCluster setEditCurrentDashboard={setEditCurrentDashboard} />
         )}
         {/* MAIN CONTENT END! */}
         {showFilterDrawer && (

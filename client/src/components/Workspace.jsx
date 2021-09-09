@@ -7,6 +7,7 @@ import { Close as CloseIcon } from '@material-ui/icons';
 import clsx from 'clsx';
 
 // React Components
+import LoadingSpinner from './Common/LoadingSpinner';
 import Header from './Layout/Header';
 import DirectoryDrawer from './Drawers/Directory';
 import Dashboard from './Dashboard';
@@ -165,41 +166,44 @@ const Workspace = () => {
         />
       )}
       {openDashboards.length > 0 ? (
-        <AppBar className={appbar} position='static' color='inherit'>
-          <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
-            {openDashboards.map((dashboard, index) => {
-              return (
-                <Tab
-                  component='div'
-                  key={dashboard.id}
-                  className={clsx(tab, { [selectedTab]: index === tabIndex })}
-                  classes={{ wrapper: tabWrapper }}
-                  label={
-                    <>
-                      <Typography component='span' variant='body1'>
-                        {dashboard.name}
-                      </Typography>
-
-                      <CloseIcon
-                        className={closeTab}
-                        onClick={event => closeDashboardTab(event, dashboard.id)}
-                        fontSize='small'
-                      />
-                    </>
-                  }
-                />
-              );
-            })}
-          </Tabs>
-        </AppBar>
+        <>
+          <AppBar className={appbar} position='static' color='inherit'>
+            <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
+              {openDashboards.map((dashboard, index) => {
+                return (
+                  <Tab
+                    component='div'
+                    key={dashboard.id}
+                    className={clsx(tab, { [selectedTab]: index === tabIndex })}
+                    classes={{ wrapper: tabWrapper }}
+                    label={
+                      <>
+                        <Typography component='span' variant='body1'>
+                          {dashboard.name}
+                        </Typography>
+                        <CloseIcon
+                          className={closeTab}
+                          onClick={event => closeDashboardTab(event, dashboard.id)}
+                          fontSize='small'
+                        />
+                      </>
+                    }
+                  />
+                );
+              })}
+            </Tabs>
+          </AppBar>
+          {dashboardID ? (
+            <Dashboard
+              setEditCurrentDashboard={setEditCurrentDashboard}
+              isChartDialogCalled={chartDialogOnInitialLoad}
+            />
+          ) : (
+            <LoadingSpinner justifyContent='center' mt={4} size={60} />
+          )}
+        </>
       ) : (
         <NoCharts />
-      )}
-      {dashboardID && (
-        <Dashboard
-          setEditCurrentDashboard={setEditCurrentDashboard}
-          isChartDialogCalled={chartDialogOnInitialLoad}
-        />
       )}
     </Fragment>
   );
