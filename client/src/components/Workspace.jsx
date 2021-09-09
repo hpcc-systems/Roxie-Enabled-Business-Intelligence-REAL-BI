@@ -63,8 +63,9 @@ const Workspace = () => {
   useEffect(() => {
     const handleTabsAndActions = actions => {
       batch(() => {
-        const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
-        lastViewedDash ? setTabIndex(parseInt(lastViewedDash)) : setTabIndex(0);
+        const activeTabsIndexes = JSON.parse(localStorage.getItem('activeTabsIndexes'));
+        const dashIndex = activeTabsIndexes?.[workspaceID];
+        dashIndex ? setTabIndex(parseInt(dashIndex)) : setTabIndex(0);
         actions.forEach(action => dispatch(action));
       });
     };
@@ -99,14 +100,21 @@ const Workspace = () => {
         }
         isTabfromURLparamsUpdated.current = true;
       }
+
+      const saveTabIndexToLS = (tabIndex, workspaceID) => {
+        const activeTabsIndexes = JSON.parse(localStorage.getItem('activeTabsIndexes'));
+        const newMapViewports = { ...activeTabsIndexes, [workspaceID]: tabIndex.toString() };
+        localStorage.setItem(`activeTabsIndexes`, JSON.stringify(newMapViewports));
+      };
+
       // Reset tabIndex to 0 if it falls outside bounds of array
       if (tabIndex >= openDashboards.length) {
         setTabIndex(0);
-        localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, '0');
+        saveTabIndexToLS(0, workspaceID);
         return debouncedGetDashboardInfo(0);
       }
       debouncedGetDashboardInfo(tabIndex);
-      localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, tabIndex.toString());
+      saveTabIndexToLS(tabIndex, workspaceID);
     }
   }, [openDashboards, tabIndex]);
 
