@@ -76,7 +76,7 @@ const ToolbarComp = ({
   toggleNewChartDialog,
   toggleRelationsDialog,
   toggleDrawer,
-  togglePDF,
+  // togglePDF,
   toggleShare,
   toggleSharedWith,
 }) => {
@@ -262,9 +262,8 @@ const ToolbarComp = ({
                 <MenuList autoFocusItem={open}>
                   <MenuItem
                     className={menuItem}
-                    onClick={e => {
-                      handleClose(e, 2);
-                      togglePDF();
+                    onClick={() => {
+                      window.print();
                     }}
                   >
                     Create PDF
