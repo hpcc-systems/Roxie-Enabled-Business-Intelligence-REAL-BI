@@ -4,12 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
 
 // Redux Actions
-import {
-  deleteChart,
-  deleteEmptyFilters,
-  updateAlteredFilters,
-  updateDashboard,
-} from '../../features/dashboard/actions';
+import { deleteChart, deleteEmptyFilters, updateAlteredFilters } from '../../features/dashboard/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -24,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChartLayout }) => {
-  const { clusterID, id: dashboardID, filters, name } = dashboard;
+  const { id: dashboardID, filters } = dashboard;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
 
@@ -49,9 +44,8 @@ const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChart
         updateAlteredFilters(dashboardID, updatedFilters),
         deleteEmptyFilters(dashboardID, emptyFilters),
       ]).then(async actions => {
-        const action = await updateDashboard(clusterID, dashboardID, name);
         batch(() => {
-          [...actions, action].forEach(action => dispatch(action));
+          actions.forEach(action => dispatch(action));
           removeChartLayout(chartID);
           toggleDialog();
         });
