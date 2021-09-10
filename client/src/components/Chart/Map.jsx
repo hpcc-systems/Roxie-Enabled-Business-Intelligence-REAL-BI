@@ -17,7 +17,12 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     height: '100%',
   },
-  popup: { width: '240px' },
+  popup: {
+    width: '240px',
+    '& p': {
+      margin: '0 0 0 3px',
+    },
+  },
 }));
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -38,8 +43,11 @@ function Map({ chartID, configuration, data }) {
     pitch: 0,
   });
 
-  const saveToLs = (settings, chartID) =>
-    localStorage.setItem(`${chartID}viewport`, JSON.stringify(settings));
+  const saveToLs = (settings, chartID) => {
+    const mapViewports = JSON.parse(localStorage.getItem('mapViewports'));
+    const newMapViewports = { ...mapViewports, [chartID]: settings };
+    localStorage.setItem(`mapViewports`, JSON.stringify(newMapViewports));
+  };
 
   const deboucedSaveToLS = _.debounce(saveToLs, 1000);
 
@@ -69,23 +77,25 @@ function Map({ chartID, configuration, data }) {
       .flat(Infinity);
 
     // getting settings from LS
-    const LSsettings = localStorage.getItem(`${chartID}viewport`);
-    let cashedSettings;
-    if (LSsettings) {
-      cashedSettings = JSON.parse(LSsettings);
-      setSettings(cashedSettings);
+    const LSsettings = JSON.parse(localStorage.getItem('mapViewports'));
+    let cachedSetting;
+    if (LSsettings?.[chartID]) {
+      cachedSetting = LSsettings[chartID];
+      setSettings(cachedSetting);
+    }
+    // for Demo Workpace only
+    if (!cachedSetting && configuration.defaultMapSetting) {
+      cachedSetting = configuration.defaultMapSetting;
+      setSettings(cachedSetting);
     }
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [
-        cashedSettings?.longitude || settings.longitude,
-        cashedSettings?.latitude || settings.latitude,
-      ],
-      bearing: cashedSettings?.bearing || settings.bearing,
-      pitch: cashedSettings?.pitch || settings.pitch,
-      zoom: cashedSettings?.zoom || settings.zoom,
+      center: [cachedSetting?.longitude || settings.longitude, cachedSetting?.latitude || settings.latitude],
+      bearing: cachedSetting?.bearing || settings.bearing,
+      pitch: cachedSetting?.pitch || settings.pitch,
+      zoom: cachedSetting?.zoom || settings.zoom,
       attributionControl: false,
     })
       .addControl(new mapboxgl.FullscreenControl())
@@ -197,16 +207,17 @@ function Map({ chartID, configuration, data }) {
         const text = popupArray.reduce((wholeText, popup) => {
           return wholeText + `<p><strong>${popup.label.toUpperCase()}</strong> : ${popup.data}</p>`;
         }, '');
-
-        const popup = new mapboxgl.Popup({
-          offset: [115, -20],
-          anchor: 'center',
-          className: classes.popup,
-          focusAfterOpen: false,
-        })
-          .setLngLat(feature.geometry.coordinates)
-          .setHTML(text)
-          .addTo(map);
+        if (text) {
+          new mapboxgl.Popup({
+            offset: [0, -20],
+            anchor: 'bottom',
+            className: classes.popup,
+            focusAfterOpen: false,
+          })
+            .setLngLat(feature.geometry.coordinates)
+            .setHTML(text)
+            .addTo(map);
+        }
       });
     });
     //setting map to state if we need to reference it later

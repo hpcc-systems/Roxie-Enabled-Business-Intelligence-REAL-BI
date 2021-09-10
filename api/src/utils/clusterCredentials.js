@@ -4,14 +4,7 @@ const { unNestSequelizeObj } = require('./sequelize');
 const axios = require('axios');
 
 const createClusterCreds = async (clusterID, password, userID, username) => {
-  let hash = null;
-
-  // Don't save empty string value
-  username = username === '' ? null : username;
-
-  if (username && password) {
-    hash = encryptPassword(password);
-  }
+  const hash = password ? encryptPassword(password) : '';
 
   return await clusterCredentials.create({ username, hash, userID, clusterID });
 };
@@ -35,22 +28,20 @@ const getClusterCreds = async (clusterID, userID) => {
 };
 
 const updateClusterCreds = async (clusterID, password, userID, username) => {
-  let hash = null;
-
-  // Don't save empty string value
-  username = username === '' ? null : username;
-
-  if (username && password) {
-    hash = encryptPassword(password);
-  }
+  const hash = password ? encryptPassword(password) : '';
 
   return await clusterCredentials.update({ username, hash }, { where: { userID, clusterID } });
 };
 
 const isClusterCredsValid = async (cluster, username, password) => {
-  return await axios.get(`${cluster.host}:${cluster.infoPort}/WsTopology/TpListTargetClusters.json`, {
+  const result = await axios.get(`${cluster.host}:${cluster.infoPort}/WsTopology/TpListTargetClusters.json`, {
     auth: { username, password },
   });
+  if (result.data.TpListTargetClustersResponse) {
+    return result;
+  } else {
+    throw new Error('Can not access HPCC cluster');
+  }
 };
 
 module.exports = {

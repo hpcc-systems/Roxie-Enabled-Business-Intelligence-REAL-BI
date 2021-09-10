@@ -3,7 +3,7 @@ import axios from 'axios';
 export const checkForClusterCreds = async clusterID => {
   try {
     const response = await axios.get('/api/v1/cluster_credentials/check', { params: { clusterID } });
-    return response.data.hasCreds;
+    return response.data;
   } catch (error) {
     throw error.response.data;
   }

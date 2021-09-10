@@ -15,6 +15,8 @@ const useStyles = makeStyles(() => ({
 function ChartsGrid(props) {
   const classes = useStyles();
 
+  if (!props.layouts) return null;
+
   return (
     <>
       {props.layouts ? (

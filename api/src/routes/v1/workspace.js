@@ -124,7 +124,7 @@ router.delete('/', async (req, res, next) => {
     } else {
       await deleteWorkspaceByID(workspaceID);
     }
-
+    await updateLastViewedWorkspace(null, userID);
     const workspaces = await getWorkspacesByUserID(userID);
 
     return res.status(200).send(workspaces);

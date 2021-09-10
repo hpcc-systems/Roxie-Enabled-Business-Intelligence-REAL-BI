@@ -33,14 +33,14 @@ const ParametersTab = props => {
 
   return dataset || eclDataset ? (
     sourceType === 'file' ? (
-      <Grid container direction='row' justify='space-between' spacing={2}>
+      <Grid container direction='row' justifyContent='space-between' spacing={2}>
         <StaticFileParams {...props} setParamObj={setParamObj} />
         <DynamicFileParams {...props} />
       </Grid>
     ) : (
       <FormControl className={formControl} fullWidth>
         {params.length > 0 ? (
-          <Grid container direction='row' justify='space-between' spacing={2}>
+          <Grid container direction='row' justifyContent='space-between' spacing={2}>
             {params.map(({ name, type, value }, index) => {
               return (
                 <Grid key={index} item xs={12}>

@@ -1,18 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Container,
   Button,
   ClickAwayListener,
-  Grid,
   Grow,
   IconButton,
   MenuList,
   MenuItem,
   Paper,
   Popper,
-  Toolbar,
   Typography,
   Tooltip,
+  Box,
 } from '@material-ui/core';
 import {
   AddCircle as AddCircleIcon,
@@ -30,11 +30,11 @@ import { useSelector } from 'react-redux';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  button: { margin: theme.spacing(0.75) },
-  info: {
-    marginBottom: theme.spacing(0.5),
-    padding: 0,
+  root: {
+    visibility: props => (props.cluster ? 'visible' : 'hidden'),
   },
+  button: { margin: theme.spacing(0.75) },
+  info: { display: 'block' },
   infoCard: { marginTop: theme.spacing(1) },
   menuItem: {
     paddingTop: theme.spacing(0.75),
@@ -54,13 +54,17 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
   },
-  toolbar: { float: 'right' },
+  toolbar: {
+    visibility: props => (props.cluster ? 'visible' : 'hidden'),
+    float: 'right',
+    marginTop: theme.spacing(-6),
+  },
   typography: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: theme.spacing(3),
+    maxWidth: '40%',
   },
-  typographyInfo: { margin: `${theme.spacing(1)}px auto` },
+  typographyInfo: { margin: theme.spacing(1, 'auto') },
 }));
 
 const ToolbarComp = ({
@@ -72,17 +76,11 @@ const ToolbarComp = ({
   toggleNewChartDialog,
   toggleRelationsDialog,
   toggleDrawer,
-  togglePDF,
+  // togglePDF,
   toggleShare,
   toggleSharedWith,
 }) => {
-  const {
-    cluster: { name: clusterName, host },
-    name,
-    fileName,
-    createdAt,
-    permission: dashboardPermission,
-  } = dashboard;
+  const { cluster, name, fileName, createdAt, permission: dashboardPermission } = dashboard;
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
   const anchorRef3 = useRef(null);
@@ -90,6 +88,7 @@ const ToolbarComp = ({
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
   const {
+    root,
     button,
     info,
     infoCard,
@@ -100,7 +99,7 @@ const ToolbarComp = ({
     toolbar,
     typography,
     typographyInfo,
-  } = useStyles();
+  } = useStyles({ cluster });
 
   const workspacePermission = useSelector(({ workspace }) => workspace.workspace.permission);
 
@@ -160,73 +159,68 @@ const ToolbarComp = ({
   const dashboardCreatedAt = new Date(createdAt);
 
   return (
-    <Fragment>
-      <Grid container>
-        <Grid item xs={6}>
-          <Typography variant='h2' color='inherit' className={typography} align='right'>
-            {name}
-            <IconButton className={info} onClick={() => handleToggle(3)} ref={anchorRef3}>
-              <InfoIcon fontSize='small' />
-            </IconButton>
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Toolbar className={toolbar}>
-            {hasInteractiveFilter && (
-              <Tooltip title='Remove click filter' placement='bottom'>
-                {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
-                <span>
-                  <Button
-                    className={clsx(button, resetBtn)}
-                    variant='contained'
-                    onClick={resetInteractiveFilter}
-                    disabled={dataFetchInProgress}
-                  >
-                    <RotateLeftIcon />
-                  </Button>
-                </span>
-              </Tooltip>
-            )}
-            <Tooltip title='Refresh page' placement='bottom'>
-              <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
-                <RefreshIcon />
+    <Container maxWidth='xl'>
+      <Box display='flex' alignItems='center' mt={2} justifyContent='center' className={root}>
+        <Typography variant='h2' noWrap color='inherit' className={typography} ref={anchorRef3}>
+          {name}
+        </Typography>
+        <IconButton className={info} onClick={() => handleToggle(3)}>
+          <InfoIcon fontSize='small' />
+        </IconButton>
+      </Box>
+      <Box display='flex' className={toolbar}>
+        {hasInteractiveFilter && (
+          <Tooltip title='Remove click filter' placement='bottom'>
+            {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
+            <span>
+              <Button
+                className={clsx(button, resetBtn)}
+                variant='contained'
+                onClick={resetInteractiveFilter}
+                disabled={dataFetchInProgress}
+              >
+                <RotateLeftIcon />
+              </Button>
+            </span>
+          </Tooltip>
+        )}
+        <Tooltip title='Refresh page' placement='bottom'>
+          <Button className={button} variant='contained' color='primary' onClick={refreshChart}>
+            <RefreshIcon />
+          </Button>
+        </Tooltip>
+        <>
+          {canAddCharts(dashboardPermission) ? (
+            <Tooltip title='Add Chart/Relation' placement='bottom'>
+              <Button
+                className={button}
+                variant='contained'
+                color='primary'
+                onClick={() => handleToggle(1)}
+                ref={anchorRef}
+              >
+                <AddCircleIcon />
               </Button>
             </Tooltip>
-            <>
-              {canAddCharts(dashboardPermission) ? (
-                <Tooltip title='Add Chart/Relation' placement='bottom'>
-                  <Button
-                    className={button}
-                    variant='contained'
-                    color='primary'
-                    onClick={() => handleToggle(1)}
-                    ref={anchorRef}
-                  >
-                    <AddCircleIcon />
-                  </Button>
-                </Tooltip>
-              ) : null}
-              <Tooltip title='Open filter drawer' placement='bottom'>
-                <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
-                  <FilterListIcon />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Share dashboard' placement='bottom'>
-                <Button
-                  className={button}
-                  variant='contained'
-                  color='primary'
-                  onClick={() => handleToggle(2)}
-                  ref={anchorRef2}
-                >
-                  <ShareIcon />
-                </Button>
-              </Tooltip>
-            </>
-          </Toolbar>
-        </Grid>
-      </Grid>
-
+          ) : null}
+          <Tooltip title='Open filter drawer' placement='bottom'>
+            <Button className={button} variant='contained' color='primary' onClick={toggleDrawer}>
+              <FilterListIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title='Share dashboard' placement='bottom'>
+            <Button
+              className={button}
+              variant='contained'
+              color='primary'
+              onClick={() => handleToggle(2)}
+              ref={anchorRef2}
+            >
+              <ShareIcon />
+            </Button>
+          </Tooltip>
+        </>
+      </Box>
       {/* Add Element Dropdown */}
       <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition>
         {({ TransitionProps }) => (
@@ -268,9 +262,8 @@ const ToolbarComp = ({
                 <MenuList autoFocusItem={open}>
                   <MenuItem
                     className={menuItem}
-                    onClick={e => {
-                      handleClose(e, 2);
-                      togglePDF();
+                    onClick={() => {
+                      window.print();
                     }}
                   >
                     Create PDF
@@ -320,10 +313,10 @@ const ToolbarComp = ({
                     {dashboardCreatedAt.toTimeString()}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Cluster Name:</strong> {clusterName}
+                    <strong>Cluster Name:</strong> {cluster?.name}
                   </Typography>
                   <Typography variant='body2' className={typographyInfo}>
-                    <strong>Cluster Host:</strong> {host}
+                    <strong>Cluster Host:</strong> {cluster?.host}
                   </Typography>
                   {dashboardPermission === 'Owner' && (
                     <Button
@@ -344,7 +337,7 @@ const ToolbarComp = ({
           </Grow>
         )}
       </Popper>
-    </Fragment>
+    </Container>
   );
 };
 

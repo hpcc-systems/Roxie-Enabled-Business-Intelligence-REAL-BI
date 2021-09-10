@@ -152,7 +152,14 @@ const Login = () => {
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
-        <Grid container direction='column' justify='center' alignItems='center' className={grid} spacing={0}>
+        <Grid
+          container
+          direction='column'
+          justifyContent='center'
+          alignItems='center'
+          className={grid}
+          spacing={0}
+        >
           <Grid item>
             {isInitializing ? (
               <CircularProgress />
@@ -188,7 +195,7 @@ const Login = () => {
                       error={passwordErr !== undefined}
                       helperText={passwordErr !== undefined ? passwordErr['password'] : ''}
                     />
-                    <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
+                    <Grid container direction='row' justifyContent='center' alignItems='center' spacing={0}>
                       <Grid item>
                         <Button className={button} variant='contained' type='submit' disabled={loading}>
                           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
@@ -198,7 +205,13 @@ const Login = () => {
                     </Grid>
                   </CardContent>
                   <CardActions className={actions}>
-                    <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
+                    <Grid
+                      container
+                      direction='row'
+                      justifyContent='space-between'
+                      alignItems='center'
+                      spacing={0}
+                    >
                       <Grid item>
                         <Link className={options} onClick={() => history.push('/forgot-password')}>
                           Forgot password?

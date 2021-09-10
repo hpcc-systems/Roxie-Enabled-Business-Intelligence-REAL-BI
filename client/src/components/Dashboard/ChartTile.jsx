@@ -20,13 +20,15 @@ const ChartTile = props => {
       {/* use calc to find out how much space is left to fit a chart in, this is required by chart library*/}
       <Box height={`calc(100% - ${toolbarHeight?.current?.offsetHeight || 0}px)`}>
         <SnackbarProvider>
-          <Chart
-            chart={chart}
-            dataObj={compData}
-            interactiveClick={interactiveClick}
-            interactiveObj={interactiveObj}
-            pdfPreview={pdfPreview}
-          />
+          <Box height='100%'>
+            <Chart
+              chart={chart}
+              dataObj={compData}
+              interactiveClick={interactiveClick}
+              interactiveObj={interactiveObj}
+              pdfPreview={pdfPreview}
+            />
+          </Box>
         </SnackbarProvider>
       </Box>
     </Box>

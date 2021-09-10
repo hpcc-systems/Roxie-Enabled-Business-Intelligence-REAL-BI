@@ -6,8 +6,7 @@ import { Drawer, Typography } from '@material-ui/core';
 // React Components
 import DirectoryTree from './DirectoryTree';
 import FavoritesTree from './FavoritesTree';
-import NewDashboardDialog from '../Dialog/newDashboard';
-import EditDashboardDialog from '../Dialog/editDashboard';
+import DashboardDialog from '../Dialog/DashboardDialog';
 import NewFolderDialog from '../Dialog/newFolder';
 import EditFolderDialog from '../Dialog/editFolder';
 import DeleteDashboardDialog from '../Dialog/DeleteDashboard';
@@ -50,6 +49,7 @@ const initState = {
   name: '',
   parentID: 0,
   updateCreds: false,
+  loading: false,
 };
 
 // Create styles
@@ -69,12 +69,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
+const DirectoryDrawer = ({
+  changeTabIndex,
+  showDrawer,
+  toggleDrawer,
+  editCurrentDashboard,
+  setEditCurrentDashboard,
+}) => {
   const { values: localState, handleChange, formFieldsUpdate } = useForm(initState);
-  const [loading, setLoading] = useState(false);
   const [dashboardID, setDashboardID] = useState(null);
   const [folderObj, setFolderObj] = useState(null);
-  const { workspace } = useSelector(state => state.workspace);
+  const [workspace, dashboard] = useSelector(state => [state.workspace.workspace, state.dashboard.dashboard]);
   const { directory = [], id: workspaceID } = workspace;
   const dispatch = useDispatch();
   const [showNewDashboardDialog, toggleNewDashboardDialog] = useDialog(false);
@@ -100,10 +105,15 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   const openDashboard = async directoryObj => {
     try {
       const { payload: dashboard } = await getDashboard(directoryObj.id);
-      const clusterCredentials = await checkForClusterCreds(dashboard.cluster.id);
-      if (!clusterCredentials) {
-        return editDashboard(directoryObj);
+
+      const clusterCredentials = dashboard.cluster ? await checkForClusterCreds(dashboard.cluster.id) : null;
+
+      if (dashboard.permission === 'Owner') {
+        if (!clusterCredentials || !dashboard.cluster) {
+          return editDashboard(directoryObj);
+        }
       }
+
       const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
       const tabIndex = action.payload.findIndex(openDashboard => openDashboard.id === directoryObj.id);
       dispatch(action);
@@ -114,44 +124,49 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
     }
   };
 
-  const createNewDashboard = async () => {
-    const { clusterID, hasClusterCreds, name, parentID, password, username } = localState;
-
-    const parentNode = findNodeRef(directory, parentID);
-
-    const objNames = parentNode.children.map(el => !el.children && el.name);
-
-    let dashboard;
-
-    try {
-      // Check for duplicate names in directory
-      if (existsInArray(objNames, name.toLowerCase().trim())) {
-        throw new Error('Name already used');
-      } else if (name.length === 0) {
-        throw new Error(`"${name}" is not a valid dashboard name`);
-      }
-    } catch (error) {
-      return handleChange(null, { name: 'error', value: error.message });
-    }
-
-    try {
-      setLoading(true);
-      dashboard = await createDashboard(localState, workspaceID);
-
-      if (!hasClusterCreds) {
+  const createOrUpdateClusterCreds = async form => {
+    const { updateCreds, hasClusterCreds, clusterID, password, username } = form;
+    if (updateCreds || !hasClusterCreds) {
+      if (hasClusterCreds) {
+        await updateClusterCreds({ clusterID, password, username });
+      } else {
         await createClusterCreds({ clusterID, password, username });
       }
+    }
+  };
 
-      handleChange(null, { name: 'error', value: '' });
+  const handleDashboardError = error => {
+    const invalidCredsError = 'Invalid credentials, please check your username and password.';
+    const otherError = 'Server error Occured';
+    formFieldsUpdate({
+      loading: false,
+      error: error?.status === 401 ? invalidCredsError : otherError,
+    });
+  };
+
+  const checkNameRestrictions = (objNames, name, entity) => {
+    if (existsInArray(objNames, name.toLowerCase().trim())) {
+      return `${entity} with this name already exists, please provide different name`;
+    }
+    if (name.length === 0) return `"${name}" is not a valid ${entity} name`;
+    return null;
+  };
+
+  const createNewDashboard = async () => {
+    const { name, parentID } = localState;
+
+    const parentNode = findNodeRef(directory, parentID);
+    const objNames = parentNode.children.map(el => !el.children && el.name);
+    // Check for duplicate names in directory
+    const nameError = checkNameRestrictions(objNames, name, 'Dashboard');
+    if (nameError) return formFieldsUpdate({ error: nameError });
+    let dashboard;
+    try {
+      formFieldsUpdate({ loading: true, error: '' });
+      await createOrUpdateClusterCreds(localState);
+      dashboard = await createDashboard(localState, workspaceID);
     } catch (error) {
-      setLoading(false);
-      if (error?.status === 401) {
-        return handleChange(null, {
-          name: 'error',
-          value: 'Invalid credentials, please check your username and password.',
-        });
-      }
-      return handleChange(null, { name: 'error', value: error.message });
+      return handleDashboardError(error);
     }
 
     // Create new dashboard object
@@ -169,60 +184,44 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
       toggleNewDashboardDialog();
       openDashboard(dashboard);
     } catch (error) {
-      setLoading(false);
       dispatch(error);
     }
-    setLoading(false);
+    formFieldsUpdate({ loading: false });
   };
 
-  const updateExistingDashboard = async () => {
-    const { clusterID, directoryObj, hasClusterCreds, name, password, updateCreds, username } = localState;
-    try {
-      if (name.length === 0) {
-        throw new Error(`"${name}" is not a valid File name`);
-      }
-    } catch (error) {
-      return handleChange(null, { name: 'error', value: error });
-    }
+  const updateExistingDashboard = async clickedDashboard => {
+    const { clusterID, directoryObj, name } = localState;
+
+    if (name.length === 0) return formFieldsUpdate({ error: `"${name}" is not a valid File name` });
 
     try {
-      setLoading(true);
+      formFieldsUpdate({ loading: true });
+      await createOrUpdateClusterCreds(localState);
       // Update directoryObj
       const newDirectoryObj = { ...directoryObj, name, clusterID };
-      const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
 
-      // Update dashboard first then get refreshed workspace data
-      const action = await updateDashboard(clusterID, directoryObj.id, name);
-      const otherActions = await Promise.all([
-        updateWorkspaceDirectory(newDirectory, workspaceID),
-        getOpenDashboardsInWorkspace(workspaceID),
-      ]);
+      //check if cluster or dashname was changed if not then update creds only
+      if (dashboard.name !== newDirectoryObj.name || clickedDashboard.cluster?.id !== clusterID) {
+        const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
 
-      if (updateCreds || (username && password)) {
-        if (hasClusterCreds) {
-          await updateClusterCreds({ clusterID, password, username });
-        } else {
-          await createClusterCreds({ clusterID, password, username });
-        }
+        // Update dashboard first then get refreshed workspace data
+        const action = await updateDashboard(clusterID, directoryObj.id, name);
+        const otherActions = await Promise.all([
+          updateWorkspaceDirectory(newDirectory, workspaceID),
+          getOpenDashboardsInWorkspace(workspaceID),
+        ]);
+
+        batch(() => {
+          const allActions = [action, ...otherActions];
+          allActions.forEach(action => dispatch(action));
+        });
       }
 
-      batch(() => {
-        const allActions = [action, ...otherActions];
-        allActions.forEach(action => dispatch(action));
-      });
-
-      setLoading(false);
+      formFieldsUpdate({ loading: false });
       toggleEditDashboardDialog();
       openDashboard(directoryObj);
     } catch (error) {
-      setLoading(false);
-      if (error?.status === 401) {
-        return handleChange(null, {
-          name: 'error',
-          value: 'Invalid credentials, please check your username and password.',
-        });
-      }
-      return dispatch(error);
+      handleDashboardError(error);
     }
   };
 
@@ -253,17 +252,8 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
     const parentNode = findNodeRef(directory, parentID);
     const objNames = parentNode.children.map(el => el.name);
 
-    try {
-      // Check for duplicate names in directory
-      if (existsInArray(objNames, name.toLowerCase().trim())) {
-        throw new Error('Name already used');
-      } else if (name.length === 0) {
-        throw new Error(`"${name}" is not a valid folder name`);
-      }
-    } catch (error) {
-      return handleChange(null, { name: 'error', value: error.message });
-    }
-
+    const nameError = checkNameRestrictions(objNames, name, 'Folder');
+    if (nameError) return formFieldsUpdate({ error: nameError });
     const newFolderObj = { id: uuidv4(), name: name.trim(), children: [], open: false };
     const newDirectory = addObjectToDirectory(directory, parentID, newFolderObj);
 
@@ -279,28 +269,20 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   const updateFolder = async () => {
     const { directoryObj, name } = localState;
 
-    try {
-      // Check for compliance with RegExp
-      if (name.length === 0) {
-        throw new Error(`"${name}" is not a valid folder name`);
-      }
-    } catch (error) {
-      return handleChange(null, { name: 'error', value: error.message });
-    }
+    if (name.length === 0) return formFieldsUpdate({ error: `"${name}" is not a valid File name` });
 
-    setLoading(true);
+    formFieldsUpdate({ loading: true });
     // Update directoryObj
     const updatedDirectoryObj = { ...directoryObj, name };
     const newDirectory = updateObjectInDirectory(directory, updatedDirectoryObj.id, updatedDirectoryObj);
     try {
       const action = await updateWorkspaceDirectory(newDirectory, workspaceID);
       dispatch(action);
-      setLoading(false);
-      return toggleEditFolderDialog();
+      toggleEditFolderDialog();
     } catch (error) {
-      setLoading(false);
-      return dispatch(error);
+      dispatch(error);
     }
+    formFieldsUpdate({ loading: false });
   };
 
   const updateDirectoryObj = async (objID, key, value) => {
@@ -316,21 +298,18 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   };
 
   const addNewDashboard = parentID => {
-    handleChange(null, { name: 'parentID', value: parentID });
+    formFieldsUpdate({ parentID });
     toggleNewDashboardDialog();
   };
 
   const addNewFolder = parentID => {
-    handleChange(null, { name: 'parentID', value: parentID });
+    formFieldsUpdate({ parentID });
     toggleNewFolderDialog();
   };
 
   const editFolder = directoryObj => {
     const { name } = directoryObj;
-
-    // Update local state
     formFieldsUpdate({ name, directoryObj });
-    // Open edit folder dialog
     toggleEditFolderDialog();
   };
 
@@ -342,10 +321,12 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
   const editDashboard = async directoryObj => {
     try {
       const { payload } = await getDashboard(directoryObj.id);
-
-      const { cluster, name } = payload;
-
-      formFieldsUpdate({ clusterID: cluster.id, name, directoryObj });
+      formFieldsUpdate({
+        clickedDashboard: payload,
+        clusterID: payload.cluster?.id || '',
+        name: payload.name,
+        directoryObj,
+      });
 
       toggleEditDashboardDialog();
     } catch (error) {
@@ -357,6 +338,13 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
     setDashboardID(dashboardID);
     toggleDeleteDashboardDialog();
   };
+
+  React.useEffect(() => {
+    if (editCurrentDashboard) {
+      editDashboard(dashboard);
+      setEditCurrentDashboard(false);
+    }
+  }, [editCurrentDashboard]);
 
   // Directory references
   const dashboards = getDashboardsFromDirectory(directory, []);
@@ -398,25 +386,23 @@ const DirectoryDrawer = ({ changeTabIndex, showDrawer, toggleDrawer }) => {
         )}
       </div>
       {showNewDashboardDialog && (
-        <NewDashboardDialog
-          formFieldsUpdate={formFieldsUpdate}
-          createDashboard={createNewDashboard}
-          handleChange={handleChange}
-          localState={localState}
-          loading={loading}
-          show={showNewDashboardDialog}
+        <DashboardDialog
           toggleDialog={toggleNewDashboardDialog}
+          submitDashboard={createNewDashboard}
+          formFieldsUpdate={formFieldsUpdate}
+          show={showNewDashboardDialog}
+          isEditingDashboard={false}
+          localState={localState}
         />
       )}
       {showEditDashboardDialog && (
-        <EditDashboardDialog
-          handleChange={handleChange}
-          formFieldsUpdate={formFieldsUpdate}
-          localState={localState}
-          loading={loading}
-          show={showEditDashboardDialog}
+        <DashboardDialog
+          submitDashboard={updateExistingDashboard}
           toggleDialog={toggleEditDashboardDialog}
-          updateDashboard={updateExistingDashboard}
+          formFieldsUpdate={formFieldsUpdate}
+          show={showEditDashboardDialog}
+          isEditingDashboard={true}
+          localState={localState}
         />
       )}
       {showNewFolderDialog && (

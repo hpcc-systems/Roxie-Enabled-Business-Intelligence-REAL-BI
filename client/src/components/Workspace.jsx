@@ -1,14 +1,13 @@
-/* eslint-disable no-unused-vars */
 import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Tab, Tabs, Box, Typography } from '@material-ui/core';
+import { AppBar, Tab, Tabs, Typography } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
-import _orderBy from 'lodash/orderBy';
 import clsx from 'clsx';
 
 // React Components
+import LoadingSpinner from './Common/LoadingSpinner';
 import Header from './Layout/Header';
 import DirectoryDrawer from './Drawers/Directory';
 import Dashboard from './Dashboard';
@@ -48,7 +47,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Workspace = () => {
-  let { workspaceID, fileName, dashID } = useParams();
+  let { workspaceID, dashID } = useParams();
   const dispatch = useDispatch();
   const { workspace = {} } = useSelector(state => state.workspace);
   const { openDashboards = [] } = workspace;
@@ -57,13 +56,16 @@ const Workspace = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const { appbar, selectedTab, closeTab, tab, tabWrapper } = useStyles();
 
+  const [editCurrentDashboard, setEditCurrentDashboard] = useState(false);
+
   const isTabfromURLparamsUpdated = React.useRef(false); // we will keep a track to run tab switch only once and only if we have dashID and filename in URL
 
   useEffect(() => {
     const handleTabsAndActions = actions => {
       batch(() => {
-        const lastViewedDash = localStorage.getItem(`lastViewedDashIndex:${workspaceID}`);
-        lastViewedDash ? setTabIndex(parseInt(lastViewedDash)) : setTabIndex(0);
+        const activeTabsIndexes = JSON.parse(localStorage.getItem('activeTabsIndexes'));
+        const dashIndex = activeTabsIndexes?.[workspaceID];
+        dashIndex ? setTabIndex(parseInt(dashIndex)) : setTabIndex(0);
         actions.forEach(action => dispatch(action));
       });
     };
@@ -91,21 +93,28 @@ const Workspace = () => {
 
   useEffect(() => {
     if (openDashboards.length > 0) {
-      if (dashID && fileName) {
+      if (dashID) {
         if (!isTabfromURLparamsUpdated.current) {
           const urldashIDIndex = openDashboards.findIndex(dash => dash.id === dashID);
           urldashIDIndex > -1 && setTabIndex(urldashIDIndex);
         }
         isTabfromURLparamsUpdated.current = true;
       }
+
+      const saveTabIndexToLS = (tabIndex, workspaceID) => {
+        const activeTabsIndexes = JSON.parse(localStorage.getItem('activeTabsIndexes'));
+        const newMapViewports = { ...activeTabsIndexes, [workspaceID]: tabIndex.toString() };
+        localStorage.setItem(`activeTabsIndexes`, JSON.stringify(newMapViewports));
+      };
+
       // Reset tabIndex to 0 if it falls outside bounds of array
       if (tabIndex >= openDashboards.length) {
         setTabIndex(0);
-        localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, '0');
+        saveTabIndexToLS(0, workspaceID);
         return debouncedGetDashboardInfo(0);
       }
       debouncedGetDashboardInfo(tabIndex);
-      localStorage.setItem(`lastViewedDashIndex:${workspaceID}`, tabIndex.toString());
+      saveTabIndexToLS(tabIndex, workspaceID);
     }
   }, [openDashboards, tabIndex]);
 
@@ -114,6 +123,12 @@ const Workspace = () => {
       dispatch(clearDashboard());
     }
   }, [dashboardID, dispatch, openDashboards]);
+
+  useEffect(() => {
+    if (editCurrentDashboard) {
+      toggleDrawer(true);
+    }
+  }, [editCurrentDashboard]);
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -146,40 +161,50 @@ const Workspace = () => {
           changeTabIndex={changeTabIndex}
           showDrawer={showDrawer}
           toggleDrawer={toggleDrawer}
+          editCurrentDashboard={editCurrentDashboard}
+          setEditCurrentDashboard={setEditCurrentDashboard}
         />
       )}
       {openDashboards.length > 0 ? (
-        <AppBar className={appbar} position='static' color='inherit'>
-          <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
-            {openDashboards.map((dashboard, index) => {
-              return (
-                <Tab
-                  component='div'
-                  key={dashboard.id}
-                  className={clsx(tab, { [selectedTab]: index === tabIndex })}
-                  classes={{ wrapper: tabWrapper }}
-                  label={
-                    <>
-                      <Typography component='span' variant='body1'>
-                        {dashboard.name}
-                      </Typography>
-
-                      <CloseIcon
-                        className={closeTab}
-                        onClick={event => closeDashboardTab(event, dashboard.id)}
-                        fontSize='small'
-                      />
-                    </>
-                  }
-                />
-              );
-            })}
-          </Tabs>
-        </AppBar>
+        <>
+          <AppBar className={appbar} position='static' color='inherit'>
+            <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
+              {openDashboards.map((dashboard, index) => {
+                return (
+                  <Tab
+                    component='div'
+                    key={dashboard.id}
+                    className={clsx(tab, { [selectedTab]: index === tabIndex })}
+                    classes={{ wrapper: tabWrapper }}
+                    label={
+                      <>
+                        <Typography component='span' variant='body1'>
+                          {dashboard.name}
+                        </Typography>
+                        <CloseIcon
+                          className={closeTab}
+                          onClick={event => closeDashboardTab(event, dashboard.id)}
+                          fontSize='small'
+                        />
+                      </>
+                    }
+                  />
+                );
+              })}
+            </Tabs>
+          </AppBar>
+          {dashboardID ? (
+            <Dashboard
+              setEditCurrentDashboard={setEditCurrentDashboard}
+              isChartDialogCalled={chartDialogOnInitialLoad}
+            />
+          ) : (
+            <LoadingSpinner justifyContent='center' mt={4} size={60} />
+          )}
+        </>
       ) : (
         <NoCharts />
       )}
-      {dashboardID && <Dashboard isChartDialogCalled={chartDialogOnInitialLoad} />}
     </Fragment>
   );
 };

@@ -132,7 +132,7 @@ const ForgotPwd = () => {
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
-        <Grid container direction='column' justify='center' alignItems='center' className={grid}>
+        <Grid container direction='column' justifyContent='center' alignItems='center' className={grid}>
           <Grid item>
             <form className={form} onSubmit={handleSubmit}>
               <Card>
@@ -184,7 +184,7 @@ const ForgotPwd = () => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid container direction='row' justify='center' alignItems='center' spacing={0}>
+                  <Grid container direction='row' justifyContent='center' alignItems='center' spacing={0}>
                     <Grid item>
                       <Button
                         className={button}
