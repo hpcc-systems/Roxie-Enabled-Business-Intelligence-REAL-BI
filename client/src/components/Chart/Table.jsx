@@ -212,8 +212,8 @@ const TableComp = ({ chartID, configuration, data, interactiveClick, interactive
         count={rowCount}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Fragment>
   );
