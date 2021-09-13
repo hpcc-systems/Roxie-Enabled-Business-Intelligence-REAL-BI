@@ -1,5 +1,7 @@
 # REAL BI
 
+![](/client/public/docs/realbidemo.jpg)
+
 Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create visualizations from the data stored in the clusters. The visualizations can be powered by the output from ROXIE queries, logical files, or custom executed ECL scripts.
 
 ---
