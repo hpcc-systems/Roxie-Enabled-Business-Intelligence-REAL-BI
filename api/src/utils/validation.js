@@ -74,12 +74,13 @@ const validateEclEditorExecution = () => {
 };
 
 const validateWorkspaceShare = () => {
+  const { INTERNAL_DOMAINS_ONLY, INTERNAL_DOMAIN } = process.env;
   return [
     body('workspaceID').isUUID(4).withMessage('Invalid Request'),
     body('email').isArray({ min: 1 }).withMessage('At least one email address is required'),
     body('email.*').isEmail().withMessage('Valid email required'),
     body('email.*').custom(email => {
-      if (!email.includes('lexisnexisrisk') && process.env.INTERNAL_DOMAINS_ONLY === 'true') {
+      if (!email.includes(INTERNAL_DOMAIN) && INTERNAL_DOMAINS_ONLY === 'true') {
         throw new Error('All emails must be internal');
       }
 
