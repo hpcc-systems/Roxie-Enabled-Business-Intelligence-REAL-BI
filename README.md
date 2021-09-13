@@ -33,7 +33,7 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
    - Change the database information to point to your production database.
 3. Rename the **_.env.example_** file to **_.env_** and fill in the empty values.You can find explanation inside **_.env.example_** .
 4. To use SSL certificates add cert and key files to `/nginx/certs`.
-5. Update lines #9 to #28 in `/nginx/conf.d/realbi.conf.template` to match cert and key file names.
+5. Update file `/nginx/conf.d/realbi.conf.template` to match cert and key file names.
 6. Run `docker-compose up --build -d` to create and run the containers.
 
 ---

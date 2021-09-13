@@ -6,7 +6,7 @@ upstream api {
   server api:$NODE_PORT;
 }
 
-# --- Uncomment line 10 till 16 when running with ssl certificate
+# --- Uncomment line this block when running with ssl certificate
 #server {
 #   listen $EXTERNAL_HTTP_PORT;
 #
