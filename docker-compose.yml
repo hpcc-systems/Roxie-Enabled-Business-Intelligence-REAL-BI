@@ -23,7 +23,7 @@ services:
   api:
     build:
       context: ./api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: realbi_api
     depends_on:
       - db
@@ -38,7 +38,7 @@ services:
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: realbi_client
     depends_on:
       - api
@@ -54,7 +54,7 @@ services:
   nginx:
     build:
       context: ./nginx
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: realbi_nginx
     entrypoint: [/etc/nginx/run_nginx.sh, '${HOST_HOSTNAME}']
     env_file:
