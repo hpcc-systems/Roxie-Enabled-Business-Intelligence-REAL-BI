@@ -10,12 +10,18 @@ router.post('/', [validateWorkspaceShare(), validate], async (req, res, next) =>
     user: { id: userID },
   } = req;
 
+  const { TRANSPORT_HOST, TRANSPORT_PORT } = process.env;
+
   try {
     const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
 
     if (permission !== 'Owner') {
       const error = new Error('Permission Denied');
       throw error;
+    }
+
+    if (!TRANSPORT_HOST || !TRANSPORT_PORT) {
+      throw new Error('Email service is not set up.');
     }
 
     for await (const email of emailArr) {
