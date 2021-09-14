@@ -111,51 +111,49 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
       });
 
       setInteractiveObj(prevState => ({ ...prevState, chartID, field, value: clickValue, effectedChartIds }));
+      const chartIDs = effectedChartIds || [];
+      dataCall(chartIDs, interactiveObj);
     },
     [interactiveObj],
   );
 
-  const dataCall = (chartIDs, interactiveObj) => {
-    // Set initial object keys and loading
-    chartIDs.forEach(Id => setCompData(prevState => ({ ...prevState, [Id]: { loading: true } })));
-    // Fetch data for each chart
-    chartIDs.forEach(Id => {
-      (async () => {
-        try {
-          const results = await getChartData(Id, cluster.id, dashboardID, interactiveObj);
-          if (results.updatedChartConfiguration) {
-            // update chart config obj in redux
-            dispatch(updateChartConfigObject({ id: Id, configuration: results.updatedChartConfiguration }));
+  const dataCall = useCallback(
+    (chartIDs, interactiveObj) => {
+      // Set initial object keys and loading
+      chartIDs.forEach(Id => setCompData(prevState => ({ ...prevState, [Id]: { loading: true } })));
+      // Fetch data for each chart
+      chartIDs.forEach(Id => {
+        (async () => {
+          try {
+            const results = await getChartData(Id, cluster.id, dashboardID, interactiveObj);
+            if (!isMounted.current) return null;
+            if (results.updatedChartConfiguration) {
+              // update chart config obj in redux
+              dispatch(updateChartConfigObject({ id: Id, configuration: results.updatedChartConfiguration }));
+            }
+            setCompData(prevState => ({
+              ...prevState,
+              [Id]: {
+                data: results.data,
+                error: '',
+                lastModifiedDate: results.lastModifiedDate,
+                loading: false,
+              },
+            }));
+          } catch (error) {
+            if (!isMounted.current) return null;
+            setCompData(prevState => ({ ...prevState, [Id]: { error: error.message, loading: false } }));
           }
-          if (!isMounted.current) return null;
-          setCompData(prevState => ({
-            ...prevState,
-            [Id]: {
-              data: results.data,
-              error: '',
-              lastModifiedDate: results.lastModifiedDate,
-              loading: false,
-            },
-          }));
-        } catch (error) {
-          if (!isMounted.current) return null;
-          setCompData(prevState => ({ ...prevState, [Id]: { error: error.message, loading: false } }));
-        }
-      })();
-    });
-  };
+        })();
+      });
+    },
+    [chartIDs, interactiveObj],
+  );
 
   const resetDashboardCharts = chartIDs => {
     dataCall(chartIDs, {});
     setInteractiveObj({});
   };
-
-  // Data call when interactiveObj changes
-  useEffect(() => {
-    if (!isClusterCredsValid) return;
-    const chartIDs = interactiveObj.effectedChartIds || [];
-    dataCall(chartIDs, interactiveObj);
-  }, [interactiveObj]);
 
   // Initial data call when component is loaded
   useEffect(() => {
@@ -198,6 +196,7 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
 
   const createChart = layoutIndex => {
     const chart = charts.find(el => el.id === layoutIndex);
+    if (!chart) return null;
     const eclDataset = chart?.configuration?.ecl?.dataset || '';
     const chartData = compData[chart.id] || compData[eclDataset] || {};
     return (

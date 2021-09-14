@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useCallback } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,7 +19,7 @@ import { getDashboard, clearDashboard } from '../features/dashboard/actions';
 
 // React Hooks
 import useDrawer from '../hooks/useDrawer';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -79,19 +79,8 @@ const Workspace = () => {
     }
   }, [workspaceID]);
 
-  const getDashboardInfo = async index => {
-    dispatch(clearDashboard());
-    try {
-      const action = await getDashboard(openDashboards[index].id);
-      dispatch(action);
-    } catch (error) {
-      dispatch(error);
-    }
-  };
-
-  const debouncedGetDashboardInfo = useCallback(_.debounce(getDashboardInfo, 500), [openDashboards]);
-
   useEffect(() => {
+    let active = true;
     if (openDashboards.length > 0) {
       if (dashID) {
         if (!isTabfromURLparamsUpdated.current) {
@@ -107,15 +96,29 @@ const Workspace = () => {
         localStorage.setItem(`activeTabsIndexes`, JSON.stringify(newMapViewports));
       };
 
+      const getDashboardInfo = debounce(async index => {
+        if (!active) return;
+        dispatch(clearDashboard());
+        try {
+          const action = await getDashboard(openDashboards[index].id);
+          if (!active) return;
+          dispatch(action);
+        } catch (error) {
+          if (!active) return;
+          dispatch(error);
+        }
+      }, 700);
+
       // Reset tabIndex to 0 if it falls outside bounds of array
       if (tabIndex >= openDashboards.length) {
         setTabIndex(0);
         saveTabIndexToLS(0, workspaceID);
-        return debouncedGetDashboardInfo(0);
+        return getDashboardInfo(0);
       }
-      debouncedGetDashboardInfo(tabIndex);
+      getDashboardInfo(tabIndex);
       saveTabIndexToLS(tabIndex, workspaceID);
     }
+    return () => (active = false);
   }, [openDashboards, tabIndex]);
 
   useEffect(() => {

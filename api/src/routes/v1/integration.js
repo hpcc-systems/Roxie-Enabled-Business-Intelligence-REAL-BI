@@ -18,12 +18,12 @@ router.post('/', async (req, res, next) => {
 
   const checkDashNameExists = (workspace, dashboardName) => {
     if (workspace?.dashboards?.length > 0) {
-      const dublicateDash = workspace.dashboards.find(dash => dash.name === dashboardName);
-      if (dublicateDash) {
-        const link = `${SHARE_URL || 'http://localhost:3000'}/workspace/${workspace.id}/${dublicateDash.id}`;
+      const duplicateDash = workspace.dashboards.find(dash => dash.name === dashboardName);
+      if (duplicateDash) {
+        const link = `${SHARE_URL || 'http://localhost:3000'}/workspace/${workspace.id}/${duplicateDash.id}`;
         return {
-          succsess: false,
-          message: `Dashboard with name "${dublicateDash.name}" already exists, please provide a different name.`,
+          success: false,
+          message: `Dashboard with name "${duplicateDash.name}" already exists, please provide a different name.`,
           workspaceUrl: link,
         };
       }
