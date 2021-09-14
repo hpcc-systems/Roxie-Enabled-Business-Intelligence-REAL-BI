@@ -6,21 +6,26 @@ upstream api {
   server api:$NODE_PORT;
 }
 
+# --- Uncomment line this block when running with ssl certificate
+#server {
+#   listen $EXTERNAL_HTTP_PORT;
+#
+#   server_name $HOST_HOSTNAME;
+#
+#   return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+#}
+
 server {
-    listen $EXTERNAL_HTTP_PORT;
-
-    server_name $HOST_HOSTNAME;
-
-    return 301 https://${DOLLAR}host${DOLLAR}request_uri;
-}
-
-server {
-  listen $EXTERNAL_HTTPS_PORT ssl;
+ # --- Uncomment line 20 when running with ssl certificate
+ # listen $EXTERNAL_HTTPS_PORT ssl;
+ #Comment out line  22 when running with ssl certificate
+  listen $EXTERNAL_HTTP_PORT;
 
   server_name $HOST_HOSTNAME;
 
-  ssl_certificate /etc/nginx/certs/realbi.pem;
-  ssl_certificate_key /etc/nginx/certs/realbi.key;
+ # ---Uncomment line 27, 28 when running with ssl_certificate
+ # ssl_certificate /etc/nginx/certs/realbi.pem;
+ # ssl_certificate_key /etc/nginx/certs/realbi.key;
 
   add_header Strict-Transport-Security "max-age=31536000;" always;
   add_header X-XSS-Protection "1; mode=block";
