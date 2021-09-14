@@ -53,7 +53,11 @@ const barDrilldownChart = {
   axis2: { type: 'number', label: 'Total amount', value: 'total_amount', showTickLabels: true },
   axis3: { showTickLabels: true },
   title: 'Pickup time to total amount analysis',
-  fields: [{ name: '', color: '#FFF', label: '', asLink: false, linkBase: '' }],
+  fields: [
+    { name: '', color: '#FFF', label: '', asLink: false, linkBase: '' },
+    { name: '', color: '#FFF', label: '' },
+    { name: '', color: '#FFF', label: '' },
+  ],
   params: [
     { name: 'Start', type: 'number', value: '' },
     { name: 'Count', type: 'number', value: '200' },
@@ -77,7 +81,7 @@ const barDrilldownChart = {
     { name: 'improvement_surcharge', type: 'string', value: '' },
     { name: 'total_amount', type: 'string', value: '' },
   ],
-  sortBy: {},
+  sortBy: { type: 'number', order: 'desc', value: 'total_amount' },
   dataset: defaultSourceFiles.taxiData,
   groupBy: {},
   stacked: false,
@@ -87,7 +91,11 @@ const barDrilldownChart = {
     drilledByField: 'tpep_pickup_datetime',
     drilledOptions: ['tolls_amount', 'improvement_surcharge', 'tip_amount', 'fare_amount', 'total_amount'],
   },
-  mapFields: [{ name: '', label: '' }],
+  mapFields: [
+    { name: '', label: '' },
+    { name: '', label: '' },
+    { name: '', label: '' },
+  ],
   horizontal: false,
   mapMarkers: [
     {
@@ -99,6 +107,7 @@ const barDrilldownChart = {
       markerColor: '#C62136',
     },
   ],
+  conditionals: [{ field: '', rules: [{ color: '#FFF', value: '', operand: '>' }] }],
   chartDescription: 'Drill Down Chart Sorted By Total Amount',
   showLastExecuted: false,
   textBoxAlignText: 'left',
@@ -112,6 +121,13 @@ const mapChart = {
   axis2: { showTickLabels: true },
   axis3: { showTickLabels: true },
   title: 'Map chart',
+  defaultMapSetting: {
+    longitude: '-73.9866',
+    latitude: '40.7360',
+    zoom: '11.35',
+    bearing: '0.00',
+    pitch: '48.50',
+  },
   fields: [
     { name: '', color: '#FFF', label: '', asLink: false, linkBase: '' },
     { name: '', color: '#FFF', label: '' },
@@ -417,8 +433,8 @@ const defaultChartslayout = {
     { w: 4, h: 55, x: 0, y: 17, ...commonFields },
     { w: 4, h: 37, x: 4, y: 35, ...commonFields },
     { w: 4, h: 37, x: 8, y: 35, ...commonFields },
-    { w: 6, h: 37, x: 0, y: 72, ...commonFields },
-    { w: 6, h: 37, x: 6, y: 72, ...commonFields },
+    { w: 7, h: 37, x: 0, y: 72, ...commonFields },
+    { w: 5, h: 37, x: 7, y: 72, ...commonFields },
   ],
 };
 
