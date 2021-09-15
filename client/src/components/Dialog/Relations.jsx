@@ -142,8 +142,8 @@ const Relations = ({ show, toggleDialog }) => {
       chartID,
       fields: newFields,
       params: formattedParams,
-      sourceID: source.id,
-      sourceName: source.name,
+      sourceID: source?.id,
+      sourceName: source?.name,
       title,
       type,
     };

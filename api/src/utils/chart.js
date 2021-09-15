@@ -50,4 +50,13 @@ const deleteChartByID = async id => {
   return await Chart.destroy({ where: { id } });
 };
 
-module.exports = { createChart, deleteChartByID, getChartByID, getChartsByDashboardID, updateChartByID };
+const createMultipleCharts = async chartsArray => await Chart.bulkCreate(chartsArray, { returning: true });
+
+module.exports = {
+  createMultipleCharts,
+  createChart,
+  deleteChartByID,
+  getChartByID,
+  getChartsByDashboardID,
+  updateChartByID,
+};
