@@ -30,17 +30,11 @@ const logger = createLogger({
       filename: logPath('combined.log'),
       format: combine(timestamp({ format: timeStampFormat }), json()),
     }),
-  ],
-  exitOnError: false,
-});
-
-// If not in production environment, print logs to the `console`
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
     new transports.Console({
       format: combine(timestamp({ format: timeStampFormat }), colorize(), consoleFormat),
     }),
-  );
-}
+  ],
+  exitOnError: false,
+});
 
 module.exports = logger;

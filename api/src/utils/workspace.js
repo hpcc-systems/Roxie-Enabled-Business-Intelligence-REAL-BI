@@ -159,7 +159,7 @@ const findOrCreatePublicWorkspace = async (userID, workspaceName, userRole) => {
     workspace = await createWorkspace(workspaceName, userID, 'public');
   }
   await createOrUpdateWorkspacePermission(workspace.id, userID, userRole); // depending on req.body.editingAllowed field we determing a role of user. "Owner" || "Read-Only";
-  return workspace.toJSON();
+  return workspace;
 };
 
 const getWorkspaceFromDB = async condition => {
