@@ -70,6 +70,4 @@ const createDemoWorkspace = async user => {
   }
 };
 
-module.exports = {
-  createDemoWorkspace,
-};
+module.exports = { createDemoWorkspace };
