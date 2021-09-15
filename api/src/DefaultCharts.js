@@ -1,16 +1,25 @@
+const {
+  DEFAULT_CLUSTER_NAME,
+  DEFAULT_CLUSTER_HOST,
+  DEFAULT_CLUSTER_INFOPORT,
+  DEFAULT_CLUSTER_DATAPORT,
+  DEFAULT_FILE_DEMO_TAXI,
+  DEFAULT_FILE_DEMO_TRADES,
+} = process.env;
+
 const defaultCluster = {
-  name: 'hpccDemo',
-  host: 'http://13.77.97.16',
-  infoPort: '8010',
-  dataPort: '8002',
+  name: DEFAULT_CLUSTER_NAME,
+  host: DEFAULT_CLUSTER_HOST,
+  infoPort: DEFAULT_CLUSTER_INFOPORT,
+  dataPort: DEFAULT_CLUSTER_DATAPORT,
 };
 
 const defaultWorkspaceName = 'Demo Workspace';
 const defaultDashboardName = 'Charts Demo';
 
 const defaultSourceFiles = {
-  taxiData: 'hpccsystems::demo::realbi::public::taxi_data_small.flat',
-  yearlyTrades: 'hpccsystems::demo::realbi::public::yearly_trades.flat',
+  taxiData: DEFAULT_FILE_DEMO_TAXI,
+  yearlyTrades: DEFAULT_FILE_DEMO_TRADES,
 };
 
 const textboxChart = {
