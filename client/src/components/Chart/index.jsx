@@ -181,4 +181,4 @@ const ChartComp = ({
   return <Fragment>{chartComp}</Fragment>;
 };
 
-export default ChartComp;
+export default React.memo(ChartComp);

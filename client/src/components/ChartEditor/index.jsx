@@ -80,14 +80,24 @@ const ChartEditor = props => {
     return handleChange(null, { name: 'configuration', value: newConfig });
   };
 
-  // Create object of information to pass to chart components
-  const newConfig = { ...configuration, dataset };
-  let chartData = dataObj.data || [];
-
+  // Memoized all values to avoid component rerender on each key hit
+  let chartData;
   // If ECL Ref has data, use that array
   if (sourceType === 'ecl' && Object.keys(eclData).length > 0) {
     chartData = { data: eclData, error: '', loading: false };
+  } else {
+    chartData = dataObj.data || [];
   }
+
+  const memo = React.useMemo(
+    () => ({
+      chartConfig: { configuration: { ...configuration, dataset } },
+      chartData,
+      eclDataset,
+      sourceType,
+    }),
+    [dataObj.loading],
+  );
 
   useEffect(() => {
     // Get percentage of tab width
@@ -234,10 +244,10 @@ const ChartEditor = props => {
       </Grid>
       <Grid item xs={6} className={chartView}>
         <Chart
-          chart={{ configuration: newConfig }}
-          dataObj={chartData}
-          sourceType={sourceType}
-          eclDataset={eclDataset}
+          chart={memo.chartConfig}
+          dataObj={memo.chartData}
+          sourceType={memo.sourceType}
+          eclDataset={memo.eclDataset}
         />
       </Grid>
     </Grid>
