@@ -26,6 +26,7 @@ const ChartComp = ({
   interactiveObj = {},
   pdfPreview,
   sourceType,
+  showDuplicatedRecordsWarning,
 }) => {
   // Snackbar warning about data size
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -102,6 +103,7 @@ const ChartComp = ({
           chartRelation={chartRelation}
           // ?? Not using interactiveObj but has interactiveClick on inital load. dont understand functionality
           // interactiveObj={interactiveObj}
+          showDuplicatedRecordsWarning={showDuplicatedRecordsWarning}
           interactiveClick={interactiveClick}
           pdfPreview={pdfPreview}
         />

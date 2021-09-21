@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
+  Box,
   FormControl,
   Grid,
   InputLabel,
@@ -17,6 +18,7 @@ import SourceSearch from './SourceSearch';
 import SelectDataset from './SelectDataset';
 import { ECLEditor, General, GroupBy, Parameters, SortBy, TableConditionalFormatting } from './Tabs';
 import Chart from '../Chart';
+import DuplicateRecordsWarning from './DuplicateRecordsWarning';
 
 // Constants
 import { hasGroupByOption, hasSortOptions } from '../../utils/misc';
@@ -28,7 +30,7 @@ const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By'
 const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
-  gridContainer: { overflowY: 'auto' },
+  gridContainer: { height: '75vh' },
   typography: {
     ...theme.typography.button,
     backgroundColor: theme.palette.error.main,
@@ -36,15 +38,12 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(1),
     padding: theme.spacing(1),
   },
-  chartSettings: {
-    height: '75vh',
+  splitScreen: {
+    height: 'inherit',
     overflowY: 'scroll',
     '&::-webkit-scrollbar': {
       width: '5px',
     },
-  },
-  chartView: {
-    height: '75vh',
   },
 }));
 
@@ -56,7 +55,9 @@ const ChartEditor = props => {
 
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
-  const { appbar, formControl, gridContainer, typography, chartSettings, chartView } = useStyles();
+  const [duplicatedRecords, setDuplicatedRecords] = useState([]);
+
+  const { appbar, formControl, gridContainer, typography, splitScreen } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -136,9 +137,16 @@ const ChartEditor = props => {
     }
   }, [isStatic, sourceType, type]);
 
+  const showDuplicatedRecordsWarning = useCallback(
+    duplicates => {
+      setDuplicatedRecords(duplicates);
+    },
+    [dataObj.loading],
+  );
+
   return (
     <Grid container spacing={4} className={gridContainer}>
-      <Grid item xs={6} className={chartSettings}>
+      <Grid item xs={6} className={splitScreen}>
         {error !== '' && (
           <Typography className={typography} align='center'>
             {error}
@@ -242,13 +250,21 @@ const ChartEditor = props => {
           }
         })()}
       </Grid>
-      <Grid item xs={6} className={chartView}>
-        <Chart
-          chart={memo.chartConfig}
-          dataObj={memo.chartData}
-          sourceType={memo.sourceType}
-          eclDataset={memo.eclDataset}
-        />
+      <Grid item xs={6} className={splitScreen}>
+        <Box display='flex' flexDirection='column' height='100%'>
+          <Box flexGrow='1' maxHeight={duplicatedRecords.length > 0 ? '90%' : '100%'}>
+            <Box height='100%'>
+              <Chart
+                chart={memo.chartConfig}
+                dataObj={memo.chartData}
+                sourceType={memo.sourceType}
+                eclDataset={memo.eclDataset}
+                showDuplicatedRecordsWarning={showDuplicatedRecordsWarning}
+              />
+            </Box>
+          </Box>
+          {duplicatedRecords.length > 0 && <DuplicateRecordsWarning duplicatedRecords={duplicatedRecords} />}
+        </Box>
       </Grid>
     </Grid>
   );
