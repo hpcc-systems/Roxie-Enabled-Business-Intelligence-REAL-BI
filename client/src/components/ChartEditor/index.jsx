@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 const ChartEditor = props => {
   const { eclRef, handleChange, formFieldsUpdate, localState, initialChartFormFields } = props;
   const { chartID, configuration, dataObj, dataset, error, sourceType } = localState;
-  const { data: eclData = {}, dataset: eclDataset } = eclRef.current;
+  const { data: eclData, dataset: eclDataset, toggleUpdate = false, loading: eclLoading } = eclRef.current;
   const { isStatic = false, type } = configuration;
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -84,10 +84,10 @@ const ChartEditor = props => {
   // Memoized all values to avoid component rerender on each key hit
   let chartData;
   // If ECL Ref has data, use that array
-  if (sourceType === 'ecl' && Object.keys(eclData).length > 0) {
-    chartData = { data: eclData, error: '', loading: false };
+  if (sourceType === 'ecl') {
+    chartData = { data: eclData || [], error: '', loading: eclLoading };
   } else {
-    chartData = dataObj.data || [];
+    chartData = { ...dataObj.data, error: '', loading: dataObj.loading };
   }
 
   const memo = React.useMemo(
@@ -97,7 +97,7 @@ const ChartEditor = props => {
       eclDataset,
       sourceType,
     }),
-    [dataObj.loading],
+    [dataObj.loading, eclData, toggleUpdate],
   );
 
   useEffect(() => {

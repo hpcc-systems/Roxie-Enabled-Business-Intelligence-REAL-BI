@@ -46,7 +46,7 @@ const AxisConfigOptions = props => {
   return (
     <Fragment>
       <Grid item xs>
-        <FormControl className={formControl} fullWidth>
+        <FormControl required className={formControl} fullWidth>
           <InputLabel>{label}</InputLabel>
           {chartID && messages.indexOf(fieldsArr[0].name) > -1 && error === '' ? (
             <CircularProgress className={progress} size={20} />

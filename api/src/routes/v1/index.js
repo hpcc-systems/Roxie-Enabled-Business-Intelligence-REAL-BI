@@ -24,11 +24,11 @@ router.use('/auth', auth);
 // Sign in with Azure
 router.use('/azure', signInWithAzure);
 
-//integration route
-router.use('/integration', integration);
-
 // Authenticate token before proceeding to route
 router.use(authenticateToken);
+
+//integration route
+router.use('/integration', integration);
 
 // Authenticated routes
 router.use('/chart', chart);
