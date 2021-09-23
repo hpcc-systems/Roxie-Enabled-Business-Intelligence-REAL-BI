@@ -1,4 +1,3 @@
-const https = require('https');
 const router = require('express').Router();
 const axios = require('axios');
 const jwtDecode = require('jwt-decode');
@@ -26,7 +25,6 @@ const { addSharedResourcesToUser } = require('../../utils/share');
 const { createDemoWorkspace } = require('../../utils/createDemoWorkspace');
 
 // Axios config
-const axiosConfig = { httpsAgent: new https.Agent({ rejectUnauthorized: false }) };
 
 router.post('/login', [validateLogin(), validate], async (req, res, next) => {
   let response, user;
@@ -34,7 +32,7 @@ router.post('/login', [validateLogin(), validate], async (req, res, next) => {
   try {
     const requestBody = { ...req.body, clientId: AUTH_CLIENT_ID };
 
-    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/login`, requestBody, axiosConfig);
+    response = await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/login`, requestBody);
   } catch (err) {
     res.status(err?.response?.status || 500);
     const error = new Error(`${err?.response?.data || 'Unknown error'}`);
@@ -76,7 +74,7 @@ router.post('/register', [validateRegistration(), validate], async (req, res, ne
       confirmpassword: req.body.confirmPassword,
       role: 'User',
     };
-    const response = await axios.post(requestUrl, requestBody, axiosConfig);
+    const response = await axios.post(requestUrl, requestBody);
 
     // Auth Service will send a 201 if it creates a new user account or a 202 if it modifies an existing account
     responseStatus = response.status;
@@ -113,7 +111,7 @@ router.post('/forgot_password', [validateForgotPassword(), validate], async (req
   try {
     const requestUrl = `${AUTH_URL}:${AUTH_PORT}/api/auth/forgotPassword`;
     const requestBody = { ...req.body, clientId: AUTH_CLIENT_ID, resetUrl };
-    const response = await axios.post(requestUrl, requestBody, axiosConfig);
+    const response = await axios.post(requestUrl, requestBody);
 
     return res.status(200).send(response.data);
   } catch (err) {
@@ -125,7 +123,7 @@ router.post('/forgot_password', [validateForgotPassword(), validate], async (req
 
 router.post('/reset_password', [validateResetPassword(), validate], async (req, res, next) => {
   try {
-    await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/resetPassword`, req.body, axiosConfig);
+    await axios.post(`${AUTH_URL}:${AUTH_PORT}/api/auth/resetPassword`, req.body);
 
     return res.status(200).json({ message: 'Password Reset Successfully' });
   } catch (err) {
