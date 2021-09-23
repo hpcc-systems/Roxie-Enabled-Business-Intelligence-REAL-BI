@@ -11,6 +11,15 @@ const ChartTile = props => {
 
   const toolbarHeight = React.useRef(null);
 
+  const memo = React.useMemo(
+    () => ({
+      chart,
+      compData,
+      pdfPreview,
+    }),
+    [compData.loading],
+  );
+
   return (
     <Box px={1} pb={2} height='100%'>
       {/* dynamically check the height of the toolbar with useReff */}
@@ -22,11 +31,11 @@ const ChartTile = props => {
         <SnackbarProvider>
           <Box height='100%'>
             <Chart
-              chart={chart}
-              dataObj={compData}
+              chart={memo.chart}
+              dataObj={memo.compData}
               interactiveClick={interactiveClick}
               interactiveObj={interactiveObj}
-              pdfPreview={pdfPreview}
+              pdfPreview={memo.pdfPreview}
             />
           </Box>
         </SnackbarProvider>

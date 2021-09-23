@@ -1,18 +1,25 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef } from 'react';
 import { Column } from '@ant-design/charts';
 import _orderBy from 'lodash/orderBy';
 import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
 
-const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
+const ColumnChart = ({
+  chartID,
+  chartRelation,
+  configuration,
+  data,
+  interactiveClick,
+  pdfPreview,
+  showDuplicatedRecordsWarning,
+}) => {
   const {
     axis1: { label: xLabel, showTickLabels: xShowTickLabels, type: xType = 'string', value: xValue } = {},
     axis2: { label: yLabel, showTickLabels: yShowTickLabels, type: yType = 'string', value: yValue } = {},
     groupBy: { type: groupByType = 'string', value: groupByValue } = {},
     percentageStack,
     showDataLabels,
-    sortBy: { order = 'asc', type: sortType = 'string', value: sortValue = xValue } = {},
+    sortBy: { order = 'asc', type: sortType = 'string', value: sortValue } = {},
     stacked,
     drillDown = null,
   } = configuration;
@@ -23,30 +30,50 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   if (!data || data.length === 0 || !xValue || !yValue) {
     return null;
   }
-  // Convert necessary values to specified data type
-  data = data.map(row => ({
-    ...row,
-    [groupByValue]: formatValue(groupByType, row[groupByValue]),
-    [xValue]: formatValue(xType, row[xValue]),
-    [yValue]: formatValue(yType, row[yValue]),
-  }));
 
-  // Determine how to sort data array
-  /*
-    If sortValue === xValue then when mapping over array, create a new key in object to prevent overwriting
-    the formatted ouput the user sees on the chart
-  */
-  if (sortValue === xValue) {
-    data = data.map(row => ({ ...row, [`sort${sortValue}`]: formatValue(sortType, row[sortValue], true) }));
-    data = _orderBy(data, [`sort${sortValue}`], [order]);
-  } else {
-    data = data.map(row => ({ ...row, [sortValue]: formatValue(sortType, row[sortValue], true) }));
-    data = _orderBy(data, [sortValue], [order]);
-  }
+  // Reduce data to take only fields that is required for chart.
+  const result = data.reduce(
+    (acc, row) => {
+      const dataSet = acc.data;
+      const duplicateNames = acc.dictionary;
+
+      const xAxisKeyName = row[xValue]; // this value is going to be shown to user if duplicates are found, it will not be formmated, use formatValue(xType, row[xValue]) to format;
+
+      // we have an object that tracks how many times Xaxis value has appeared;
+      if (!duplicateNames[xAxisKeyName]) {
+        duplicateNames[xAxisKeyName] = 1;
+      } else {
+        duplicateNames[xAxisKeyName] += 1;
+      }
+
+      //this is bare minimum required fields in record to appear on chart.
+      const record = {
+        [xValue]: formatValue(xType, row[xValue]),
+        [yValue]: formatValue(yType, row[yValue]),
+      };
+
+      if (drillDown) {
+        drillDown.drilledOptions.forEach(field => {
+          if (!record[field]) record[field] = row[field];
+        });
+      }
+
+      if (sortValue && !record[sortValue]) record[sortValue] = formatValue(sortType, row[sortValue], true);
+
+      if (groupByValue && !record[groupByValue])
+        record[groupByValue] = formatValue(groupByType, row[groupByValue]);
+
+      dataSet.push(record);
+      return acc;
+    },
+    { dictionary: {}, data: [] },
+  );
+
+  if (sortValue) result.data = _orderBy(result.data, [sortValue], [order]);
 
   const chartConfig = {
     appendPadding: [20, 5, 0, 5],
-    data,
+    data: result.data,
     autoFit: true,
     legend: { position: 'right-top' },
     meta: {
@@ -98,7 +125,7 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
     },
     slider: {
       start: 0,
-      end: 1,
+      end: data.length > 1000 ? 0.1 : 1,
     },
   };
 
@@ -142,6 +169,9 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
   if (groupByValue) {
     chartConfig.isGroup = true;
     chartConfig.seriesField = groupByValue;
+    chartConfig.tooltip = {
+      shared: true,
+    };
 
     if (stacked) {
       chartConfig.isStack = true;
@@ -226,6 +256,17 @@ const ColumnChart = ({ chartID, chartRelation, configuration, data, interactiveC
         interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
       });
     }
+
+    // notify user about non unique values in x axis if they exist.
+    if (!groupByValue) {
+      const duplicates = Object.entries(result.dictionary).filter(([, value]) => value > 1);
+
+      if (duplicates.length > 0 && showDuplicatedRecordsWarning) {
+        showDuplicatedRecordsWarning(duplicates);
+      }
+    }
+
+    return () => (showDuplicatedRecordsWarning ? showDuplicatedRecordsWarning([]) : null);
   }, []);
 
   return <Column {...chartConfig} chartRef={ref} />;

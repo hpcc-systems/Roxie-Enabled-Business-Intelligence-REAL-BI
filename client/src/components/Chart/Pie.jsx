@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import { formatValue } from '../../utils/misc';
 import { chartFillColor } from '../../constants';
 
-const reducer = (acc, currentVal) => acc + currentVal; // Sum function for array.reduce()
-
 const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClick, pdfPreview }) => {
   const {
     axis1: { type: nameType = 'string', value: nameValue } = {},
@@ -20,11 +18,21 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
   }
 
   // Convert necessary values to specified data type
-  data = data.map(row => ({
-    ...row,
-    [nameValue]: formatValue(nameType, row[nameValue]),
-    [value]: formatValue(valueType, row[value]),
-  }));
+  // this will convert data too look like {nameValue: '分类一', value: 27 } https://charts.ant.design/demos/pie/
+  // reducer will combine records with same 'nameValue' and sum their 'values'.
+  data = data.reduce((acc, el) => {
+    const record = acc.find(record => record[nameValue] == el[nameValue]);
+    if (!record) {
+      const newRecord = {
+        [nameValue]: formatValue(nameType, el[nameValue]),
+        [value]: formatValue(valueType, el[value]),
+      };
+      acc.push(newRecord);
+    } else {
+      record[value] = formatValue(valueType, record[value] + parseInt(el[value]));
+    }
+    return acc;
+  }, []);
 
   const chartConfig = {
     angleField: value,
@@ -52,16 +60,16 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
 
   if (chartType === 'donut') {
     chartConfig.radius = 1;
-    chartConfig.innerRadius = 0.6;
-    chartConfig.interactions = [{ type: 'element-active' }, { type: 'pie-statistic-active' }];
+    chartConfig.innerRadius = 0.7;
+    chartConfig.interactions = [{ type: 'pie-statistic-active' }, { type: 'element-single-selected' }];
     chartConfig.statistic = {
       title: {
-        // style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-        formatter: row => row?.[nameValue] || 'Total',
+        style: { fontSize: '1.2em' },
+        formatter: row => (row?.[nameValue] ? `${nameValue}: ${row[nameValue]}` : 'Total'),
       },
       content: {
-        // style: { whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-        formatter: (row, data) => row?.[value] || data.map(obj => obj[value]).reduce(reducer),
+        style: { fontSize: '1.4em' },
+        formatter: (row, data) => row?.[value] || data.reduce((acc, el) => acc + el[value], 0).toFixed(2),
       },
     };
 
@@ -77,7 +85,7 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
       chartConfig.label = null;
     }
   } else {
-    chartConfig.radius = 0.8;
+    chartConfig.radius = 0.9;
     chartConfig.innerRadius = 0;
     chartConfig.interactions = [{ type: 'element-active' }];
     chartConfig.statistic = null;
@@ -139,4 +147,4 @@ PieChart.propTypes = {
   pdfPreview: PropTypes.bool,
 };
 
-export default PieChart;
+export default React.memo(PieChart);
