@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   errorText: { color: theme.palette.error.dark },
 }));
 
-const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
+const ECLEditorComp = ({ dashboard, eclRef, formFieldsUpdate, localState }) => {
   const { id: clusterID, host, infoPort } = dashboard.cluster;
   const { error, errors = [] } = localState;
   let { cluster, script } = eclRef.current;
@@ -97,7 +97,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
       try {
         params = await getECLParams(clusterID, Wuid);
       } catch (error) {
-        handleChange(null, { name: 'error', value: error.message });
+        formFieldsUpdate({ error: error.mesage, ecl: { ...eclRef.current, loading: false } });
         return resetPlayButton();
       }
 
@@ -116,16 +116,15 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
         schema,
         script: editor.current.ecl(),
         workunitID: Wuid,
+        loading: false,
       };
 
       // Update ref
-      eclRef.current = eclConfig;
-      handleChange(null, { name: 'params', value: params });
-
+      formFieldsUpdate({ params, ecl: { ...eclConfig } });
       displayWorkunitID(Wuid);
       resetPlayButton();
     },
-    [clusterID, displayWorkunitID, eclRef, editor, handleChange, resetPlayButton],
+    [clusterID, displayWorkunitID, eclRef, editor, resetPlayButton],
   );
 
   const addComponentsToWidget = useCallback(() => {
@@ -152,7 +151,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
         playButtonElement.current.className += ' material-icons';
       }
 
-      editor.current._codemirror.doc.on(
+      editor.current?._codemirror?.doc?.on(
         'change',
         debounce(() => {
           eclRef.current.script = editor.current.ecl();
@@ -192,7 +191,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
   ]);
 
   const runScript = async () => {
-    handleChange(null, { name: 'error', value: '' }); // reseting errors to none before running new script
+    formFieldsUpdate({ error: '', errors: [], ecl: { ...eclRef.current, loading: true } }); // reseting errors to none before running new script
     if (runButton.current.disabled) return;
 
     runButton.current.disabled = true;
@@ -206,7 +205,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
     try {
       workunitObj = await submitWorkunit(clusterID, targetCluster.current, editor.current.ecl());
     } catch (error) {
-      handleChange(null, { name: 'error', value: error.message });
+      formFieldsUpdate({ error: error.message, ecl: { ...eclRef.current, loading: false } });
       return resetPlayButton();
     }
 
@@ -220,17 +219,16 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
     editor.current.removeAllHighlight();
 
     if (errors.length > 0) {
-      handleChange(null, { name: 'errors', value: errors });
+      formFieldsUpdate({ errors: errors, ecl: { ...eclRef.current, loading: false } });
       displayErrors(errors, workunit);
     } else {
-      handleChange(null, { name: 'errors', value: [] });
       getResults(data, result);
     }
   };
 
   useEffect(() => {
     if (!clusterID) {
-      return handleChange(null, { name: 'error', value: 'No cluster information found' });
+      return formFieldsUpdate({ error: 'No cluster information found' });
     }
 
     editor.current = new ECLEditor();
@@ -259,7 +257,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
 
           script = modifiedScript;
         } catch (error) {
-          handleChange(null, { name: 'error', value: error.message });
+          formFieldsUpdate({ error: error.message });
         }
       }
 
@@ -274,7 +272,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
       try {
         clusters = await getTargetClustersForEditor(clusterID);
       } catch (error) {
-        return handleChange(null, { name: 'error', value: error.message });
+        return formFieldsUpdate({ error: error.message });
       }
 
       // Populate _clusters object with cluster names
@@ -297,7 +295,7 @@ const ECLEditorComp = ({ dashboard, eclRef, handleChange, localState }) => {
       addComponentsToWidget();
     })();
 
-    return () => handleChange(null, { name: 'error', value: '' });
+    return () => formFieldsUpdate({ error: '', errors: [] });
   }, []);
 
   const eclRefErr = errors.find(err => err['eclRef']);

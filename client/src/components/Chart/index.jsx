@@ -172,7 +172,7 @@ const ChartComp = ({
   // Don't render the progress wheel if the chart is a static textbox
   if (loading && !isStaticTextBox())
     return (
-      <Box display='flex' justifyContent='center' alignItems='center' heigth='100%'>
+      <Box display='flex' mt={2} justifyContent='center' alignItems='center'>
         <CircularProgress />
       </Box>
     );

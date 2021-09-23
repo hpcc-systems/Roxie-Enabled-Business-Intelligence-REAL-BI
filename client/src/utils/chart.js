@@ -64,10 +64,10 @@ export const setEditorState = (charts, chartID) => {
     axis2,
     conditionals = [],
     dataset,
-    ecl = {},
     fields = [],
     mapFields = [],
     params,
+    ecl = {},
   } = configuration;
 
   // Confirm values are present to prevent error
@@ -89,6 +89,7 @@ export const setEditorState = (charts, chartID) => {
       fields: [...fields, { color: '#FFF', label: '', name: '' }],
       mapFields: [...mapFields, { label: '', name: '' }],
     },
+    ecl,
     dataObj: { loading: false },
     dataset,
     datasets: [],
@@ -102,8 +103,10 @@ export const setEditorState = (charts, chartID) => {
     sourceType: source?.type,
     ...chartKeys,
   };
+  // we have added ecl to main body, we dont need duplicate in config, they will be merged on save again
+  delete initState.configuration.ecl;
 
-  return { initState, eclObj: ecl };
+  return initState;
 };
 
 export const checkForChartParams = chartsArr => {

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
@@ -48,6 +48,7 @@ const initState = {
       },
     ],
   },
+  ecl: { loading: false, toggleUpdate: false },
   dataObj: { loading: false },
   dataset: '',
   datasets: [],
@@ -90,7 +91,10 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
     handleCheckbox,
     formFieldsUpdate,
   } = useForm(initState);
-  const eclRef = useRef({});
+
+  // almost all of the code expect eclRef to look like useRef object, to avoid changing everything we wrap ecl values in object.
+  const eclRef = { current: localState.ecl };
+
   const { dashboard } = useSelector(state => state.dashboard);
   const dispatch = useDispatch();
   const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
@@ -98,14 +102,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   const { workspaceID, fileName } = useParams();
   const history = useHistory();
   // Reference values
-  const {
-    dataObj: { data = [], loading },
-    selectedDataset = {},
-    selectedSource = {},
-    sourceType,
-  } = localState;
-  const sourceKeys = Object.keys(selectedSource).length;
-  const datasetKeys = Object.keys(selectedDataset).length;
+  const { dataObj, selectedDataset, selectedSource, sourceType } = localState;
 
   useEffect(() => {
     if (fileName || dashboard.fileName) {
@@ -120,6 +117,9 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
   // Add components to DB
   const newChart = async event => {
     event.preventDefault();
+    if (event.nativeEvent.submitter.name === 'update') {
+      return updateChartPreview();
+    }
     const { configuration, dataset } = localState;
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
@@ -168,57 +168,62 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
     }
   };
 
-  const updateChartPreview = () => {
+  const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
+
+    if (sourceType === 'ecl') {
+      eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
+      return formFieldsUpdate({ ecl: eclRef.current });
+    }
 
     const populatedParams = params.filter(({ value }) => value !== '');
 
-    if (sourceKeys > 0 && datasetKeys > 0) {
-      (async () => {
-        handleChange(null, { name: 'dataObj', value: { loading: true } });
-
-        try {
-          const options = { dataset, params: populatedParams, source };
-          const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
-          formFieldsUpdate({
-            error: '',
-            dataObj: { data, loading: false },
-          });
-        } catch (error) {
-          formFieldsUpdate({
-            error: error.message,
-            dataObj: { error: error.message, loading: false },
-          });
-        }
-      })();
+    try {
+      handleChange(null, { name: 'dataObj', value: { loading: true } });
+      const options = { dataset, params: populatedParams, source };
+      const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
+      formFieldsUpdate({
+        error: '',
+        dataObj: { data, loading: false },
+      });
+    } catch (error) {
+      formFieldsUpdate({
+        error: error.message,
+        dataObj: { error: error.message, loading: false },
+      });
     }
   };
+
+  const checkDisabled = () => {
+    if (sourceType === 'ecl') {
+      return !eclRef.current.data;
+    } else {
+      return !selectedDataset?.name || !selectedSource?.name || dataObj.loading;
+    }
+  };
+
+  const eclData = eclRef.current?.data;
+  const fileOrQueryData = dataObj?.data?.data;
 
   return (
     <Fragment>
       <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
-        <Toolbar className={toolbar}>
-          <Typography variant='h6' color='inherit' className={typography}>
-            New Chart
-          </Typography>
-          <Button
-            className={clsx(button2, button3)}
-            disabled={sourceKeys === 0 || datasetKeys === 0 || loading || data.length === 0}
-            onClick={toggleData}
-          >
-            <TableChartIcon />
-          </Button>
-          {sourceType !== 'ecl' && (
+        <form onSubmit={newChart}>
+          <Toolbar className={toolbar}>
+            <Typography variant='h6' color='inherit' className={typography}>
+              New Chart
+            </Typography>
             <Button
-              className={clsx(button2, button4)}
-              disabled={sourceKeys === 0 || datasetKeys === 0 || loading}
-              onClick={updateChartPreview}
+              className={clsx(button2, button3)}
+              disabled={!eclData && !fileOrQueryData}
+              onClick={toggleData}
             >
+              <TableChartIcon />
+            </Button>
+            <Button className={clsx(button2, button4)} disabled={checkDisabled()} type='submit' name='update'>
               <RefreshIcon />
             </Button>
-          )}
-        </Toolbar>
-        <form onSubmit={newChart}>
+          </Toolbar>
           <DialogContent dividers>
             <ChartEditor
               dashboard={dashboard}
@@ -236,7 +241,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
             <Button color='secondary' onClick={toggleDialog}>
               Cancel
             </Button>
-            <Button type='submit' variant='contained' className={button}>
+            <Button type='submit' name='save' variant='contained' className={button}>
               Save
             </Button>
           </DialogActions>
@@ -244,7 +249,7 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       </Dialog>
       {showDialog && (
         <DataSnippetDialog
-          data={localState?.dataObj?.data?.data || []}
+          data={fileOrQueryData || eclData || []}
           show={showDialog}
           toggleDialog={toggleData}
         />

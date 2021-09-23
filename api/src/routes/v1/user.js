@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const https = require('https');
+
 const axios = require('axios');
 
 // Utils
@@ -30,7 +30,7 @@ router.post('/update_password', [validateChangePassword(), validate], async (req
     await axios.post(
       `${AUTH_URL}:${AUTH_PORT}/api/users/changepwd`,
       { username, oldpassword: oldPwd, newpassword: newPwd, confirmpassword: newPwd2 },
-      { headers: { authorization }, httpsAgent: new https.Agent({ rejectUnauthorized: false }) },
+      { headers: { authorization } },
     );
 
     res.status(200).json({ message: 'Password Updated' });

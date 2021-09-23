@@ -243,6 +243,10 @@ const ColumnChart = ({
                 };
               },
             },
+            slider: {
+              start: 0,
+              end: newDataSet.length > 1000 ? 0.1 : 1,
+            },
           });
         }
 

@@ -1,4 +1,4 @@
-import React, { Fragment, useRef } from 'react';
+import React, { Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, Toolbar, Typography } from '@material-ui/core';
@@ -41,9 +41,9 @@ const useStyles = makeStyles(theme => ({
 
 const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
-  const { charts = [] } = dashboard;
-  const { eclObj, initState } = setEditorState(charts, chartID);
   const [showDialog, toggleData] = useDialog(false);
+  const { charts = [] } = dashboard;
+  const initState = setEditorState(charts, chartID);
 
   // Set initial state
   const {
@@ -54,23 +54,22 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
     handleCheckbox,
     formFieldsUpdate,
   } = useForm(initState);
-  const eclRef = useRef(eclObj);
+
   const dispatch = useDispatch();
   const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
   // Reference values
-  const {
-    dataObj: { data = [], loading },
-    selectedDataset = {},
-    selectedSource = {},
-    sourceType,
-  } = localState;
-  const sourceKeys = Object.keys(selectedSource).length;
-  const datasetKeys = Object.keys(selectedDataset).length;
+  const { dataObj, selectedDataset = {}, selectedSource = {}, sourceType } = localState;
+
+  // almost all of the code expect eclRef to look like useRef object, to avoid changing everything we wrap ecl values in object.
+  const eclRef = { current: localState.ecl };
 
   // Update chart in DB and store
   const editChart = async event => {
     event.preventDefault();
+    if (event.nativeEvent.submitter.name === 'update') {
+      return updateChartPreview();
+    }
     const { chartID, configuration, dataset } = localState;
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
@@ -115,52 +114,58 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
     }
   };
 
-  const updateChartPreview = () => {
+  const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
 
-    if (sourceKeys > 0 && datasetKeys > 0) {
-      (async () => {
-        handleChange(null, { name: 'dataObj', value: { loading: true } });
+    if (sourceType === 'ecl') {
+      eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
+      return formFieldsUpdate({ ecl: eclRef.current });
+    }
 
-        try {
-          const options = { dataset, params, source };
-          const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
-
-          handleChange(null, { name: 'error', value: '' });
-          handleChange(null, { name: 'dataObj', value: { data, loading: false } });
-        } catch (error) {
-          handleChange(null, { name: 'error', value: error.message });
-          handleChange(null, { name: 'dataObj', value: { loading: false } });
-        }
-      })();
+    try {
+      handleChange(null, { name: 'dataObj', value: { loading: true } });
+      const options = { dataset, params, source };
+      const data = await getChartPreviewData(dashboard.cluster.id, options, sourceType);
+      formFieldsUpdate({ error: '', dataObj: { data, loading: false } });
+    } catch (error) {
+      formFieldsUpdate({
+        error: error.message,
+        dataObj: { error: error.message, loading: false },
+      });
     }
   };
+
+  const checkDisabled = () => {
+    if (sourceType === 'ecl') {
+      return !eclRef.current.data;
+    } else {
+      return !selectedDataset?.name || !selectedSource?.name || dataObj.loading;
+    }
+  };
+
+  const eclData = eclRef.current?.data;
+  const fileOrQueryData = dataObj?.data?.data;
 
   return (
     <Fragment>
       <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
-        <Toolbar className={toolbar}>
-          <Typography variant='h6' color='inherit' className={typography}>
-            Edit Chart
-          </Typography>
-          <Button
-            className={clsx(button2, button3)}
-            disabled={sourceKeys === 0 || datasetKeys === 0 || loading || data.length === 0}
-            onClick={() => toggleData(chartID)}
-          >
-            <TableChartIcon />
-          </Button>
-          {sourceType !== 'ecl' && (
+        <form onSubmit={editChart}>
+          <Toolbar className={toolbar}>
+            <Typography variant='h6' color='inherit' className={typography}>
+              Edit Chart
+            </Typography>
             <Button
-              className={clsx(button2, button4)}
-              disabled={sourceKeys === 0 || datasetKeys === 0 || loading}
-              onClick={updateChartPreview}
+              className={clsx(button2, button3)}
+              disabled={!eclData && !fileOrQueryData}
+              onClick={() => toggleData(chartID)}
             >
+              <TableChartIcon />
+            </Button>
+
+            <Button className={clsx(button2, button4)} disabled={checkDisabled()} type='submit' name='update'>
               <RefreshIcon />
             </Button>
-          )}
-        </Toolbar>
-        <form onSubmit={editChart}>
+          </Toolbar>
           <DialogContent dividers>
             <ChartEditor
               dashboard={dashboard}
@@ -177,7 +182,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
             <Button variant='contained' color='secondary' onClick={toggleDialog}>
               Cancel
             </Button>
-            <Button type='submit' variant='contained' className={button}>
+            <Button type='submit' name='save' variant='contained' className={button}>
               Save
             </Button>
           </DialogActions>
@@ -185,7 +190,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
       </Dialog>
       {showDialog && (
         <DataSnippetDialog
-          data={localState?.dataObj?.data?.data || []}
+          data={fileOrQueryData || eclData || []}
           show={showDialog}
           toggleDialog={toggleData}
         />
