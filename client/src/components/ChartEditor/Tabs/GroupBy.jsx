@@ -37,7 +37,7 @@ const GroupByTab = props => {
           }
         >
           {hasStackedOption(type) && (
-            <Grid item xs={2}>
+            <Grid item xs={6} sm={2}>
               <ConfigCheckbox
                 name='configuration:stacked'
                 checked={stacked}
@@ -48,7 +48,7 @@ const GroupByTab = props => {
             </Grid>
           )}
           {hasPercentageStackOption(type) && stacked && (
-            <Grid item xs={3}>
+            <Grid item xs={6} sm={3}>
               <ConfigCheckbox
                 name='configuration:percentageStack'
                 checked={percentageStack}

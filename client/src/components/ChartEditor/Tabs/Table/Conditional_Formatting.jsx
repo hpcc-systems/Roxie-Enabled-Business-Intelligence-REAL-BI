@@ -48,7 +48,6 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
   const { fields = [] } = selectedDataset;
   const { conditionals = [] } = configuration;
   const [tabIndex, setTabIndex] = useState(0);
-  const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid, progress, typography, buttonBox, textBox } = useStyles();
 
   const updateRule = (event, index) => {
@@ -108,19 +107,10 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
     }
   }, []);
 
-  useEffect(() => {
-    if (fieldsArr.length > 4) {
-      setTabPercentage('25%');
-    } else {
-      const percentage = (100 / fieldsArr.length).toFixed(1);
-      setTabPercentage(`${percentage}%`);
-    }
-  }, [fieldsArr]);
-
   const conditionRules = conditionals[tabIndex]?.rules || [];
 
   return (
-    <Grid item md={12} className={grid}>
+    <Grid item xs={12} className={grid}>
       {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
         <CircularProgress className={progress} size={20} />
       ) : messages.indexOf(fieldsArr[0].name) === -1 ? (
@@ -134,14 +124,7 @@ const TableConditionalFormatting = ({ eclRef, handleChangeObj, localState }) => 
                 onChange={(event, index) => setTabIndex(index)}
               >
                 {fieldsArr.map(({ name }, index) => {
-                  return (
-                    <Tab
-                      key={index}
-                      label={name}
-                      style={{ maxWidth: tabPercentage, minWidth: tabPercentage }}
-                      wrapped
-                    />
-                  );
+                  return <Tab key={index} label={name} wrapped />;
                 })}
               </Tabs>
             </AppBar>

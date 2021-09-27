@@ -83,7 +83,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
-    <Grid item md={12} className={grid}>
+    <Grid item xs={12} className={grid}>
       {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
         <CircularProgress className={progress} size={20} />
       ) : (
@@ -91,8 +91,8 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
           {configFields.map(({ color, label, name, asLink, linkBase }, index) => {
             const isPopulated = name !== '' && !messages.includes(name);
             return (
-              <Box component={'div'} mb={1} py={1} px={2} key={index}>
-                <Grid container spacing={1} justifyContent='flex-end' wrap='wrap' alignItems='flex-end'>
+              <Box component={'div'} key={index}>
+                <Grid container spacing={1} justifyContent='space-between' alignItems='flex-end'>
                   <Grid item xs={1} className={buttonBox}>
                     {isPopulated && (
                       <Button onClick={() => removeParam(index)}>
@@ -116,7 +116,7 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={3}>
+                  <Grid item xs={5} lg={3}>
                     <TextField
                       size='small'
                       fullWidth
@@ -128,11 +128,11 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     />
                   </Grid>
 
-                  <Grid item xs={1}>
+                  <Grid item xs={2} md={1}>
                     <ColorPicker color={color} updateField={updateField} index={index} />
                   </Grid>
 
-                  <Grid item xs={3}>
+                  <Grid item xs={12} lg={3}>
                     <LinkCheckBox
                       disabled={!isPopulated} // disable checkbox if 'select' is not choosen
                       value={asLink}
@@ -141,8 +141,8 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                     />
                   </Grid>
 
-                  <Grid item xs={11}>
-                    {asLink && (
+                  {asLink && (
+                    <Grid item xs={12}>
                       <TextField
                         placeholder='https://'
                         size='small'
@@ -154,8 +154,8 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
                         onChange={event => updateField(event, index)}
                         autoComplete='off'
                       />
-                    )}
-                  </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Box>
             );

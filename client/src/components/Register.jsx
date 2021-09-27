@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.error.contrastText,
     marginBottom: theme.spacing(1.5),
   },
-  grid: { margin: '2rem' },
+  grid: { marginTop: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
@@ -61,7 +61,12 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.success.main,
     color: theme.palette.success.contrastText,
   },
-  textfield: { margin: theme.spacing(1, 0) },
+  textfield: {
+    margin: theme.spacing(1, 0),
+    [theme.breakpoints.down('md')]: {
+      margin: 0,
+    },
+  },
   typography: {
     display: 'inline',
     fontWeight: 'bold',
@@ -142,7 +147,7 @@ const Register = () => {
       <Header />
       <Container maxWidth='xl'>
         <Grid container direction='column' justifyContent='center' alignItems='center' className={grid}>
-          <Grid item style={{ maxWidth: '40vw' }}>
+          <Grid item style={{ maxWidth: '600px' }}>
             <form onSubmit={handleSubmit}>
               <Card>
                 <CardHeader
@@ -177,7 +182,7 @@ const Register = () => {
                       const err = errors.find(err => err[name]);
 
                       return (
-                        <Grid key={index} item xs={6}>
+                        <Grid key={index} item xs={12} sm={6}>
                           <TextField
                             className={textfield}
                             label={label}

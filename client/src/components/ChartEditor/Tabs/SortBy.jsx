@@ -36,7 +36,7 @@ const SortBy = ({ eclRef, localState, updateAxisKey }) => {
 
   return dataset || eclDataset ? (
     <Grid container direction='row' alignContent='space-between' spacing={1} className={topFormControl}>
-      <Grid item md={6}>
+      <Grid item xs={12} md={6}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Sort Field</InputLabel>
           {chartID && fieldsArr.length <= 1 ? (
@@ -55,7 +55,7 @@ const SortBy = ({ eclRef, localState, updateAxisKey }) => {
           )}
         </FormControl>
       </Grid>
-      <Grid item md={3}>
+      <Grid item xs={6} md={3}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Data Type</InputLabel>
           <Select name='sortBy:type' value={sortBy.type || 'string'} onChange={updateAxisKey}>
@@ -69,7 +69,7 @@ const SortBy = ({ eclRef, localState, updateAxisKey }) => {
           </Select>
         </FormControl>
       </Grid>
-      <Grid item md={3}>
+      <Grid item xs={6} md={3}>
         <FormControl className={formControl} fullWidth>
           <InputLabel>Sort Order</InputLabel>
           <Select name='sortBy:order' value={sortBy.order || 'asc'} onChange={updateAxisKey}>

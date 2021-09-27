@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.error.contrastText,
     marginBottom: theme.spacing(1.5),
   },
-  grid: { margin: '2rem' },
+  grid: { marginTop: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
