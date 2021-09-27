@@ -59,15 +59,52 @@ const charts = [
 ];
 
 const useStyles = makeStyles(theme => ({
-  menuIcon: { marginRight: theme.spacing(1) },
-  staticCheckbox: { marginTop: theme.spacing(1.5) },
+  menuIcon: {
+    marginRight: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+    },
+  },
+  staticCheckbox: {
+    marginTop: theme.spacing(1.5),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      '& span': {
+        padding: '3px 0 0',
+      },
+    },
+  },
   svgIcon: {
     marginRight: theme.spacing(1),
     width: 20,
   },
-  topCheckbox: { margin: theme.spacing(2, 0, 0, 0) },
-  topCheckbox2: { margin: 0 },
-  topFormControl: { marginTop: theme.spacing(3) },
+  topCheckbox: {
+    margin: theme.spacing(2, 0, 0, 0),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      flexDirection: 'row',
+      '& span': {
+        padding: '3px 0 0',
+      },
+    },
+  },
+  topCheckbox2: {
+    margin: 0,
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      flexDirection: 'row',
+      '& span': {
+        padding: '3px 0 0',
+      },
+    },
+  },
+  topFormControl: {
+    marginTop: theme.spacing(3),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      padding: 0,
+    },
+  },
 }));
 
 const GeneralTab = props => {
@@ -126,10 +163,11 @@ const GeneralTab = props => {
   return (
     <>
       {/* FIRST ROW */}
-      <Grid container spacing={1}>
+      <Grid container wrap='wrap' spacing={1}>
         <Grid
           item
-          xs={
+          xs={12}
+          sm={
             hasHorizontalOption(type) || hasDynamicOption(type)
               ? hasDataLabelOption(type)
                 ? isDualAxesChart
@@ -190,7 +228,7 @@ const GeneralTab = props => {
           </FormControl>
         </Grid>
         {hasHorizontalOption(type) && (
-          <Grid item xs={3} className={topFormControl}>
+          <Grid item xs={12} sm={3} className={topFormControl}>
             <FormControlLabel
               className={topCheckbox}
               control={
@@ -207,7 +245,7 @@ const GeneralTab = props => {
           </Grid>
         )}
         {hasDynamicOption(type) && (
-          <Grid item xs={3} className={topFormControl}>
+          <Grid item xs={12} sm={3} className={topFormControl}>
             <FormControlLabel
               className={staticCheckbox}
               control={
@@ -224,7 +262,7 @@ const GeneralTab = props => {
           </Grid>
         )}
         {hasDataLabelOption(type) && (
-          <Grid item xs={3} className={topFormControl}>
+          <Grid item xs={12} sm={3} className={topFormControl}>
             <FormControlLabel
               className={clsx(topCheckbox, { [topCheckbox2]: isDualAxesChart })}
               control={
@@ -247,7 +285,7 @@ const GeneralTab = props => {
           </Grid>
         )}
         {hasDataLabelOption(type) && isDualAxesChart && (
-          <Grid item xs={3} className={topFormControl}>
+          <Grid item xs={12} sm={3} className={topFormControl}>
             <FormControlLabel
               className={topCheckbox2}
               control={
@@ -272,8 +310,8 @@ const GeneralTab = props => {
       </Grid>
       {/* END FIRST ROW  */}
       {/* SECOND ROW */}
-      <Grid container>
-        <Grid item xs={8}>
+      <Grid container wrap='wrap'>
+        <Grid item xs={12} sm={8}>
           <TextField
             fullWidth
             label='Chart Title'
@@ -283,7 +321,7 @@ const GeneralTab = props => {
             autoComplete='off'
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={12} sm={4}>
           <FormControlLabel
             className={topCheckbox}
             control={
@@ -311,7 +349,7 @@ const GeneralTab = props => {
       />
       {/*END THIRD ROW */}
       {/* FOURTH ROW */}
-      <Grid container>
+      <Grid container wrap='wrap'>
         {type === 'dualline' || type === 'columnline' ? (
           <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
         ) : type === 'gauge' ? (

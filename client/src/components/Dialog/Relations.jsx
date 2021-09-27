@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -11,6 +12,7 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   Typography,
 } from '@material-ui/core';
@@ -225,69 +227,71 @@ const Relations = ({ show, toggleDialog }) => {
             Insufficient Number of Charts
           </Typography>
         ) : (
-          <Grid container direction='row' spacing={1} className={grid}>
+          <>
             {relations.map(({ id, sourceID, sourceField, targetID, targetField }, index) => {
               const isPopulated = Boolean(sourceID || sourceField || targetID || targetField);
 
               return (
-                <Fragment key={index}>
-                  {isPopulated && (
-                    <Grid item xs={1}>
-                      <Button className={button2} onClick={() => removeRelation(index, id)}>
-                        <RemoveIcon />
-                      </Button>
+                <Box component={Paper} elevation={0} mb={1} key={index}>
+                  <Grid container direction='row' justifyContent='space-between' spacing={1} className={grid}>
+                    {isPopulated && (
+                      <Grid item xs={1}>
+                        <Button className={button2} onClick={() => removeRelation(index, id)}>
+                          <RemoveIcon />
+                        </Button>
+                      </Grid>
+                    )}
+                    <Grid item xs={isPopulated ? 11 : 12} md={isPopulated ? 2 : 3}>
+                      {chartDropdown(
+                        'Source Chart',
+                        'sourceID',
+                        formattedCharts,
+                        sourceID,
+                        index,
+                        updateField,
+                        id,
+                      )}
                     </Grid>
-                  )}
-                  <Grid item xs={isPopulated ? 2 : 3}>
-                    {chartDropdown(
-                      'Source Chart',
-                      'sourceID',
-                      formattedCharts,
-                      sourceID,
-                      index,
-                      updateField,
-                      id,
-                    )}
+                    <Grid item xs={12} md={3}>
+                      {fieldDropdown(
+                        'Source Chart Field',
+                        'sourceField',
+                        formattedCharts,
+                        sourceID,
+                        sourceField,
+                        index,
+                        updateField,
+                        id,
+                      )}
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                      {chartDropdown(
+                        'Target Chart',
+                        'targetID',
+                        targetCharts,
+                        targetID,
+                        index,
+                        updateField,
+                        id,
+                      )}
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                      {fieldDropdown(
+                        'Target Chart Field',
+                        'targetField',
+                        formattedCharts,
+                        targetID,
+                        targetField,
+                        index,
+                        updateField,
+                        id,
+                      )}
+                    </Grid>
                   </Grid>
-                  <Grid item xs={3}>
-                    {fieldDropdown(
-                      'Source Chart Field',
-                      'sourceField',
-                      formattedCharts,
-                      sourceID,
-                      sourceField,
-                      index,
-                      updateField,
-                      id,
-                    )}
-                  </Grid>
-                  <Grid item xs={3}>
-                    {chartDropdown(
-                      'Target Chart',
-                      'targetID',
-                      targetCharts,
-                      targetID,
-                      index,
-                      updateField,
-                      id,
-                    )}
-                  </Grid>
-                  <Grid item xs={3}>
-                    {fieldDropdown(
-                      'Target Chart Field',
-                      'targetField',
-                      formattedCharts,
-                      targetID,
-                      targetField,
-                      index,
-                      updateField,
-                      id,
-                    )}
-                  </Grid>
-                </Fragment>
+                </Box>
               );
             })}
-          </Grid>
+          </>
         )}
       </DialogContent>
       <DialogActions>

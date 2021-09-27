@@ -4,7 +4,7 @@ import ConfigOptions from '../AxisConfig/ConfigOptions';
 
 const PieParams = props => {
   return (
-    <Grid item md={12}>
+    <Grid item xs={12}>
       <Grid container spacing={2}>
         <ConfigOptions
           {...props}

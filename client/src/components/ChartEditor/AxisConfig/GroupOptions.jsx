@@ -28,7 +28,7 @@ const GroupOptions = props => {
 
   return (
     <Fragment>
-      <Grid item xs>
+      <Grid item xs={12} sm>
         <FormControl className={formControl} fullWidth>
           <InputLabel>{label}</InputLabel>
           {chartID && fieldsArr.length <= 1 ? (
@@ -51,7 +51,7 @@ const GroupOptions = props => {
           )}
         </FormControl>
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={12} sm={3}>
         <DataTypeDropdown
           className={formControl}
           handleChange={updateAxisKey}

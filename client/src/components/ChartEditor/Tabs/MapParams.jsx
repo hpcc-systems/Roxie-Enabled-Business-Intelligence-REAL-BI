@@ -45,7 +45,7 @@ const MapParams = props => {
 
   return (
     <Grid item xs={12}>
-      <Box p={1}>
+      <Box pt={1}>
         {mapMarkers.map(marker => (
           <MarkerSetting key={marker.id || uuidv4()} marker={marker} fieldsArr={fieldsArr} {...props} />
         ))}
@@ -165,7 +165,7 @@ const MarkerSetting = props => {
       </Box>
       {/* First row */}
       <Grid container alignItems='flex-end' spacing={2}>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={3}>
           <FormControl fullWidth>
             <InputLabel>Latitude</InputLabel>
             <Select value={latitude} onChange={event => setLatitude(event.target.value)}>
@@ -180,7 +180,7 @@ const MarkerSetting = props => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={3}>
           <FormControl fullWidth>
             <InputLabel>Longitude</InputLabel>
             <Select value={longitude} onChange={event => setLongitude(event.target.value)}>
@@ -195,7 +195,7 @@ const MarkerSetting = props => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={5}>
+        <Grid item xs={12} sm={5}>
           <MarkerIconPicker
             markerColor={markerColor}
             setMarkerColor={setMarkerColor}
@@ -213,7 +213,7 @@ const MarkerSetting = props => {
         {popUpInfoArray.map((popUpField, index) => {
           return (
             <Grid key={index} container spacing={2} alignItems='flex-end'>
-              <Grid item xs={5}>
+              <Grid item xs={11} sm={5}>
                 <TextField
                   required={popUpInfoArray[index].datafieldName !== ''}
                   fullWidth
@@ -224,7 +224,7 @@ const MarkerSetting = props => {
                   autoComplete='off'
                 />
               </Grid>
-              <Grid item xs={5}>
+              <Grid item xs={11} sm={5}>
                 <FormControl required={popUpInfoArray[index].label !== ''} fullWidth>
                   <InputLabel>Select corresponding field</InputLabel>
                   <Select

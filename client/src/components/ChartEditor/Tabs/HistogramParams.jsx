@@ -34,9 +34,9 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
     schema.length > 0 ? schema : fields.length > 0 ? fields : [{ name: getMessage(sourceType), value: '' }];
 
   return (
-    <Grid item md={12}>
+    <Grid item xs={12}>
       <Grid container spacing={2}>
-        <Grid item md={3}>
+        <Grid item xs={12} sm={6}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Bin</InputLabel>
             {chartID && messages.indexOf(fieldsArr[0].name) > -1 ? (
@@ -54,7 +54,7 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
             )}
           </FormControl>
         </Grid>
-        <Grid item md={3}>
+        <Grid item xs={12} sm={6}>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
@@ -66,7 +66,7 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
             />
           </FormControl>
         </Grid>
-        <Grid item md={3}>
+        <Grid item xs={12} sm={6}>
           <FormControl className={formControl} fullWidth>
             <InputLabel>Data Type</InputLabel>
             <Select name='axis1:type' value={axis1.type || 'string'} onChange={updateAxisKey}>
@@ -80,7 +80,7 @@ const HistogramParams = ({ eclRef, localState, updateAxisKey, handleChangeObj })
             </Select>
           </FormControl>
         </Grid>
-        <Grid item md={3}>
+        <Grid item xs={12} sm={6}>
           <FormControl className={formControl} fullWidth>
             <Tooltip title={binNumTooltipText} placement='right'>
               <TextField

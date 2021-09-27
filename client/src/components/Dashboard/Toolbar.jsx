@@ -58,11 +58,20 @@ const useStyles = makeStyles(theme => ({
     visibility: props => (props.cluster ? 'visible' : 'hidden'),
     float: 'right',
     marginTop: theme.spacing(-6),
+    [theme.breakpoints.down('sm')]: {
+      float: 'none',
+      margin: '0 ',
+      maxWidth: '100%',
+      justifyContent: 'center',
+    },
   },
   typography: {
     fontSize: 24,
     fontWeight: 'bold',
     maxWidth: '40%',
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '100%',
+    },
   },
   typographyInfo: { margin: theme.spacing(1, 'auto') },
 }));

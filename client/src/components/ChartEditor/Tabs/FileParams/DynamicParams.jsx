@@ -81,29 +81,23 @@ const DynamicFileParams = ({ handleChange, localState }) => {
 
   selectedParams = [...selectedParams, newParamEntry];
 
-  return (
-    <Fragment>
-      {selectedParams.map(({ name, show = false, value }, index) => {
-        return (
-          <Fragment key={index}>
-            {show && (
-              <Grid item xs={1}>
-                <Button className={button} onClick={() => removeField(name)}>
-                  <RemoveIcon />
-                </Button>
-              </Grid>
-            )}
-            <Grid item xs={6}>
-              {fieldDropdown(partialParamsArr, name, index, updateField)}
-            </Grid>
-            <Grid item xs={show ? 5 : 6}>
-              {paramValueField(name, value, index, show ? updateValueField : () => {})}
-            </Grid>
-          </Fragment>
-        );
-      })}
+  return selectedParams.map(({ name, show = false, value }, index) => (
+    <Fragment key={index}>
+      <Grid item xs={2} lg={1}>
+        {show && (
+          <Button className={button} onClick={() => removeField(name)}>
+            <RemoveIcon />
+          </Button>
+        )}
+      </Grid>
+      <Grid item xs={5} sm={4} lg={5}>
+        {fieldDropdown(partialParamsArr, name, index, updateField)}
+      </Grid>
+      <Grid item xs={5} sm={6}>
+        {paramValueField(name, value, index, show ? updateValueField : () => {})}
+      </Grid>
     </Fragment>
-  );
+  ));
 };
 
 export default DynamicFileParams;

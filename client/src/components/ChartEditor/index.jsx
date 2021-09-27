@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -44,6 +44,12 @@ const useStyles = makeStyles(theme => ({
     '&::-webkit-scrollbar': {
       width: '5px',
     },
+    [theme.breakpoints.down('md')]: {
+      borderBottom: `3px solid ${theme.palette.divider}`,
+    },
+  },
+  tabs: {
+    justifyContent: ' center',
   },
 }));
 
@@ -54,10 +60,9 @@ const ChartEditor = props => {
   const { isStatic = false, type } = configuration;
 
   const [tabIndex, setTabIndex] = useState(0);
-  const [tabPercentage, setTabPercentage] = useState('');
   const [duplicatedRecords, setDuplicatedRecords] = useState([]);
 
-  const { appbar, formControl, gridContainer, typography, splitScreen } = useStyles();
+  const { appbar, formControl, gridContainer, typography, splitScreen, tabs } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -100,43 +105,6 @@ const ChartEditor = props => {
     [dataObj.loading, eclData, toggleUpdate],
   );
 
-  useEffect(() => {
-    // Get percentage of tab width
-    if (sourceType === 'ecl') {
-      if (!hasGroupByOption(type) && !hasSortOptions(type)) {
-        if (type === 'table') {
-          setTabPercentage('25%');
-        } else {
-          setTabPercentage('33.3%');
-        }
-      } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
-        setTabPercentage('25%');
-      } else {
-        setTabPercentage('20%');
-      }
-    } else {
-      if (type !== 'textBox') {
-        if (!hasGroupByOption(type) && !hasSortOptions(type)) {
-          if (type === 'table') {
-            setTabPercentage('33.3%');
-          } else {
-            setTabPercentage('50%');
-          }
-        } else if (!hasGroupByOption(type) || !hasSortOptions(type)) {
-          setTabPercentage('33.3%');
-        } else {
-          setTabPercentage('25%');
-        }
-      } else {
-        if (isStatic) {
-          setTabPercentage('100%');
-        } else {
-          setTabPercentage('50%');
-        }
-      }
-    }
-  }, [isStatic, sourceType, type]);
-
   const showDuplicatedRecordsWarning = useCallback(
     duplicates => {
       setDuplicatedRecords(duplicates);
@@ -146,7 +114,7 @@ const ChartEditor = props => {
 
   return (
     <Grid container spacing={4} className={gridContainer}>
-      <Grid item xs={6} className={splitScreen}>
+      <Grid item xs={12} md={6} className={splitScreen}>
         {error !== '' && (
           <Typography className={typography} align='center'>
             {error}
@@ -174,7 +142,13 @@ const ChartEditor = props => {
           </Fragment>
         )}
         <AppBar className={appbar} position='static' color='inherit'>
-          <Tabs value={tabIndex} onChange={changeTabIndex}>
+          <Tabs
+            className={tabs}
+            value={tabIndex}
+            variant='scrollable'
+            scrollButtons='on'
+            onChange={changeTabIndex}
+          >
             {tabOptions.map((option, index) => {
               /*
                 Do not show the 'ECL Script' tab if the source type is not 'ecl'
@@ -192,13 +166,7 @@ const ChartEditor = props => {
                 return null;
               }
 
-              return (
-                <Tab
-                  key={index}
-                  label={option}
-                  style={{ maxWidth: tabPercentage, minWidth: tabPercentage }}
-                />
-              );
+              return <Tab key={index} label={option} />;
             })}
           </Tabs>
         </AppBar>
@@ -250,7 +218,7 @@ const ChartEditor = props => {
           }
         })()}
       </Grid>
-      <Grid item xs={6} className={splitScreen}>
+      <Grid item xs={12} md={6} className={splitScreen}>
         <Box display='flex' flexDirection='column' height='100%'>
           <Box flexGrow='1' maxHeight={duplicatedRecords.length > 0 ? '90%' : '100%'}>
             <Box height='100%'>

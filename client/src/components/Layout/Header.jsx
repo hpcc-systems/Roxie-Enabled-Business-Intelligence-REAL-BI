@@ -27,7 +27,12 @@ const useStyles = makeStyles(theme => ({
     paddingRight: 0,
   },
   buttonIcon: { marginRight: theme.spacing(0.5) },
-  buttonLabel: { marginTop: theme.spacing(0.25) },
+  buttonLabel: {
+    marginTop: theme.spacing(0.25),
+    [theme.breakpoints.only('xs')]: {
+      display: 'none',
+    },
+  },
   iconBtn: { marginTop: theme.spacing(1) },
   menuIcon: { minWidth: 35, maxWidth: 35 },
   menuItem: {
@@ -36,14 +41,44 @@ const useStyles = makeStyles(theme => ({
     '& > a': { color: 'inherit', display: 'inherit', textDecoration: 'none' },
   },
   menuLabel: { marginTop: theme.spacing(0.25) },
-  toolbar: { minHeight: 65, maxHeight: 65 },
+  toolbar: {
+    minHeight: 65,
+    [theme.breakpoints.down('md')]: {
+      flexWrap: 'wrap',
+    },
+  },
+  toolbarGutters: {
+    [theme.breakpoints.down('md')]: {
+      padding: '5px',
+    },
+  },
   typography: {
     margin: theme.spacing(0, 3, 0, 1.5),
     color: '#ff5722',
     fontWeight: 'bold',
+    [theme.breakpoints.down('sm')]: {
+      margin: theme.spacing(0, 3, 0, 0),
+    },
   },
   typography2: { marginLeft: 0 },
-  workspaceDiv: { flexGrow: 1, display: 'flex', alignItems: 'center' },
+  userDiv: {
+    order: 2,
+    [theme.breakpoints.only('xs')]: {
+      order: 1,
+      marginLeft: 'auto',
+    },
+  },
+  workspaceDiv: {
+    flexGrow: 1,
+    order: 1,
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.only('xs')]: {
+      order: 2,
+      paddingTop: '5px',
+      borderTop: `2px solid ${theme.palette.primary.contrastText}`,
+    },
+  },
 }));
 
 const Header = ({ toggleDrawer }) => {
@@ -58,7 +93,7 @@ const Header = ({ toggleDrawer }) => {
   const [showNewWorkspace, toggleNewWorkspace] = useDialog(false);
   const [showEditWorkspace, toggleEditWorkspace] = useDialog(false);
   const [showDeleteWorkspace, toggleDeleteWorkspace] = useDialog(false);
-  const { iconBtn, toolbar, typography, typography2, workspaceDiv } = useStyles();
+  const { iconBtn, toolbar, typography, typography2, workspaceDiv, userDiv, toolbarGutters } = useStyles();
 
   const handleToggle = dropdownNum => {
     if (dropdownNum === 1) {
@@ -103,26 +138,28 @@ const Header = ({ toggleDrawer }) => {
   return (
     <Fragment>
       <AppBar position='static'>
-        <Toolbar className={toolbar}>
+        <Toolbar className={toolbar} classes={{ gutters: toolbarGutters }}>
           {!_.isEmpty(workspace) && _.isEmpty(errorObj) && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>
           )}
           <Typography
+            display='inline'
             variant='h5'
             color='inherit'
             className={clsx(typography, { [typography2]: isChangePwdScreen })}
           >
             REAL BI
           </Typography>
+
           {userID && (
             <Fragment>
               {/* Workspace Dropdown */}
               {!isChangePwdScreen ? (
                 <div className={workspaceDiv}>
                   <WorkspaceSelector />
-                  <Fragment>
+                  <div>
                     {isWorkspaceOwner && (
                       <IconButton
                         edge='start'
@@ -136,38 +173,40 @@ const Header = ({ toggleDrawer }) => {
                     <IconButton edge='start' color='inherit' onClick={toggleNewWorkspace} className={iconBtn}>
                       <AddCircle fontSize='small' />
                     </IconButton>
-                  </Fragment>
-                  {workspace?.id && (
-                    <IconButton
-                      edge='start'
-                      color='inherit'
-                      onClick={toggleDeleteWorkspace}
-                      className={iconBtn}
-                    >
-                      <DeleteIcon fontSize='small' />
-                    </IconButton>
-                  )}
+
+                    {workspace?.id && (
+                      <IconButton
+                        edge='start'
+                        color='inherit'
+                        onClick={toggleDeleteWorkspace}
+                        className={iconBtn}
+                      >
+                        <DeleteIcon fontSize='small' />
+                      </IconButton>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div style={{ flexGrow: 1 }}></div>
               )}
+              <div className={userDiv}>
+                <HelpDropDown
+                  anchorRef={anchorRef}
+                  handleClose={handleClose}
+                  handleToggle={handleToggle}
+                  open={open}
+                  useStyles={useStyles}
+                />
 
-              <HelpDropDown
-                anchorRef={anchorRef}
-                handleClose={handleClose}
-                handleToggle={handleToggle}
-                open={open}
-                useStyles={useStyles}
-              />
-
-              <UserDropDown
-                anchorRef={anchorRef2}
-                handleClose={handleClose}
-                handleToggle={handleToggle}
-                open={open2}
-                username={username}
-                useStyles={useStyles}
-              />
+                <UserDropDown
+                  anchorRef={anchorRef2}
+                  handleClose={handleClose}
+                  handleToggle={handleToggle}
+                  open={open2}
+                  username={username}
+                  useStyles={useStyles}
+                />
+              </div>
             </Fragment>
           )}
         </Toolbar>

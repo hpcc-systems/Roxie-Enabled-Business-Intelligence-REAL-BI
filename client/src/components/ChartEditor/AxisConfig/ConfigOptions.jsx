@@ -18,9 +18,22 @@ import { dataTypes, messages } from '../../../constants';
 import DataTypeDropdown from './DataTypeDropdown';
 
 const useStyles = makeStyles(theme => ({
-  formControl: { marginTop: theme.spacing(1) },
+  formControl: {
+    marginTop: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+    },
+  },
   progress: { margin: 0, marginTop: 50 },
-  checkbox: { margin: theme.spacing(2.5, 0, 0, 0.5) },
+  checkbox: {
+    margin: theme.spacing(2.5, 0, 0, 0.5),
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      '& span': {
+        padding: '3px 0 0',
+      },
+    },
+  },
 }));
 
 const AxisConfigOptions = props => {
@@ -45,7 +58,7 @@ const AxisConfigOptions = props => {
 
   return (
     <Fragment>
-      <Grid item xs>
+      <Grid item xs={12} sm>
         <FormControl required className={formControl} fullWidth>
           <InputLabel>{label}</InputLabel>
           {chartID && messages.indexOf(fieldsArr[0].name) > -1 && error === '' ? (
@@ -69,7 +82,7 @@ const AxisConfigOptions = props => {
         </FormControl>
       </Grid>
       {showAxisLabelOption && (
-        <Grid item xs>
+        <Grid item xs={12} sm>
           <FormControl className={formControl} fullWidth>
             <TextField
               fullWidth
@@ -83,7 +96,7 @@ const AxisConfigOptions = props => {
         </Grid>
       )}
       {showDataTypeOption && (
-        <Grid item xs>
+        <Grid item xs={12} sm>
           <DataTypeDropdown
             className={formControl}
             handleChange={updateAxisKey}
@@ -95,7 +108,7 @@ const AxisConfigOptions = props => {
         </Grid>
       )}
       {showLabelOption && (
-        <Grid item xs>
+        <Grid item xs={12} sm>
           <FormControlLabel
             control={
               <Checkbox

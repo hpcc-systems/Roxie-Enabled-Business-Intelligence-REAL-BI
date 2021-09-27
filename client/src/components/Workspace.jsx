@@ -171,7 +171,7 @@ const Workspace = () => {
       {openDashboards.length > 0 ? (
         <>
           <AppBar className={appbar} position='static' color='inherit'>
-            <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='auto'>
+            <Tabs value={tabIndex} onChange={changeTabIndex} variant='scrollable' scrollButtons='on'>
               {openDashboards.map((dashboard, index) => {
                 return (
                   <Tab
