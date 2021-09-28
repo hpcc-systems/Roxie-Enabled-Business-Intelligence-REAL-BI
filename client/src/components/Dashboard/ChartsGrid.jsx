@@ -6,8 +6,11 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const useStyles = makeStyles(() => ({
   gridRoot: {
     '& .react-resizable-handle': {
-      width: '10px',
-      height: '10px',
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: '25px',
+      height: '25px',
     },
   },
 }));
