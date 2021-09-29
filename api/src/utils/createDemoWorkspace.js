@@ -54,11 +54,31 @@ const createDemoWorkspace = async user => {
     const sortedCharts = charts.sort((a, b) => {
       a.configuration.sort - b.configuration.sort;
     });
-    const defaultLayoutsWithChartIds = defaultChartslayout.lg.map((el, index) => ({
-      ...el,
-      i: String(sortedCharts[index].id),
-    }));
-    const layoutToJson = JSON.stringify({ lg: defaultLayoutsWithChartIds });
+    const defaultLayoutsWithChartIds = defaultChartslayout.lg.reduce(
+      (acc, el, index) => {
+        let gridItem = {
+          i: String(sortedCharts[index].id),
+          x: 0,
+          y: index * 20,
+          h: 20,
+          minW: 2,
+          maxW: 12,
+          minH: 4,
+        };
+        for (const key in acc) {
+          const cols = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 };
+          if (key === 'lg') {
+            gridItem = { ...el, i: String(sortedCharts[index].id) };
+          } else {
+            gridItem.w = cols[key];
+          }
+          acc[key].push({ ...gridItem });
+        }
+        return acc;
+      },
+      { lg: [], md: [], sm: [], xs: [], xxs: [] },
+    );
+    const layoutToJson = JSON.stringify(defaultLayoutsWithChartIds);
     await updateDashboardLayout(dashboard.id, layoutToJson);
 
     return workspace.id; // return workspace Id, will be assigned as a lastViedWorkpace

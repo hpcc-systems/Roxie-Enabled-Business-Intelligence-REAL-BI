@@ -1,5 +1,5 @@
 import React, { useEffect, Fragment } from 'react';
-import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { Box, Button, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 
 import { useSnackbar } from 'notistack';
@@ -178,7 +178,17 @@ const ChartComp = ({
     );
 
   if (error || (data.length === 0 && !isStaticTextBox()))
-    return <NoData sourceType={sourceType} error={error} />;
+    return (
+      <>
+        <NoData sourceType={sourceType} error={error} />
+        {chartType === 'textBox' && (
+          <Fragment>
+            <Divider />
+            {chartComp}
+          </Fragment>
+        )}
+      </>
+    );
 
   return <Fragment>{chartComp}</Fragment>;
 };

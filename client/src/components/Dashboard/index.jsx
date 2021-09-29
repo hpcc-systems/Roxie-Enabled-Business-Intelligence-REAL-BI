@@ -1,8 +1,6 @@
-/* eslint-disable no-unused-vars */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Container, makeStyles, Paper } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-import _orderBy from 'lodash/orderBy';
 import { useSnackbar } from 'notistack';
 
 // React Components
@@ -177,22 +175,33 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
       setChartLayouts(JSON.parse(dashboardLayout)); //Layouts available, apply layouts on initial load
     } else {
       const initlayout = mapChartIdToLayout(chartIDs); //2.No layout found, either new dash or no charts yet, create standart layout base on chartIds.
-      setChartLayouts({ lg: initlayout });
+      setChartLayouts(initlayout);
     }
   };
 
-  // this function takes only array of ids, if u have single id put it in array and distructure result
-  const mapChartIdToLayout = chartIdArray =>
-    chartIdArray.map((id, index) => ({
-      i: id.toString(),
-      x: index % 2 ? 6 : 0,
-      y: Infinity,
-      w: 6,
-      h: 20,
-      minW: 2,
-      maxW: 12,
-      minH: 4,
-    }));
+  // this function will return object for react-grid-layout library, it will look like {lg: Layout, md: Layout, ...} Layout[{x: 0, y: 0, w: 1...},{...}]
+  const mapChartIdToLayout = chartIdArray => {
+    return chartIdArray.reduce(
+      (acc, id, index) => {
+        const gridItem = {
+          i: id.toString(),
+          x: 0,
+          y: index * 20,
+          h: 20,
+          minW: 2,
+          maxW: 12,
+          minH: 4,
+        };
+        for (const key in acc) {
+          const cols = { lg: 6, md: 10, sm: 6, xs: 4, xxs: 2 };
+          gridItem.w = cols[key];
+          acc[key].push({ ...gridItem });
+        }
+        return acc;
+      },
+      { lg: [], md: [], sm: [], xs: [], xxs: [] },
+    );
+  };
 
   const createChart = layoutIndex => {
     const chart = charts.find(el => el.id === layoutIndex);
@@ -233,12 +242,17 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   };
 
   const addChartToLayout = chart => {
-    const [newLayoutItem] = mapChartIdToLayout([chart.id]);
+    const newLayoutItem = mapChartIdToLayout([chart.id]);
     if (chartLayouts) {
-      const updatedLayouts = [...chartLayouts.lg, newLayoutItem];
-      handleLayoutChange(null, { ...chartLayouts, lg: updatedLayouts });
+      const newLayouts = {};
+      for (const key in chartLayouts) {
+        const gridItem = { ...newLayoutItem[key][0] };
+        gridItem.y = Infinity; // puts grid item in last row
+        newLayouts[key] = [...chartLayouts[key], gridItem];
+      }
+      handleLayoutChange(null, newLayouts);
     } else {
-      handleLayoutChange(null, { lg: [newLayoutItem] });
+      setChartLayouts(newLayoutItem);
     }
     enqueueSnackbar('New item has been added to dashboard', {
       variant: 'success',
@@ -250,8 +264,11 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   };
 
   const removeChartLayout = chartID => {
-    const updatedLayouts = _.reject(chartLayouts.lg, { i: chartID });
-    handleLayoutChange(null, { ...chartLayouts, lg: updatedLayouts });
+    const newLayouts = {};
+    for (const key in chartLayouts) {
+      newLayouts[key] = chartLayouts[key].filter(el => el.i !== chartID);
+    }
+    handleLayoutChange(null, newLayouts);
     enqueueSnackbar('Item deleted successfully!', {
       variant: 'success',
       anchorOrigin: {
