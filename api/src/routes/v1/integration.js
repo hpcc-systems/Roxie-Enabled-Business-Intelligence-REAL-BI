@@ -2,7 +2,7 @@ const { findOrCreateCluster } = require('../../utils/cluster');
 const { findOrCreateDashboard } = require('../../utils/dashboard');
 
 const { addDashboardAsOpenDashboard } = require('../../utils/openDashboards');
-const { getUserByEmail } = require('../../utils/user');
+const { createUser } = require('../../utils/user');
 const { findOrCreatePublicWorkspace } = require('../../utils/workspace');
 const { updateOrCreateWorkspaceDirectory } = require('../../utils/workspaceDirectory');
 
@@ -32,7 +32,7 @@ router.post('/', async (req, res, next) => {
   };
 
   try {
-    const user = await getUserByEmail(req.body.user.email.trim());
+    const user = req.user ? req.user : await createUser(req.token.email, req.token.username);
     const workspace = await findOrCreatePublicWorkspace(user.id, req.body.workspaceName.trim(), userRole);
     const cluster = clusterFromRequest ? await findOrCreateCluster(clusterFromRequest) : null;
 

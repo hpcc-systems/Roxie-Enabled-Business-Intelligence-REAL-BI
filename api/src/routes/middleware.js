@@ -2,7 +2,7 @@ const https = require('https');
 const axios = require('axios');
 const logger = require('../config/logger');
 const passport = require('passport');
-const { getUserByUsername } = require('../utils/user');
+const { getUserByEmail } = require('../utils/user');
 
 // Constants
 const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV, REACT_APP_AUTH_METHOD } = process.env;
@@ -36,11 +36,13 @@ const authenticateToken = async (req, res, next) => {
 
     try {
       // Get username from response
-      const { username } = response.data.verified;
-      const { id } = await getUserByUsername(username);
-
+      const { email } = response.data.verified;
+      const user = await getUserByEmail(email);
+      if (user) {
+        req.user = user;
+      }
+      req.token = response.data.verified;
       // Add user object to request
-      req.user = { id, username };
 
       return next();
     } catch (error) {
