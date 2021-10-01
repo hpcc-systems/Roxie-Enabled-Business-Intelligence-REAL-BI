@@ -2,18 +2,17 @@ import React, { Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   Card,
   CardContent,
   CardHeader,
   CircularProgress,
   Container,
-  Grid,
   TextField,
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -22,14 +21,16 @@ import Header from './Layout/Header';
 import useForm from '../hooks/useForm';
 
 // Utils
-import { forgotPassword } from '../utils/auth';
+// import { forgotPassword } from '../utils/auth';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: {
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
-    marginTop: theme.spacing(3),
+    display: 'block',
+    margin: theme.spacing(3, 'auto', 0),
     width: 200,
   },
   closeBtn: {
@@ -39,40 +40,24 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
   },
   content: { padding: theme.spacing(1, 2) },
-  errMsg: {
-    backgroundColor: theme.palette.error.dark,
-    color: theme.palette.error.contrastText,
-  },
   form: {
-    minWidth: '36vw',
-    maxWidth: '36vw',
+    maxWidth: '600px',
+    margin: '2rem auto 0',
   },
-  grid: { margin: '2rem' },
+
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
     padding: theme.spacing(1.25, 0, 1.25, 2),
   },
-  message: {
-    borderRadius: 4,
-    marginBottom: theme.spacing(1.5),
-    padding: theme.spacing(0.5),
-  },
+
   progress: { marginRight: theme.spacing(2) },
-  success: {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.contrastText,
-  },
-  textfield: { margin: theme.spacing(1, 0) },
+
   typography: {
     display: 'inline',
     fontWeight: 'bold',
     marginLeft: theme.spacing(3),
     textTransform: 'uppercase',
-  },
-  warning: {
-    backgroundColor: theme.palette.warning.main,
-    color: theme.palette.warning.contrastText,
   },
 }));
 
@@ -87,121 +72,91 @@ const initState = {
 };
 
 const ForgotPwd = () => {
-  const { values: localState, handleChange } = useForm(initState);
+  const { values: localState, formFieldsUpdate } = useForm(initState);
   const history = useHistory();
-  const {
-    button,
-    closeBtn,
-    content,
-    errMsg,
-    form,
-    grid,
-    header,
-    message,
-    progress,
-    success,
-    textfield,
-    typography,
-    warning,
-  } = useStyles();
+  const { button, closeBtn, content, form, header, progress, typography } = useStyles();
 
   const handleSubmit = async event => {
     // Prevent form from reloading page
     event.preventDefault();
+    formFieldsUpdate({ loading: true });
 
-    handleChange(null, { name: 'loading', value: true });
+    setTimeout(() => {
+      formFieldsUpdate({ loading: false, error: ' ' });
+    }, 3000);
 
-    try {
-      const uuid = await forgotPassword(localState);
-      history.push(`/reset-password/${uuid}`);
-    } catch (error) {
-      handleChange(null, { name: 'loading', value: false });
-
-      if (error.errors) {
-        return handleChange(null, { name: 'errors', value: error.errors });
-      }
-
-      return handleChange(null, { name: 'error', value: error.message });
-    }
+    // try {
+    //   const uuid = await forgotPassword(localState);
+    //   history.push(`/reset-password/${uuid}`);
+    // } catch (error) {
+    // formFieldsUpdate({ loading: false, error:error.message , errors:error?.errors || [] });
+    // }
   };
 
-  const { error, errors, loading, successMsg, username } = localState;
+  const { error, errors, loading, username } = localState;
   const usernameErr = errors.find(err => err['username']);
+
+  const warningMessage = 'If you have a user account for Tombolo, this will reset that password too.';
+
+  const alertSeverity = error ? 'error' : 'warning';
+  const alertTitle = error ? 'Error' : '';
+  const alertMessage = error || warningMessage;
 
   return (
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
-        <Grid container direction='column' justifyContent='center' alignItems='center' className={grid}>
-          <Grid item>
-            <form className={form} onSubmit={handleSubmit}>
-              <Card>
-                <CardHeader
-                  className={header}
-                  title={
-                    <Fragment>
-                      <Button className={closeBtn} disabled={loading} onClick={() => history.push('/login')}>
-                        <ArrowBackOutlinedIcon fontSize='large' />
-                      </Button>
-                      <Typography className={typography} variant='h6'>
-                        Forgot Password
-                      </Typography>
-                    </Fragment>
-                  }
-                />
-                <CardContent className={content}>
-                  {/* Error Message */}
+        <form className={form} onSubmit={handleSubmit}>
+          <Card>
+            <CardHeader
+              className={header}
+              title={
+                <Fragment>
+                  <Button className={closeBtn} disabled={loading} onClick={() => history.push('/login')}>
+                    <ArrowBackOutlinedIcon fontSize='large' />
+                  </Button>
+                  <Typography className={typography} variant='h6'>
+                    Forgot Password
+                  </Typography>
+                </Fragment>
+              }
+            />
+            <CardContent className={content}>
+              {/* Info Message */}
+              <Box my={1}>
+                <Alert severity={alertSeverity}>
+                  <AlertTitle>{alertTitle}</AlertTitle>
+                  {alertMessage}
                   {error && (
-                    <Typography className={clsx(message, errMsg)} align='center'>
-                      {error}
-                    </Typography>
+                    <>
+                      There was an error sending email, please reach out to
+                      <Box component='a' display='block' href='mailto: hpcc-solutions-lab@lexisnexisrisk.com'>
+                        hpcc-solutions-lab@lexisnexisrisk.com
+                      </Box>
+                      to have your Password reset
+                    </>
                   )}
-                  {/* Success Message */}
-                  {successMsg && successMsg !== '' && (
-                    <Typography className={clsx(message, success)} align='center'>
-                      {successMsg}
-                    </Typography>
-                  )}
-                  {/* Warning Message */}
-                  {errors.length === 0 && successMsg === '' && (
-                    <Typography variant='body2' className={clsx(message, warning)} align='center'>
-                      If you have a user account for Tombolo, this will reset that password too.
-                    </Typography>
-                  )}
+                </Alert>
+              </Box>
 
-                  <Grid container spacing={1}>
-                    <Grid item xs={12}>
-                      <TextField
-                        className={textfield}
-                        label='Username'
-                        name='username'
-                        value={username}
-                        type={'text'}
-                        onChange={handleChange}
-                        fullWidth
-                        error={usernameErr !== undefined}
-                        helperText={usernameErr !== undefined ? usernameErr['username'] : ''}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid container direction='row' justifyContent='center' alignItems='center' spacing={0}>
-                    <Grid item>
-                      <Button
-                        className={button}
-                        variant='contained'
-                        type='submit'
-                        disabled={loading || successMsg !== ''}
-                      >
-                        {loading && <CircularProgress color='inherit' size={20} className={progress} />}
-                        Submit
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </form>
-          </Grid>
-        </Grid>
+              <TextField
+                fullWidth
+                type='text'
+                name='username'
+                label='Username'
+                value={username}
+                error={usernameErr}
+                onChange={e => formFieldsUpdate({ username: e.target.value })}
+                helperText={usernameErr && usernameErr['username']}
+              />
+
+              <Button className={button} variant='contained' type='submit' disabled={loading || !username}>
+                {loading && <CircularProgress color='inherit' size={20} className={progress} />}
+                Submit
+              </Button>
+            </CardContent>
+          </Card>
+        </form>
       </Container>
     </Fragment>
   );
