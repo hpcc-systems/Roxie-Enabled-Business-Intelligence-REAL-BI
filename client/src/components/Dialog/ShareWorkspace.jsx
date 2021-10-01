@@ -1,8 +1,8 @@
+/* eslint-disable no-unreachable */
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
 
 // React Hooks
 import useForm from '../../hooks/useForm';
@@ -13,24 +13,12 @@ import ShareWorkspace from '../ShareWorkspace';
 // Utils
 import { shareWorkspace as shareWorkspaceFn } from '../../utils/workspace';
 import { getDashboardsFromDirectory } from '../../utils/directory';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   dialogContent: { paddingTop: 0 },
-  errMsg: {
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
-  },
-  message: {
-    borderRadius: 4,
-    marginBottom: theme.spacing(2),
-    padding: theme.spacing(0.5),
-  },
-  success: {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.contrastText,
-  },
 }));
 
 const initState = {
@@ -42,8 +30,8 @@ const initState = {
 
 const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
   const { directory, id: workspaceID } = useSelector(state => state.workspace.workspace);
-  const { values: localState, handleChange } = useForm({ ...initState, directory });
-  const { button, dialogContent, errMsg, message, success } = useStyles();
+  const { values: localState, handleChange, formFieldsUpdate } = useForm({ ...initState, directory });
+  const { button, dialogContent } = useStyles();
 
   const handleSubmit = async () => {
     const { directory: stateDirectory, email } = localState;
@@ -65,39 +53,39 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
     handleChange(null, { name: 'loading', value: true });
 
     try {
-      await shareWorkspaceFn(workspaceID, emailArr, stateDirectory, sharedDashboards);
+      const url = await shareWorkspaceFn(workspaceID, emailArr, stateDirectory, sharedDashboards);
+
+      formFieldsUpdate({
+        loading: false,
+        errors: [],
+        successMsg: `Workspace has been shared successfully, but there was an issue with e-mail notification, please share workspace URL directly with the user: ${url}`,
+      });
     } catch (err) {
-      handleChange(null, { name: 'loading', value: false });
-
-      if (Array.isArray(err)) {
-        return handleChange(null, { name: 'errors', value: err });
-      }
-
-      return handleChange(null, { name: 'errors', value: [{ msg: err.message }] });
+      formFieldsUpdate({
+        loading: false,
+        errors: Array.isArray(err) ? err : [{ msg: err.message }],
+      });
     }
-
-    handleChange(null, { name: 'loading', value: false });
-    handleChange(null, { name: 'errors', value: [] });
-    handleChange(null, { name: 'successMsg', value: 'Workspace Shared Successfully' });
-    setTimeout(() => toggleDialog(), 1500); // Wait 1.5 seconds then close dialog
   };
 
   const { errors, loading, successMsg } = localState;
   const msgErr = errors.find(err => err['msg'])?.msg;
 
+  const alertSeverity = msgErr ? 'error' : 'warning';
+  const alertTitle = msgErr ? 'Error' : 'Warning';
+  const alertMessage = msgErr || successMsg;
+
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
       <DialogTitle>Share Workspace</DialogTitle>
       <DialogContent className={dialogContent}>
-        {msgErr !== undefined && (
-          <Typography className={clsx(message, errMsg)} align='center'>
-            {msgErr}
-          </Typography>
-        )}
-        {successMsg && (
-          <Typography className={clsx(message, success)} align='center'>
-            {successMsg}
-          </Typography>
+        {alertMessage && (
+          <Box my={1}>
+            <Alert severity={alertSeverity}>
+              <AlertTitle>{alertTitle}</AlertTitle>
+              {alertMessage}
+            </Alert>
+          </Box>
         )}
 
         <ShareWorkspace localState={localState} handleChange={handleChange} />

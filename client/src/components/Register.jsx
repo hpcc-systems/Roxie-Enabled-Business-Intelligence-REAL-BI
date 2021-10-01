@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -13,7 +14,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import clsx from 'clsx';
 
 // React Components
 import Header from './Layout/Header';
@@ -23,6 +23,7 @@ import useForm from '../hooks/useForm';
 
 // Utils
 import { registerUser } from '../utils/auth';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -39,28 +40,13 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
   },
   content: { padding: theme.spacing(1, 2) },
-  errMsg: {
-    backgroundColor: theme.palette.error.dark,
-    borderRadius: 4,
-    color: theme.palette.error.contrastText,
-    marginBottom: theme.spacing(1.5),
-  },
   grid: { marginTop: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
     padding: theme.spacing(1.25, 0, 1.25, 2),
   },
-  message: {
-    borderRadius: 4,
-    marginBottom: theme.spacing(1.5),
-    padding: theme.spacing(0.5, 0),
-  },
   progress: { marginRight: theme.spacing(2) },
-  success: {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.contrastText,
-  },
   textfield: {
     margin: theme.spacing(1, 0),
     [theme.breakpoints.down('md')]: {
@@ -98,49 +84,32 @@ const fields = [
 ];
 
 const Register = () => {
-  const { values: localState, handleChange } = useForm(initState);
+  const { values: localState, handleChange, formFieldsUpdate } = useForm(initState);
   const history = useHistory();
   const { shareID } = useParams();
-  const {
-    button,
-    closeBtn,
-    content,
-    errMsg,
-    grid,
-    header,
-    message,
-    progress,
-    success,
-    textfield,
-    typography,
-  } = useStyles();
+  const { button, closeBtn, content, grid, header, progress, textfield, typography } = useStyles();
 
   const handleSubmit = async event => {
     // Prevent form from reloading page
     event.preventDefault();
 
-    handleChange(null, { name: 'loading', value: true });
+    formFieldsUpdate({ loading: false });
 
     try {
       const response = await registerUser(localState, shareID);
-
-      handleChange(null, { name: 'loading', value: false });
-      handleChange(null, { name: 'errors', value: [] });
-      handleChange(null, { name: 'successMsg', value: response.message });
-
+      console.log(`response`, response);
+      formFieldsUpdate({ loading: false, errors: [], successMsg: response.message });
       setTimeout(() => history.push('/login'), 1500); // Wait 1.5 seconds then redirect to login page
     } catch (error) {
-      handleChange(null, { name: 'loading', value: false });
-
-      if (error.errors) {
-        return handleChange(null, { name: 'errors', value: error.errors });
-      } else {
-        return handleChange(null, { name: 'error', value: error.message });
-      }
+      formFieldsUpdate({ loading: false, errors: error.errors || [], error: error.message });
     }
   };
 
   const { error, errors, loading, successMsg } = localState;
+
+  const alertMessage = error || successMsg;
+  const alertSeverity = error ? 'error' : 'success';
+  const alertTitle = error ? 'Error' : 'Success';
 
   return (
     <Fragment>
@@ -164,17 +133,14 @@ const Register = () => {
                   }
                 />
                 <CardContent className={content}>
-                  {/* Error Message */}
-                  {error && (
-                    <Typography className={errMsg} align='center'>
-                      {error}
-                    </Typography>
-                  )}
-                  {/* Success Message */}
-                  {successMsg && successMsg !== '' && (
-                    <Typography className={clsx(message, success)} align='center'>
-                      {successMsg}
-                    </Typography>
+                  {/* Info Message */}
+                  {alertMessage && (
+                    <Box my={1}>
+                      <Alert severity={alertSeverity}>
+                        <AlertTitle>{alertTitle}</AlertTitle>
+                        {alertMessage}
+                      </Alert>
+                    </Box>
                   )}
 
                   <Grid container spacing={1}>

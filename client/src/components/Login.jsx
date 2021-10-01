@@ -3,6 +3,7 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -13,7 +14,6 @@ import {
   Grid,
   Link,
   TextField,
-  Typography,
 } from '@material-ui/core';
 
 // React Components
@@ -33,6 +33,7 @@ import setAuthHeader from '../utils/axiosConfig';
 // Constants
 import { tokenName } from '../constants';
 import { useEffect } from 'react';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 const useStyles = makeStyles(theme => ({
   actions: { backgroundColor: theme.palette.secondary.light },
@@ -43,12 +44,6 @@ const useStyles = makeStyles(theme => ({
     width: 200,
   },
   content: { padding: theme.spacing(1, 2) },
-  errMsg: {
-    backgroundColor: theme.palette.error.dark,
-    borderRadius: 4,
-    color: theme.palette.error.contrastText,
-    marginBottom: theme.spacing(1.5),
-  },
   grid: { marginTop: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
@@ -81,7 +76,7 @@ const Login = () => {
   const { errors = [], message: errMessage = '' } = errorObj;
   const dispatch = useDispatch();
   const history = useHistory();
-  const { actions, button, content, errMsg, grid, header, options, progress, textfield } = useStyles();
+  const { actions, button, content, grid, header, options, progress, textfield } = useStyles();
   const hasAuthError = Object.keys(errorObj).length > 0;
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -169,9 +164,13 @@ const Login = () => {
                   <CardHeader className={header} title='Login' />
                   <CardContent className={content}>
                     {errMessage && (
-                      <Typography className={errMsg} align='center'>
-                        {errMessage}
-                      </Typography>
+                      <Box my={1}>
+                        <Alert severity='error'>
+                          <AlertTitle>Error</AlertTitle>
+                          {/* {errMessage} */}
+                          Invalid user credentials. Please check your Username and Password.
+                        </Alert>
+                      </Box>
                     )}
                     <TextField
                       className={textfield}
