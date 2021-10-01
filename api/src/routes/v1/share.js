@@ -10,7 +10,7 @@ router.post('/', [validateWorkspaceShare(), validate], async (req, res, next) =>
     user: { id: userID },
   } = req;
 
-  const { TRANSPORT_HOST, TRANSPORT_PORT } = process.env;
+  const { TRANSPORT_HOST, TRANSPORT_PORT, SHARE_URL } = process.env;
 
   try {
     const { permission = 'Read-Only' } = await getWorkspaceByID(workspaceID, userID);
@@ -39,8 +39,11 @@ router.post('/', [validateWorkspaceShare(), validate], async (req, res, next) =>
 
       await sendShareWorkspaceEmail(shareID, workspaceID, email, newUser);
     }
-
-    res.status(200).end();
+    // TODO: temp setting
+    const url = `${SHARE_URL}/workspace/${workspaceID}`;
+    res.send(url);
+    // TODO:uncomment later
+    // res.status(200).end();
   } catch (error) {
     return next(error);
   }

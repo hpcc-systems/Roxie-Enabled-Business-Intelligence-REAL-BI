@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -9,11 +10,14 @@ import {
   CircularProgress,
   Container,
   Grid,
+  InputAdornment,
   TextField,
   Typography,
 } from '@material-ui/core';
 import { ArrowBackOutlined as ArrowBackOutlinedIcon } from '@material-ui/icons';
-import clsx from 'clsx';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import IconButton from '@material-ui/core/IconButton';
 
 // React Components
 import Header from './Layout/Header';
@@ -23,6 +27,7 @@ import useForm from '../hooks/useForm';
 
 // Utils
 import { updatePassword } from '../utils/auth';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -43,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.error.dark,
     color: theme.palette.error.contrastText,
   },
-  grid: { margin: '2rem' },
+  grid: { marginTop: '2rem' },
   header: {
     backgroundColor: theme.palette.primary.main,
     color: '#ff5722',
@@ -81,38 +86,27 @@ const initState = {
 const ChangePwd = () => {
   const { values: localState, handleChange, resetState } = useForm(initState);
   const history = useHistory();
-  const {
-    button,
-    closeBtn,
-    content,
-    err,
-    grid,
-    header,
-    message,
-    progress,
-    success,
-    textfield,
-    typography,
-  } = useStyles();
+  const { button, closeBtn, content, grid, header, progress, textfield, typography } = useStyles();
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = async event => {
     event.preventDefault();
     handleChange(null, { name: 'loading', value: true });
-
     try {
       const response = await updatePassword(localState);
       resetState(initState);
       handleChange(null, { name: 'successMsg', value: response.message });
-
-      setTimeout(() => history.goBack(), 1500); // Wait 1.5 seconds then redirect back to previous page
     } catch (error) {
       resetState(initState);
-
       if (error.errors) {
         return handleChange(null, { name: 'errors', value: error.errors });
       }
 
-      return handleChange(null, { name: 'error', value: error.message });
+      return handleChange(null, { name: 'error', value: error.message || 'Can not update password' });
     }
   };
 
@@ -122,12 +116,16 @@ const ChangePwd = () => {
   const newPwdErr = errors.find(err => err['newPwd']);
   const newPwd2Err = errors.find(err => err['newPwd2']);
 
+  const alertMessage = error || successMsg;
+  const alertSeverity = error ? 'error' : 'success';
+  const alertTitle = error ? 'Error' : 'Success';
+
   return (
     <Fragment>
       <Header />
       <Container maxWidth='xl'>
         <Grid container direction='column' justifyContent='center' alignItems='center' className={grid}>
-          <Grid item style={{ maxWidth: '25vw' }}>
+          <Grid item style={{ maxWidth: '600px' }}>
             <form onSubmit={handleSubmit}>
               <Card>
                 <CardHeader
@@ -144,50 +142,49 @@ const ChangePwd = () => {
                   }
                 />
                 <CardContent className={content}>
-                  {/* Error message */}
-                  {error && error !== '' && (
-                    <Typography className={clsx(message, err)} align='center'>
-                      {error}
-                    </Typography>
+                  {/* Info Message */}
+                  {alertMessage && (
+                    <Box my={1}>
+                      <Alert severity={alertSeverity}>
+                        <AlertTitle>{alertTitle}</AlertTitle>
+                        {alertMessage}
+                      </Alert>
+                    </Box>
                   )}
 
-                  {/* Success Message */}
-                  {successMsg && successMsg !== '' && (
-                    <Typography className={clsx(message, success)} align='center'>
-                      {successMsg}
-                    </Typography>
-                  )}
-
-                  <TextField
+                  <PasswordTextfield
+                    showPassword={showPassword}
+                    setShowPassword={handleClickShowPassword}
                     className={textfield}
                     label='Old Password'
                     name='oldPwd'
                     value={oldPwd}
-                    type='password'
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
                     error={oldPwdErr !== undefined}
                     helperText={oldPwdErr !== undefined ? oldPwdErr['oldPwd'] : ''}
                   />
-                  <TextField
+                  <PasswordTextfield
+                    showPassword={showPassword}
+                    setShowPassword={handleClickShowPassword}
                     className={textfield}
                     label='New Password'
                     name='newPwd'
                     value={newPwd}
-                    type='password'
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
                     error={newPwdErr !== undefined}
                     helperText={newPwdErr !== undefined ? newPwdErr['newPwd'] : ''}
                   />
-                  <TextField
+                  <PasswordTextfield
+                    showPassword={showPassword}
+                    setShowPassword={handleClickShowPassword}
                     className={textfield}
                     label='Confirm New Password'
                     name='newPwd2'
                     value={newPwd2}
-                    type='password'
                     onChange={handleChange}
                     autoComplete='false'
                     fullWidth
@@ -213,3 +210,21 @@ const ChangePwd = () => {
 };
 
 export default ChangePwd;
+
+const PasswordTextfield = ({ showPassword, setShowPassword, ...otherProps }) => {
+  return (
+    <TextField
+      {...otherProps}
+      type={showPassword ? 'text' : 'password'}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position='end'>
+            <IconButton aria-label='toggle password visibility' onClick={setShowPassword} edge='end'>
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+    />
+  );
+};

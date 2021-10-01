@@ -21,7 +21,7 @@ import Header from './Layout/Header';
 import useForm from '../hooks/useForm';
 
 // Utils
-// import { forgotPassword } from '../utils/auth';
+import { forgotPassword } from '../utils/auth';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
 // Create styles
@@ -81,16 +81,13 @@ const ForgotPwd = () => {
     event.preventDefault();
     formFieldsUpdate({ loading: true });
 
-    setTimeout(() => {
-      formFieldsUpdate({ loading: false, error: ' ' });
-    }, 3000);
-
-    // try {
-    //   const uuid = await forgotPassword(localState);
-    //   history.push(`/reset-password/${uuid}`);
-    // } catch (error) {
-    // formFieldsUpdate({ loading: false, error:error.message , errors:error?.errors || [] });
-    // }
+    try {
+      const uuid = await forgotPassword(localState);
+      formFieldsUpdate({ loading: false });
+      history.push(`/reset-password/${uuid}`);
+    } catch (error) {
+      formFieldsUpdate({ loading: false, error: error.message, errors: error?.errors || [] });
+    }
   };
 
   const { error, errors, loading, username } = localState;
@@ -127,15 +124,6 @@ const ForgotPwd = () => {
                 <Alert severity={alertSeverity}>
                   <AlertTitle>{alertTitle}</AlertTitle>
                   {alertMessage}
-                  {error && (
-                    <>
-                      There was an error sending email, please reach out to
-                      <Box component='a' display='block' href='mailto: hpcc-solutions-lab@lexisnexisrisk.com'>
-                        hpcc-solutions-lab@lexisnexisrisk.com
-                      </Box>
-                      to have your Password reset
-                    </>
-                  )}
                 </Alert>
               </Box>
 
