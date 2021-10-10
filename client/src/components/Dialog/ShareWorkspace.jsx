@@ -1,4 +1,3 @@
-/* eslint-disable no-unreachable */
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
@@ -53,12 +52,12 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
     handleChange(null, { name: 'loading', value: true });
 
     try {
-      const url = await shareWorkspaceFn(workspaceID, emailArr, stateDirectory, sharedDashboards);
+      await shareWorkspaceFn(workspaceID, emailArr, stateDirectory, sharedDashboards);
 
       formFieldsUpdate({
         loading: false,
         errors: [],
-        successMsg: `Workspace has been shared successfully, but there was an issue with e-mail notification, please share workspace URL directly with the user: ${url}`,
+        successMsg: 'Workspace Shared Successfully',
       });
     } catch (err) {
       formFieldsUpdate({
