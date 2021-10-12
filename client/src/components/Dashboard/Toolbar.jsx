@@ -78,7 +78,6 @@ const useStyles = makeStyles(theme => ({
 
 const ToolbarComp = ({
   dashboard,
-  dataFetchInProgress,
   hasInteractiveFilter,
   refreshChart,
   resetInteractiveFilter,
@@ -182,12 +181,7 @@ const ToolbarComp = ({
           <Tooltip title='Remove click filter' placement='bottom'>
             {/* Wrap button in span because Tooltip component cannot accept a child element that it disabled */}
             <span>
-              <Button
-                className={clsx(button, resetBtn)}
-                variant='contained'
-                onClick={resetInteractiveFilter}
-                disabled={dataFetchInProgress}
-              >
+              <Button className={clsx(button, resetBtn)} variant='contained' onClick={resetInteractiveFilter}>
                 <RotateLeftIcon />
               </Button>
             </span>
@@ -313,7 +307,7 @@ const ToolbarComp = ({
                   </Typography>
                   {fileName && (
                     <Typography variant='body2' className={typographyInfo}>
-                      <strong>Assosiated file:</strong> {fileName}
+                      <strong>Associated file:</strong> {fileName}
                     </Typography>
                   )}
                   <Typography variant='body2' className={typographyInfo}>

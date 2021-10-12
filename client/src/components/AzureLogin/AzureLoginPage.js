@@ -6,7 +6,7 @@ import { apiScopes, loginScopes } from './authConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserStateWithAzure } from '../../features/auth/actions';
 import ErrorLoginComponent from './ErrorLoginComponent';
-import _ from 'lodash';
+import _isEmpty from 'lodash/isEmpty';
 import { Box, CircularProgress } from '@material-ui/core';
 import { useHistory } from 'react-router';
 
@@ -60,7 +60,7 @@ function AzureLoginPage() {
       authenticationRequest={loginScopes} //set of scopes to pre-consent to while sign in
       errorComponent={ErrorLoginComponent}
     >
-      {_.isEmpty(authError) ? (
+      {_isEmpty(authError) ? (
         <Box height='60vh' display='flex' justifyContent='center' alignItems='center'>
           <CircularProgress color='primary' size={80} />
         </Box>

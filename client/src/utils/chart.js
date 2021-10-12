@@ -1,5 +1,5 @@
 import axios from 'axios';
-// import _ from 'lodash';
+
 import _orderBy from 'lodash/orderBy';
 
 // Constants
@@ -11,7 +11,7 @@ import {
   hasSortOptions,
 } from '../utils/misc';
 
-export const getChartData = async (chartID, clusterID, dashboardID, interactiveObj) => {
+export const getChartData = async (chartID, clusterID, dashboardID, interactiveObj = {}) => {
   try {
     const response = await axios.get('/api/v1/chart/data', {
       params: { chartID, clusterID, dashboardID, interactiveObj },
@@ -55,10 +55,9 @@ export const createChartObj = (localState, ecl) => {
   return { ...newConfig, ecl };
 };
 
-export const setEditorState = (charts, chartID) => {
+export const setEditorState = chart => {
   // Get desired chart
-  const chartIndex = charts.map(({ id }) => id).indexOf(chartID);
-  const { configuration, id, source, ...chartKeys } = charts[chartIndex];
+  const { configuration, id, source, data, loading, lastModifiedDate, ...chartKeys } = chart;
   const {
     axis1,
     axis2,
@@ -90,7 +89,13 @@ export const setEditorState = (charts, chartID) => {
       mapFields: [...mapFields, { label: '', name: '' }],
     },
     ecl,
-    dataObj: { loading: false },
+    dataObj: {
+      data: {
+        data,
+        lastModifiedDate,
+      },
+      loading,
+    },
     dataset,
     datasets: [],
     error: '',

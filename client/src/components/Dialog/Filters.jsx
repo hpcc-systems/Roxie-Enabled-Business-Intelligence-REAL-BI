@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 
 // Redux Actions
-import { createFilter, updateExistingFilter } from '../../features/dashboard/actions';
+import { createFilter, refreshDataByChartIds, updateExistingFilter } from '../../features/dashboard/actions';
 
 // React Components
 import FilterEditor from '../FilterEditor';
@@ -49,7 +49,7 @@ const initState = {
   params: [{ targetChart: '', targetParam: '' }],
 };
 
-const Filters = ({ dashboard, filter, show, toggleDialog, getChartData }) => {
+const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
   const [loading, setLoading] = useState(false);
   const { charts = [], cluster, id: dashboardID } = dashboard;
@@ -139,8 +139,7 @@ const Filters = ({ dashboard, filter, show, toggleDialog, getChartData }) => {
 
       // Get unique id's of the targeted charts
       const effectedChartIds = [...new Set(newFilterObj.params.map(({ targetChart }) => targetChart))];
-
-      getChartData(effectedChartIds, {});
+      dispatch(refreshDataByChartIds(effectedChartIds));
 
       return toggleDialog();
     } catch (error) {

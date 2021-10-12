@@ -16,7 +16,7 @@ import NewWorkspace from '../Dialog/newWorkspace';
 import HelpDropDown from './HelpDropdown';
 import EditWorkspace from '../Dialog/EditWorkspace';
 import DeleteWorkspace from '../Dialog/DeleteWorkpace';
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -139,7 +139,7 @@ const Header = ({ toggleDrawer }) => {
     <Fragment>
       <AppBar position='static'>
         <Toolbar className={toolbar} classes={{ gutters: toolbarGutters }}>
-          {!_.isEmpty(workspace) && _.isEmpty(errorObj) && !isChangePwdScreen && (
+          {!isEmpty(workspace) && isEmpty(errorObj) && !isChangePwdScreen && (
             <IconButton edge='start' color='inherit' aria-label='menu' onClick={toggleDrawer}>
               <MenuIcon />
             </IconButton>

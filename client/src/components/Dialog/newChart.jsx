@@ -22,6 +22,7 @@ import { createChartObj } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 import { validateSource } from '../../utils/validate';
+import useNotifier from '../../hooks/useNotifier';
 
 const initState = {
   configuration: {
@@ -81,8 +82,11 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) => {
+const NewChartDialog = ({ show, toggleDialog }) => {
   const [showDialog, toggleData] = useDialog(false);
+
+  const notifyResult = useNotifier();
+
   const {
     values: localState,
     handleChange,
@@ -129,8 +133,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       const chartObj = { ...configuration, dataset, ecl: {} };
       try {
         const action = await createChart(chartObj, dashboardID, null);
-        dispatch(action);
-        addChartToLayout(action.payload);
+        dispatch(action); // { type: CREATE_CHART, payload: response.data };
+        notifyResult('success', 'New item has been added to dashboard');
         return toggleDialog();
       } catch (error) {
         return dispatch(error);
@@ -157,9 +161,8 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
 
       try {
         const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
-        dispatch(action);
-        getChartData([action.payload.id], {});
-        addChartToLayout(action.payload);
+        dispatch(action); // { type: CREATE_CHART, payload: response.data };
+        notifyResult('success', 'New item has been added to dashboard');
         history.push(`/workspace/${workspaceID}`);
         return toggleDialog();
       } catch (error) {

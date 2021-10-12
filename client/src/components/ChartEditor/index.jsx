@@ -1,17 +1,7 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  AppBar,
-  Box,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Tab,
-  Tabs,
-  Typography,
-} from '@material-ui/core';
+import { AppBar, Box, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 
 // React Components
 import SourceSearch from './SourceSearch';
@@ -31,13 +21,6 @@ const useStyles = makeStyles(theme => ({
   appbar: { marginBottom: theme.spacing(1) },
   formControl: { marginBottom: theme.spacing(3) },
   gridContainer: { height: '75vh' },
-  typography: {
-    ...theme.typography.button,
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
-    marginBottom: theme.spacing(1),
-    padding: theme.spacing(1),
-  },
   splitScreen: {
     height: 'inherit',
     overflowY: 'scroll',
@@ -62,7 +45,7 @@ const ChartEditor = props => {
   const [tabIndex, setTabIndex] = useState(0);
   const [duplicatedRecords, setDuplicatedRecords] = useState([]);
 
-  const { appbar, formControl, gridContainer, typography, splitScreen, tabs } = useStyles();
+  const { appbar, formControl, gridContainer, splitScreen, tabs } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -92,13 +75,12 @@ const ChartEditor = props => {
   if (sourceType === 'ecl') {
     chartData = { data: eclData || [], error: '', loading: eclLoading };
   } else {
-    chartData = { ...dataObj.data, error: '', loading: dataObj.loading };
+    //dataObj.data :>>  {data: Array(5000), lastModifiedDate: '04/03/2020 22:00:25 UTC'}
+    chartData = { ...dataObj.data, error: dataObj.error || '', loading: dataObj.loading };
   }
-
   const memo = React.useMemo(
     () => ({
-      chartConfig: { configuration: { ...configuration, dataset } },
-      chartData,
+      chart: { configuration: { ...configuration, dataset }, ...chartData },
       eclDataset,
       sourceType,
     }),
@@ -116,9 +98,9 @@ const ChartEditor = props => {
     <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={12} md={6} className={splitScreen}>
         {error !== '' && (
-          <Typography className={typography} align='center'>
-            {error}
-          </Typography>
+          <Box mb={1}>
+            <Alert severity='error'>{error}</Alert>
+          </Box>
         )}
         {/* Only display when not editing an existing chart */}
         {!chartID && (type !== 'textBox' || (type === 'textBox' && !isStatic)) && (
@@ -223,8 +205,7 @@ const ChartEditor = props => {
           <Box flexGrow='1' maxHeight={duplicatedRecords.length > 0 ? '90%' : '100%'}>
             <Box height='100%'>
               <Chart
-                chart={memo.chartConfig}
-                dataObj={memo.chartData}
+                chart={memo.chart}
                 sourceType={memo.sourceType}
                 eclDataset={memo.eclDataset}
                 showDuplicatedRecordsWarning={showDuplicatedRecordsWarning}

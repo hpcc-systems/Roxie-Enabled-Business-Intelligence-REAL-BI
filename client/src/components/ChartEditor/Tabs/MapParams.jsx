@@ -22,7 +22,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import Remove from '@material-ui/icons/Remove';
 
 import { v4 as uuidv4 } from 'uuid';
-import _ from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 const useStyles = makeStyles(() => ({
   cancelSetting: {
@@ -125,7 +125,7 @@ const MarkerSetting = props => {
   };
 
   const isParamsChanged = () => {
-    return !_.isEqual(marker, {
+    return !isEqual(marker, {
       id: marker.id,
       popUpInfo: popUpInfoArray,
       latitude,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({

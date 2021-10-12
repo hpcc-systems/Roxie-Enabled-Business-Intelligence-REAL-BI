@@ -4,7 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MapIcons from './MapIcons';
 import mapboxgl from '!mapbox-gl';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
+import dropRight from 'lodash/dropRight';
 
 const useStyles = makeStyles(() => ({
   mapWrapper: {
@@ -49,7 +50,7 @@ function Map({ chartID, configuration, data }) {
     localStorage.setItem(`mapViewports`, JSON.stringify(newMapViewports));
   };
 
-  const deboucedSaveToLS = _.debounce(saveToLs, 1000);
+  const deboucedSaveToLS = debounce(saveToLs, 1000);
 
   useEffect(() => {
     //creating array of features to show on map
@@ -59,7 +60,7 @@ function Map({ chartID, configuration, data }) {
       .map(row =>
         mapMarkers.map(marker => {
           //first el in marker.popUpInfo is always empty, we dont want to loop over it
-          const popUps = _.dropRight(marker.popUpInfo);
+          const popUps = dropRight(marker.popUpInfo);
           return {
             type: 'Feature',
             properties: {
@@ -108,7 +109,7 @@ function Map({ chartID, configuration, data }) {
       }),
     );
 
-    const resizer = new ResizeObserver(_.debounce(() => map.resize(), 100));
+    const resizer = new ResizeObserver(debounce(() => map.resize(), 100));
     resizer.observe(mapWrapper.current);
 
     map.on('move', () => {

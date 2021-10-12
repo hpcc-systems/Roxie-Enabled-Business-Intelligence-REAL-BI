@@ -168,7 +168,7 @@ router.get('/data', async (req, res, next) => {
     // attach new config for redux only if it was updated.
     if (configuration.isUpdated) {
       delete configuration.isUpdated;
-      data.updatedChartConfiguration = configuration;
+      data.configuration = configuration;
     }
 
     return res.status(200).json(data);
@@ -202,8 +202,8 @@ router.put('/', async (req, res, next) => {
 
     await updateChartByID(chart, chart?.source?.id);
     const { charts } = await getDashboardByID(dashboardID, userID);
-
-    return res.status(200).json(charts);
+    const updatedChart = charts.find(el => el.id === chart.id); // we just need one updated chart instead of all charts.
+    return res.status(200).json(updatedChart);
   } catch (error) {
     next(error);
   }
@@ -224,9 +224,7 @@ router.delete('/', async (req, res, next) => {
     }
 
     await deleteChartByID(chartID);
-    const { charts } = await getDashboardByID(dashboardID, userID);
-
-    return res.status(200).json(charts);
+    return res.status(200).send(chartID);
   } catch (error) {
     next(error);
   }
