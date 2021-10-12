@@ -139,16 +139,8 @@ const sendShareWorkspaceEmail = async (shareID, workspaceID, recipientEmail, new
     html: message,
   };
 
-  // TODO: TEMP SETTING
-  // try {
-  //   await transporter.sendMail(options); // will try to send but not awaiting result.
-  //   logger.info(`trying to send email ${url}`);
-  // } catch (err) {
-  //   logger.error(err);
-  // }
-  // TODO: uncomment later
-  // const info = await transporter.sendMail(options);
-  // return logger.info(`Email sent with share id ${shareID} and message id ${info.messageId}`);
+  const info = await transporter.sendMail(options);
+  return logger.info(`Email sent with share id ${shareID} and message id ${info.messageId}`);
 };
 
 const findOrCreatePublicWorkspace = async (userID, workspaceName, userRole) => {

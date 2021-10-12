@@ -2,7 +2,7 @@ const { share: Share } = require('../models');
 const { unNestSequelizeObj } = require('./sequelize');
 const { createUser, getUserByEmail } = require('./user');
 const { createWorkspacePermission, findWorkspacePermission } = require('./workspacePermission');
-const { createWorkspaceDirectory, updateWorkspaceDirectory } = require('./workspaceDirectory');
+
 const { createDashboardPermission, findDashboardPermission } = require('./dashboardPermission');
 const {
   createFilterValue,
@@ -36,7 +36,7 @@ const addSharedResourcesToUser = async (email, username, shareID) => {
   }
 
   // Get shared resources
-  const { id, dashboards, directory, userID, workspaceID } = await findShare(shareID);
+  const { id, dashboards, userID, workspaceID } = await findShare(shareID);
 
   if (!id) throw new Error('Invalid share ID');
 
@@ -45,9 +45,6 @@ const addSharedResourcesToUser = async (email, username, shareID) => {
 
   if (!workspacePermission) {
     await createWorkspacePermission(workspaceID, user.id, 'Read-Only');
-    await createWorkspaceDirectory(directory, workspaceID);
-  } else {
-    await updateWorkspaceDirectory(directory, workspaceID);
   }
 
   // Dashboard setup
