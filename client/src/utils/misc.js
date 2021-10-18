@@ -149,3 +149,20 @@ export function getConstrastTextColor(hex) {
   // http://stackoverflow.com/a/3943023/112731
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
 }
+
+export const createErrorMessage = error => {
+  let message;
+  if (error.payload) {
+    message = error.payload.data.errors.reduce((acc, el) => {
+      let elMessages = '';
+      for (const key in el) {
+        elMessages += el[key] + '. ';
+      }
+      return (acc += elMessages);
+    }, '');
+  } else {
+    message = error.message;
+  }
+
+  return message;
+};

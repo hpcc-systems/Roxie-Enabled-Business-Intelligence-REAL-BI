@@ -1,7 +1,16 @@
-/* eslint-disable no-throw-literal */
 import axios from 'axios';
+import { updateDashboardLayout } from '../../utils/dashboard';
 
 // Action Types
+export const REFRESH_DATA_BY_CHART_IDS = 'REFRESH_DATA_BY_CHART_IDS';
+export const REFRESH_ALL_CHARTS_DATA = 'REFRESH_ALL_CHARTS_DATA';
+export const FETCH_CHART_DATA_REQUEST = 'FETCH_CHART_DATA_REQUEST';
+export const FETCH_CHART_DATA_FAILURE = 'FETCH_CHART_DATA_FAILURE';
+export const FETCH_CHART_DATA_SUCCESS = 'FETCH_CHART_DATA_SUCCESS';
+export const SET_ACTIVE_CHART = 'SET_ACTIVE_CHART';
+export const SET_INTERACTIVE_OBJECT = 'SET_INTERACTIVE_OBJECT';
+export const SET_CHART_ERROR = 'SET_CHART_ERROR';
+export const UPDATE_DASHBOARD_LAYOUT = 'UPDATE_DASHBOARD_LAYOUT';
 export const CREATE_CHART = 'CREATE_CHART';
 export const CREATE_FILTER = 'CREATE_FILTER';
 export const DELETE_CHART = 'DELETE_CHART';
@@ -9,7 +18,6 @@ export const DELETE_FILTER = 'DELETE_FILTER';
 export const GET_DASHBOARD = 'GET_DASHBOARD';
 export const SET_DASHBOARD_ERRORS = 'SET_DASHBOARD_ERRORS';
 export const UPDATE_CHART = 'UPDATE_CHART';
-export const UPDATE_CHART_CONFIG = 'UPDATE_CHART_CONFIG';
 export const UPDATE_DASHBOARD = 'UPDATE_DASHBOARD';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
 export const UPDATE_RELATIONS = 'UPDATE_RELATIONS';
@@ -155,10 +163,71 @@ export const deleteExistingRelations = async (dashboardID, relationsArr) => {
   }
 };
 
+export const setChartAsActive = chartId => {
+  return {
+    type: SET_ACTIVE_CHART,
+    payload: chartId,
+  };
+};
+
 export const updateChartConfigObject = newChart => {
   return {
-    type: UPDATE_CHART_CONFIG,
+    type: FETCH_CHART_DATA_SUCCESS,
     payload: newChart,
   };
 };
-/* eslint-enable no-throw-literal */
+
+export const fetchChartData = chartIsLoading => {
+  return {
+    type: FETCH_CHART_DATA_REQUEST,
+    payload: chartIsLoading,
+  };
+};
+
+export const chartDataError = chartError => {
+  return {
+    type: FETCH_CHART_DATA_FAILURE,
+    payload: chartError,
+  };
+};
+
+export const refreshAllChartsData = () => {
+  return {
+    type: REFRESH_ALL_CHARTS_DATA,
+  };
+};
+
+export const refreshDataByChartIds = chartIds => {
+  return {
+    type: REFRESH_DATA_BY_CHART_IDS,
+    payload: chartIds,
+  };
+};
+
+export const updateLayout = layout => {
+  return {
+    type: UPDATE_DASHBOARD_LAYOUT,
+    payload: layout,
+  };
+};
+
+export const updateLayoutInDBandStore = newLayout => async (dispatch, getState) => {
+  const { dashboard } = getState();
+  const dashboardLayout = dashboard.dashboard.layout;
+  const oldLayouts = dashboardLayout;
+  dispatch(updateLayout(newLayout));
+  try {
+    await updateDashboardLayout(newLayout, dashboard.dashboard.id);
+    return { error: '' };
+  } catch (error) {
+    dispatch(updateLayout(oldLayouts));
+    return { error: error.message };
+  }
+};
+
+export const interactiveClick = (chartID, field, clickValue) => {
+  return {
+    type: SET_INTERACTIVE_OBJECT,
+    payload: { chartID, field, clickValue },
+  };
+};

@@ -12,7 +12,7 @@ import CustomTooltip from '../Common/Tooltip';
 // Utils
 import { canEditCharts } from '../../utils/misc';
 import { useSelector } from 'react-redux';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 const useStyles = makeStyles(() => ({
   centerSvg: {
@@ -24,14 +24,13 @@ const useStyles = makeStyles(() => ({
 
 const ChartToolbar = props => {
   const classes = useStyles();
-  const { chart, lastModifiedDate, pdfPreview } = props;
-  const { configuration, source, sourceType } = chart;
+  const { configuration, source, sourceType, lastModifiedDate } = props.chart;
   const { chartDescription = '', isStatic, showLastExecuted, title = '' } = configuration;
 
   const { permission, fileName } = useSelector(state => state.dashboard.dashboard);
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isDecriptionFits, setIsDecriptionFits] = useState(true);
+  const [isDescriptionFits, setIsDescriptionFits] = useState(true);
   const [isTitleFits, setIsTitleFits] = useState(true);
 
   const descriptionRef = useRef();
@@ -48,9 +47,9 @@ const ChartToolbar = props => {
       }
 
       if (description?.target?.scrollWidth > description?.target?.offsetWidth) {
-        active && setIsDecriptionFits(false);
+        active && setIsDescriptionFits(false);
       } else {
-        active && setIsDecriptionFits(true);
+        active && setIsDescriptionFits(true);
       }
     }, 1000);
 
@@ -85,7 +84,7 @@ const ChartToolbar = props => {
             {title}
           </Typography>
         )}
-        {!isDecriptionFits && (
+        {!isDescriptionFits && (
           <Typography variant='body2' component='p'>
             {chartDescription}
           </Typography>
@@ -94,7 +93,7 @@ const ChartToolbar = props => {
     );
   };
 
-  const disableTooltip = isStatic && isTitleFits && isDecriptionFits;
+  const disableTooltip = isStatic && isTitleFits && isDescriptionFits;
 
   return (
     <>
@@ -115,9 +114,7 @@ const ChartToolbar = props => {
           </Grid>
 
           <Grid item className={classes.centerSvg}>
-            {canEditCharts(permission) && !pdfPreview && (
-              <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />
-            )}
+            {canEditCharts(permission) && <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />}
             <ToolbarSubMenu {...props} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
           </Grid>
         </Grid>

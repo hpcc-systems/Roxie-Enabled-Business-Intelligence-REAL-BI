@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -18,7 +18,11 @@ import clsx from 'clsx';
 import _orderBy from 'lodash/orderBy';
 
 // Redux Actions
-import { deleteExistingFilter, updateFilterValue } from '../../features/dashboard/actions.js';
+import {
+  deleteExistingFilter,
+  refreshDataByChartIds,
+  updateFilterValue,
+} from '../../features/dashboard/actions.js';
 
 // React Components
 import Filters from '../Dialog/Filters.jsx';
@@ -55,7 +59,8 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => {
+const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
+  const { dashboard } = useSelector(state => state.dashboard);
   const { filters = [], id: dashboardID, permission } = dashboard;
   const [filter, setFilter] = useState(null);
   const [compData, setCompData] = useState({});
@@ -134,8 +139,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
       const dataType = getFilterValueType(value);
       const action = await updateFilterValue({ ...valueObj, dataType, value }, dashboardID);
       dispatch(action);
-
-      getChartData(effectedChartIds, {});
+      dispatch(refreshDataByChartIds(effectedChartIds));
     } catch (error) {
       dispatch(error);
     }
@@ -152,8 +156,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
     try {
       const action = await deleteExistingFilter(dashboardID, id);
       dispatch(action);
-
-      getChartData(effectedChartIds, {});
+      dispatch(refreshDataByChartIds(effectedChartIds));
     } catch (error) {
       dispatch(error);
     }
@@ -260,13 +263,7 @@ const FilterDrawer = ({ dashboard, getChartData, showDrawer, toggleDrawer }) => 
         </Grid>
       </div>
       {showFilter && (
-        <Filters
-          dashboard={dashboard}
-          filter={filter}
-          show={showFilter}
-          toggleDialog={toggleFilter}
-          getChartData={getChartData}
-        />
+        <Filters dashboard={dashboard} filter={filter} show={showFilter} toggleDialog={toggleFilter} />
       )}
     </Drawer>
   );

@@ -9,8 +9,8 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import Box from '@material-ui/core/Box';
 
 import { getTreeViewData } from '../../utils/hpcc';
-import { useSnackbar } from 'notistack';
 import { v4 as uuidv4 } from 'uuid';
+import useNotifier from '../../hooks/useNotifier';
 
 const useStyles = makeStyles({
   loader: { width: '25%', marginLeft: '5px' },
@@ -24,8 +24,7 @@ const initial = {
 };
 
 export default function ControlledTreeView({ clusterId, formFieldsUpdate, selectedSource }) {
-  const { enqueueSnackbar } = useSnackbar();
-
+  const notifyResult = useNotifier();
   const [clusterFiles, setClusterFiles] = React.useState(initial);
   const [expanded, setExpanded] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
@@ -60,16 +59,7 @@ export default function ControlledTreeView({ clusterId, formFieldsUpdate, select
         sources: [currentNodeRef],
         selectedSource: currentNodeRef,
       });
-      enqueueSnackbar(`${currentNodeRef.name} file selected`, {
-        variant: 'success',
-        autoHideDuration: 3000,
-        preventDuplicate: true,
-        anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'left',
-          preventDuplicate: true,
-        },
-      });
+      notifyResult('success', `${currentNodeRef.name} file selected`);
     }
     setSelected(nodeIds);
   };

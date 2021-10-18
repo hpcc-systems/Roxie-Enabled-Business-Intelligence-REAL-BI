@@ -6,7 +6,7 @@ import { ECLEditor } from '@hpcc-js/codemirror';
 import { Button, SelectDropDown, Spacer, TitleBar } from '@hpcc-js/common';
 import { Border2 } from '@hpcc-js/layout';
 import { SplitPanel } from '@hpcc-js/phosphor';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 // Utils
 import { getTargetClustersForEditor, submitWorkunit } from '../../../utils/hpcc';

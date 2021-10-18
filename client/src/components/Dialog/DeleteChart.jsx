@@ -1,10 +1,12 @@
 import React from 'react';
-import { batch, useDispatch } from 'react-redux';
+import { batch, useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
 
 // Redux Actions
 import { deleteChart, deleteEmptyFilters, updateAlteredFilters } from '../../features/dashboard/actions';
+import useNotifier from '../../hooks/useNotifier';
+import { createErrorMessage } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -18,10 +20,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChartLayout }) => {
-  const { id: dashboardID, filters } = dashboard;
+const DeleteChartDialog = ({ show, toggleDialog }) => {
+  const { dashboard } = useSelector(state => state.dashboard);
+  const { id: dashboardID, filters, activeChart } = dashboard;
+  const chartID = activeChart.id;
   const dispatch = useDispatch();
   const { cancelBtn, deleteBtn } = useStyles();
+
+  const notifyResult = useNotifier();
 
   const confirmDelete = async () => {
     // check if there is settings saved in LS
@@ -39,18 +45,20 @@ const DeleteChartDialog = ({ chartID, dashboard, show, toggleDialog, removeChart
     updatedFilters = updatedFilters.filter(({ params }) => params.length > 0);
 
     try {
-      Promise.all([
-        deleteChart(chartID, dashboardID),
+      const actions = await Promise.all([
+        deleteChart(chartID, dashboardID), //returns { type: DELETE_CHART, payload: response.data };
         updateAlteredFilters(dashboardID, updatedFilters),
         deleteEmptyFilters(dashboardID, emptyFilters),
-      ]).then(async actions => {
-        batch(() => {
-          actions.forEach(action => dispatch(action));
-          removeChartLayout(chartID);
-          toggleDialog();
-        });
+      ]);
+
+      batch(async () => {
+        actions.forEach(action => dispatch(action));
+        notifyResult('success', 'Item deleted successfully!');
+        toggleDialog();
       });
     } catch (error) {
+      const message = createErrorMessage(error);
+      notifyResult('error', `Error happened, we can not delete a chart. ${message}`);
       dispatch(error);
     }
   };

@@ -15,8 +15,9 @@ const { getDashboardFiltersWithValues } = require('../../utils/dashboardFilter')
 const { getWorkunitDataFromCluster, getWorkunitDataFromClusterWithParams } = require('../../utils/hpccEcl');
 const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelation');
 const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
+const { validate, validateChart, validateDeleteChart } = require('../../utils/validation');
 
-router.post('/', async (req, res, next) => {
+router.post('/', [validateChart(), validate], async (req, res, next) => {
   const {
     body: { chart, dashboardID, sourceID },
     user: { id: userID },
@@ -31,7 +32,7 @@ router.post('/', async (req, res, next) => {
     }
 
     const charts = await getChartsByDashboardID(dashboardID);
-    const { id } = await createChart(chart, dashboardID, sourceID, charts.length);
+    const { id } = await createChart(chart.configuration, dashboardID, sourceID, charts.length);
     const newChart = await getChartByID(id);
 
     return res.status(201).json(newChart);
@@ -168,7 +169,7 @@ router.get('/data', async (req, res, next) => {
     // attach new config for redux only if it was updated.
     if (configuration.isUpdated) {
       delete configuration.isUpdated;
-      data.updatedChartConfiguration = configuration;
+      data.configuration = configuration;
     }
 
     return res.status(200).json(data);
@@ -177,7 +178,7 @@ router.get('/data', async (req, res, next) => {
   }
 });
 
-router.put('/', async (req, res, next) => {
+router.put('/', [validateChart(), validate], async (req, res, next) => {
   const {
     body: { chart, dashboardID },
     user: { id: userID },
@@ -202,14 +203,14 @@ router.put('/', async (req, res, next) => {
 
     await updateChartByID(chart, chart?.source?.id);
     const { charts } = await getDashboardByID(dashboardID, userID);
-
-    return res.status(200).json(charts);
+    const updatedChart = charts.find(el => el.id === chart.id); // we just need one updated chart instead of all charts.
+    return res.status(200).json(updatedChart);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/', async (req, res, next) => {
+router.delete('/', [validateDeleteChart(), validate], async (req, res, next) => {
   const {
     query: { chartID, dashboardID },
     user: { id: userID },
@@ -224,9 +225,7 @@ router.delete('/', async (req, res, next) => {
     }
 
     await deleteChartByID(chartID);
-    const { charts } = await getDashboardByID(dashboardID, userID);
-
-    return res.status(200).json(charts);
+    return res.status(200).send(chartID);
   } catch (error) {
     next(error);
   }

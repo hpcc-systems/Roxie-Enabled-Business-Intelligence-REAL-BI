@@ -9,7 +9,8 @@ import FileExplorer from './FileExplorer';
 // Utils
 import { getKeywordSearchResults } from '../../utils/hpcc';
 import { useSnackbar } from 'notistack';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 
 const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -29,7 +30,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
   } = localState;
   const { id: clusterID } = dashboard.cluster;
 
-  const selectedSource = _.isEmpty(localState.selectedSource) ? null : localState.selectedSource; // autocomplete fix
+  const selectedSource = isEmpty(localState.selectedSource) ? null : localState.selectedSource; // autocomplete fix
 
   const updateAutocomplete = async (clusterID, keyword) => {
     if (!isMounted.current) return;
@@ -52,7 +53,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     }
   };
 
-  const updateAutocompleteDebounced = useCallback(_.debounce(updateAutocomplete, 1000), [sourceType]);
+  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [sourceType]);
 
   useEffect(() => {
     isMounted.current = true;

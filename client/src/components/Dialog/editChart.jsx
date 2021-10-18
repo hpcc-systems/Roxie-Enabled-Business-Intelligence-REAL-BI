@@ -6,6 +6,7 @@ import { Refresh as RefreshIcon, TableChart as TableChartIcon } from '@material-
 import clsx from 'clsx';
 
 // Redux Actions
+// import { refreshDataByChartIds } from '../../features/dashboard/actions';
 import { updateChart } from '../../features/dashboard/actions';
 
 // React Components
@@ -21,6 +22,8 @@ import { createChartObj, setEditorState } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 import { validateSource } from '../../utils/validate';
+import { createErrorMessage } from '../../utils/misc';
+import useNotifier from '../../hooks/useNotifier';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -39,11 +42,11 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
+const EditChartDialog = ({ show, toggleDialog }) => {
   const { dashboard } = useSelector(state => state.dashboard);
   const [showDialog, toggleData] = useDialog(false);
-  const { charts = [] } = dashboard;
-  const initState = setEditorState(charts, chartID);
+
+  const initState = setEditorState(dashboard.activeChart);
 
   // Set initial state
   const {
@@ -55,14 +58,27 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
     formFieldsUpdate,
   } = useForm(initState);
 
+  const notifyResult = useNotifier();
+
   const dispatch = useDispatch();
   const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
   // Reference values
-  const { dataObj, selectedDataset = {}, selectedSource = {}, sourceType } = localState;
+  const { dataObj, selectedDataset = {}, selectedSource = {}, sourceType, chartID } = localState;
 
   // almost all of the code expect eclRef to look like useRef object, to avoid changing everything we wrap ecl values in object.
   const eclRef = { current: localState.ecl };
+
+  const handleError = error => {
+    const message = createErrorMessage(error);
+    formFieldsUpdate({
+      error: message,
+      errors: error?.payload?.data?.errors || [],
+      dataObj: { error: message, loading: false },
+    });
+    notifyResult('warning', 'Something is not right, please check your inputs');
+    return dispatch(error);
+  };
 
   // Update chart in DB and store
   const editChart = async event => {
@@ -82,7 +98,7 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
         dispatch(action);
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     } else {
       try {
@@ -103,13 +119,12 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
 
       try {
         const updatedChartObj = { id: chartID, configuration: chartObj, source: newSource };
-        const action = await updateChart(updatedChartObj, dashboardID);
-        dispatch(action);
-
-        getChartData([chartID], {});
+        const updatedChart = await updateChart(updatedChartObj, dashboardID);
+        dispatch(updatedChart); // updates chartConfig
+        // dispatch(refreshDataByChartIds([chartID])); // updates Data
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     }
   };
@@ -145,7 +160,6 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
 
   const eclData = eclRef.current?.data;
   const fileOrQueryData = dataObj?.data?.data;
-
   return (
     <Fragment>
       <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>
@@ -182,7 +196,13 @@ const EditChartDialog = ({ chartID, getChartData, show, toggleDialog }) => {
             <Button variant='contained' color='secondary' onClick={toggleDialog}>
               Cancel
             </Button>
-            <Button type='submit' name='save' variant='contained' className={button}>
+            <Button
+              type='submit'
+              name='save'
+              variant='contained'
+              className={button}
+              disabled={checkDisabled()}
+            >
               Save
             </Button>
           </DialogActions>

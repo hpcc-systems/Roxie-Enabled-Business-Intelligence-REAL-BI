@@ -22,6 +22,8 @@ import { createChartObj } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 import { validateSource } from '../../utils/validate';
+import useNotifier from '../../hooks/useNotifier';
+import { createErrorMessage } from '../../utils/misc';
 
 const initState = {
   configuration: {
@@ -34,7 +36,6 @@ const initState = {
       drilledOptions: [],
     },
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
-    mapFields: [{ label: '', name: '' }],
     type: 'bar',
     textBoxAlignText: 'left',
     mapMarkers: [
@@ -81,8 +82,11 @@ const useStyles = makeStyles(theme => ({
   typography: { flex: 1, marginLeft: 12 },
 }));
 
-const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) => {
+const NewChartDialog = ({ show, toggleDialog }) => {
   const [showDialog, toggleData] = useDialog(false);
+
+  const notifyResult = useNotifier();
+
   const {
     values: localState,
     handleChange,
@@ -114,6 +118,17 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
     }
   }, []);
 
+  const handleError = error => {
+    const message = createErrorMessage(error);
+    formFieldsUpdate({
+      error: message,
+      errors: error?.payload?.data?.errors || [],
+      dataObj: { error: message, loading: false },
+    });
+    notifyResult('warning', 'Something is not right, please check your inputs');
+    return dispatch(error);
+  };
+
   // Add components to DB
   const newChart = async event => {
     event.preventDefault();
@@ -123,17 +138,17 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
     const { configuration, dataset } = localState;
     const { isStatic, type } = configuration;
     const { id: dashboardID } = dashboard;
-    let sourceID, sourceName, sourceType;
+    let sourceID;
 
     if (type === 'textBox' && isStatic) {
-      const chartObj = { ...configuration, dataset, ecl: {} };
+      const chartObj = { configuration: { ...configuration, dataset, ecl: {} } };
       try {
         const action = await createChart(chartObj, dashboardID, null);
-        dispatch(action);
-        addChartToLayout(action.payload);
+        dispatch(action); // { type: CREATE_CHART, payload: response.data };
+        notifyResult('success', 'New item has been added to dashboard');
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     } else {
       try {
@@ -149,21 +164,19 @@ const NewChartDialog = ({ show, toggleDialog, getChartData, addChartToLayout }) 
       try {
         const newSource = await createSource(sourceObj);
         sourceID = newSource.id;
-        sourceName = newSource.name;
-        sourceType = newSource.type;
       } catch (error) {
         return handleChange(null, { name: 'error', value: error.message });
       }
 
       try {
-        const action = await createChart(newChartObj, dashboardID, sourceID, sourceName, sourceType);
-        dispatch(action);
-        getChartData([action.payload.id], {});
-        addChartToLayout(action.payload);
+        const chartObj = { configuration: newChartObj };
+        const action = await createChart(chartObj, dashboardID, sourceID);
+        dispatch(action); // { type: CREATE_CHART, payload: response.data };
+        notifyResult('success', 'New item has been added to dashboard');
         history.push(`/workspace/${workspaceID}`);
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     }
   };

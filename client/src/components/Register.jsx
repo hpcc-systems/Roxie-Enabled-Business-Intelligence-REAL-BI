@@ -97,7 +97,6 @@ const Register = () => {
 
     try {
       const response = await registerUser(localState, shareID);
-      console.log(`response`, response);
       formFieldsUpdate({ loading: false, errors: [], successMsg: response.message });
       setTimeout(() => history.push('/login'), 1500); // Wait 1.5 seconds then redirect to login page
     } catch (error) {

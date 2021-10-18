@@ -1,8 +1,6 @@
 import React, { useEffect, Fragment } from 'react';
-import { Box, Button, CircularProgress, Divider, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Divider, Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-
-import { useSnackbar } from 'notistack';
 
 //React Components
 import BarChart from './Bar';
@@ -18,26 +16,24 @@ import PieChart from './Pie';
 import ScatterChart from './Scatter';
 import Table from './Table';
 import TextBox from './TextBox';
+import useNotifier from '../../hooks/useNotifier';
 
 const ChartComp = ({
-  chart: { configuration = {}, id: chartID },
-  dataObj,
+  chart: { configuration = {}, id: chartID, data = [], error, loading },
   interactiveClick,
   interactiveObj = {},
-  pdfPreview,
+  pdfPreview = false,
   sourceType,
   showDuplicatedRecordsWarning,
 }) => {
   // Snackbar warning about data size
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const notifyResult = useNotifier();
 
   let relations = useSelector(state => state.dashboard.dashboard.relations);
 
   const { horizontal, params = [], isStatic = false, type } = configuration;
 
   let chartType = type;
-
-  const { data = [], error, loading } = dataObj;
 
   if (!error && data) {
     if (chartType === 'bar') {
@@ -53,28 +49,15 @@ const ChartComp = ({
 
   const countParamValue = countParamIndex > -1 ? Number(params[countParamIndex].value) : -1;
 
-  const closeSnackbarButton = key => {
-    const onClose = () => closeSnackbar(key);
-    return <Button onClick={onClose}>Dismiss</Button>;
-  };
-
   useEffect(() => {
     if (data.length >= 5000) {
-      enqueueSnackbar(
+      notifyResult(
+        'warning',
         'Displaying 5,000+ rows of data is not recommended. Please consider filtering your data further to improve chart render time',
-        {
-          anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-          variant: 'warning',
-          action: closeSnackbarButton,
-        },
       );
     }
     if (data.length < 5000 && data.length === countParamValue) {
-      enqueueSnackbar('The number of returned rows is being altered by a chart level parameter.', {
-        anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-        variant: 'info',
-        action: closeSnackbarButton,
-      });
+      notifyResult('info', 'The number of returned rows is being altered by a chart level parameter.');
     }
   }, [data]);
 
