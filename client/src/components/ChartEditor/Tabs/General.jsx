@@ -153,7 +153,7 @@ const GeneralTab = props => {
   };
 
   const handleTypeChange = event => {
-    const newConfig = changeChartType(type, event.target.value, configuration);
+    const newConfig = changeChartType(event.target.value, configuration);
 
     handleChange(null, { name: 'configuration', value: newConfig });
   };

@@ -22,6 +22,8 @@ import { createChartObj, setEditorState } from '../../utils/chart';
 import { createSource, createSourceObj } from '../../utils/source';
 import { getChartPreviewData } from '../../utils/hpcc';
 import { validateSource } from '../../utils/validate';
+import { createErrorMessage } from '../../utils/misc';
+import useNotifier from '../../hooks/useNotifier';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -56,6 +58,8 @@ const EditChartDialog = ({ show, toggleDialog }) => {
     formFieldsUpdate,
   } = useForm(initState);
 
+  const notifyResult = useNotifier();
+
   const dispatch = useDispatch();
   const { button, button2, button3, button4, scrollPaper, toolbar, typography } = useStyles();
 
@@ -64,6 +68,17 @@ const EditChartDialog = ({ show, toggleDialog }) => {
 
   // almost all of the code expect eclRef to look like useRef object, to avoid changing everything we wrap ecl values in object.
   const eclRef = { current: localState.ecl };
+
+  const handleError = error => {
+    const message = createErrorMessage(error);
+    formFieldsUpdate({
+      error: message,
+      errors: error?.payload?.data?.errors || [],
+      dataObj: { error: message, loading: false },
+    });
+    notifyResult('warning', 'Something is not right, please check your inputs');
+    return dispatch(error);
+  };
 
   // Update chart in DB and store
   const editChart = async event => {
@@ -83,7 +98,7 @@ const EditChartDialog = ({ show, toggleDialog }) => {
         dispatch(action);
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     } else {
       try {
@@ -109,7 +124,7 @@ const EditChartDialog = ({ show, toggleDialog }) => {
         // dispatch(refreshDataByChartIds([chartID])); // updates Data
         return toggleDialog();
       } catch (error) {
-        return dispatch(error);
+        return handleError(error);
       }
     }
   };
@@ -145,7 +160,6 @@ const EditChartDialog = ({ show, toggleDialog }) => {
 
   const eclData = eclRef.current?.data;
   const fileOrQueryData = dataObj?.data?.data;
-
   return (
     <Fragment>
       <Dialog scroll='paper' open={show} fullWidth maxWidth='xl' classes={{ paperScrollPaper: scrollPaper }}>

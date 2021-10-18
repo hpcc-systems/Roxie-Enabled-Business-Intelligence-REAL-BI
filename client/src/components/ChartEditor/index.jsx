@@ -84,7 +84,7 @@ const ChartEditor = props => {
       eclDataset,
       sourceType,
     }),
-    [dataObj.loading, eclData, toggleUpdate, configuration.textBoxContent],
+    [dataObj.loading, dataObj.error, eclData, toggleUpdate, configuration.textBoxContent],
   );
 
   const showDuplicatedRecordsWarning = useCallback(

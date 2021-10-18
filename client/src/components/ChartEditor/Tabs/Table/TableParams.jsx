@@ -52,12 +52,12 @@ const TableParams = ({ eclRef, handleChangeObj, localState }) => {
     // Update index
     if (name === 'asLink') {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: event.target.checked };
+      if (!event.target.checked) newFieldsArr[index].linkBase = '';
     } else if (name === 'color') {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: value, text: getConstrastTextColor(value) };
     } else {
       newFieldsArr[index] = { ...newFieldsArr[index], [name]: value };
     }
-
     // Add new object to end of array for next entry
     if (newFieldsArr.length - 1 === index) {
       newFieldsArr.push({ color: '#ffff', label: '', name: '', asLink: false, linkBase: '' });
