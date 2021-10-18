@@ -15,7 +15,7 @@ const { getDashboardFiltersWithValues } = require('../../utils/dashboardFilter')
 const { getWorkunitDataFromCluster, getWorkunitDataFromClusterWithParams } = require('../../utils/hpccEcl');
 const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelation');
 const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
-const { validate, validateChart } = require('../../utils/validation');
+const { validate, validateChart, validateDeleteChart } = require('../../utils/validation');
 
 router.post('/', [validateChart(), validate], async (req, res, next) => {
   const {
@@ -210,7 +210,7 @@ router.put('/', [validateChart(), validate], async (req, res, next) => {
   }
 });
 
-router.delete('/', async (req, res, next) => {
+router.delete('/', [validateDeleteChart(), validate], async (req, res, next) => {
   const {
     query: { chartID, dashboardID },
     user: { id: userID },

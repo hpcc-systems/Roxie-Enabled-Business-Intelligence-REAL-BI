@@ -1,5 +1,4 @@
-/* eslint-disable no-useless-escape */
-const { body, header, validationResult } = require('express-validator');
+const { body, header, query, validationResult } = require('express-validator');
 const logger = require('../config/logger');
 
 const validateLogin = () => {
@@ -92,31 +91,31 @@ const validateWorkspaceShare = () => {
 
 const validateChart = () => {
   return [
-    body('dashboardID').optional({ checkFalsy: true }).isUUID(4).withMessage('invalid dashboardID'),
-    body('sourceID').optional({ checkFalsy: true }).isUUID(4).withMessage('invalid sourceID'),
+    body('dashboardID').optional({ checkFalsy: true }).isUUID(4).withMessage('Invalid dashboardID'),
+    body('sourceID').optional({ checkFalsy: true }).isUUID(4).withMessage('Invalid sourceID'),
     body('chart.configuration.axis1.type').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis1.label').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis1.value').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis1.showTickLabels')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid color for "show labels 1" settings'),
+      .withMessage('Invalid color for "show labels 1" settings'),
     body('chart.configuration.axis2.type').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis2.label').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis2.value').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis2.showTickLabels')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid color for "show labels 2" settings'),
+      .withMessage('Invalid color for "show labels 2" settings'),
     body('chart.configuration.axis3.type').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis3.label').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis3.value').trim().blacklist('<>&\'"/'),
     body('chart.configuration.axis3.showTickLabels')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid color for "show labels 3" settings'),
+      .withMessage('Invalid color for "show labels 3" settings'),
     body('chart.configuration.fields.*.name').trim().blacklist('<>&\'"/'),
-    body('chart.configuration.fields.*.color').isHexColor().withMessage('invalid color in "fields" settings'),
+    body('chart.configuration.fields.*.color').isHexColor().withMessage('Invalid color in "fields" settings'),
     body('chart.configuration.fields.*.label').trim().blacklist('<>&\'"/'),
     body('chart.configuration.fields.*.linkBase')
       .optional({ checkFalsy: true })
@@ -125,7 +124,7 @@ const validateChart = () => {
     body('chart.configuration.fields.*.asLink')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid value for "as link'),
+      .withMessage('Invalid value for "as link'),
     body('chart.configuration.params.*.*').trim().blacklist('<>&\'"/'),
     body('chart.configuration.sortBy.*').trim().blacklist('<>&\'"/'),
     body('chart.configuration.groupBy.*').trim().blacklist('<>&\'"/'),
@@ -133,60 +132,67 @@ const validateChart = () => {
     body('chart.configuration.stacked')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid value for "stacked'),
+      .withMessage('Invalid value for "stacked'),
     body('chart.configuration.isStatic')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid value for "static"'),
+      .withMessage('Invalid value for "static"'),
     body('chart.configuration.drillDown.hasDrillDown')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid value for "drill down"'),
+      .withMessage('Invalid value for "drill down"'),
     body('chart.configuration.drillDown.drilledByField').trim().blacklist('<>&\'"/'),
     body('chart.configuration.drillDown.drilledOptions.*').trim().blacklist('<>&\'"/'),
     body('chart.configuration.horizontal')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid value for "horizontal"'),
+      .withMessage('Invalid value for "horizontal"'),
     body('chart.configuration.mapMarkers.*.id')
       .optional({ checkFalsy: true })
       .isUUID(4)
-      .withMessage('invalid map marker ID'),
+      .withMessage('Invalid map marker ID'),
     body('chart.configuration.mapMarkers.*.latitude').trim().blacklist('<>&\'"/'),
     body('chart.configuration.mapMarkers.*.longitude').trim().blacklist('<>&\'"/'),
     body('chart.configuration.mapMarkers.*.markerIcon').trim().blacklist('<>&\'"/'),
     body('chart.configuration.mapMarkers.*.markerColor')
       .optional({ checkFalsy: true })
       .isHexColor()
-      .withMessage('invalid "map marker color" settings'),
+      .withMessage('Invalid "map marker color" settings'),
     body('chart.configuration.mapMarkers.*.popUpInfo.*.id')
       .optional({ checkFalsy: true })
       .isUUID(4)
-      .withMessage('invalid pop Up id'),
+      .withMessage('Invalid pop Up id'),
     body('chart.configuration.mapMarkers.*.popUpInfo.*.label').trim().blacklist('<>&\'"/'),
     body('chart.configuration.mapMarkers.*.popUpInfo.*.datafieldName').trim().blacklist('<>&\'"/'),
     body('chart.configuration.conditionals.*.field').trim().blacklist('<>&\'"/'),
     body('chart.configuration.conditionals.*.rules.*.color')
       .optional({ checkFalsy: true })
       .isHexColor()
-      .withMessage('invalid color in "conditionals" settings'),
+      .withMessage('Invalid color in "conditionals" settings'),
     body('chart.configuration.conditionals.*.rules.*.value').trim().blacklist('<>&\'"/'),
     body('chart.configuration.conditionals.*.rules.*.operand').whitelist('<>='),
     body('chart.configuration.showLastExecuted')
       .optional({ checkFalsy: true })
       .isBoolean()
-      .withMessage('invalid Show Last Executed value'),
+      .withMessage('Invalid Show Last Executed value'),
     body('chart.configuration.textBoxAlignText').trim().blacklist('<>&\'"/'),
     body('chart.configuration.chartDescription').trim().blacklist('<>&\'"/'),
     body('chart.configuration.title').trim().blacklist('<>&\'"/'),
     body('chart.configuration.type').trim().blacklist('<>&\'"/'),
     body('chart.configuration.sort').trim().blacklist('<>&\'"/'),
-    body('chart.id').optional({ checkFalsy: true }).isUUID(4).withMessage('invalid dashboard id'),
-    body('chart.source.id').optional({ checkFalsy: true }).isUUID(4).withMessage('invalid source id'),
+    body('chart.id').optional({ checkFalsy: true }).isUUID(4).withMessage('Invalid dashboard id'),
+    body('chart.source.id').optional({ checkFalsy: true }).isUUID(4).withMessage('Invalid source id'),
     body('chart.source.hpccID').optional({ checkFalsy: true }).trim().blacklist('<>&\'"/'),
     body('chart.source.name').optional({ checkFalsy: true }).trim().blacklist('<>&\'"/'),
     body('chart.source.target').optional({ checkFalsy: true }).trim().blacklist('<>&\'"/'),
     body('chart.source.type').optional({ checkFalsy: true }).trim().blacklist('<>&\'"/'),
+  ];
+};
+
+const validateDeleteChart = () => {
+  return [
+    query('chartID').isUUID(4).withMessage('Invalid chartID'),
+    query('dashboardID').isUUID(4).withMessage('Invalid dashboardID'),
   ];
 };
 
@@ -213,8 +219,7 @@ const validate = (req, res, next) => {
 module.exports = {
   validate,
   validateChart,
-  // validateCreateChart,
-  // validateEditChart,
+  validateDeleteChart,
   validateChangePassword,
   validateEclEditorExecution,
   validateForgotPassword,
