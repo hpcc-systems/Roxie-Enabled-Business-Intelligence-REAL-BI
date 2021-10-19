@@ -78,13 +78,21 @@ const ChartEditor = props => {
     //dataObj.data :>>  {data: Array(5000), lastModifiedDate: '04/03/2020 22:00:25 UTC'}
     chartData = { ...dataObj.data, error: dataObj.error || '', loading: dataObj.loading };
   }
+
   const memo = React.useMemo(
     () => ({
       chart: { configuration: { ...configuration, dataset }, ...chartData },
       eclDataset,
       sourceType,
     }),
-    [dataObj.loading, eclData, toggleUpdate, configuration.textBoxContent],
+    [
+      dataObj.loading,
+      dataObj.error,
+      eclData,
+      toggleUpdate,
+      configuration.textBoxContent,
+      configuration.graphNodes,
+    ],
   );
 
   const showDuplicatedRecordsWarning = useCallback(
@@ -103,7 +111,7 @@ const ChartEditor = props => {
           </Box>
         )}
         {/* Only display when not editing an existing chart */}
-        {!chartID && (type !== 'textBox' || (type === 'textBox' && !isStatic)) && (
+        {!chartID && !isStatic && (
           <FormControl fullWidth className={sourceType === 'ecl' ? formControl : null}>
             <InputLabel>Source Type</InputLabel>
             <Select name='sourceType' value={sourceType} onChange={changeSourceType}>

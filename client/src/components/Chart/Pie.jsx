@@ -111,9 +111,10 @@ const PieChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
       });
     }
-  }, []);
+    return () => (ref.current = null);
+  }, [ref.current]);
 
-  return <Pie {...chartConfig} chartRef={ref} />;
+  return <Pie {...chartConfig} onReady={chart => (ref.current = chart)} />;
 };
 
 PieChart.defaultProps = {

@@ -6,6 +6,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography }
 // Redux Actions
 import { deleteChart, deleteEmptyFilters, updateAlteredFilters } from '../../features/dashboard/actions';
 import useNotifier from '../../hooks/useNotifier';
+import { createErrorMessage } from '../../utils/misc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -56,6 +57,8 @@ const DeleteChartDialog = ({ show, toggleDialog }) => {
         toggleDialog();
       });
     } catch (error) {
+      const message = createErrorMessage(error);
+      notifyResult('error', `Error happened, we can not delete a chart. ${message}`);
       dispatch(error);
     }
   };

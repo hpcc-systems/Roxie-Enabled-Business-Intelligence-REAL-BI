@@ -17,6 +17,7 @@ import ScatterChart from './Scatter';
 import Table from './Table';
 import TextBox from './TextBox';
 import useNotifier from '../../hooks/useNotifier';
+import GraphChart from './GraphChart';
 
 const ChartComp = ({
   chart: { configuration = {}, id: chartID, data = [], error, loading },
@@ -134,6 +135,9 @@ const ChartComp = ({
     case 'gauge':
       chartComp = <Gauge data={data} configuration={configuration} pdfPreview={pdfPreview} />;
       break;
+    case 'graph':
+      chartComp = <GraphChart data={data} configuration={configuration} />;
+      break;
     case 'table':
       chartComp = (
         <Table
@@ -150,17 +154,15 @@ const ChartComp = ({
       chartComp = <Typography align='center'>Unknown chart type</Typography>;
   }
 
-  const isStaticTextBox = () => chartType === 'textBox' && isStatic;
-
   // Don't render the progress wheel if the chart is a static textbox
-  if (loading && !isStaticTextBox())
+  if (loading && !isStatic)
     return (
       <Box display='flex' mt={2} justifyContent='center' alignItems='center'>
         <CircularProgress />
       </Box>
     );
 
-  if (error || (data.length === 0 && !isStaticTextBox()))
+  if (error || (data.length === 0 && !isStatic))
     return (
       <>
         <NoData sourceType={sourceType} error={error} />

@@ -23,6 +23,7 @@ import {
   TableChart as TableChartIcon,
   TextFields as TextFieldsIcon,
   ViewComfy as HeatmapIcon,
+  GroupWork,
 } from '@material-ui/icons';
 import clsx from 'clsx';
 import ColumnLineIcon from '../../../assets/images/ColumnLine.png';
@@ -41,6 +42,7 @@ import TextBoxParams from './TextBoxParams';
 // Utils
 import { hasHorizontalOption, hasDataLabelOption, hasDynamicOption } from '../../../utils/misc';
 import { changeChartType } from '../../../utils/chart';
+import GraphParams from './Graph/GraphParams';
 
 const charts = [
   { name: 'Bar', value: 'bar' },
@@ -48,6 +50,7 @@ const charts = [
   { name: 'Donut', value: 'donut' },
   { name: 'Dual Axes Line', value: 'dualline' },
   { name: 'Gauge', value: 'gauge' },
+  { name: 'Graph', value: 'graph' },
   { name: 'Heatmap', value: 'heatmap' },
   { name: 'Histogram', value: 'histogram' },
   { name: 'Line', value: 'line' },
@@ -153,7 +156,7 @@ const GeneralTab = props => {
   };
 
   const handleTypeChange = event => {
-    const newConfig = changeChartType(type, event.target.value, configuration);
+    const newConfig = changeChartType(event.target.value, configuration);
 
     handleChange(null, { name: 'configuration', value: newConfig });
   };
@@ -204,6 +207,8 @@ const GeneralTab = props => {
                           return <HeatmapIcon className={menuIcon} />;
                         case 'gauge':
                           return <AvTimerIcon className={menuIcon} />;
+                        case 'graph':
+                          return <GroupWork className={menuIcon} />;
                         case 'line':
                           return <LineChartIcon className={menuIcon} />;
                         case 'map':
@@ -366,6 +371,8 @@ const GeneralTab = props => {
           <TableParams {...props} />
         ) : type === 'textBox' ? (
           <TextBoxParams {...props} />
+        ) : type === 'graph' ? (
+          <GraphParams {...props} />
         ) : (
           <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
         )}

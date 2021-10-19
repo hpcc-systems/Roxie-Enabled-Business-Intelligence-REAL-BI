@@ -270,10 +270,13 @@ const ColumnChart = ({
       }
     }
 
-    return () => (showDuplicatedRecordsWarning ? showDuplicatedRecordsWarning([]) : null);
+    return () => {
+      showDuplicatedRecordsWarning ? showDuplicatedRecordsWarning([]) : null;
+      ref.current = null;
+    };
   }, []);
 
-  return <Column {...chartConfig} chartRef={ref} />;
+  return <Column {...chartConfig} onReady={chart => (ref.current = chart)} />;
 };
 
 ColumnChart.defaultProps = {
