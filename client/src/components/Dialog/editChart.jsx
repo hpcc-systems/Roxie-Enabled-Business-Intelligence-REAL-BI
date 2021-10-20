@@ -132,7 +132,7 @@ const EditChartDialog = ({ show, toggleDialog }) => {
   const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
 
-    if (sourceType === 'ecl') {
+    if (sourceType === 'ecl' || localState.configuration.isStatic) {
       eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
       return formFieldsUpdate({ ecl: eclRef.current });
     }

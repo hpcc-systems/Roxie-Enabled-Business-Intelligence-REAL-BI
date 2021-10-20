@@ -20,8 +20,8 @@ const defaultNode = {
 };
 
 function GraphNodeSettings(props) {
-  const graphNodes = props.localState.configuration.graphNodes;
-  const allNodes = graphNodes.nodes;
+  const graphChart = props.localState.configuration.graphChart;
+  const allNodes = graphChart.nodes;
 
   const configuration = props.localState.configuration;
   const formFieldsUpdate = props.formFieldsUpdate;
@@ -65,7 +65,8 @@ function GraphNodeSettings(props) {
 
   const handleSaveNode = () => {
     if (!node.id || !node.value.title) return;
-    node.value.items.pop(); // remove empty value from items list
+    const itemsList = node.value.items;
+    if (!itemsList[itemsList.length - 1].text && !itemsList[itemsList.length - 1].value) itemsList.pop(); // remove empty value from items list
     let newAllNodes = [...allNodes];
     const index = newAllNodes.findIndex(el => el.uuid === node.uuid);
     if (index === -1) {
@@ -75,7 +76,7 @@ function GraphNodeSettings(props) {
       newAllNodes[index] = node;
     }
     formFieldsUpdate({
-      configuration: { ...configuration, graphNodes: { ...graphNodes, nodes: newAllNodes } },
+      configuration: { ...configuration, graphChart: { ...graphChart, nodes: newAllNodes } },
     });
 
     resetForm();
@@ -95,11 +96,9 @@ function GraphNodeSettings(props) {
   const handleDeleteNode = node => {
     const newAllNodes = allNodes.filter(el => el.uuid !== node.uuid);
     formFieldsUpdate({
-      configuration: { ...configuration, graphNodes: { ...graphNodes, nodes: newAllNodes } },
+      configuration: { ...configuration, graphChart: { ...graphChart, nodes: newAllNodes } },
     });
   };
-
-  console.log('node :>> ', node);
 
   return (
     <>

@@ -38,7 +38,13 @@ const initState = {
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
     type: 'bar',
     textBoxAlignText: 'left',
-    graphNodes: {
+    graphChart: {
+      config: {
+        nodesField: '',
+        edgesField: '',
+        rankdir: 'LR',
+        strokeColor: '#8d323c ',
+      },
       nodes: [],
       edges: [],
     },
@@ -188,7 +194,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
 
-    if (sourceType === 'ecl') {
+    if (sourceType === 'ecl' || localState.configuration.isStatic) {
       eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
       return formFieldsUpdate({ ecl: eclRef.current });
     }

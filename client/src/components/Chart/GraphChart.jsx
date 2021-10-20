@@ -1,13 +1,36 @@
-import React, { useRef } from 'react';
+/* eslint-disable no-empty */
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useRef } from 'react';
 import { FlowAnalysisGraph } from '@ant-design/charts';
+import { Alert } from '@material-ui/lab';
+import defaultChart from '../ChartEditor/Tabs/Graph/graphdata.json';
+import { getAnchorPoints, getMarkerPosition, mapDataToGraphChartData } from '../../utils/graphUtils';
 
 const GraphChart = props => {
-  const staticConfig = props.configuration.graphNodes;
+  const isStatic = props.configuration.isStatic;
+  const chart = props.configuration.graphChart;
+  const userConfig = chart.config;
+  const nodes = chart.nodes;
+  const edges = chart.edges;
+  const data = props.data?.[0];
+
+  const chartData = isStatic ? { nodes, edges } : mapDataToGraphChartData(data, userConfig);
+
+  console.log(`chartData`, chartData);
+
+  if (chartData.error) {
+    return <Alert severity='error'>{chartData.error}</Alert>; // return Error if data is not suitable for there chart
+  }
+
+  const isHorizontalGraph = userConfig.rankdir === 'LR' || userConfig.rankdir === 'RL' || !userConfig.rankdir;
+
+  const graphRef = useRef();
 
   const config = {
-    data: staticConfig,
+    data: chartData,
     nodeCfg: {
       size: [140, 25],
+      anchorPoints: getAnchorPoints(userConfig.rankdir),
       items: {
         padding: 6,
         containerStyle: {
@@ -51,6 +74,7 @@ const GraphChart = props => {
       },
     },
     edgeCfg: {
+      type: isHorizontalGraph ? 'cubic-horizontal' : 'polyline',
       label: {
         style: {
           fill: '#aaa',
@@ -58,10 +82,14 @@ const GraphChart = props => {
           fillOpacity: 1,
         },
       },
+      endArrow: {
+        fill: userConfig.strokeColor,
+        type: 'triangle',
+      },
       style: edge => {
-        const stroke = edge.target === '0' ? '#c86bdd' : '#5ae859';
+        const stroke = edge.target === '0' ? '#c86bdd' : '#8d323c ';
         return {
-          stroke,
+          stroke: userConfig.strokeColor || stroke,
           lineWidth: 1,
           strokeOpacity: 0.5,
         };
@@ -74,9 +102,9 @@ const GraphChart = props => {
       },
     },
     markerCfg: cfg => {
-      const { edges } = staticConfig;
+      const { edges } = chartData;
       return {
-        position: 'right',
+        position: getMarkerPosition(userConfig.rankdir),
         show: edges.find(item => item.source === cfg.id),
         collapsed: !edges.find(item => item.source === cfg.id),
       };
@@ -84,18 +112,26 @@ const GraphChart = props => {
     behaviors: ['drag-canvas', 'zoom-canvas', 'drag-node'],
     layout: {
       /** Direction for rank nodes. Can be TB, BT, LR, or RL, where T = top, B = bottom, L = left, and R = right. */
-      rankdir: 'TB',
-      // ranksepFunc: () => 20,
+      rankdir: 'LR',
+      /** Layout center. */
+      center: [0, 0],
+      /** Number of pixels that separate nodes vertically in the layout. */
+      nodesepFunc: () => 20,
+      /** Number of pixels that separate nodes horizontally in the layout. */
+      ranksepFunc: () => 20,
+    },
+    onReady: graph => {
+      graphRef.current = graph;
     },
   };
 
-  const ref = useRef();
+  // useEffect(() => {
+  //   graphRef.current.updateLayout({
+  //     rankdir: userConfig.rankdir,
+  //   });
+  // });
 
-  React.useEffect(() => {
-    console.log(ref.current);
-  }, []);
-
-  return <FlowAnalysisGraph {...config} onReady={chart => (ref.current = chart)} />;
+  return <FlowAnalysisGraph {...config} />;
 };
 
 export default GraphChart;

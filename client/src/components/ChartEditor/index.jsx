@@ -91,7 +91,7 @@ const ChartEditor = props => {
       eclData,
       toggleUpdate,
       configuration.textBoxContent,
-      configuration.graphNodes,
+      configuration.graphChart,
     ],
   );
 

@@ -1,10 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { IconButton, Typography, TextField, Paper, Grid, Box } from '@material-ui/core';
+import {
+  IconButton,
+  TextField,
+  Paper,
+  Grid,
+  Box,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,8 +29,8 @@ const defaultEdge = {
 };
 
 const GraphEdgesSettings = props => {
-  const graphNodes = props.localState.configuration.graphNodes;
-  const allEdges = graphNodes.edges;
+  const graphChart = props.localState.configuration.graphChart;
+  const allEdges = graphChart.edges;
 
   const configuration = props.localState.configuration;
   const formFieldsUpdate = props.formFieldsUpdate;
@@ -47,7 +60,7 @@ const GraphEdgesSettings = props => {
       newAllEdges[index] = edge;
     }
     formFieldsUpdate({
-      configuration: { ...configuration, graphNodes: { ...graphNodes, edges: newAllEdges } },
+      configuration: { ...configuration, graphChart: { ...graphChart, edges: newAllEdges } },
     });
     resetForm();
   };
@@ -60,7 +73,7 @@ const GraphEdgesSettings = props => {
   const handleDeleteEdge = edge => {
     const newAllEdges = allEdges.filter(el => el.uuid !== edge.uuid);
     formFieldsUpdate({
-      configuration: { ...configuration, graphNodes: { ...graphNodes, edges: newAllEdges } },
+      configuration: { ...configuration, graphChart: { ...graphChart, edges: newAllEdges } },
     });
   };
 
@@ -109,51 +122,95 @@ const GraphEdgesSettings = props => {
             />
           </Grid>
 
-          <Grid item xs={3} sm={2}>
-            <IconButton onClick={resetForm}>
-              <ClearIcon />
-            </IconButton>
-            <IconButton onClick={handleSaveEdge}>
-              <SaveIcon />
-            </IconButton>
+          <Grid item xs={3} sm={2} container wrap='nowrap'>
+            <Grid item>
+              <IconButton size='small' onClick={resetForm}>
+                <ClearIcon />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton size='small' onClick={handleSaveEdge}>
+                <SaveIcon />
+              </IconButton>
+            </Grid>
           </Grid>
         </Grid>
       </Box>
-      {allEdges.map(edge => {
-        return (
-          <Box key={edge.uuid} p={2} my={1} component={Paper}>
-            <Grid container spacing={1} alignItems='flex-end'>
-              <Grid item xs={12} sm={3}>
-                <Typography variant='body1'>
-                  Source id: <strong> {edge.source}</strong>
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <Typography variant='body1'>
-                  Target id: <strong>{edge.target}</strong>
-                </Typography>
-              </Grid>
-
-              <Grid item xs={9} sm={4}>
-                <Typography variant='body1'>
-                  Line Text: <strong>{edge.value}</strong>
-                </Typography>
-              </Grid>
-
-              <Grid item xs={3} sm={2}>
-                <IconButton onClick={() => handleDeleteEdge(edge)}>
-                  <DeleteIcon />
-                </IconButton>
-                <IconButton onClick={() => handleEditEdge(edge)}>
-                  <EditIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Box>
-        );
-      })}
+      <EdgesTable allEdges={allEdges} handleDeleteEdge={handleDeleteEdge} handleEditEdge={handleEditEdge} />
     </>
+  );
+};
+
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+    padding: '8px',
+  },
+  container: {
+    maxHeight: 250,
+    overflowY: 'scroll',
+  },
+});
+
+const EdgesTable = ({ allEdges, handleDeleteEdge, handleEditEdge }) => {
+  const classes = useStyles();
+
+  const columns = [
+    { id: 'source', label: 'Source id', minWidth: 50 },
+    { id: 'target', label: 'Target id', minWidth: 50 },
+    { id: 'text', label: 'Line text', minWidth: 250 },
+  ];
+
+  return (
+    <Paper className={classes.root}>
+      <TableContainer className={classes.container}>
+        <Table stickyHeader aria-label='sticky table'>
+          <TableHead>
+            <TableRow>
+              {columns.map(column => (
+                <TableCell key={column.id} align='center' style={{ minWidth: column.minWidth }}>
+                  {column.label}
+                </TableCell>
+              ))}
+              <TableCell style={{ minWidth: 170 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {allEdges.map((edge, index) => {
+              return (
+                <TableRow hover key={index}>
+                  {columns.map(column => {
+                    return (
+                      <TableCell padding='none' align='center' key={column.id}>
+                        <strong>{edge[column.id]}</strong>
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell padding='none'>
+                    <IconButton
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteEdge(edge);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEditEdge(edge);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 };
 

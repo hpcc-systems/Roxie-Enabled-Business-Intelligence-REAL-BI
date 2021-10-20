@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import GraphEdgesSettings from './GraphEdgesSettings';
 import GraphNodeSettings from './GraphNodesSettings';
+import GraphConfiguration from './GraphConfiguration';
 
 const useStyles = makeStyles(() => ({
   textColor: {
@@ -14,21 +15,34 @@ const useStyles = makeStyles(() => ({
 
 function GraphParams(props) {
   const classes = useStyles();
+
+  const isStatic = props.localState.configuration.isStatic;
+
   return (
     <Grid item xs={12}>
       <Box component={Paper} bgcolor='#6c757d' p={1} mt={2}>
         <Typography variant='body1' className={classes.textColor}>
-          Create Nodes:
+          Graph configuration:
         </Typography>
-        <GraphNodeSettings {...props} />
+        <GraphConfiguration {...props} />
       </Box>
+      {isStatic && (
+        <>
+          <Box component={Paper} bgcolor='#6c757d' p={1} mt={2}>
+            <Typography variant='body1' className={classes.textColor}>
+              Create Nodes:
+            </Typography>
+            <GraphNodeSettings {...props} />
+          </Box>
 
-      <Box component={Paper} bgcolor='#6c757d' p={1} mt={2}>
-        <Typography variant='body1' className={classes.textColor}>
-          Define nodes relations:
-        </Typography>
-        <GraphEdgesSettings {...props} />
-      </Box>
+          <Box component={Paper} bgcolor='#6c757d' p={1} mt={2}>
+            <Typography variant='body1' className={classes.textColor}>
+              Define nodes relations:
+            </Typography>
+            <GraphEdgesSettings {...props} />
+          </Box>
+        </>
+      )}
     </Grid>
   );
 }
