@@ -154,8 +154,7 @@ const ChartComp = ({
       chartComp = <Typography align='center'>Unknown chart type</Typography>;
   }
 
-  // Don't render the progress wheel if the chart is a static textbox
-  if (loading && !isStatic)
+  if (loading)
     return (
       <Box display='flex' mt={2} justifyContent='center' alignItems='center'>
         <CircularProgress />

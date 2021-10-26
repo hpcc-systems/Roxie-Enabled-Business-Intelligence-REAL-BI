@@ -1,23 +1,20 @@
+/* eslint-disable no-unused-vars */
 export const mapDataToGraphChartData = (data, config) => {
   const nodesField = config.nodesField;
   const edgesField = config.edgesField;
+
   try {
-    const newNodes = data[nodesField]?.Row?.map(node => {
-      const newNode = {
-        id: node.id,
-        value: { title: node.value?.title, items: node.value?.items?.Row },
-      };
-      if (
-        newNode.id === undefined ||
-        newNode.value.title === undefined ||
-        newNode.value.items === undefined
-      ) {
+    const newNodes = data[nodesField]?.map(node => {
+      if (node.id === undefined || node.value.title === undefined || node.value.items === undefined) {
         throw new Error('Wrong data passed to nodes');
       }
-      return newNode;
+      node.value.items.forEach(element => {
+        if (!element.value) element.value = '';
+      });
+      return node;
     });
 
-    const newEdges = data[edgesField].Row.map(edge => {
+    const newEdges = data[edgesField]?.map(edge => {
       if (edge.source === undefined || edge.target === undefined) {
         throw new Error('Wrong data passed to edges');
       }
@@ -25,9 +22,8 @@ export const mapDataToGraphChartData = (data, config) => {
     });
 
     if (!newNodes) throw new Error('Can not find Nodes list');
-    if (!newNodes) throw new Error('Can not find Edges list');
+    if (!newEdges) throw new Error('Can not find Edges list');
 
-    console.log('newNodes :>> ', newNodes);
     return { nodes: newNodes, edges: newEdges };
   } catch (error) {
     return { error: error.message };

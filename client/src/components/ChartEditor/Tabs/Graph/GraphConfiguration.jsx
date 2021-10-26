@@ -18,7 +18,7 @@ const useStyles = makeStyles(() => ({
     position: 'absolute',
     zIndex: '2',
     top: '0',
-    right: '60px',
+    left: '60px',
     transform: 'translateY(-50%)',
   },
   base: props => ({
@@ -63,7 +63,7 @@ function GraphConfiguration(props) {
     { name: 'nodesField', label: 'Select Nodes Field' },
     { name: 'edgesField', label: 'Select Edges Field' },
   ];
-  // console.log('graphChart :>> ', graphChart);
+
   return (
     <Box p={2} my={1} component={Paper}>
       <Grid container spacing={2} alignItems='flex-end'>
@@ -75,7 +75,7 @@ function GraphConfiguration(props) {
                 <Select
                   name={name}
                   required
-                  value={chartConfig[name] || ''}
+                  value={datasetFields ? chartConfig[name] : ''}
                   onChange={handleChange}
                   labelId='select-label'
                 >
@@ -93,44 +93,43 @@ function GraphConfiguration(props) {
             </Grid>
           ))}
 
-        <Grid item xs={6}>
+        {/* <Grid item xs={6}>
           <FormControl fullWidth>
-            <InputLabel id='select-label'>Choose Layout orientation</InputLabel>
+            // TODO FIGURE OUT HOW TO UPDATE LAYOUT DYNAMICALLY SO APP WILL NOT CRUSH
+          <InputLabel id='select-label'>Choose Layout orientation</InputLabel>
             <Select
               name='rankdir'
               required
               disabled={isStatic ? graphChart.nodes.length === 0 : !chartConfig.nodesField}
-              value={chartConfig.rankdir}
+              value={chartConfig.rankdir || ''}
               onChange={handleChange}
               labelId='select-label'
             >
-              <MenuItem value='TB'>Top To Bottom</MenuItem>
-              <MenuItem value='BT'>Bottom To Top</MenuItem>
               <MenuItem value='LR'>Left To Right</MenuItem>
               <MenuItem value='RL'>Right To Left</MenuItem>
-            </Select>
+              <MenuItem value='TB'>Top To Bottom</MenuItem>
+              <MenuItem value='BT'>Bottom To Top</MenuItem>
+            </Select> 
           </FormControl>
-        </Grid>
-        <Grid item xs={6}>
-          <Grid container alignItems='flex-end' spacing={2}>
-            <Grid item>
-              <Typography variant='body2'>Choose Stroke Color: </Typography>
-            </Grid>
-            <Grid item>
-              <ClickAwayListener onClickAway={() => setDisplayColorPicker(false)}>
-                <Paper elevation={2} className={classes.base} onClick={() => setDisplayColorPicker(true)}>
-                  {displayColorPicker ? (
-                    <Paper elevation={3} className={classes.popover}>
-                      <SketchPicker
-                        color={chartConfig.strokeColo}
-                        onChange={color => handleStrokeColorChange(color.hex)}
-                        onChangeComplete={color => handleStrokeColorChange(color.hex)}
-                      />
-                    </Paper>
-                  ) : null}
-                </Paper>
-              </ClickAwayListener>
-            </Grid>
+        </Grid>*/}
+        <Grid item xs={12} container alignItems='flex-end' spacing={2}>
+          <Grid item>
+            <Typography variant='body2'>Choose Stroke Color: </Typography>
+          </Grid>
+          <Grid item>
+            <ClickAwayListener onClickAway={() => setDisplayColorPicker(false)}>
+              <Paper elevation={2} className={classes.base} onClick={() => setDisplayColorPicker(true)}>
+                {displayColorPicker ? (
+                  <Paper elevation={3} className={classes.popover}>
+                    <SketchPicker
+                      color={chartConfig.strokeColo}
+                      onChange={color => handleStrokeColorChange(color.hex)}
+                      onChangeComplete={color => handleStrokeColorChange(color.hex)}
+                    />
+                  </Paper>
+                ) : null}
+              </Paper>
+            </ClickAwayListener>
           </Grid>
         </Grid>
       </Grid>

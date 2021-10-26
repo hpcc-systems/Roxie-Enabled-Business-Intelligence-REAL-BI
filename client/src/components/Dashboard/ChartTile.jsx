@@ -35,6 +35,13 @@ const ChartTile = props => {
         }
       })();
     }
+    // graph charts will not automatically adjust size to outer div, but it will resize if refreshed, to trigger resize on static chart we will set it to loading state then rebuild it
+    if (chart.configuration.isStatic && chart.configuration.type === 'graph') {
+      dispatch(fetchChartData({ id: chartId, loading: true }));
+      setTimeout(() => {
+        dispatch(updateChartConfigObject({ id: chartId, loading: false }));
+      }, 10);
+    }
     return () => (isMounted = false);
   }, [chart.toggleRefresh]);
 

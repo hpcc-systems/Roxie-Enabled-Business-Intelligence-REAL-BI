@@ -1,9 +1,7 @@
-/* eslint-disable no-empty */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useRef } from 'react';
-import { FlowAnalysisGraph } from '@ant-design/charts';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert } from '@material-ui/lab';
-import defaultChart from '../ChartEditor/Tabs/Graph/graphdata.json';
+import { FlowAnalysisGraph } from '@ant-design/charts';
 import { getAnchorPoints, getMarkerPosition, mapDataToGraphChartData } from '../../utils/graphUtils';
 
 const GraphChart = props => {
@@ -16,21 +14,16 @@ const GraphChart = props => {
 
   const chartData = isStatic ? { nodes, edges } : mapDataToGraphChartData(data, userConfig);
 
-  console.log(`chartData`, chartData);
-
   if (chartData.error) {
     return <Alert severity='error'>{chartData.error}</Alert>; // return Error if data is not suitable for there chart
   }
 
   const isHorizontalGraph = userConfig.rankdir === 'LR' || userConfig.rankdir === 'RL' || !userConfig.rankdir;
 
-  const graphRef = useRef();
-
   const config = {
     data: chartData,
     nodeCfg: {
       size: [140, 25],
-      anchorPoints: getAnchorPoints(userConfig.rankdir),
       items: {
         padding: 6,
         containerStyle: {
@@ -110,28 +103,44 @@ const GraphChart = props => {
       };
     },
     behaviors: ['drag-canvas', 'zoom-canvas', 'drag-node'],
-    layout: {
-      /** Direction for rank nodes. Can be TB, BT, LR, or RL, where T = top, B = bottom, L = left, and R = right. */
-      rankdir: 'LR',
-      /** Layout center. */
-      center: [0, 0],
-      /** Number of pixels that separate nodes vertically in the layout. */
-      nodesepFunc: () => 20,
-      /** Number of pixels that separate nodes horizontally in the layout. */
-      ranksepFunc: () => 20,
-    },
-    onReady: graph => {
-      graphRef.current = graph;
-    },
+    // TODO FIGURE OUT HOW TO UPDATE LAYOUT DYNAMICALLY SO APP WILL NOT CRUSH
+    // layout: {
+    //   center: [0, 0], // Layout center.
+    //   rankdir: 'LR', // Direction for rank nodes. Can be TB, BT, LR, or RL, where T = top, B = bottom, L = left, and R = right.
+    //   nodesepFunc: () => 20, //Number of pixels that separate nodes vertically in the layout.
+    //   ranksepFunc: () => 20, // Number of pixels that separate nodes horizontally in the layout.
+    // },
+    // nodeAnchorPoints: [
+    //   [1, 0.5],
+    //   [0, 0.5],
+    // ],
   };
 
-  // useEffect(() => {
-  //   graphRef.current.updateLayout({
-  //     rankdir: userConfig.rankdir,
-  //   });
-  // });
+  const graphRef = useRef();
 
-  return <FlowAnalysisGraph {...config} />;
+  // console.log('userConfig.rankdir :>> ', userConfig.rankdir);
+
+  // const [layout, setLayout] = useState();
+  // const [anchorPoints, setAnchorPoints] = useState();
+
+  // useEffect(() => {
+  //   setLayout(() => ({
+  // rankdir: userConfig.rankdir, // Direction for rank nodes. Can be TB, BT, LR, or RL, where T = top, B = bottom, L = left, and R = right.
+  // center: [0, 0], // Layout center.
+  // nodesepFunc: () => 20, //Number of pixels that separate nodes vertically in the layout.
+  // ranksepFunc: () => 20, // Number of pixels that separate nodes horizontally in the layout.
+  //   }));
+  //   setAnchorPoints(getAnchorPoints(userConfig.rankdir));
+  // }, [userConfig.rankdir]);
+
+  return (
+    <FlowAnalysisGraph
+      {...config}
+      // layout={layout}
+      // nodeAnchorPoints={anchorPoints}
+      onReady={graph => (graphRef.current = graph)}
+    />
+  );
 };
 
 export default GraphChart;
