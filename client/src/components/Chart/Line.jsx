@@ -118,9 +118,10 @@ const LineChart = ({ chartID, chartRelation, configuration, data, interactiveCli
         }
       });
     }
+    return () => (ref.current = null);
   }, []);
 
-  return <Line {...chartConfig} chartRef={ref} />;
+  return <Line {...chartConfig} onReady={chart => (ref.current = chart)} />;
 };
 
 LineChart.defaultProps = {

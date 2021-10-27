@@ -158,11 +158,12 @@ const BarChart = ({ chartID, chartRelation, configuration, data, interactiveClic
         interactiveClick(chartID, chartRelation.sourceField, row[chartRelation.sourceField]);
       });
     }
+    return () => (ref.current = null);
   }, []);
 
   return (
     <>
-      <Bar {...chartConfig} chartRef={ref} />
+      <Bar {...chartConfig} onReady={chart => (ref.current = chart)} />
     </>
   );
 };

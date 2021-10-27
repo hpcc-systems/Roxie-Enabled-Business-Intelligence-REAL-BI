@@ -38,6 +38,16 @@ const initState = {
     fields: [{ color: '#FFF', label: '', name: '', asLink: false, linkBase: '' }],
     type: 'bar',
     textBoxAlignText: 'left',
+    graphChart: {
+      config: {
+        nodesField: '',
+        edgesField: '',
+        rankdir: 'LR',
+        strokeColor: '#8d323c ',
+      },
+      nodes: [],
+      edges: [],
+    },
     mapMarkers: [
       {
         id: null,
@@ -136,11 +146,11 @@ const NewChartDialog = ({ show, toggleDialog }) => {
       return updateChartPreview();
     }
     const { configuration, dataset } = localState;
-    const { isStatic, type } = configuration;
+    const { isStatic } = configuration;
     const { id: dashboardID } = dashboard;
     let sourceID;
 
-    if (type === 'textBox' && isStatic) {
+    if (isStatic) {
       const chartObj = { configuration: { ...configuration, dataset, ecl: {} } };
       try {
         const action = await createChart(chartObj, dashboardID, null);
@@ -184,7 +194,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
   const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
 
-    if (sourceType === 'ecl') {
+    if (sourceType === 'ecl' || localState.configuration.isStatic) {
       eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
       return formFieldsUpdate({ ecl: eclRef.current });
     }

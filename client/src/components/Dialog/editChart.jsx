@@ -87,10 +87,10 @@ const EditChartDialog = ({ show, toggleDialog }) => {
       return updateChartPreview();
     }
     const { chartID, configuration, dataset } = localState;
-    const { isStatic, type } = configuration;
+    const { isStatic } = configuration;
     const { id: dashboardID } = dashboard;
 
-    if (type === 'textBox' && isStatic) {
+    if (isStatic) {
       const chartObj = { id: chartID, configuration: { ...configuration, dataset, ecl: {} } };
 
       try {
@@ -132,7 +132,7 @@ const EditChartDialog = ({ show, toggleDialog }) => {
   const updateChartPreview = async () => {
     const { dataset, params, selectedSource: source, sourceType } = localState;
 
-    if (sourceType === 'ecl') {
+    if (sourceType === 'ecl' || localState.configuration.isStatic) {
       eclRef.current.toggleUpdate = !eclRef.current.toggleUpdate;
       return formFieldsUpdate({ ecl: eclRef.current });
     }
@@ -151,6 +151,7 @@ const EditChartDialog = ({ show, toggleDialog }) => {
   };
 
   const checkDisabled = () => {
+    if (localState.configuration.isStatic) return false;
     if (sourceType === 'ecl') {
       return !eclRef.current.data;
     } else {

@@ -31,7 +31,7 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
     selectedSource = {},
     sourceType,
   } = localState;
-  const { isStatic = false, type } = configuration;
+  const { isStatic = false } = configuration;
   const { id: clusterID } = dashboard.cluster;
   const { formControl, progress, errorText } = useStyles();
 
@@ -87,7 +87,7 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
     Don't render component to screen
     Still mount the component so the useEffect runs
   */
-  if (sourceType === 'file' || (type === 'textBox' && isStatic)) {
+  if (sourceType === 'file' || isStatic) {
     return null;
   }
 

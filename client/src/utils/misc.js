@@ -32,7 +32,7 @@ export const hasGroupByOption = chartType => {
 };
 
 export const hasDynamicOption = chartType => {
-  const chartTypes = ['textBox'];
+  const chartTypes = ['textBox', 'graph'];
 
   // Return boolean
   return chartTypes.indexOf(chartType) > -1;

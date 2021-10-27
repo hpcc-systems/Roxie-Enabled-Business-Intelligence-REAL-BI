@@ -21,7 +21,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     chartID,
     errors,
     keyword,
-    configuration: { isStatic = false, type },
+    configuration: { isStatic = false },
     sources = [],
     keywordfromExplorer,
     sourceType,
@@ -93,7 +93,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   const selectedSourceErr = errors.find(err => err['selectedSource']);
 
-  return type !== 'textBox' || (type === 'textBox' && !isStatic) ? (
+  return !isStatic ? (
     <>
       <Box mb={2}>
         <Autocomplete
