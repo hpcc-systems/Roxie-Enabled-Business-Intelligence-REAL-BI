@@ -59,9 +59,6 @@ server {
     proxy_redirect off;
   }
 
-  location /.well-known/acme-challenge/ {
-    root <Path to acme-challenge inside container>
-  }
 
   location /api {
     proxy_set_header Host ${DOLLAR}host;
