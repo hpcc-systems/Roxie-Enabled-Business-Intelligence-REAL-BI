@@ -90,12 +90,12 @@ server {
   }
 ```
 
-5. Make sure that port 80 is open and the app is reachable over the web.
+5. Make sure that port 80 is open and the app is reachable over the internet.
 
 6. Stop and remove the old Nginx container, then run `docker-compose up -d --no-deps --build nginx certbot`
 
 - Nginx will be listening and serving acme-challenge from a shared volume with Certbot container.
-  To insure that certbot succeeds, check `docker logs certbot` .
+  To ensure that certbot succeeds, check `docker logs certbot` .
 
 7. Update Nginx configuration to run with a new certificate. Go to `nginx\conf.d\realbi.conf.template` and update SSL path, ex.
 
