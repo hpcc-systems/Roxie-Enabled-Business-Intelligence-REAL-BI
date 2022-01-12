@@ -24,8 +24,8 @@ server {
   server_name $HOST_HOSTNAME;
 
  # ---Uncomment line 27, 28 when running with ssl_certificate
- # ssl_certificate /etc/nginx/certs/realbi.pem;
- # ssl_certificate_key /etc/nginx/certs/realbi.key;
+ #ssl_certificate <Path to certs inside container>/live/<your domain name>/fullchain.pem;
+ #ssl_certificate_key <Path to certs inside container>/live/<your domain name>/privkey.pem;
 
   add_header Strict-Transport-Security "max-age=31536000;" always;
   add_header X-XSS-Protection "1; mode=block";
@@ -58,6 +58,7 @@ server {
 
     proxy_redirect off;
   }
+
 
   location /api {
     proxy_set_header Host ${DOLLAR}host;

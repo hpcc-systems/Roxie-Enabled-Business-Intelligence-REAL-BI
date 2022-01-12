@@ -36,6 +36,79 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 5. Update file `/nginx/conf.d/realbi.conf.template` to match cert and key file names.
 6. Run `docker-compose up --build -d` to create and run the containers.
 
+## SSL with Letsencrypt and Certbot container
+
+### To generate an SSL certificate we use Certbot Docker image, to learn more please visit https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
+
+### Learn more about Letsencrypt https://letsencrypt.org/
+
+### Good article (guide) on how to use NGINX with Certbot in Docker https://pentacent.medium.com/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71
+
+1. Add Certbot container to your `docker-compose.yml` file;
+
+```certbot:
+    container_name: certbot
+    env_file:
+      - .env
+    networks:
+      - realbi_network
+    depends_on:
+      - nginx
+    image: certbot/certbot:latest
+    command: certonly --webroot --webroot-path=<Path to acme challenge inside container> --email <Your email> --agree-tos --no-eff-email -d <Your domain>
+    volumes:
+      - <Path to certs on local machine>:<Path to certs inside container>
+      - <Path to acme-challenge on local machine>:<Path to acme-challenge inside container>
+```
+
+2.  Add a shared volume to your Nginx container (volume should be the same for Certbot container)
+
+```
+    volumes:
+      - <Path to certs on local machine>:<Path to certs inside container>
+      - <Path to acme challenge on local machine>:<Path to acme challenge inside container>
+```
+
+3. Go to `nginx\conf.d\realbi.conf.template` and update the config to run without SSL first by commenting out SSL related settings
+
+```
+server {
+ # listen $EXTERNAL_HTTPS_PORT ssl;
+ listen $EXTERNAL_HTTP_PORT;
+ server_name $HOST_HOSTNAME;
+
+ # ssl_certificate <Path to cert>;
+ # ssl_certificate_key <Path to key>;
+
+```
+
+4. In `nginx\conf.d\realbi.conf.template` define new location for acme challenge
+
+```
+  location /.well-known/acme-challenge/ {
+    root <Path to acme challenge inside container>;
+  }
+```
+
+5. Make sure that port 80 is open and the app is reachable over the internet.
+
+6. Stop and remove the old Nginx container, then run `docker-compose up -d --no-deps --build nginx certbot`
+
+- Nginx will be listening and serving acme-challenge from a shared volume with Certbot container.
+  To ensure that certbot succeeds, check `docker logs certbot` .
+
+7. Update Nginx configuration to run with a new certificate. Go to `nginx\conf.d\realbi.conf.template` and update SSL path, ex.
+
+```
+server {
+ listen $EXTERNAL_HTTPS_PORT ssl;
+ server_name $HOST_HOSTNAME;
+ ssl_certificate <Path to certs inside container>/live/<Your domain>/fullchain.pem;
+ ssl_certificate_key <Path to certs inside container>/live/<Your domain>/privkey.pem;
+```
+
+8. Rebuild Nginx container `docker-compose up -d --no-deps --build nginx`
+
 ---
 
 ## Notes
