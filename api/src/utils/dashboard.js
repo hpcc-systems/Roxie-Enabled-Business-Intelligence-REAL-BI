@@ -157,9 +157,9 @@ const getSharedDashboardUsers = async (dashboardID, userID) => {
   return users;
 };
 
-const getDashboardPermission = async (dashboadrId, userId) => {
+const getDashboardPermission = async (dashboardId, userId) => {
   const dashboard = await Dashboard.findOne({
-    where: { id: dashboadrId },
+    where: { id: dashboardId },
     include: [
       {
         model: DashboardPermission,
@@ -173,8 +173,8 @@ const getDashboardPermission = async (dashboadrId, userId) => {
   return dashboard.permission[0].role.name;
 };
 
-const updateDashboardLayout = async (dashboadrId, newLayout) => {
-  return await Dashboard.update({ layout: newLayout }, { where: { id: dashboadrId } });
+const updateDashboardLayout = async (dashboardId, newLayout) => {
+  return await Dashboard.update({ layout: newLayout }, { where: { id: dashboardId } });
 };
 
 const getDashboardByWorkspaceAndCluster = async (workspaceID, clusterID, name) => {
