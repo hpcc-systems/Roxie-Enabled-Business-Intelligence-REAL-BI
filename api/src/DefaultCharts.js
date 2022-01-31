@@ -433,7 +433,19 @@ const defaultChartsConfigs = [
   lineChart,
 ];
 
-const commonFields = { i: '', minW: 2, maxW: 12, minH: 4, moved: false, static: false };
+const commonFields = {
+  i: '',
+  minW: 2,
+  maxW: 12,
+  minH: 4,
+  moved: false,
+  static: false,
+  maxH: undefined,
+  isBounded: undefined,
+  isResizable: undefined,
+  isDraggable: undefined,
+  resizeHandles: undefined,
+};
 
 const defaultChartslayout = {
   lg: [
