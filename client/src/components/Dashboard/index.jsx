@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { Container, makeStyles, Paper } from '@material-ui/core';
+import { Container, makeStyles } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 // React Components
 import ShareWorkspaceDialog from '../Dialog/ShareWorkspace';
@@ -12,28 +12,22 @@ import Relations from '../Dialog/Relations';
 import CheckCluster from './CheckCluster';
 // import PdfDialog from '../Dialog/PDF';
 import ChartsGrid from './ChartsGrid';
-import ChartTile from './ChartTile';
 import Toolbar from './Toolbar';
 
 // React Hooks
 import useDialog from '../../hooks/useDialog';
 import useDrawer from '../../hooks/useDrawer';
 
-import {
-  refreshAllChartsData,
-  refreshDataByChartIds,
-  setChartAsActive,
-} from '../../features/dashboard/actions';
+import { refreshAllChartsData, refreshDataByChartIds } from '../../features/dashboard/actions';
 
 const useStyles = makeStyles(() => ({
   dashboardRoot: { overflow: 'hidden', paddingBottom: '50px' },
-  chartPaper: { overflow: 'hidden' },
 }));
 
 const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   const dispatch = useDispatch();
   const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
-  const { layout, isClusterCredsValid, permission, activeChart, charts = [], relations } = dashboard;
+  const { isClusterCredsValid, permission, charts = [], relations } = dashboard;
 
   const [interactiveObj, setInteractiveObj] = useState({});
   const classes = useStyles();
@@ -47,24 +41,6 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
   // const [pdfShow, pdfToggle] = useDialog(false);
 
   const [showFilterDrawer, toggleFilterDrawer] = useDrawer(false);
-
-  const chartIDs = charts.map(({ id }) => id);
-
-  const editChart = useCallback(
-    chartID => {
-      dispatch(setChartAsActive(chartID));
-      editChartToggle();
-    },
-    [activeChart],
-  );
-
-  const removeChart = useCallback(
-    async chartID => {
-      dispatch(setChartAsActive(chartID));
-      deleteChartToggle();
-    },
-    [activeChart],
-  );
 
   const interactiveClick = useCallback(
     (chartID, field, clickValue) => {
@@ -97,21 +73,6 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
     }
   }, []);
 
-  const createChart = layoutIndex => {
-    if (!chartIDs.includes(layoutIndex)) return null;
-    return (
-      <Paper className={classes.chartPaper} key={layoutIndex}>
-        <ChartTile
-          chartId={layoutIndex}
-          interactiveClick={interactiveClick}
-          interactiveObj={interactiveObj}
-          removeChart={removeChart}
-          toggleEdit={editChart}
-        />
-      </Paper>
-    );
-  };
-
   return (
     <Fragment>
       <Toolbar
@@ -129,9 +90,12 @@ const Dashboard = ({ isChartDialogCalled, setEditCurrentDashboard }) => {
       {/* MAIN CONTENT START! */}
       <Container maxWidth='xl' className={classes.dashboardRoot}>
         {isClusterCredsValid ? (
-          <ChartsGrid layouts={layout} permission={dashboard.permission}>
-            {layout?.lg.map(layout => createChart(layout.i))}
-          </ChartsGrid>
+          <ChartsGrid
+            interactiveClick={interactiveClick}
+            interactiveObj={interactiveObj}
+            editChartToggle={editChartToggle}
+            deleteChartToggle={deleteChartToggle}
+          />
         ) : (
           <CheckCluster setEditCurrentDashboard={setEditCurrentDashboard} />
         )}

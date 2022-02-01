@@ -1,13 +1,17 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core';
+import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles, Paper } from '@material-ui/core';
 import useNotifier from '../../hooks/useNotifier';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { updateLayoutInDBandStore } from '../../features/dashboard/actions';
+import { setChartAsActive, updateLayoutInDBandStore } from '../../features/dashboard/actions';
+import ChartTile from './ChartTile';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
+
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const useStyles = makeStyles(() => ({
+  chartPaper: { overflow: 'hidden' },
   gridRoot: {
     '& .react-resizable-handle': {
       position: 'absolute',
@@ -23,18 +27,53 @@ function ChartsGrid(props) {
   const classes = useStyles();
   const dispatch = useDispatch();
   const notifyResult = useNotifier();
+  const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
+  const { layout, activeChart, permission } = dashboard;
 
-  const handleLayoutChange = debounce(async (layout, allLayouts) => {
+  const handleLayoutChange = debounce(async (currentLayout, allLayouts) => {
+    if (permission !== 'Owner') return; // do not trigger updates if Dashboard permission is not Owner
+
+    const equal = isEqual(layout, allLayouts);
+    if (equal) return; // do not trigger updates if layouts are equal
+
     const { error } = await dispatch(updateLayoutInDBandStore(allLayouts));
     if (error) notifyResult('error', `Something went wrong, we could not save your layout. ${error}`);
   }, 500);
 
-  if (!props.layouts) return null;
+  const editChart = useCallback(
+    chartID => {
+      dispatch(setChartAsActive(chartID));
+      props.editChartToggle();
+    },
+    [activeChart],
+  );
+
+  const removeChart = useCallback(
+    async chartID => {
+      dispatch(setChartAsActive(chartID));
+      props.deleteChartToggle();
+    },
+    [activeChart],
+  );
+
+  const createChart = layoutIndex => {
+    return (
+      <Paper className={classes.chartPaper} key={layoutIndex}>
+        <ChartTile
+          chartId={layoutIndex}
+          interactiveClick={props.interactiveClick}
+          interactiveObj={props.interactiveObj}
+          removeChart={removeChart}
+          toggleEdit={editChart}
+        />
+      </Paper>
+    );
+  };
 
   return (
     <ResponsiveGridLayout
       className={classes.gridRoot}
-      layouts={props.layouts}
+      layouts={layout}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
       onLayoutChange={handleLayoutChange}
@@ -43,12 +82,12 @@ function ChartsGrid(props) {
       draggableHandle='.dragElement'
       // verticalCompact={false}
       resizeHandles={['se']}
-      isDraggable={props.permission === 'Owner'}
-      isResizable={props.permission === 'Owner'}
+      isDraggable={permission === 'Owner'}
+      isResizable={permission === 'Owner'}
     >
-      {props.children}
+      {layout?.lg.map(layout => createChart(layout.i))}
     </ResponsiveGridLayout>
   );
 }
 
-export default ChartsGrid;
+export default React.memo(ChartsGrid);

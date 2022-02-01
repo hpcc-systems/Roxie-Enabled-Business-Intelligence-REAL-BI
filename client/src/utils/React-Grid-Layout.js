@@ -10,6 +10,13 @@ export const mapChartIdToLayout = chartIdArray => {
         minW: 2,
         maxW: 12,
         minH: 4,
+        moved: false,
+        static: false,
+        maxH: undefined,
+        isBounded: undefined,
+        isResizable: undefined,
+        isDraggable: undefined,
+        resizeHandles: undefined,
       };
       for (const key in acc) {
         const cols = { lg: 6, md: 10, sm: 6, xs: 4, xxs: 2 };
