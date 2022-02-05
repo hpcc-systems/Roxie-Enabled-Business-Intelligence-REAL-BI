@@ -21,5 +21,9 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.cluster },
   );
 
+  Cluster.associate = function (models) {
+    Cluster.hasMany(models[tableNames.clusterCredentials], { foreignKey: 'clusterID' });
+  };
+
   return Cluster;
 };

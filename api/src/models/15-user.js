@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.hasMany(sequelize.model(tableNames.openDashboard), { foreignKey: 'userID' });
+  User.hasMany(sequelize.model(tableNames.clusterCredentials), { foreignKey: 'userID' });
   User.hasMany(sequelize.model(tableNames.dashboardFilterValue), { as: 'filterValue', foreignKey: 'userID' });
 
   return User;

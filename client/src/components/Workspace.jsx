@@ -20,6 +20,7 @@ import { getDashboard, clearDashboard } from '../features/dashboard/actions';
 // React Hooks
 import useDrawer from '../hooks/useDrawer';
 import debounce from 'lodash/debounce';
+import { getClusters } from '../features/cluster/actions';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -69,6 +70,8 @@ const Workspace = () => {
         actions.forEach(action => dispatch(action));
       });
     };
+
+    dispatch(getClusters());
 
     if (workspaceID) {
       dispatch(clearDashboard());
