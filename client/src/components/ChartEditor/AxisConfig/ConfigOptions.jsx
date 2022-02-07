@@ -150,6 +150,7 @@ AxisConfigOptions.propTypes = {
     configuration: PropTypes.object,
     error: PropTypes.string,
     selectedDataset: PropTypes.shape({
+      loading: PropTypes.bool,
       fields: PropTypes.array,
     }),
     sourceType: PropTypes.string.isRequired,

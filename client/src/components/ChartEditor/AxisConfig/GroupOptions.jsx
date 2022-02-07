@@ -92,6 +92,7 @@ GroupOptions.propTypes = {
     configuration: PropTypes.object,
     selectedDataset: PropTypes.shape({
       fields: PropTypes.array,
+      loading: PropTypes.bool,
     }),
     sourceType: PropTypes.string.isRequired,
   }).isRequired,

@@ -37,7 +37,7 @@ router.get('/check', async (req, res, next) => {
       respond.hasCreds = true;
       const cluster = await getClusterByID(clusterID);
       try {
-        await isClusterCredsValid(cluster, clusterCreds.username, decryptHash(clusterCreds.password));
+        await isClusterCredsValid(cluster, clusterCreds.username, decryptHash(clusterCreds.hash));
         respond.isCredsValid = true;
       } catch (err) {
         respond.isCredsValid = false;

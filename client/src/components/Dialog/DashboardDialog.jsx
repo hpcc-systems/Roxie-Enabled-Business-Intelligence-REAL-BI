@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import LoadingSpinner from '../Common/LoadingSpinner';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   FormControlLabel,
@@ -51,67 +51,63 @@ const DashboardDialog = ({
     error,
     name,
   } = localState;
-  const clusters = useSelector(state => state.cluster.clusters);
-  const dispatch = useDispatch();
+
+  const cluster = useSelector(state => state.cluster);
+  const { clusters, loading: clustersLoading, error: clustersError } = cluster;
+
   const { button, checkbox, formControl } = useStyles();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    let active = true;
     (async () => {
       formFieldsUpdate({ loading: true });
-      try {
-        const action = await getClusters();
-        if (!active) return;
-        dispatch(action);
-      } catch (error) {
-        if (!active) return;
-        dispatch(error);
+      if (clusterID) {
+        try {
+          const { hasCreds, isCredsValid } = await checkForClusterCreds(clusterID);
+          formFieldsUpdate({
+            hasClusterCreds: hasCreds,
+            updateCreds: !isCredsValid,
+            error:
+              hasCreds && !isCredsValid
+                ? 'Authentication to HPCC cluster has failed, please check username/password'
+                : '',
+          });
+        } catch (error) {
+          formFieldsUpdate({ error: 'Can not check cluster credentials.' });
+        }
       }
       formFieldsUpdate({ loading: false });
     })();
 
     return () => {
-      active = false;
       formFieldsUpdate(resetToInitialFields => resetToInitialFields);
     };
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const { hasCreds, isCredsValid } = await checkForClusterCreds(clusterID);
-        if (!active) return;
-        formFieldsUpdate({
-          loading: false,
-          hasClusterCreds: hasCreds,
-          updateCreds: !isCredsValid,
-          error:
-            hasCreds && !isCredsValid
-              ? 'Authentication to HPCC cluster has failed, please check username/password'
-              : '',
-        });
-      } catch (error) {
-        if (!active) return;
-        formFieldsUpdate({ loading: false, error: 'Can not check cluster credentials.' });
-      }
-    })();
-
-    return () => (active = false);
-  }, [clusterID]);
-
   const handleSubmit = () => (isEditingDashboard ? submitDashboard(clickedDashboard) : submitDashboard());
   const handleInputChange = e => formFieldsUpdate({ [e.target.name]: e.target.value });
   const handleCheckboxChange = e => formFieldsUpdate({ updateCreds: e.target.checked });
-  const handleSelectCluster = event =>
+  const handleSelectCluster = async event => {
     //do not reset all fields because there are properties that you need, like parent id
-    formFieldsUpdate({
-      clusterID: event.target.value,
-      hasClusterCreds: false,
-      updateCreds: false,
-      loading: true,
-      error: '',
-    });
+    try {
+      formFieldsUpdate({ loading: true, clusterID: event.target.value });
+      const { hasCreds, isCredsValid } = await checkForClusterCreds(event.target.value);
+      formFieldsUpdate({
+        loading: false,
+        hasClusterCreds: hasCreds,
+        updateCreds: !isCredsValid,
+        error:
+          hasCreds && !isCredsValid
+            ? 'Authentication to HPCC cluster has failed, please check username/password'
+            : '',
+      });
+    } catch (error) {
+      formFieldsUpdate({ loading: false, error: 'Can not check cluster credentials.' });
+    }
+  };
+  const getClustersList = () => {
+    dispatch(getClusters());
+  };
 
   const readOnlyUser = isEditingDashboard ? clickedDashboard.permission === 'Read-Only' : false;
   const showUpdateCredsCheckbox = isEditingDashboard && hasClusterCreds && !readOnlyUser;
@@ -133,13 +129,9 @@ const DashboardDialog = ({
           </>
         ) : (
           <>
-            <FormControl className={formControl} fullWidth error={hpccError}>
+            <FormControl className={formControl} fullWidth error={hpccError || !!clustersError}>
               <InputLabel>HPCC Cluster</InputLabel>
-              <Select
-                name='clusterID'
-                value={clusters.length > 0 ? clusterID : ''}
-                onChange={handleSelectCluster}
-              >
+              <Select name='clusterID' value={clusterID || ''} onChange={handleSelectCluster}>
                 {clusters.map(({ host, id, infoPort, name }) => {
                   return (
                     <MenuItem key={id} value={id}>
@@ -148,7 +140,7 @@ const DashboardDialog = ({
                   );
                 })}
               </Select>
-              <FormHelperText>{hpccError && error}</FormHelperText>
+              <FormHelperText>{(hpccError && error) || clustersError}</FormHelperText>
             </FormControl>
             <TextField
               error={nameError}
@@ -210,7 +202,12 @@ const DashboardDialog = ({
         )}
       </DialogContent>
       <DialogActions>
-        {loading && <LoadingSpinner text='Loading...' textStyle='body1' size={20} />}
+        {(loading || clustersLoading) && <LoadingSpinner text='Loading...' textStyle='body1' size={20} />}
+        {clustersError && (
+          <Button className={button} variant='contained' disabled={loading} onClick={getClustersList}>
+            Re-fetch clusters list
+          </Button>
+        )}
         <Button color='secondary' variant='contained' onClick={toggleDialog}>
           Cancel
         </Button>

@@ -95,10 +95,19 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   return !isStatic ? (
     <>
-      <Box mb={2}>
+      <Box>
         <Autocomplete
           getOptionSelected={(option, value) => option.name === value.name}
-          getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
+          getOptionLabel={({ cluster, name }) => {
+            let label = '';
+            if (name) {
+              label += name;
+              if (cluster) {
+                label += ` (${cluster})`;
+              }
+            }
+            return label;
+          }}
           options={sources}
           loading={isAutoCompleteLoading}
           loadingText='...fetching latest data'

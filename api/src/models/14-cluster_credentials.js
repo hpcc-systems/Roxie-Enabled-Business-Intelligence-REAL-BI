@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.clusterCredentials },
   );
+  ClusterCredentials.associate = function (models) {
+    ClusterCredentials.belongsTo(models[tableNames.user], { foreignKey: 'userID' });
+    ClusterCredentials.belongsTo(models[tableNames.cluster], { foreignKey: 'clusterID' });
+  };
 
   return ClusterCredentials;
 };

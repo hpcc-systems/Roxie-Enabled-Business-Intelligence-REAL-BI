@@ -47,10 +47,10 @@ router.get('/keyword', async (req, res, next) => {
 
 router.post('/treeViewData', async (req, res, next) => {
   const user = req.user;
-  const cluserId = req.body.clusterId;
+  const clusterId = req.body.clusterId;
   const scope = req.body.scope;
   try {
-    const cluster = await getClusterByID(cluserId);
+    const cluster = await getClusterByID(clusterId);
     const result = await getTreeViewDataFromCluster(cluster, user.id, scope);
     res.send(result);
   } catch (error) {

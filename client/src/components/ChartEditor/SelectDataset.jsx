@@ -1,26 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  CircularProgress,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
-} from '@material-ui/core';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 // Utils
 import { getDatasetsFromSource } from '../../utils/hpcc';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
-  formControl: { marginBottom: theme.spacing(2), marginTop: theme.spacing(1) },
-  progress: { margin: `${theme.spacing(1)}px 0` },
+  formControl: { marginBottom: theme.spacing(2) },
   errorText: { color: theme.palette.error.dark },
 }));
 
 const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChangeObj, localState }) => {
-  const [loading, setLoading] = useState(false);
   const {
     chartID,
     configuration,
@@ -31,23 +22,33 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
     selectedSource = {},
     sourceType,
   } = localState;
+
+  let selectedDataset = localState.selectedDataset;
+
   const { isStatic = false } = configuration;
   const { id: clusterID } = dashboard.cluster;
-  const { formControl, progress, errorText } = useStyles();
+  const { formControl, errorText } = useStyles();
 
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
       (async () => {
-        setLoading(true);
-
         try {
+          formFieldsUpdate({ selectedDataset: { loading: true, name: '', fields: [] } });
+
           const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
           const { datasets, fields, name, params: dataParams = [] } = data;
 
           if (sourceType === 'file') {
-            formFieldsUpdate({ selectedDataset: { name, fields }, dataset: name, error: '' });
+            formFieldsUpdate({ selectedDataset: { name, fields, loading: false }, dataset: name, error: '' });
           } else {
-            formFieldsUpdate({ datasets: datasets, error: '' });
+            if (chartID) {
+              selectedDataset = datasets.find(({ name }) => name === dataset);
+            }
+            formFieldsUpdate({
+              selectedDataset: { ...selectedDataset, loading: false },
+              datasets: datasets,
+              error: '',
+            });
           }
 
           if (!chartID) {
@@ -68,20 +69,9 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
         } catch (error) {
           handleChange(null, { name: 'error', value: error.message });
         }
-
-        setLoading(false);
       })();
     }
   }, [chartID, clusterID, handleChange, handleChangeObj, selectedSource, sourceType]);
-
-  useEffect(() => {
-    if (datasets.length > 0 && dataset) {
-      let selectedDataset = datasets.find(({ name }) => name === dataset);
-      selectedDataset = selectedDataset ? selectedDataset : {};
-
-      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
-    }
-  }, [dataset, datasets, handleChange, handleChangeObj]);
 
   /*
     Don't render component to screen
@@ -91,24 +81,37 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
     return null;
   }
 
+  const selectDataset = event => {
+    const selected = datasets.find(({ name }) => name === event.target.value);
+    if (selected) {
+      formFieldsUpdate({
+        selectedDataset: { ...selected, loading: false },
+        dataset: event.target.value,
+      });
+    }
+  };
+
   const selectedDatasetErr = errors.find(err => err['selectedDataset']);
 
-  const datasetValue = datasets.length > 0 && dataset.length > 0 ? dataset : ''; // fixing all out of range warnings in console as we have value from config but options are not yet loaded.
-
-  return loading ? (
-    <CircularProgress className={progress} />
-  ) : (
+  return (
     <FormControl required className={formControl} fullWidth>
       <InputLabel>Dataset</InputLabel>
       <Select
         name='dataset'
-        value={datasetValue}
-        onChange={handleChange}
+        value={datasets.length > 0 ? dataset : ''}
+        onChange={selectDataset}
         error={selectedDatasetErr !== undefined}
       >
-        <MenuItem value=''>
-          <em>None</em>
-        </MenuItem>
+        {selectedDataset.loading && (
+          <MenuItem value='' disabled>
+            <em>...loading options</em>
+          </MenuItem>
+        )}
+        {datasets.length === 0 && !selectedDataset.loading && (
+          <MenuItem value=''>
+            <em>None</em>
+          </MenuItem>
+        )}
         {datasets.map(({ name }, index) => {
           return (
             <MenuItem key={index} value={name}>

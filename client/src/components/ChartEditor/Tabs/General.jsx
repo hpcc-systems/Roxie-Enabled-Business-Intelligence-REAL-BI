@@ -8,7 +8,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  CircularProgress,
   TextField,
+  Box,
 } from '@material-ui/core';
 import {
   AvTimer as AvTimerIcon,
@@ -112,7 +114,7 @@ const useStyles = makeStyles(theme => ({
 
 const GeneralTab = props => {
   const { handleChange, handleChangeObj, handleCheckbox, localState } = props;
-  const { configuration } = localState;
+  const { configuration, selectedDataset } = localState;
   const {
     axis1,
     axis2,
@@ -355,26 +357,34 @@ const GeneralTab = props => {
       {/*END THIRD ROW */}
       {/* FOURTH ROW */}
       <Grid container wrap='wrap'>
-        {type === 'dualline' || type === 'columnline' ? (
-          <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
-        ) : type === 'gauge' ? (
-          <GaugeParams {...props} />
-        ) : type === 'heatmap' ? (
-          <HeatmapParams {...props} />
-        ) : type === 'histogram' ? (
-          <HistogramParams {...props} />
-        ) : type === 'pie' || type === 'donut' ? (
-          <PieParams {...props} />
-        ) : type === 'map' ? (
-          <MapParams {...props} />
-        ) : type === 'table' ? (
-          <TableParams {...props} />
-        ) : type === 'textBox' ? (
-          <TextBoxParams {...props} />
-        ) : type === 'graph' ? (
-          <GraphParams {...props} />
+        {selectedDataset.loading ? (
+          <Box display='flex' alignItems='center' justifyContent='center' width='100%' pt='20px'>
+            <CircularProgress />
+          </Box>
         ) : (
-          <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
+          <>
+            {type === 'dualline' || type === 'columnline' ? (
+              <DualAxesParams {...props} checkboxUpdated={checkboxUpdated} />
+            ) : type === 'gauge' ? (
+              <GaugeParams {...props} />
+            ) : type === 'heatmap' ? (
+              <HeatmapParams {...props} />
+            ) : type === 'histogram' ? (
+              <HistogramParams {...props} />
+            ) : type === 'pie' || type === 'donut' ? (
+              <PieParams {...props} />
+            ) : type === 'map' ? (
+              <MapParams {...props} />
+            ) : type === 'table' ? (
+              <TableParams {...props} />
+            ) : type === 'textBox' ? (
+              <TextBoxParams {...props} />
+            ) : type === 'graph' ? (
+              <GraphParams {...props} />
+            ) : (
+              <GeneralParams {...props} checkboxUpdated={checkboxUpdated} />
+            )}
+          </>
         )}
       </Grid>
       {/* END FOURTH ROW */}

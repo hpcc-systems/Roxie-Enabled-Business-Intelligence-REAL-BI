@@ -24,7 +24,8 @@ function AzureLoginPage() {
   const silentTokenOptions = {
     ...loginScopes,
     account: account,
-    redirectUri: REACT_APP_AZURE_REDIRECT_URI + '/auth.html',
+    forceRefresh: true,
+    redirectUri: REACT_APP_AZURE_REDIRECT_URI,
   };
 
   const redirectedFrom = history.location?.state?.from;

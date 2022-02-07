@@ -35,8 +35,7 @@ import {
   updateFolderOpen,
   updateObjectInDirectory,
 } from '../../utils/directory';
-import { checkForClusterCreds, createClusterCreds, updateClusterCreds } from '../../utils/clusterCredentials';
-import { existsInArray } from '../../utils/misc';
+import { createClusterCreds, updateClusterCreds } from '../../utils/clusterCredentials';
 import { v4 as uuidv4 } from 'uuid';
 
 const initState = {
@@ -104,16 +103,6 @@ const DirectoryDrawer = ({
 
   const openDashboard = async directoryObj => {
     try {
-      const { payload: dashboard } = await getDashboard(directoryObj.id);
-
-      const clusterCredentials = dashboard.cluster ? await checkForClusterCreds(dashboard.cluster.id) : null;
-
-      if (dashboard.permission === 'Owner') {
-        if (!clusterCredentials || !dashboard.cluster) {
-          return editDashboard(directoryObj);
-        }
-      }
-
       const action = await openDashboardInWorkspace(directoryObj.id, workspaceID);
       const tabIndex = action.payload.findIndex(openDashboard => openDashboard.id === directoryObj.id);
       dispatch(action);
@@ -144,21 +133,27 @@ const DirectoryDrawer = ({
     });
   };
 
-  const checkNameRestrictions = (objNames, name, entity) => {
-    if (existsInArray(objNames, name.toLowerCase().trim())) {
-      return `${entity} with this name already exists, please provide different name`;
+  const checkNameRestrictions = (parentNode, newName, entity) => {
+    if (newName.trim().length === 0) return `Name can not be empty, please provide a valid ${entity} name`;
+    let error = '';
+    for (const node of parentNode.children) {
+      if (!node.children) {
+        if (node.name.trim() === newName.trim()) {
+          error = `${entity} with this name ${node.name} already exists, please provide different name`;
+          break;
+        }
+      }
     }
-    if (name.length === 0) return `"${name}" is not a valid ${entity} name`;
-    return null;
+    return error;
   };
 
   const createNewDashboard = async () => {
     const { name, parentID } = localState;
 
     const parentNode = findNodeRef(directory, parentID);
-    const objNames = parentNode.children.map(el => !el.children && el.name);
+
     // Check for duplicate names in directory
-    const nameError = checkNameRestrictions(objNames, name, 'Dashboard');
+    const nameError = checkNameRestrictions(parentNode, name, 'Dashboard');
     if (nameError) return formFieldsUpdate({ error: nameError });
     let dashboard;
     try {
@@ -250,9 +245,8 @@ const DirectoryDrawer = ({
     const { name, parentID } = localState;
 
     const parentNode = findNodeRef(directory, parentID);
-    const objNames = parentNode.children.map(el => el.name);
 
-    const nameError = checkNameRestrictions(objNames, name, 'Folder');
+    const nameError = checkNameRestrictions(parentNode, name, 'Folder');
     if (nameError) return formFieldsUpdate({ error: nameError });
     const newFolderObj = { id: uuidv4(), name: name.trim(), children: [], open: false };
     const newDirectory = addObjectToDirectory(directory, parentID, newFolderObj);

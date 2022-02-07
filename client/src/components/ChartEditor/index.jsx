@@ -92,6 +92,7 @@ const ChartEditor = props => {
       toggleUpdate,
       configuration.textBoxContent,
       configuration.graphChart,
+      configuration.fields,
     ],
   );
 

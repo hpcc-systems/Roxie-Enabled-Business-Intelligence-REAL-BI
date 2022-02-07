@@ -1,18 +1,22 @@
+/* eslint-disable no-unreachable */
 import axios from 'axios';
 
 // Action Types
-export const GET_CLUSTERS = 'GET_CLUSTERS';
-export const SET_CLUSTER_ERRORS = 'SET_CLUSTER_ERRORS';
+export const FETCH_CLUSTERS = 'FETCH_CLUSTERS';
+export const SET_CLUSTERS = 'SET_CLUSTERS';
+export const SET_CLUSTERS_ERROR = 'SET_CLUSTERS_ERROR';
 
-export const getClusters = async () => {
-  let response;
-
-  try {
-    response = await axios.get('/api/v1/cluster/all');
-  } catch (err) {
-    console.error(err);
-    return { type: SET_CLUSTER_ERRORS, payload: err };
-  }
-
-  return { type: GET_CLUSTERS, payload: response.data };
+export const getClusters = () => {
+  return async dispatch => {
+    try {
+      dispatch({ type: FETCH_CLUSTERS });
+      const response = await axios.get('/api/v1/cluster/all');
+      dispatch({ type: SET_CLUSTERS, payload: response.data });
+    } catch (error) {
+      console.log('-error getClusters-----------------------------------------');
+      console.dir({ error }, { depth: null });
+      console.log('------------------------------------------');
+      dispatch({ type: SET_CLUSTERS_ERROR, payload: 'Failed to get clusters list' });
+    }
+  };
 };
