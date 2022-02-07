@@ -10,14 +10,14 @@ export const validateSource = (state, eclRef) => {
 
       break;
     case 'file':
-      if (!selectedSource.cluster) {
+      if (!selectedSource.cluster && !selectedSource.hpccID) {
         errors.push({ selectedSource: 'Search for and select a logical file' });
       }
 
       break;
     case 'query':
     default:
-      if (!selectedSource.cluster) {
+      if (!selectedSource.cluster && !selectedSource.hpccID) {
         errors.push({ selectedSource: 'Search for and select a Roxie query' });
       }
 
