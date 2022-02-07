@@ -68,7 +68,7 @@ const initState = {
   keyword: '',
   params: [],
   sources: [],
-  selectedDataset: {},
+  selectedDataset: { loading: false, name: '', fields: [] },
   selectedSource: {},
   sourceType: 'query',
   keywordfromExplorer: false,

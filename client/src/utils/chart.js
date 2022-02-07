@@ -88,7 +88,7 @@ export const setEditorState = chart => {
     errors: [],
     keyword: source?.name,
     params,
-    selectedDataset: {},
+    selectedDataset: { loading: true, name: '', fields: [] }, // setting initial state to loading true on editing chart dialog will prevent user to see empty fields, as data is not yet available
     selectedSource: {},
     sources: [],
     sourceType: source?.type,

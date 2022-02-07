@@ -95,7 +95,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   return !isStatic ? (
     <>
-      <Box mb={2}>
+      <Box>
         <Autocomplete
           getOptionSelected={(option, value) => option.name === value.name}
           getOptionLabel={({ cluster, name }) => {
