@@ -48,7 +48,7 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
   } catch (error) {
     if (error?.response?.status === 401) {
       throw new Error(
-        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+        `Your request can not be completed, please provide valid cluster credentials in dashboard settings.`,
       );
     } else {
       throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
@@ -85,7 +85,7 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
   } catch (error) {
     if (error?.response?.status === 401) {
       throw new Error(
-        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+        `Your request can not be completed, please provide valid cluster credentials in dashboard settings.`,
       );
     } else {
       throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
@@ -99,18 +99,22 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
 
   fields = response.data.DFUGetFileMetaDataResponse.DataColumns.DFUDataColumn;
 
-  fields = fields.map(({ ColumnLabel, ColumnType }) => ({
-    name: ColumnLabel,
-    type: getValueType(ColumnType),
-  }));
-  fields = fields.filter(({ name }) => name !== '__fileposition__');
-
   const params = [
     { name: 'Start', type: 'number', value: '' },
     { name: 'Count', type: 'number', value: '' },
   ];
 
-  fields.forEach(field => params.push({ ...field, value: '' }));
+  fields = fields.reduce((acc, el) => {
+    if (el.ColumnLabel !== '__fileposition__') {
+      const field = {
+        name: el.ColumnLabel,
+        type: getValueType(el.ColumnType),
+      };
+      params.push({ ...field, value: '' }); // adding field to pararms array
+      acc.push(field); // adding filed to fields array
+    }
+    return acc;
+  }, []);
 
   return { name: source.name, fields, params };
 };
@@ -140,7 +144,7 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
   } catch (error) {
     if (error?.response?.status === 401) {
       throw new Error(
-        `Your request can not be completed, please provide valid cluster cretentials in dashboard settings.`,
+        `Your request can not be completed, please provide valid cluster credentials in dashboard settings.`,
       );
     } else {
       throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
@@ -160,41 +164,48 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
 };
 
 const getFileLastModifiedDate = async (cluster, fileName, clusterCreds) => {
-  const { host, infoPort } = cluster;
-  let file;
-
   try {
+    const { host, infoPort } = cluster;
+
     const response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUQuery.json`,
       { DFUQueryRequest: { LogicalName: fileName } },
       { auth: clusterCreds },
     );
 
-    file = response.data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile[0];
+    const file = response.data?.DFUQueryResponse?.DFULogicalFiles?.DFULogicalFile?.[0];
+    if (!file) return 'No information about last modified date was found';
+
+    return `${moment(file.Modified).format('L HH:mm:ss')} UTC`;
   } catch (error) {
-    throw new Error(`${error?.response?.data ? error.response.data : 'Unknown error'}`);
+    console.log('error', error);
+    return 'No information about last modified date was found';
   }
-
-  if (!file) throw new Error('No Matching Filename Found');
-
-  return `${moment(file.Modified).format('L HH:mm:ss')} UTC`;
 };
 
 const createFileParams = (params = []) => {
-  let Count = params.find(({ name }) => name === 'Count');
-  let Start = params.find(({ name }) => name === 'Start');
+  const result = params.reduce(
+    (acc, el) => {
+      if (el.name === 'Count') {
+        acc.Count = el.value || process.env.DEFAULT_ROW_COUNT_RETURN;
+      } else if (el.name === 'Start') {
+        acc.Start = el.value > 0 ? parseInt(el.value) - 1 : 0;
+      } else {
+        if (el.value && el.name) {
+          const param = { Name: el.name, Value: el.value };
+          acc.params.push(param);
+        }
+      }
+      return acc;
+    },
+    {
+      Count: process.env.DEFAULT_ROW_COUNT_RETURN,
+      Start: 0,
+      params: [],
+    },
+  );
 
-  Count = Count
-    ? Count.value
-      ? Count.value
-      : process.env.DEFAULT_ROW_COUNT_RETURN
-    : process.env.DEFAULT_ROW_COUNT_RETURN;
-  Start = Start > 0 ? Start.value - 1 : 0; // Convert start value back to 0 index
-
-  params = params.filter(({ name, value }) => name !== 'Start' && name !== 'Count' && value);
-  params = params.map(({ name, value }) => ({ Name: name, Value: value }));
-
-  return { Count, params, Start };
+  return result;
 };
 
 module.exports = {
