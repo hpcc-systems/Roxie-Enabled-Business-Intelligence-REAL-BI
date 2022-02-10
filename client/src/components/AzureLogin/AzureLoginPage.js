@@ -34,9 +34,9 @@ function AzureLoginPage() {
     if (account && inProgress === 'none') {
       instance.setActiveAccount(account); // set account to Active for Axios interceptor to send HTTPS with fresh tokens
       (async () => {
-        //Aquire fresh tokens to send initial user info request
+        //Acquire fresh tokens to send initial user info request
         try {
-          await instance.acquireTokenSilent(silentTokenOptions); //to aquire tokens silently we need to provide account.
+          await instance.acquireTokenSilent(silentTokenOptions); //to acquire tokens silently we need to provide account.
           dispatch(getUserStateWithAzure());
         } catch (error) {
           instance.acquireTokenRedirect(loginScopes); //in case if silent token acquisition fails, fallback to an interactive method

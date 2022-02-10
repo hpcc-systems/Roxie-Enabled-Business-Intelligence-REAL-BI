@@ -23,7 +23,7 @@ if (REACT_APP_AUTH_METHOD === 'ADFS') {
           account: account,
         });
         if (tokens) {
-          req.headers.authorization = 'Bearer ' + tokens.idToken;
+          req.headers.authorization = 'Bearer ' + tokens.accessToken;
         }
         return req;
       } catch (error) {
