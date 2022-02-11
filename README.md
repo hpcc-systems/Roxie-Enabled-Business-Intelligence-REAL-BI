@@ -12,11 +12,15 @@ Real BI is a tool used to connect to [HPCC](https://hpccsystems.com/) and create
 
 ## Running Application on Local Machine
 
+This project is utilizing npm packages, to install project you will need Node and NPM installed on your machine.
+https://nodejs.org/en/
+To check if you already have Node installed run command in the terminal `node -v` for NPM run `npm -v `
+
 1. Run `git clone https://github.com/hpcc-systems/REAL-BI.git` to copy the project into your computer.
 2. You will need to intall dependencies for a project. While in a root folder run command `npm install`, it will install npm packages in root as well as `/api` and `/client` folders.
 3. In the root folder, rename the **_.env.example_** file to **_.env_** and fill in the empty values. You can find an explanation inside **_.env.example_** .
 4. In `/client` rename the **_.env.example_** file to **_.env.development_** and fill in the empty values. You can find explanation inside **_.env.example_** .
-5. Create `real_bi` schema in your local MySQL database.
+5. Create schema in your local MySQL database with same name as DB_NAME variable in .env file. By default `real_bi` .
 6. Go to `/api` and run `npx sequelize db:migrate` to build database tables.
 7. Add a cluster to the seed file in order to create a dashboard. The cluster should be publicly available. A sample seed file is provided **_api\src\seeders\cluster-example.js_**.
 8. Go to `/api` and run `npx sequelize db:seed:all` to populate the database with seed cluster.
