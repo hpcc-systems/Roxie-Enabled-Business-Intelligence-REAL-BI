@@ -28,17 +28,21 @@ function ChartsGrid(props) {
   const dispatch = useDispatch();
   const notifyResult = useNotifier();
   const dashboard = useSelector(({ dashboard }) => dashboard.dashboard);
-  const { layout, activeChart, permission } = dashboard;
+  const { layout, activeChart, permission, charts } = dashboard;
 
-  const handleLayoutChange = debounce(async (currentLayout, allLayouts) => {
-    if (permission !== 'Owner') return; // do not trigger updates if Dashboard permission is not Owner
+  const handleLayoutChange = useCallback(
+    debounce(async (currentLayout, allLayouts) => {
+      if (permission !== 'Owner') return; // do not trigger updates if Dashboard permission is not Owner
 
-    const equal = isEqual(layout, allLayouts);
-    if (equal) return; // do not trigger updates if layouts are equal
+      const equal = isEqual(layout, allLayouts);
 
-    const { error } = await dispatch(updateLayoutInDBandStore(allLayouts));
-    if (error) notifyResult('error', `Something went wrong, we could not save your layout. ${error}`);
-  }, 500);
+      if (equal && charts.length > 0) return; // do not trigger updates if layouts are equal. if charts array is empty then we have deleted all charts and need to update DB!
+
+      const { error } = await dispatch(updateLayoutInDBandStore(allLayouts));
+      if (error) notifyResult('error', `Something went wrong, we could not save your layout. ${error}`);
+    }, 500),
+    [],
+  );
 
   const editChart = useCallback(
     chartID => {
@@ -57,6 +61,8 @@ function ChartsGrid(props) {
   );
 
   const createChart = layoutIndex => {
+    const chart = charts.find(chart => chart.id === layoutIndex);
+    if (!chart) return null;
     return (
       <Paper className={classes.chartPaper} key={layoutIndex}>
         <ChartTile
