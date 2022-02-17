@@ -127,18 +127,18 @@ const getFileDataFromCluster = async (cluster, options, userID) => {
   let data;
 
   try {
-    const response = await axios.post(
-      `${host}:${infoPort}/WsWorkunits/WUResult.json`,
-      {
-        WUResultRequest: {
-          LogicalName: source.name,
-          FilterBy: { NamedValue: fileParams },
-          Start,
-          Count,
-        },
+    const request = {
+      WUResultRequest: {
+        LogicalName: source.name,
+        FilterBy: { NamedValue: fileParams },
+        Start,
+        Count,
       },
-      { auth: clusterCreds },
-    );
+    };
+    if (source.cluster) request.WUResultRequest.Cluster = source.cluster;
+    const response = await axios.post(`${host}:${infoPort}/WsWorkunits/WUResult.json`, request, {
+      auth: clusterCreds,
+    });
 
     data = response.data.WUResultResponse;
   } catch (error) {
