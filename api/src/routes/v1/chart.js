@@ -16,6 +16,8 @@ const { getWorkunitDataFromCluster, getWorkunitDataFromClusterWithParams } = req
 const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelation');
 const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
 const { validate, validateChart, validateDeleteChart } = require('../../utils/validation');
+const { getClusterCreds } = require('../../utils/clusterCredentials');
+const axios = require('axios');
 
 router.post('/', [validateChart(), validate], async (req, res, next) => {
   const {
@@ -50,7 +52,26 @@ router.get('/data', async (req, res, next) => {
 
   try {
     const cluster = await getClusterByID(clusterID);
+    const clusterCreds = await getClusterCreds(clusterID, userID);
     let { configuration, source } = await getChartByID(chartID);
+    // Getting cluster name as it can be different sometimes.
+    if (source.type === 'file') {
+      try {
+        const response = await axios.post(
+          `${cluster.host}:${cluster.infoPort}/WsDfu/DFUQuery.json`,
+          { DFUQueryRequest: { LogicalName: source.name } },
+          { auth: clusterCreds },
+        );
+        const file = response.data.DFUQueryResponse?.DFULogicalFiles?.DFULogicalFile?.[0];
+        if (file?.ClusterName) {
+          source.cluster = file.ClusterName;
+        }
+      } catch (error) {
+        console.log('-error-----------------------------------------');
+        console.dir({ error }, { depth: null });
+        console.log('------------------------------------------');
+      }
+    }
     // isIntegrationChart field means that this chart was created with another app, it has no data, we need to fetch the data now.
     if (configuration.isIntegrationChart) {
       try {
