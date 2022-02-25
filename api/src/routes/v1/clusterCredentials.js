@@ -54,16 +54,15 @@ router.get('/check', async (req, res, next) => {
 
 router.put('/', async (req, res, next) => {
   const {
-    body: { clusterID, password, username },
+    body: { clusterID, password, username, onBehalfOf, dashboardID },
     user: { id: userID },
   } = req;
 
   try {
     const cluster = await getClusterByID(clusterID);
     await isClusterCredsValid(cluster, username, password);
-    await updateClusterCreds(clusterID, password, userID, username);
-
-    return res.status(200).json({ message: 'Cluster Credentials Updated' });
+    const creds = await updateClusterCreds(clusterID, password, userID, username, onBehalfOf, dashboardID);
+    return res.json(creds);
   } catch (error) {
     return next(error);
   }

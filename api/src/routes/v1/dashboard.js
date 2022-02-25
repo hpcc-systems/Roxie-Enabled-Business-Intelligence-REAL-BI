@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { getClusterCreds, isClusterCredsValid } = require('../../utils/clusterCredentials');
+const { getClusterCreds, isClusterCredsValid, getAccessOnBehalf } = require('../../utils/clusterCredentials');
 // Utils
 const {
   createDashboard,
@@ -40,7 +40,12 @@ router.get('/info', async (req, res, next) => {
     const dashboard = await getDashboardByID(dashboardID, userID);
 
     if (dashboard.cluster) {
-      const clusterCreds = await getClusterCreds(dashboard.cluster.id, userID);
+      let clusterCreds;
+      if (dashboard.accessOnBehalf) {
+        clusterCreds = await getAccessOnBehalf(dashboard.accessOnBehalf);
+      } else {
+        clusterCreds = await getClusterCreds(dashboard.cluster.id, userID);
+      }
       try {
         await isClusterCredsValid(dashboard.cluster, clusterCreds.username, clusterCreds.password);
         dashboard.isClusterCredsValid = true;
@@ -59,7 +64,7 @@ router.get('/info', async (req, res, next) => {
 
 router.put('/', async (req, res, next) => {
   const {
-    body: { clusterID, dashboardID, name },
+    body: { clusterID, dashboardID, name, creds },
     user: { id: userID },
   } = req;
 
@@ -71,7 +76,7 @@ router.put('/', async (req, res, next) => {
       throw error;
     }
 
-    await updateDashboardByID(clusterID, dashboardID, name);
+    await updateDashboardByID(clusterID, dashboardID, name, creds);
     const dashboard = await getDashboardByID(dashboardID, userID);
     return res.status(200).json(dashboard);
   } catch (error) {
