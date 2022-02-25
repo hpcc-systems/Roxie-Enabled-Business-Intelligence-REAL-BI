@@ -119,22 +119,16 @@ const DirectoryDrawer = ({
     if (updateCreds || !hasClusterCreds) {
       if (hasClusterCreds || onBehalfOf) {
         console.log('--UPDATE CREDS CALL----------------------------------------');
-        console.dir({ clusterID, password, username, onBehalfOf }, { depth: null });
-        console.log('------------------------------------------');
         const dashboardID = form.directoryObj.id;
         const respond = await updateClusterCreds({ clusterID, password, username, onBehalfOf, dashboardID });
         return respond.data;
       } else {
         console.log('--CREATE CREDS CALL----------------------------------------');
-        console.dir({ clusterID, password, username, onBehalfOf }, { depth: null });
-        console.log('------------------------------------------');
-
         const respond = await createClusterCreds({ clusterID, password, username });
         return respond.data;
       }
     }
     console.log('NO UPDATE CALL HAPPENED----------------------------------------');
-    console.log('------------------------------------------');
   };
 
   const handleDashboardError = error => {
