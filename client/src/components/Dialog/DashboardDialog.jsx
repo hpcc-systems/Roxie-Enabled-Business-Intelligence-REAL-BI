@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -29,7 +30,7 @@ import { checkForClusterCreds } from '../../utils/clusterCredentials';
 const useStyles = makeStyles(theme => ({
   button: { backgroundColor: theme.palette.info.main, color: theme.palette.info.contrastText },
   formControl: { marginBottom: 15 },
-  checkbox: { marginLeft: 0 },
+  checkbox: { marginLeft: 0, display: 'block' },
 }));
 
 const DashboardDialog = ({
@@ -41,6 +42,7 @@ const DashboardDialog = ({
   show,
 }) => {
   const {
+    onBehalfOf,
     clickedDashboard,
     hasClusterCreds,
     updateCreds,
@@ -60,7 +62,9 @@ const DashboardDialog = ({
 
   useEffect(() => {
     (async () => {
-      formFieldsUpdate({ loading: true });
+      if (onBehalfOf) return;
+
+      formFieldsUpdate({ loading: true, username: '', password: '' });
       if (clusterID) {
         try {
           const { hasCreds, isCredsValid } = await checkForClusterCreds(clusterID);
@@ -78,15 +82,17 @@ const DashboardDialog = ({
       }
       formFieldsUpdate({ loading: false });
     })();
+  }, [onBehalfOf]);
 
-    return () => {
-      formFieldsUpdate(resetToInitialFields => resetToInitialFields);
-    };
-  }, []);
+  useEffect(() => {
+    if (error && isEditingDashboard) {
+      formFieldsUpdate({ updateCreds: true });
+    }
+  }, [error]);
 
   const handleSubmit = () => (isEditingDashboard ? submitDashboard(clickedDashboard) : submitDashboard());
   const handleInputChange = e => formFieldsUpdate({ [e.target.name]: e.target.value });
-  const handleCheckboxChange = e => formFieldsUpdate({ updateCreds: e.target.checked });
+  const handleCheckboxChange = e => formFieldsUpdate({ [e.target.name]: e.target.checked });
   const handleSelectCluster = async event => {
     //do not reset all fields because there are properties that you need, like parent id
     try {
@@ -105,13 +111,20 @@ const DashboardDialog = ({
       formFieldsUpdate({ loading: false, error: 'Can not check cluster credentials.' });
     }
   };
+
   const getClustersList = () => {
     dispatch(getClusters());
   };
 
+  const onClose = () => {
+    formFieldsUpdate(resetToInitialFields => resetToInitialFields);
+    toggleDialog();
+  };
+
   const readOnlyUser = isEditingDashboard ? clickedDashboard.permission === 'Read-Only' : false;
-  const showUpdateCredsCheckbox = isEditingDashboard && hasClusterCreds && !readOnlyUser;
-  const showUsernamePasswordFields = !hasClusterCreds || updateCreds;
+  const showUpdateCredsCheckbox = isEditingDashboard && !readOnlyUser && (hasClusterCreds || onBehalfOf);
+  const showUsernamePasswordFields = updateCreds || (!hasClusterCreds && !onBehalfOf);
+
   const disableSaveDashboard = loading || name.trim().length === 0 || !clusterID;
 
   const hpccError =
@@ -119,7 +132,7 @@ const DashboardDialog = ({
   const nameError = error === 'Dashboard with this name already exists, please provide different name';
 
   return (
-    <Dialog onClose={toggleDialog} open={show} fullWidth>
+    <Dialog onClose={onClose} open={show} fullWidth>
       <DialogTitle>{isEditingDashboard ? 'Edit' : 'New'} Dashboard</DialogTitle>
       <DialogContent>
         {readOnlyUser ? (
@@ -168,12 +181,28 @@ const DashboardDialog = ({
                 color='primary'
               />
             }
-            label='Update Cluster Credentials'
+            label='Update cluster credentials'
             labelPlacement='start'
           />
         )}
         {showUsernamePasswordFields && (
           <Fragment>
+            {isEditingDashboard && clickedDashboard.permission === 'Owner' && (
+              <FormControlLabel
+                className={checkbox}
+                control={
+                  <Checkbox
+                    disabled={loading}
+                    name='onBehalfOf'
+                    checked={onBehalfOf}
+                    onChange={handleCheckboxChange}
+                    color='primary'
+                  />
+                }
+                label='Set up shared credentials'
+                labelPlacement='start'
+              />
+            )}
             <TextField
               error={hpccError}
               helperText={hpccError && 'Invalid username or password'}
@@ -200,6 +229,13 @@ const DashboardDialog = ({
             />
           </Fragment>
         )}
+        {onBehalfOf && (
+          <Alert severity='warning'>
+            <AlertTitle>This Dashboard uses shared credentials</AlertTitle>
+            If you share workspace with other users this dashboard will use provided credentials to request
+            charts data from HPCC
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         {(loading || clustersLoading) && <LoadingSpinner text='Loading...' textStyle='body1' size={20} />}
@@ -208,7 +244,7 @@ const DashboardDialog = ({
             Re-fetch clusters list
           </Button>
         )}
-        <Button color='secondary' variant='contained' onClick={toggleDialog}>
+        <Button color='secondary' variant='contained' onClick={onClose}>
           Cancel
         </Button>
         <Button className={button} variant='contained' disabled={disableSaveDashboard} onClick={handleSubmit}>
