@@ -129,9 +129,11 @@ const getECLParamsFromScript = async (cluster, Wuid, userID) => {
   return params;
 };
 
-const getWorkunitDataFromCluster = async (cluster, configuration, source, userID) => {
+const getWorkunitDataFromCluster = async (cluster, configuration, source, userID, clusterCreds) => {
   const { id: clusterID, host, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+  if (!clusterCreds) {
+    clusterCreds = await getClusterCreds(clusterID, userID);
+  }
   const { Count } = createWUParams(configuration.params);
   let data;
 
@@ -163,9 +165,18 @@ const getWorkunitDataFromCluster = async (cluster, configuration, source, userID
   return { lastModifiedDate: createScriptLastModifiedDate(), data };
 };
 
-const getWorkunitDataFromClusterWithParams = async (cluster, configuration, paramsArr, source, userID) => {
+const getWorkunitDataFromClusterWithParams = async (
+  cluster,
+  configuration,
+  paramsArr,
+  source,
+  userID,
+  clusterCreds,
+) => {
   const { id: clusterID, host, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+  if (!clusterCreds) {
+    clusterCreds = await getClusterCreds(clusterID, userID);
+  }
   const { Count, params } = createWUParams(paramsArr);
   let data;
 
