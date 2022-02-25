@@ -16,6 +16,7 @@ const tableNames = {
   workspace: 'workspace',
   workspaceDirectory: 'workspace_directory',
   workspacePermission: 'workspace_permission',
+  accessOnBehalf: 'access_on_behalf',
 };
 
 module.exports = { tableNames };

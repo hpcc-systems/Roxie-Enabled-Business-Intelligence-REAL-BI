@@ -16,28 +16,36 @@ module.exports = (sequelize, DataTypes) => {
       layout: {
         type: DataTypes.TEXT('long'),
       },
+      accessOnBehalf: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
       ...createDateTimeStamps(DataTypes),
     },
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.dashboard },
   );
 
-  Dashboard.belongsTo(sequelize.model(tableNames.cluster), { foreignKey: 'clusterID' });
-  Dashboard.hasMany(sequelize.model(tableNames.dashboardPermission), {
-    as: 'permission',
-    foreignKey: 'dashboardID',
-  });
-  Dashboard.hasMany(sequelize.model(tableNames.dashboardFilter), {
-    as: 'filters',
-    foreignKey: 'dashboardID',
-  });
-  Dashboard.hasMany(sequelize.model(tableNames.dashboardRelation), {
-    as: 'relations',
-    foreignKey: 'dashboardID',
-  });
-  Dashboard.hasMany(sequelize.model(tableNames.chart), {
-    as: 'charts',
-    foreignKey: 'dashboardID',
-  });
+  Dashboard.associate = function () {
+    Dashboard.belongsTo(sequelize.model(tableNames.cluster), { foreignKey: 'clusterID' });
+    Dashboard.hasMany(sequelize.model(tableNames.dashboardPermission), {
+      as: 'permission',
+      foreignKey: 'dashboardID',
+    });
+    Dashboard.hasMany(sequelize.model(tableNames.dashboardFilter), {
+      as: 'filters',
+      foreignKey: 'dashboardID',
+    });
+    Dashboard.hasMany(sequelize.model(tableNames.dashboardRelation), {
+      as: 'relations',
+      foreignKey: 'dashboardID',
+    });
+    Dashboard.hasMany(sequelize.model(tableNames.chart), {
+      as: 'charts',
+      foreignKey: 'dashboardID',
+    });
+
+    Dashboard.belongsTo(sequelize.model(tableNames.accessOnBehalf), { foreignKey: 'accessOnBehalf' });
+  };
 
   return Dashboard;
 };
