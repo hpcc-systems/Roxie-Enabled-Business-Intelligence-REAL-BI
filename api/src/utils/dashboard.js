@@ -7,6 +7,7 @@ const {
   dashboard_filter_value: DashboardFilterValue,
   dashboard_permission: DashboardPermission,
   dashboard_relation: DashboardRelation,
+  access_on_behalf: AccessOnBehalf,
   role: Role,
   source: Source,
   source_type: SourceType,
@@ -119,9 +120,36 @@ const createDashboard = async (dashboard, workspaceID, fileName = null) => {
   return newDashboard.id;
 };
 
-const updateDashboardByID = async (clusterID, id, name) => {
-  return await Dashboard.update({ name: name.trim(), clusterID }, { where: { id } });
+const updateDashboardByID = async (clusterID, id, name, creds) => {
+  let accessOnBehalf = null;
+
+  if (creds && creds.onBehalfOf) {
+    accessOnBehalf = creds.credsId;
+  }
+
+  const dashboard = await Dashboard.findOne({ where: { id } });
+
+  if (!accessOnBehalf && dashboard.accessOnBehalf) {
+    const delted = await AccessOnBehalf.destroy({ where: { id: dashboard.accessOnBehalf } });
+    console.log(
+      `-RECORD DELETED FROM TABLE AccessOnBehalf ${dashboard.name}-----------------------------------------`,
+    );
+    console.dir({ delted }, { depth: null });
+    console.log('------------------------------------------');
+  }
+
+  const update = await dashboard.update({ name: name.trim(), clusterID, accessOnBehalf });
+
+  console.log('-DASHBOARD UPDATED-----------------------------------------');
+  console.dir({ creds, update: update.toJSON() }, { depth: null });
+  console.log('------------------------------------------');
+
+  return update.toJSON();
 };
+
+// const updateDashboardByID = async (clusterID, id, name) => {
+//   return await Dashboard.update({ name: name.trim(), clusterID }, { where: { id } });
+// };
 
 const deleteDashboardByID = async id => {
   return await Dashboard.destroy({ where: { id } });

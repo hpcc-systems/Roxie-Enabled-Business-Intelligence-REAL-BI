@@ -32,9 +32,9 @@ export const getDashboard = async dashboardID => {
   }
 };
 
-export const updateDashboard = async (clusterID, dashboardID, name) => {
+export const updateDashboard = async (clusterID, dashboardID, name, creds) => {
   try {
-    const response = await axios.put('/api/v1/dashboard/', { clusterID, dashboardID, name });
+    const response = await axios.put('/api/v1/dashboard/', { clusterID, dashboardID, name, creds });
     return { type: UPDATE_DASHBOARD, payload: response.data };
   } catch (error) {
     throw { type: SET_DASHBOARD_ERRORS, payload: error.response };

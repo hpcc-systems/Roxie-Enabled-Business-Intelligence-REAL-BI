@@ -92,10 +92,12 @@ const getQueryParamsFromCluster = async (cluster, source, userID) => {
   }
 };
 
-const getQueryDataFromCluster = async (cluster, options, userID) => {
+const getQueryDataFromCluster = async (cluster, options, userID, clusterCreds) => {
   const { id: clusterID, host, dataPort } = cluster;
   const { name, target } = options.source;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+  if (!clusterCreds) {
+    clusterCreds = await getClusterCreds(clusterID, userID);
+  }
   const paramsList = createUrlParamsString(options.params);
   let data;
 

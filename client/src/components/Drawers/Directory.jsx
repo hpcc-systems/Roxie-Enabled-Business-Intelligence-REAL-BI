@@ -44,6 +44,7 @@ const initState = {
   error: '',
   password: '',
   username: '',
+  onBehalfOf: false,
   hasClusterCreds: null,
   name: '',
   parentID: 0,
@@ -114,14 +115,20 @@ const DirectoryDrawer = ({
   };
 
   const createOrUpdateClusterCreds = async form => {
-    const { updateCreds, hasClusterCreds, clusterID, password, username } = form;
+    const { updateCreds, hasClusterCreds, clusterID, password, username, onBehalfOf } = form;
     if (updateCreds || !hasClusterCreds) {
-      if (hasClusterCreds) {
-        await updateClusterCreds({ clusterID, password, username });
+      if (hasClusterCreds || onBehalfOf) {
+        console.log('--UPDATE CREDS CALL----------------------------------------');
+        const dashboardID = form.directoryObj.id;
+        const respond = await updateClusterCreds({ clusterID, password, username, onBehalfOf, dashboardID });
+        return respond.data;
       } else {
-        await createClusterCreds({ clusterID, password, username });
+        console.log('--CREATE CREDS CALL----------------------------------------');
+        const respond = await createClusterCreds({ clusterID, password, username });
+        return respond.data;
       }
     }
+    console.log('NO UPDATE CALL HAPPENED----------------------------------------');
   };
 
   const handleDashboardError = error => {
@@ -191,26 +198,28 @@ const DirectoryDrawer = ({
 
     try {
       formFieldsUpdate({ loading: true });
-      await createOrUpdateClusterCreds(localState);
+      const creds = await createOrUpdateClusterCreds(localState); // : { onBehalfOf: boolean, credsId: uuid };
       // Update directoryObj
       const newDirectoryObj = { ...directoryObj, name, clusterID };
+      let allActions = [];
+      // Update dashboard first then get refreshed workspace data
+      const action = await updateDashboard(clusterID, directoryObj.id, name, creds);
+      allActions.push(action);
 
       //check if cluster or dashname was changed if not then update creds only
       if (dashboard.name !== newDirectoryObj.name || clickedDashboard.cluster?.id !== clusterID) {
         const newDirectory = updateObjectInDirectory(directory, directoryObj.id, newDirectoryObj);
 
-        // Update dashboard first then get refreshed workspace data
-        const action = await updateDashboard(clusterID, directoryObj.id, name);
-        const otherActions = await Promise.all([
+        const actions = await Promise.all([
           updateWorkspaceDirectory(newDirectory, workspaceID),
           getOpenDashboardsInWorkspace(workspaceID),
         ]);
-
-        batch(() => {
-          const allActions = [action, ...otherActions];
-          allActions.forEach(action => dispatch(action));
-        });
+        allActions.push(actions);
       }
+
+      batch(() => {
+        allActions.forEach(action => dispatch(action));
+      });
 
       formFieldsUpdate({ loading: false });
       toggleEditDashboardDialog();
@@ -319,6 +328,7 @@ const DirectoryDrawer = ({
         clickedDashboard: payload,
         clusterID: payload.cluster?.id || '',
         name: payload.name,
+        onBehalfOf: payload.accessOnBehalf ? true : false,
         directoryObj,
       });
 

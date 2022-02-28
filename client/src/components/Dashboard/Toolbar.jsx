@@ -14,6 +14,7 @@ import {
   Tooltip,
   Box,
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import {
   AddCircle as AddCircleIcon,
   FilterList as FilterListIcon,
@@ -53,6 +54,7 @@ const useStyles = makeStyles(theme => ({
   shareBtn: {
     backgroundColor: theme.palette.info.main,
     color: theme.palette.info.contrastText,
+    marginTop: 10,
   },
   toolbar: {
     visibility: props => (props.cluster ? 'visible' : 'hidden'),
@@ -88,7 +90,7 @@ const ToolbarComp = ({
   toggleShare,
   toggleSharedWith,
 }) => {
-  const { cluster, name, fileName, createdAt, permission: dashboardPermission } = dashboard;
+  const { cluster, name, fileName, createdAt, permission: dashboardPermission, accessOnBehalf } = dashboard;
   const anchorRef = useRef(null);
   const anchorRef2 = useRef(null);
   const anchorRef3 = useRef(null);
@@ -299,6 +301,11 @@ const ToolbarComp = ({
                   <Typography variant='h6' align='center'>
                     Dashboard Info
                   </Typography>
+                  {accessOnBehalf && (
+                    <Alert variant='outlined' severity={'error'}>
+                      This dashboard is using shared credentials
+                    </Alert>
+                  )}
                   <Typography variant='body2' className={typographyInfo}>
                     <strong>Workspace permission:</strong> {workspacePermission}
                   </Typography>

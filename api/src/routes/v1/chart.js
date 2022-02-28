@@ -16,8 +16,10 @@ const { getWorkunitDataFromCluster, getWorkunitDataFromClusterWithParams } = req
 const { getDashboardRelationsByChartID } = require('../../utils/dashboardRelation');
 const { getFileDatasetFromCluster } = require('../../utils/hpccFiles');
 const { validate, validateChart, validateDeleteChart } = require('../../utils/validation');
-const { getClusterCreds } = require('../../utils/clusterCredentials');
+const { getClusterCreds, getAccessOnBehalf } = require('../../utils/clusterCredentials');
 const axios = require('axios');
+
+const { dashboard: Dashboard } = require('../../models');
 
 router.post('/', [validateChart(), validate], async (req, res, next) => {
   const {
@@ -51,8 +53,16 @@ router.get('/data', async (req, res, next) => {
   const parsedObj = JSON.parse(interactiveObj);
 
   try {
+    const dashboard = await Dashboard.findOne({ where: { id: dashboardID } });
     const cluster = await getClusterByID(clusterID);
-    const clusterCreds = await getClusterCreds(clusterID, userID);
+
+    let clusterCreds;
+    if (dashboard.accessOnBehalf) {
+      clusterCreds = await getAccessOnBehalf(dashboard.accessOnBehalf);
+    } else {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     let { configuration, source } = await getChartByID(chartID);
     // Getting cluster name as it can be different sometimes.
     if (source.type === 'file') {
@@ -169,7 +179,7 @@ router.get('/data', async (req, res, next) => {
 
     switch (source.type) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, options, userID);
+        data = await getFileDataFromCluster(cluster, options, userID, clusterCreds);
         break;
       case 'ecl':
         if (dataParams.filter(({ name }) => name !== 'Count').length > 0) {
@@ -181,11 +191,16 @@ router.get('/data', async (req, res, next) => {
             userID,
           );
         } else {
-          data = await getWorkunitDataFromCluster(cluster, configuration, source, userID);
+          data = await getWorkunitDataFromCluster(cluster, configuration, source, userID, clusterCreds);
         }
         break;
       default:
-        data = await getQueryDataFromCluster(cluster, { ...options, dataset: configuration.dataset }, userID);
+        data = await getQueryDataFromCluster(
+          cluster,
+          { ...options, dataset: configuration.dataset },
+          userID,
+          clusterCreds,
+        );
     }
     // attach new config for redux only if it was updated.
     if (configuration.isUpdated) {

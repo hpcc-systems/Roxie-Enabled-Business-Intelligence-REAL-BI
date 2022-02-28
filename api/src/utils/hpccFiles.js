@@ -71,9 +71,11 @@ const getFilesFromCluster = async (cluster, keyword, userID) => {
   return files;
 };
 
-const getFileDatasetFromCluster = async (cluster, source, userID) => {
+const getFileDatasetFromCluster = async (cluster, source, userID, clusterCreds) => {
   const { host, id: clusterID, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+  if (!clusterCreds) {
+    clusterCreds = await getClusterCreds(clusterID, userID);
+  }
   let fields, response;
 
   try {
@@ -119,10 +121,14 @@ const getFileDatasetFromCluster = async (cluster, source, userID) => {
   return { name: source.name, fields, params };
 };
 
-const getFileDataFromCluster = async (cluster, options, userID) => {
+const getFileDataFromCluster = async (cluster, options, userID, clusterCreds) => {
   const { host, id: clusterID, infoPort } = cluster;
   const { source, params } = options;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+
+  if (!clusterCreds) {
+    clusterCreds = await getClusterCreds(clusterID, userID);
+  }
+
   const { Count, params: fileParams, Start } = createFileParams(params);
   let data;
 
