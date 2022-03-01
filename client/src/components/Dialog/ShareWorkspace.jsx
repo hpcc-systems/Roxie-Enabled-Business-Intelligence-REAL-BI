@@ -57,7 +57,7 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
       formFieldsUpdate({
         loading: false,
         errors: [],
-        successMsg: 'Workspace Shared Successfully',
+        successMsg: 'Dashboard Shared Successfully',
       });
     } catch (err) {
       formFieldsUpdate({
@@ -70,13 +70,13 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
   const { errors, loading, successMsg } = localState;
   const msgErr = errors.find(err => err['msg'])?.msg;
 
-  const alertSeverity = msgErr ? 'error' : 'warning';
-  const alertTitle = msgErr ? 'Error' : 'Warning';
+  const alertSeverity = msgErr ? 'error' : 'success';
+  const alertTitle = msgErr ? 'Error' : 'Success';
   const alertMessage = msgErr || successMsg;
 
   return (
     <Dialog onClose={toggleDialog} open={show} fullWidth>
-      <DialogTitle>Share Workspace</DialogTitle>
+      <DialogTitle>Share Dashboard</DialogTitle>
       <DialogContent className={dialogContent}>
         {alertMessage && (
           <Box my={1}>

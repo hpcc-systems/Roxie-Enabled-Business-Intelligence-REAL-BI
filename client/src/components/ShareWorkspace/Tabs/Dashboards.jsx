@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Checkbox, List, ListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
+import { Checkbox, List, ListItem, ListItemIcon, ListItemText, ListSubheader } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 // Utils
 import { getDashboardsFromDirectory, updateDashboardObj } from '../../../utils/directory';
+import { Alert } from '@material-ui/lab';
 
 const useStyles = makeStyles(theme => ({
-  dialogText: { fontSize: '0.85rem', marginTop: theme.spacing(1.5) },
   errMsg: { color: theme.palette.error.dark },
   item: { paddingLeft: 0 },
   itemText: { fontSize: '1.07rem' },
@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
 
 const ShareDashboards = ({ handleChange, localState }) => {
   const { directory } = localState;
-  const { dialogText, errMsg, item, itemText, list } = useStyles();
+  const { item, itemText, list } = useStyles();
 
   const handleToggle = (id, checked) => {
     const newDirectory = updateDashboardObj(localState.directory, id, 'shared', checked);
@@ -56,18 +56,19 @@ const ShareDashboards = ({ handleChange, localState }) => {
   };
 
   return (
-    <Fragment>
-      <Typography className={dialogText}>
-        Choose which dashboards you wish to share from this workspace. Recipients will receive view
-        permissions.
-      </Typography>
-      <List className={list}>{directory.map(directoryObj => renderList(directoryObj))}</List>
-      {dashboardsErr !== undefined && (
-        <Typography variant={'body2'} className={errMsg}>
-          {dashboardsErr['dashboards']}
-        </Typography>
-      )}
-    </Fragment>
+    <>
+      <List
+        subheader={
+          <ListSubheader component='div' id='nested-list-subheader'>
+            Choose dashboards:
+          </ListSubheader>
+        }
+        className={list}
+      >
+        {directory.map(directoryObj => renderList(directoryObj))}
+      </List>
+      {dashboardsErr !== undefined && <Alert severity='error'> {dashboardsErr['dashboards']}</Alert>}
+    </>
   );
 };
 
