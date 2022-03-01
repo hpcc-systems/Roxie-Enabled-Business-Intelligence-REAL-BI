@@ -11,7 +11,10 @@ const {
   updateDashboardLayout,
   getDashboardPermission,
 } = require('../../utils/dashboard');
-const { createDashboardPermission } = require('../../utils/dashboardPermission');
+const {
+  createDashboardPermission,
+  createOrUpdateDashboardPermission,
+} = require('../../utils/dashboardPermission');
 
 router.post('/', async (req, res, next) => {
   const {
@@ -166,6 +169,28 @@ router.post('/update_layouts', async (req, res, next) => {
     //2. update layout in DB
     await updateDashboardLayout(dashboardId, newLayoutToJson);
     res.status(200).send('ok');
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/update_dashboard_permissions', async (req, res, next) => {
+  const updatedPermission = req.body.updatedPermission;
+  const user = req.user;
+
+  try {
+    // Check if user that makes request is owner of the dashboard
+    const currentUserPermission = await getDashboardPermission(updatedPermission.dashboardID, user.id);
+
+    if (currentUserPermission !== 'Owner') {
+      const error = new Error('Permission Denied');
+      throw error;
+    }
+
+    const { dashboardID, id: userID, permission } = updatedPermission;
+    // Update permission for user from request
+    const newPermission = await createOrUpdateDashboardPermission(dashboardID, userID, permission);
+    res.status(200).send(newPermission);
   } catch (error) {
     next(error);
   }
