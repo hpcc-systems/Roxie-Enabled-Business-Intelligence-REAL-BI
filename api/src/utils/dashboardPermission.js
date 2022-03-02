@@ -21,7 +21,7 @@ const createOrUpdateDashboardPermission = async (dashboardID, userID, newPermiss
     return await DashboardPermission.create({ dashboardID, userID, roleID });
   }
   if (permission.roleID !== roleID) {
-    return await DashboardPermission.update({ roleID }, { where: { dashboardID, userID } });
+    return await permission.update({ roleID });
   }
   return permission;
 };

@@ -41,3 +41,12 @@ export const updateDashboardLayout = async (newLayout, dashboardId) => {
   });
   return respond.data;
 };
+
+export const updateDashboardPermissions = async updatedPermission => {
+  try {
+    const response = await axios.put('/api/v1/dashboard/update_dashboard_permissions', { updatedPermission });
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};

@@ -10,10 +10,10 @@ const useNotifier = () => {
     return <Button onClick={onClose}>Dismiss</Button>;
   };
 
-  const notifyResult = (type, message) => {
+  const notifyResult = (type, message, position = null) => {
     if (type === 'error') {
       enqueueSnackbar(message, {
-        anchorOrigin: { horizontal: 'right', vertical: 'top' },
+        anchorOrigin: { horizontal: 'right', vertical: position || 'top' },
         variant: 'error',
         preventDuplicate: true,
       });
@@ -22,7 +22,7 @@ const useNotifier = () => {
       enqueueSnackbar('New item has been added to dashboard', {
         variant: 'success',
         anchorOrigin: {
-          vertical: 'bottom',
+          vertical: position || 'bottom',
           horizontal: 'left',
         },
       });
@@ -31,21 +31,21 @@ const useNotifier = () => {
       enqueueSnackbar('Item deleted successfully!', {
         variant: 'success',
         anchorOrigin: {
-          vertical: 'bottom',
+          vertical: position || 'bottom',
           horizontal: 'left',
         },
       });
     }
     if (type === 'warning') {
       enqueueSnackbar(message, {
-        anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+        anchorOrigin: { horizontal: 'center', vertical: position || 'bottom' },
         variant: 'warning',
         action: closeSnackbarButton,
       });
     }
     if (type === 'info') {
       enqueueSnackbar(message, {
-        anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+        anchorOrigin: { horizontal: 'center', vertical: position || 'bottom' },
         variant: 'info',
         action: closeSnackbarButton,
       });
@@ -57,7 +57,7 @@ const useNotifier = () => {
         autoHideDuration: 3000,
         preventDuplicate: true,
         anchorOrigin: {
-          vertical: 'bottom',
+          vertical: position || 'bottom',
           horizontal: 'left',
           preventDuplicate: true,
         },
