@@ -59,6 +59,9 @@ const ShareWorkspaceDialog = ({ show, toggleDialog }) => {
         errors: [],
         successMsg: 'Dashboard Shared Successfully',
       });
+      setTimeout(() => {
+        toggleDialog();
+      }, 1500);
     } catch (err) {
       formFieldsUpdate({
         loading: false,

@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 // Utils
 import { getDashboardsFromDirectory, updateDashboardObj } from '../../../utils/directory';
 import { Alert } from '@material-ui/lab';
+import _ from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   errMsg: { color: theme.palette.error.dark },
@@ -18,7 +19,9 @@ const ShareDashboards = ({ handleChange, localState }) => {
   const { item, itemText, list } = useStyles();
 
   const handleToggle = (id, checked) => {
-    const newDirectory = updateDashboardObj(localState.directory, id, 'shared', checked);
+    //updateDashboardObj will modify existing array so we will need to copy directory array.
+    const copydirectory = _.cloneDeep(directory);
+    const newDirectory = updateDashboardObj(copydirectory, id, 'shared', checked);
     handleChange(null, { name: 'directory', value: newDirectory });
   };
 

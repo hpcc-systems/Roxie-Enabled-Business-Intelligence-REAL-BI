@@ -129,7 +129,7 @@ const UserRecord = ({ user, dashboardID, toggleSwitch }) => {
     }
   };
 
-  const switchState = user.permission === 'Owner' ? false : true;
+  const switchState = user.permission === 'Owner' ? true : false;
 
   return (
     <TableRow key={user.email}>
