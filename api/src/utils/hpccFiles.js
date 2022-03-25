@@ -200,8 +200,15 @@ const createFileParams = (params = []) => {
         acc.Start = el.value > 0 ? parseInt(el.value) - 1 : 0;
       } else {
         if (el.value && el.name) {
-          const param = { Name: el.name, Value: el.value };
-          acc.params.push(param);
+          const arrayOfValues = el.value.split(',');
+          if (arrayOfValues.length > 1) {
+            arrayOfValues.forEach(value => {
+              acc.params.push({ Name: el.name, Value: value });
+            });
+          } else {
+            const param = { Name: el.name, Value: el.value };
+            acc.params.push(param);
+          }
         }
       }
       return acc;
