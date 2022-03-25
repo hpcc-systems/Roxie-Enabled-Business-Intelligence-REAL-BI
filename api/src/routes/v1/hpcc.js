@@ -19,24 +19,32 @@ const {
   getECLscript,
 } = require('../../utils/hpccEcl');
 const { validate, validateEclEditorExecution } = require('../../utils/validation');
+const { getAccessOnBehalf, getClusterCreds } = require('../../utils/clusterCredentials');
 
 router.get('/keyword', async (req, res, next) => {
   const {
-    query: { clusterID, keyword = '*', sourceType = 'query' },
+    query: { clusterID, keyword = '*', sourceType = 'query', accessOnBehalf = '' },
     user: { id: userID },
   } = req;
 
   try {
+    let clusterCreds;
+    if (accessOnBehalf) {
+      clusterCreds = await getAccessOnBehalf(accessOnBehalf);
+    } else {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const cluster = await getClusterByID(clusterID);
     let results;
 
     switch (sourceType) {
       case 'file':
-        results = await getFilesFromCluster(cluster, keyword, userID);
+        results = await getFilesFromCluster(cluster, keyword, userID, clusterCreds);
         break;
       case 'query':
       default:
-        results = await getQueriesFromCluster(cluster, keyword, userID);
+        results = await getQueriesFromCluster(cluster, keyword, userID, clusterCreds);
     }
 
     return res.status(200).json(results);
@@ -60,23 +68,40 @@ router.post('/treeViewData', async (req, res, next) => {
 
 router.get('/datasets', async (req, res, next) => {
   const {
-    query: { clusterID, source, sourceType = 'query' },
+    query: { clusterID, source, sourceType = 'query', accessOnBehalf = '' },
     user: { id: userID },
   } = req;
 
   try {
+    let clusterCreds;
+    if (accessOnBehalf) {
+      clusterCreds = await getAccessOnBehalf(accessOnBehalf);
+    } else {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const cluster = await getClusterByID(clusterID);
     let sourceInfo;
 
     switch (sourceType) {
       case 'file':
-        sourceInfo = await getFileDatasetFromCluster(cluster, JSON.parse(source), userID);
+        sourceInfo = await getFileDatasetFromCluster(cluster, JSON.parse(source), userID, clusterCreds);
         break;
       case 'query':
       default:
         sourceInfo = {};
-        sourceInfo.datasets = await getQueryDatasetsFromCluster(cluster, JSON.parse(source), userID);
-        sourceInfo.params = await getQueryParamsFromCluster(cluster, JSON.parse(source), userID);
+        sourceInfo.datasets = await getQueryDatasetsFromCluster(
+          cluster,
+          JSON.parse(source),
+          userID,
+          clusterCreds,
+        );
+        sourceInfo.params = await getQueryParamsFromCluster(
+          cluster,
+          JSON.parse(source),
+          userID,
+          clusterCreds,
+        );
     }
 
     return res.status(200).json(sourceInfo);

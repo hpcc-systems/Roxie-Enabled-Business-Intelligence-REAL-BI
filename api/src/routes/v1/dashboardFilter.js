@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const { getClusterByID } = require('../../utils/cluster');
+const { getAccessOnBehalf, getClusterCreds } = require('../../utils/clusterCredentials');
 const { getDashboardByID } = require('../../utils/dashboard');
+
 const {
   createFilter,
   createFilterValue,
@@ -147,7 +149,7 @@ router.delete('/', async (req, res, next) => {
 
 router.get('/data', async (req, res, next) => {
   const {
-    query: { clusterID, filterID },
+    query: { clusterID, filterID, accessOnBehalf },
     user: { id: userID },
   } = req;
 
@@ -161,19 +163,31 @@ router.get('/data', async (req, res, next) => {
       return res.status(200).end();
     }
 
+    let clusterCreds;
+    if (accessOnBehalf) {
+      clusterCreds = await getAccessOnBehalf(accessOnBehalf);
+    } else {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     // Default to filter params or empty array
     const dataParams = configuration?.filterParams || [];
     const options = { params: dataParams, source };
 
     switch (source.type) {
       case 'file':
-        data = await getFileDataFromCluster(cluster, options, userID);
+        data = await getFileDataFromCluster(cluster, options, userID, clusterCreds);
         break;
       case 'ecl':
-        data = await getWorkunitDataFromCluster(cluster, configuration, source, userID);
+        data = await getWorkunitDataFromCluster(cluster, configuration, source, userID, clusterCreds);
         break;
       default:
-        data = await getQueryDataFromCluster(cluster, { ...options, dataset: configuration.dataset }, userID);
+        data = await getQueryDataFromCluster(
+          cluster,
+          { ...options, dataset: configuration.dataset },
+          userID,
+          clusterCreds,
+        );
     }
 
     return res.status(200).json(data);
