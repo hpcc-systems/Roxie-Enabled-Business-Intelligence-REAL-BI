@@ -94,6 +94,7 @@ const isClusterCredsValid = async (cluster, username, password) => {
 
 const getAccessOnBehalf = async id => {
   const creds = await AccessOnBehalf.findOne({ where: { id } });
+  if (!creds) return null;
   return { password: decryptHash(creds.hash), username: creds.username };
 };
 
