@@ -1,56 +1,61 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useCallback } from 'react';
 import { CircularProgress, Grid, TextField } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 
 // Utils
 import { getKeywordSearchResults } from '../../../utils/hpcc';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 
-const SourceSearch = ({ dashboard, filter, handleChange, localState }) => {
-  const [loading, setLoading] = useState(false);
-  const { chartID, error, errors, keyword, selectedSource = {}, sources, sourceType } = localState;
+const SourceSearch = ({ dashboard, filter, handleChange, formFieldsUpdate, localState }) => {
+  const { chartID, errors, keyword, sources = [], sourceType, isAutoCompleteLoading } = localState;
   const { id: clusterID } = dashboard.cluster;
 
+  const isMounted = useRef(); // Using this variable to unsubscribe from state update if component is unmounted
+
+  const selectedSource = isEmpty(localState.selectedSource) ? null : localState.selectedSource; // autocomplete fix
+
   // Get list of sources from hpcc
-  useEffect(() => {
-    if (keyword) {
-      (async () => {
-        setLoading(true);
 
-        try {
-          const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
+  const updateAutocomplete = async (clusterID, keyword) => {
+    if (!isMounted.current) return;
+    formFieldsUpdate({ isAutoCompleteLoading: true });
+    try {
+      const data = await getKeywordSearchResults(clusterID, keyword, sourceType, dashboard.accessOnBehalf);
+      if (!isMounted.current) return;
+      const updateFields = { error: '', sources: data, isAutoCompleteLoading: false };
 
-          handleChange(null, { name: 'error', value: '' });
-          handleChange(null, { name: 'sources', value: data });
-
-          if (filter) {
-            const selectedSource = data.find(({ name }) => name === keyword);
-            handleChange(null, { name: 'selectedSource', value: selectedSource });
-          }
-        } catch (error) {
-          handleChange(null, { name: 'error', value: error.message });
-        }
-
-        setLoading(false);
-      })();
-    }
-  }, [chartID, clusterID, error, filter, handleChange, keyword, sourceType]);
-
-  // Determine when to update 'keyword' field in state
-  const updateKeyword = event => {
-    event.persist();
-    const { value } = event.target;
-
-    // Check if the user has typed in at least 3 characters and a request is not already in progress
-    if (value.length >= 3 && !loading) {
-      // Update 'keyword' field in state
-      handleChange(event);
+      if (filter) {
+        const selectedSource = data.find(({ name }) => name === keyword);
+        if (selectedSource) updateFields.selectedSource = selectedSource;
+      }
+      formFieldsUpdate(updateFields);
+    } catch (error) {
+      if (!isMounted.current) return;
+      formFieldsUpdate({ error: error.message, isAutoCompleteLoading: false });
     }
   };
 
-  const handleOnChange = (event, newValue) => {
+  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [sourceType]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    if (keyword && !selectedSource) {
+      if (isMounted.current) {
+        updateAutocompleteDebounced(clusterID, keyword);
+      }
+    }
+    return () => (isMounted.current = false);
+  }, [chartID, clusterID, keyword]);
+
+  // Determine when to update 'keyword' field in state
+  const updateKeyword = (event, newInputValue) => {
+    handleChange(null, { name: 'keyword', value: newInputValue });
+  };
+
+  const handleAutocompleteSelect = (_event, newValue) => {
     // Confirm variable has a value
     newValue = newValue ? newValue : {};
-
     handleChange(null, { name: 'selectedSource', value: newValue });
   };
 
@@ -59,17 +64,29 @@ const SourceSearch = ({ dashboard, filter, handleChange, localState }) => {
   return (
     <Grid item xs={12}>
       <Autocomplete
-        onChange={handleOnChange}
-        getOptionLabel={({ cluster, name }) => (name ? `${name} (${cluster})` : '')}
+        disabled={!localState.isFilterReady}
+        getOptionSelected={(option, value) => option.name === value.name}
+        getOptionLabel={({ cluster, name }) => {
+          let label = '';
+          if (name) {
+            label += name;
+            if (cluster) {
+              label += ` (${cluster})`;
+            }
+          }
+          return label;
+        }}
         options={sources}
-        value={selectedSource}
-        fullWidth
+        loading={isAutoCompleteLoading}
+        loadingText='...fetching latest data'
+        value={selectedSource} // this is autocomplete value
+        onChange={handleAutocompleteSelect} // triggeres when autocomplete selected
+        inputValue={keyword} // textfield value
+        onInputChange={updateKeyword} // update textfield
         renderInput={params => (
           <TextField
             {...params}
             name='keyword'
-            value={keyword}
-            onChange={updateKeyword}
             label={sourceType === 'file' ? 'File Name' : 'Query Name'}
             fullWidth
             error={selectedSourceErr !== undefined}
@@ -78,7 +95,7 @@ const SourceSearch = ({ dashboard, filter, handleChange, localState }) => {
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                  {isAutoCompleteLoading ? <CircularProgress color='inherit' size={20} /> : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),

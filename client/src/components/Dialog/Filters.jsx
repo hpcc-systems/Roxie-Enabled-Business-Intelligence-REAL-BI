@@ -23,6 +23,7 @@ import useForm from '../../hooks/useForm';
 import { createSource, createSourceObj } from '../../utils/source';
 import { createFilterObj } from '../../utils/dashboardFilter';
 import { validateFilter } from '../../utils/validate';
+import LoadingSpinner from '../Common/LoadingSpinner';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
@@ -39,7 +40,7 @@ const initState = {
   filterType: 'valuesDropdown',
   keyword: '',
   name: '',
-  selectedDataset: '',
+  selectedDataset: {},
   selectedSource: {},
   sourceDataset: '',
   sourceField: '',
@@ -47,10 +48,14 @@ const initState = {
   sources: [],
   sourceType: 'query',
   params: [{ targetChart: '', targetParam: '' }],
+  isAutoCompleteLoading: false,
+  isFilterReady: false,
 };
 
 const Filters = ({ dashboard, filter, show, toggleDialog }) => {
-  const { values: localState, handleChange, handleChangeObj, resetState } = useForm(initState);
+  const { values: localState, formFieldsUpdate, handleChange, handleChangeObj, resetState } = useForm(
+    initState,
+  );
   const [loading, setLoading] = useState(false);
   const { charts = [], cluster, id: dashboardID } = dashboard;
   const eclRef = useRef({});
@@ -89,10 +94,13 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
         sourceField: field,
         sourceID: source?.id || '',
         sourceType: source?.type || '',
+        isAutoCompleteLoading: false,
       };
 
       resetState(newState);
       eclRef.current = ecl;
+    } else {
+      formFieldsUpdate({ isFilterReady: true });
     }
   }, [filter, resetState]);
 
@@ -151,7 +159,11 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
   return (
     <Dialog open={show} fullWidth classes={{ paper: dialog }}>
       <Typography variant='h6' color='inherit' className={typography}>
-        Dashboard Filter
+        {!localState.isFilterReady ? (
+          <LoadingSpinner text='...loading filter data' size={10} />
+        ) : (
+          ' Dashboard Filter'
+        )}
       </Typography>
       <DialogContent>
         <FilterEditor
@@ -161,6 +173,7 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
           filter={filter}
           handleChange={handleChange}
           handleChangeObj={handleChangeObj}
+          formFieldsUpdate={formFieldsUpdate}
           localState={localState}
         />
       </DialogContent>
@@ -168,7 +181,12 @@ const Filters = ({ dashboard, filter, show, toggleDialog }) => {
         <Button color='secondary' onClick={toggleDialog}>
           Cancel
         </Button>
-        <Button variant='contained' className={button} disabled={loading} onClick={saveFilter}>
+        <Button
+          variant='contained'
+          className={button}
+          onClick={saveFilter}
+          disabled={loading || !localState.isFilterReady}
+        >
           {loading && <CircularProgress color='inherit' size={20} className={progress} />}
           Save
         </Button>

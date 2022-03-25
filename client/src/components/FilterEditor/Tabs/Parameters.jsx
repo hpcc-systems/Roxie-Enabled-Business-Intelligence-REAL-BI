@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
 const ParametersTab = props => {
   const { eclRef, handleChange, localState } = props;
   const { dataset: eclDataset } = eclRef.current;
-  const { filterParams = [], sourceDataset, sourceType } = localState;
+  const { filterParams = [], selectedDataset = {}, sourceType } = localState;
   const { formControl, typography } = useStyles();
 
   // Updates param array in state
@@ -31,7 +31,7 @@ const ParametersTab = props => {
     handleChange(null, { name: 'filterParams', value: newArr });
   };
 
-  return sourceDataset || eclDataset ? (
+  return selectedDataset?.name || eclDataset ? (
     sourceType === 'file' ? (
       <Grid container direction='row' justifyContent='space-between' spacing={2}>
         <StaticFileParams {...props} setParamObj={setParamObj} />

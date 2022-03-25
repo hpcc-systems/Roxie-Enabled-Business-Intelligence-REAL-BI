@@ -42,6 +42,7 @@ const SourceTab = props => {
             value={sourceField}
             onChange={handleChange}
             error={sourceFieldErr !== undefined}
+            disabled={!localState.isFilterReady}
           >
             {fieldsArr.map(({ name, value = name }, index) => {
               return (

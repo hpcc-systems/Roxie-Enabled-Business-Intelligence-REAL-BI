@@ -35,7 +35,12 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
         try {
           formFieldsUpdate({ selectedDataset: { loading: true, name: '', fields: [] } });
 
-          const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
+          const data = await getDatasetsFromSource(
+            clusterID,
+            selectedSource,
+            sourceType,
+            dashboard.accessOnBehalf,
+          );
           const { datasets, fields, name, params: dataParams = [] } = data;
 
           if (sourceType === 'file') {

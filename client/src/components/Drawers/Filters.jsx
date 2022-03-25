@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,9 +14,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { AddCircle as AddCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@material-ui/icons';
-import { grey } from '@material-ui/core/colors';
 import clsx from 'clsx';
-import _orderBy from 'lodash/orderBy';
 
 // Redux Actions
 import {
@@ -33,13 +32,19 @@ import DateField from '../DateField';
 import useDialog from '../../hooks/useDialog';
 
 // Utils
-import { getFilterData, getFilterValue, getFilterValueType } from '../../utils/dashboardFilter.js';
+import { getFilterValue, getFilterValueType } from '../../utils/dashboardFilter.js';
 
 // Create styles
 const useStyles = makeStyles(theme => ({
   button: { margin: 0, minWidth: 30 },
   deleteBtn: { margin: theme.spacing(4, 2, 0, 1), padding: theme.spacing(0, 2, 0, 0) },
-  drawer: { width: 'auto', minWidth: 200, maxWidth: 300 },
+  drawer: {
+    color: theme.palette.primary.contrastText,
+    width: 'auto',
+    minWidth: 200,
+    maxWidth: 300,
+    padding: theme.spacing(1),
+  },
   drawerClose: { width: 0 },
   drawerPaper: {
     backgroundColor: theme.palette.primary.main,
@@ -47,9 +52,8 @@ const useStyles = makeStyles(theme => ({
   },
   drawerPaperClose: { width: 0 },
   editBtn: { margin: theme.spacing(4, 0, 0, 1), padding: 0 },
-  fontColor: { color: grey[50] },
-  formControl: { color: grey[50], margin: theme.spacing(1) },
-  iconColor: { color: grey[50] },
+  formControl: { color: `${theme.palette.primary.contrastText} !important` },
+  iconColor: { color: theme.palette.primary.contrastText },
   progress: { margin: theme.spacing(1, 0, 1, 1) },
   rangeBtn: { marginTop: theme.spacing(8) },
   typography: {
@@ -61,9 +65,9 @@ const useStyles = makeStyles(theme => ({
 
 const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
   const { dashboard } = useSelector(state => state.dashboard);
-  const { filters = [], id: dashboardID, permission } = dashboard;
+  const { filters = [], id: dashboardID, permission, charts } = dashboard;
   const [filter, setFilter] = useState(null);
-  const [compData, setCompData] = useState({});
+  const [compData, setCompData] = useState(null);
   const [showFilter, toggleFilter] = useDialog(false);
   const dispatch = useDispatch();
   const {
@@ -74,39 +78,44 @@ const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
     drawerPaper,
     drawerPaperClose,
     editBtn,
-    fontColor,
     formControl,
     iconColor,
-    progress,
     rangeBtn,
     typography,
   } = useStyles();
 
-  const dataCall = filters => {
-    // Set initial object keys and loading
-    filters.forEach(({ id: filterID }) => {
-      setCompData(prevState => ({ ...prevState, [filterID]: { loading: true } }));
-    });
+  const getFiltersData = filters => {
+    const compData = filters.reduce((acc, filter) => {
+      const filterHpccID = filter.source.hpccID;
+      // find biggest dataset for this source;
+      let chartWithMostData = null;
+      let longestSet = 0;
 
-    // Fetch data for each filter
-    filters.forEach(({ cluster, id: filterID }) => {
-      (async () => {
-        try {
-          const results = await getFilterData(cluster.id, filterID);
-          setCompData(prevState => ({
-            ...prevState,
-            [filterID]: { data: results.data, error: '', loading: false },
-          }));
-        } catch (error) {
-          setCompData(prevState => ({ ...prevState, [filterID]: { error: error.message, loading: false } }));
+      for (const chart of charts) {
+        if (chart.loading || chart.error) continue;
+        if (chart.source.hpccID === filterHpccID) {
+          const dataLength = chart.data.length;
+          if (dataLength > longestSet) {
+            longestSet = dataLength;
+            chartWithMostData = chart;
+          }
         }
-      })();
-    });
+      }
+
+      acc[filter.id] = chartWithMostData
+        ? { data: chartWithMostData.data, loading: false }
+        : { data: null, loading: true };
+      return acc;
+    }, {});
+
+    setCompData(compData);
   };
 
   useEffect(() => {
-    dataCall(filters);
-  }, []);
+    if (charts.length > 0 && filters.length > 0) {
+      getFiltersData(filters);
+    }
+  }, [charts, filters]);
 
   const newFilter = () => {
     setFilter(null);
@@ -181,85 +190,97 @@ const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
             </Button>
           )}
         </div>
-        <Grid container direction='row' justifyContent='space-between'>
-          {filters.map(({ configuration, id, value }, index) => {
-            const dataObj = compData[id] || {};
-            const { data = [], loading = false } = dataObj;
-            let filterVal = getFilterValue(value, configuration.type);
+        <Grid container direction='row' justifyContent='space-between' alignItems='center'>
+          {compData &&
+            filters.map(({ configuration, id, value }, index) => {
+              const filter = compData[id];
 
-            if (configuration.type === 'valuesDropdown') {
-              filterVal = Array.isArray(filterVal) ? filterVal.map(val => String(val)) : [String(filterVal)];
-            }
+              if (!filter) return null;
 
-            return loading ? (
-              <Grid item key={index} xs={12} className={progress}>
-                <CircularProgress color='secondary' size={30} />
-              </Grid>
-            ) : (
-              <Fragment key={id}>
-                <Grid item xs={8}>
-                  {configuration.type === 'dateRange' ? (
-                    <DateRange
-                      filterID={id}
-                      name={configuration.name}
-                      valueObj={value}
-                      values={filterVal}
-                      onChange={setFilterValue}
-                    />
-                  ) : configuration.type === 'dateField' ? (
-                    <DateField
-                      filterID={id}
-                      name={configuration.name}
-                      valueObj={value}
-                      value={filterVal}
-                      onChange={setFilterValue}
-                    />
-                  ) : (
-                    <FormControl className={formControl} fullWidth>
-                      <InputLabel className={fontColor}>{configuration.name}</InputLabel>
-                      <Select
-                        multiple
+              let filterVal = getFilterValue(value, configuration.type);
+
+              const getUniqueColumn = (data, configFiledName) => {
+                if (!Array.isArray(data)) return [];
+                return [...new Set(data.map(row => String(row[configFiledName])))];
+              };
+
+              if (configuration.type === 'valuesDropdown') {
+                filterVal = Array.isArray(filterVal)
+                  ? filterVal.map(val => String(val))
+                  : [String(filterVal)];
+              }
+              return (
+                <Fragment key={id}>
+                  <Grid item xs={8}>
+                    {configuration.type === 'dateRange' ? (
+                      <DateRange
+                        filterID={id}
+                        name={configuration.name}
+                        valueObj={value}
+                        values={filterVal}
+                        onChange={setFilterValue}
+                      />
+                    ) : configuration.type === 'dateField' ? (
+                      <DateField
+                        filterID={id}
+                        name={configuration.name}
+                        valueObj={value}
                         value={filterVal}
-                        onChange={event => setFilterValue(event, value, id)}
-                        className={fontColor}
-                      >
-                        {(() => {
-                          return _orderBy(
-                            data,
-                            [({ configuration }) => configuration?.field || ''],
-                            ['asc'],
-                          ).map((object, index) => {
-                            const value = String(object[configuration.field]);
-                            return (
-                              <MenuItem key={index} value={value}>
-                                {value}
-                              </MenuItem>
-                            );
-                          });
-                        })()}
-                      </Select>
-                    </FormControl>
-                  )}
-                </Grid>
-                <Grid item xs={2}>
-                  <Button
-                    className={clsx(button, editBtn, { [rangeBtn]: configuration.type === 'dateRange' })}
-                    onClick={() => setCurrentFilter(id)}
-                  >
-                    <EditIcon className={iconColor} />
-                  </Button>
-                </Grid>
-                <Grid item xs={2}>
-                  <Button
-                    className={clsx(button, deleteBtn, { [rangeBtn]: configuration.type === 'dateRange' })}
-                    onClick={() => deleteFilter(id)}
-                  >
-                    <DeleteIcon className={iconColor} />
-                  </Button>
-                </Grid>
-              </Fragment>
-            );
-          })}
+                        onChange={setFilterValue}
+                      />
+                    ) : (
+                      <>
+                        {filter.loading ? (
+                          '...loading'
+                        ) : (
+                          <FormControl className={formControl} fullWidth>
+                            <InputLabel className={formControl}>{configuration.name}</InputLabel>
+                            <Select
+                              multiple
+                              value={filterVal || ''}
+                              className={formControl}
+                              onChange={event => setFilterValue(event, value, id)}
+                            >
+                              {getUniqueColumn(filter.data, configuration.field)?.map((name, index) => {
+                                return (
+                                  <MenuItem key={index} value={name}>
+                                    {name}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        )}
+                      </>
+                    )}
+                  </Grid>
+                  {permission === 'Owner' ? (
+                    <>
+                      <Grid item xs={2}>
+                        <Button
+                          className={clsx(button, editBtn, {
+                            [rangeBtn]: configuration.type === 'dateRange',
+                          })}
+                          onClick={() => setCurrentFilter(id)}
+                        >
+                          <EditIcon className={iconColor} />
+                        </Button>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Button
+                          className={clsx(button, deleteBtn, {
+                            [rangeBtn]: configuration.type === 'dateRange',
+                          })}
+                          onClick={() => deleteFilter(id)}
+                        >
+                          <DeleteIcon className={iconColor} />
+                        </Button>
+                      </Grid>
+                    </>
+                  ) : null}
+                </Fragment>
+              );
+            })}
         </Grid>
       </div>
       {showFilter && (
