@@ -4,12 +4,16 @@ const moment = require('moment');
 const { getClusterCreds } = require('./clusterCredentials');
 const { getValueType } = require('./misc');
 
-const getQueriesFromCluster = async (cluster, keyword, userID) => {
+const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => {
   const { host, id: clusterID, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+
   let queries;
 
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const response = await axios.get(
       `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`,
       { auth: clusterCreds },
@@ -39,13 +43,16 @@ const getQueriesFromCluster = async (cluster, keyword, userID) => {
   return queries;
 };
 
-const getQueryDatasetsFromCluster = async (cluster, source, userID) => {
+const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds) => {
   const { host, id: clusterID, dataPort } = cluster;
   const { name, target } = source;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
+
   let datasets;
 
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
     const response = await axios.get(
       `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`,
       { auth: clusterCreds },
@@ -68,12 +75,15 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID) => {
   return datasets;
 };
 
-const getQueryParamsFromCluster = async (cluster, source, userID) => {
+const getQueryParamsFromCluster = async (cluster, source, userID, clusterCreds) => {
   const { host, id: clusterID, dataPort } = cluster;
   const { name, target } = source;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
 
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const response = await axios.get(
       `${host}:${dataPort}/WsEcl/example/request/query/${target}/${name}/json?display`,
       { auth: clusterCreds },
@@ -95,13 +105,14 @@ const getQueryParamsFromCluster = async (cluster, source, userID) => {
 const getQueryDataFromCluster = async (cluster, options, userID, clusterCreds) => {
   const { id: clusterID, host, dataPort } = cluster;
   const { name, target } = options.source;
-  if (!clusterCreds) {
-    clusterCreds = await getClusterCreds(clusterID, userID);
-  }
+
   const paramsList = createUrlParamsString(options.params);
   let data;
 
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
     const response = await axios.get(
       `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`,
       { auth: clusterCreds },

@@ -32,12 +32,14 @@ const getTreeViewDataFromCluster = async (cluster, userId, scope) => {
   }
 };
 
-const getFilesFromCluster = async (cluster, keyword, userID) => {
+const getFilesFromCluster = async (cluster, keyword, userID, clusterCreds) => {
   const { host, id: clusterID, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
   let files;
-
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUQuery.json`,
       { DFUQueryRequest: { LogicalName: `*${keyword}*` } },
