@@ -114,8 +114,13 @@ const ChartToolbar = props => {
           </Grid>
 
           <Grid item className={classes.centerSvg}>
-            {canEditCharts(permission) && <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />}
-            <ToolbarSubMenu {...props} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
+            <MoreHorizIcon style={{ cursor: 'pointer' }} onClick={showMenu} />
+            <ToolbarSubMenu
+              {...props}
+              anchorEl={anchorEl}
+              permission={permission}
+              setAnchorEl={setAnchorEl}
+            />
           </Grid>
         </Grid>
       </CustomTooltip>
