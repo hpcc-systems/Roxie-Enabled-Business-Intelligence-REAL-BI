@@ -37,7 +37,7 @@ const updateFilterValue = async valueObj => {
   return await DashboardFilterValue.update({ ...updatedKeys, value }, { where: { id } });
 };
 
-const getDashboardFilter = async (id, userID) => {
+const getDashboardFilter = async id => {
   let filter = await DashboardFilter.findOne({
     ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
     where: { id },
@@ -58,7 +58,6 @@ const getDashboardFilter = async (id, userID) => {
         model: DashboardFilterValue,
         as: 'value',
         ...removeFields(['dashboardFilterID', 'userID']),
-        where: { userID },
       },
     ],
   });
@@ -75,7 +74,7 @@ const getDashboardFilter = async (id, userID) => {
   return filter;
 };
 
-const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
+const getDashboardFiltersByDashboardID = async dashboardID => {
   let filters = await DashboardFilter.findAll({
     ...removeFields(['clusterID', 'dashboardID', 'sourceID']),
     where: { dashboardID },
@@ -96,7 +95,6 @@ const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
         model: DashboardFilterValue,
         as: 'value',
         ...removeFields(['dashboardFilterID', 'userID']),
-        where: { userID },
       },
     ],
   });
@@ -117,7 +115,7 @@ const getDashboardFiltersByDashboardID = async (dashboardID, userID) => {
   return filters;
 };
 
-const getDashboardFiltersWithValues = async (chartID, dashboardID, userID) => {
+const getDashboardFiltersWithValues = async (chartID, dashboardID) => {
   let filters = await DashboardFilter.findAll({
     ...removeFields(['dashboardID', 'sourceID']),
     where: { configuration: { [Sequelize.Op.substring]: chartID }, dashboardID },
@@ -125,7 +123,7 @@ const getDashboardFiltersWithValues = async (chartID, dashboardID, userID) => {
       model: DashboardFilterValue,
       as: 'value',
       ...removeFields(['dashboardFilterID', 'userID']),
-      where: { value: { [Sequelize.Op.ne]: null }, userID },
+      where: { value: { [Sequelize.Op.ne]: null } },
       required: true,
     },
   });
@@ -139,8 +137,8 @@ const getDashboardFiltersWithValues = async (chartID, dashboardID, userID) => {
   return filters;
 };
 
-const getDashboardFilterValue = async (dashboardFilterID, userID) => {
-  let valueRow = await DashboardFilterValue.findOne({ where: { dashboardFilterID, userID } });
+const getDashboardFilterValue = async dashboardFilterID => {
+  let valueRow = await DashboardFilterValue.findOne({ where: { dashboardFilterID } });
   valueRow = unNestSequelizeObj(valueRow);
 
   return valueRow;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -19,17 +19,18 @@ const useStyles = makeStyles(theme => ({
   progress: { margin: `${theme.spacing(1)}px 0` },
 }));
 
-const SelectDataset = ({ dashboard, handleChange, localState }) => {
-  const [loading, setLoading] = useState(false);
+const SelectDataset = ({ dashboard, handleChange, localState, formFieldsUpdate }) => {
   const {
     datasets = [],
     filterID,
     filterParams = [],
     errors,
     sourceDataset,
+    selectedDataset,
     selectedSource = {},
     sourceType,
   } = localState;
+
   const { id: clusterID } = dashboard.cluster;
   const { errorText, progress } = useStyles();
 
@@ -37,17 +38,31 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
   useEffect(() => {
     if (Object.keys(selectedSource).length > 0) {
       (async () => {
-        setLoading(true);
+        formFieldsUpdate({ selectedDataset: { loading: true, name: '', fields: [] } });
 
         try {
-          const data = await getDatasetsFromSource(clusterID, selectedSource, sourceType);
+          const data = await getDatasetsFromSource(
+            clusterID,
+            selectedSource,
+            sourceType,
+            dashboard.accessOnBehalf,
+          );
           const { datasets, fields, name, params: dataParams = [] } = data;
 
           if (sourceType === 'file') {
-            handleChange(null, { name: 'selectedDataset', value: { name, fields } });
-            handleChange(null, { name: 'dataset', value: name });
+            formFieldsUpdate({
+              selectedDataset: { name, fields, loading: false },
+              isFilterReady: true,
+              dataset: name,
+              error: '',
+            });
           } else {
-            handleChange(null, { name: 'datasets', value: datasets });
+            formFieldsUpdate({
+              selectedDataset: { ...selectedDataset, loading: false },
+              isFilterReady: true,
+              datasets: datasets,
+              error: '',
+            });
           }
 
           if (!filterID) {
@@ -68,20 +83,9 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
         } catch (error) {
           handleChange(null, { name: 'error', value: error.message });
         }
-
-        setLoading(false);
       })();
     }
   }, [clusterID, handleChange, selectedSource, sourceType]);
-
-  useEffect(() => {
-    if (datasets.length > 0 && sourceDataset) {
-      let selectedDataset = datasets.find(({ name }) => name === sourceDataset);
-      selectedDataset = selectedDataset ? selectedDataset : {};
-
-      handleChange(null, { name: 'selectedDataset', value: selectedDataset });
-    }
-  }, [datasets, handleChange, sourceDataset]);
 
   /*
     Don't render component to screen
@@ -95,7 +99,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
 
   return (
     <Grid item xs={12}>
-      {loading ? (
+      {selectedDataset.loading ? (
         <CircularProgress className={progress} />
       ) : (
         <FormControl fullWidth>
@@ -104,6 +108,7 @@ const SelectDataset = ({ dashboard, handleChange, localState }) => {
             name='sourceDataset'
             value={sourceDataset}
             onChange={handleChange}
+            disabled={!localState.isFilterReady}
             error={sourceDatasetErr !== undefined}
           >
             {datasets.map(({ name }, index) => {

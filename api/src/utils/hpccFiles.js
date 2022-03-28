@@ -32,12 +32,14 @@ const getTreeViewDataFromCluster = async (cluster, userId, scope) => {
   }
 };
 
-const getFilesFromCluster = async (cluster, keyword, userID) => {
+const getFilesFromCluster = async (cluster, keyword, userID, clusterCreds) => {
   const { host, id: clusterID, infoPort } = cluster;
-  const clusterCreds = await getClusterCreds(clusterID, userID);
   let files;
-
   try {
+    if (!clusterCreds) {
+      clusterCreds = await getClusterCreds(clusterID, userID);
+    }
+
     const response = await axios.post(
       `${host}:${infoPort}/WsDfu/DFUQuery.json`,
       { DFUQueryRequest: { LogicalName: `*${keyword}*` } },
@@ -198,8 +200,15 @@ const createFileParams = (params = []) => {
         acc.Start = el.value > 0 ? parseInt(el.value) - 1 : 0;
       } else {
         if (el.value && el.name) {
-          const param = { Name: el.name, Value: el.value };
-          acc.params.push(param);
+          const arrayOfValues = el.value.split(',');
+          if (arrayOfValues.length > 1) {
+            arrayOfValues.forEach(value => {
+              acc.params.push({ Name: el.name, Value: value });
+            });
+          } else {
+            const param = { Name: el.name, Value: el.value };
+            acc.params.push(param);
+          }
         }
       }
       return acc;

@@ -45,7 +45,6 @@ const getDashboardByID = async (id, userID) => {
             model: DashboardFilterValue,
             as: 'value',
             ...removeFields(['dashboardFilterID', 'userID']),
-            were: { userID },
           },
         ],
       },

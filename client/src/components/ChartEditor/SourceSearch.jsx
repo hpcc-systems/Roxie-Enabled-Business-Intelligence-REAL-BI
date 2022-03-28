@@ -36,7 +36,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     if (!isMounted.current) return;
     formFieldsUpdate({ isAutoCompleteLoading: true });
     try {
-      const data = await getKeywordSearchResults(clusterID, keyword, sourceType);
+      const data = await getKeywordSearchResults(clusterID, keyword, sourceType, dashboard.accessOnBehalf);
       if (!isMounted.current) return;
       formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
       if (chartID || isIntegration) {

@@ -93,7 +93,12 @@ const FilterEditor = props => {
         <Grid item xs={12}>
           <FormControl fullWidth>
             <InputLabel>Source Type</InputLabel>
-            <Select name='sourceType' value={sourceType} onChange={changeSourceType}>
+            <Select
+              name='sourceType'
+              value={sourceType}
+              onChange={changeSourceType}
+              disabled={!localState.isFilterReady}
+            >
               {sourceOptions.map((option, index) => {
                 return (
                   <MenuItem key={index} value={option}>
@@ -105,8 +110,9 @@ const FilterEditor = props => {
           </FormControl>
         </Grid>
       ) : null}
+
       <AppBar className={appbar} position='static' color='inherit'>
-        <Tabs value={tabIndex} onChange={changeTabIndex}>
+        <Tabs value={tabIndex} onChange={changeTabIndex} disabled={!localState.isFilterReady}>
           {tabOptions.map((option, index) => {
             /*
               Do not show the 'ECL Script' tab if the source type is not 'ecl'
@@ -124,31 +130,34 @@ const FilterEditor = props => {
           })}
         </Tabs>
       </AppBar>
-      {(() => {
-        // Get correct position based on source type and tab index
-        const tabNum = sourceType !== 'ecl' ? (isDateField ? tabIndex + 3 : tabIndex + 1) : tabIndex;
 
-        switch (tabNum) {
-          case 0:
-            return (
-              <Grid item xs={12}>
-                <ECLEditor {...props} />
-              </Grid>
-            );
-          case 1:
-            return <Source {...props} />;
-          case 2:
-            return <Parameters {...props} />;
-          case 3:
-            if (filterType !== 'dateRange') {
-              return <Mapper {...props} />;
-            }
+      <>
+        {(() => {
+          // Get correct position based on source type and tab index
+          const tabNum = sourceType !== 'ecl' ? (isDateField ? tabIndex + 3 : tabIndex + 1) : tabIndex;
 
-            return <DateRange {...props} />;
-          default:
-            return 'Unknown Tab';
-        }
-      })()}
+          switch (tabNum) {
+            case 0:
+              return (
+                <Grid item xs={12}>
+                  <ECLEditor {...props} />
+                </Grid>
+              );
+            case 1:
+              return <Source {...props} />;
+            case 2:
+              return <Parameters {...props} />;
+            case 3:
+              if (filterType !== 'dateRange') {
+                return <Mapper {...props} />;
+              }
+
+              return <DateRange {...props} />;
+            default:
+              return 'Unknown Tab';
+          }
+        })()}
+      </>
     </Grid>
   );
 };

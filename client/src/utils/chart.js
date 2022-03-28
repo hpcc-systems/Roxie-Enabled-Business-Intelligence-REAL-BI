@@ -54,7 +54,7 @@ export const createChartObj = (localState, ecl) => {
 export const setEditorState = chart => {
   // Get desired chart
   const { configuration, id, source, data, loading, lastModifiedDate, ...chartKeys } = chart;
-  const { axis1, axis2, conditionals = [], dataset, fields = [], params, ecl = {} } = configuration;
+  const { axis1, axis2, conditionals = [], dataset, fields = [], params, isStatic, ecl = {} } = configuration;
 
   // Confirm values are present to prevent error
   configuration.axis1.showTickLabels = !('showTickLabels' in axis1) ? true : axis1.showTickLabels;
@@ -88,7 +88,7 @@ export const setEditorState = chart => {
     errors: [],
     keyword: source?.name,
     params,
-    selectedDataset: { loading: true, name: '', fields: [] }, // setting initial state to loading true on editing chart dialog will prevent user to see empty fields, as data is not yet available
+    selectedDataset: { loading: isStatic ? false : true, name: '', fields: [] }, // setting initial state to loading true on editing chart dialog will prevent user to see empty fields, as data is not yet available
     selectedSource: {},
     sources: [],
     sourceType: source?.type,

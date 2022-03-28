@@ -1,19 +1,21 @@
 /* eslint-disable no-throw-literal */
 import axios from 'axios';
 
-export const getKeywordSearchResults = async (clusterID, keyword, sourceType) => {
+export const getKeywordSearchResults = async (clusterID, keyword, sourceType, accessOnBehalf = '') => {
   try {
-    const response = await axios.get('/api/v1/hpcc/keyword', { params: { clusterID, keyword, sourceType } });
+    const response = await axios.get('/api/v1/hpcc/keyword', {
+      params: { clusterID, keyword, sourceType, accessOnBehalf },
+    });
     return response.data;
   } catch (error) {
     throw error.response.data;
   }
 };
 
-export const getDatasetsFromSource = async (clusterID, source, sourceType) => {
+export const getDatasetsFromSource = async (clusterID, source, sourceType, accessOnBehalf = '') => {
   try {
     const response = await axios.get('/api/v1/hpcc/datasets', {
-      params: { clusterID, source, sourceType },
+      params: { clusterID, source, sourceType, accessOnBehalf },
     });
     return response.data;
   } catch (error) {

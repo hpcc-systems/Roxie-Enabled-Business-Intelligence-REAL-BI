@@ -32,10 +32,10 @@ export const createFilterObj = (localState, ecl) => {
   return { ...newFilter, ecl };
 };
 
-export const getFilterData = async (clusterID, filterID) => {
+export const getFilterData = async (clusterID, filterID, accessOnBehalf = '') => {
   try {
     const response = await axios.get('/api/v1/dashboard_filter/data', {
-      params: { clusterID, filterID },
+      params: { clusterID, filterID, accessOnBehalf },
     });
     return response.data;
   } catch (error) {

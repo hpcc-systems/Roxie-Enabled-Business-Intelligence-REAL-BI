@@ -1,8 +1,7 @@
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import React from 'react';
 
-function LoadingSpinner(props) {
-  const { text, textStyle, size, ...restProps } = props;
+function LoadingSpinner({ text, textStyle, size, ...restProps }) {
   return (
     <Box display='flex' alignItems='center' {...restProps}>
       {text && (
