@@ -104,7 +104,7 @@ const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
     );
 
     uniqueSources.sources.forEach(source => {
-      if (!dashboardFilters[source.hpccID]) {
+      if (!dashboardFilters[source.hpccID] || dashboardFilters[source.hpccID]?.error) {
         dispatch(getSourceData(source));
       }
     });

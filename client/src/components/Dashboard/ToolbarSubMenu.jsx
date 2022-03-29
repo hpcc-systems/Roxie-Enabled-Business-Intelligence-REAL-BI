@@ -38,7 +38,7 @@ const ToolbarSubMenu = ({ permission, anchorEl, chart, setAnchorEl, toggleEdit, 
           <ListItemText>View Data Snippet</ListItemText>
         </MenuItem>
         {canEditCharts(permission) && (
-          <>
+          <div>
             <MenuItem
               onClick={() => {
                 toggleEdit(chartID);
@@ -61,7 +61,7 @@ const ToolbarSubMenu = ({ permission, anchorEl, chart, setAnchorEl, toggleEdit, 
               </ListItemIcon>
               <ListItemText>Delete Chart</ListItemText>
             </MenuItem>
-          </>
+          </div>
         )}
       </Menu>
     </>
