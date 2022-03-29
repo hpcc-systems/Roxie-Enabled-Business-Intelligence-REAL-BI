@@ -17,6 +17,7 @@ const workspace = require('./workspace');
 const workspaceDirectory = require('./workspaceDirectory');
 const signInWithAzure = require('./signInWithAzure');
 const integration = require('./integration');
+const passport = require('passport');
 
 // Open Routes
 router.use('/auth', auth);
@@ -25,11 +26,9 @@ router.use('/auth', auth);
 router.use('/azure', signInWithAzure);
 
 // Authenticate token before proceeding to route
-router.use(authenticateToken);
-
+router.use(passport.authenticate('oauth-bearer', { session: false, failWithError: true }), authenticateToken);
 //integration route
 router.use('/integration', integration);
-
 // Authenticated routes
 router.use('/chart', chart);
 router.use('/cluster', cluster);

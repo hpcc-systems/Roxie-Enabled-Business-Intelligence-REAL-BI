@@ -1,18 +1,14 @@
 const https = require('https');
 const axios = require('axios');
 const logger = require('../config/logger');
-const passport = require('passport');
 const { getUserByEmail } = require('../utils/user');
 
 // Constants
-const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV, REACT_APP_AUTH_METHOD } = process.env;
+const { AUTH_CLIENT_ID, AUTH_PORT, AUTH_URL, NODE_ENV } = process.env;
 
-const authenticateToken = async (req, res, next) => {
-  // Azure login flow if ADFS is in ENV
-  if (REACT_APP_AUTH_METHOD === 'ADFS') {
-    passport.authenticate('oauth-bearer', {
-      session: false,
-    })(req, res, next);
+const authenticateToken = async (error, req, res, next) => {
+  if (!error) {
+    return next();
   } else {
     let token = req.headers.authorization;
     let response;

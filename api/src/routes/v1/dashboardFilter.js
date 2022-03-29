@@ -170,8 +170,8 @@ router.get('/data', async (req, res, next) => {
       clusterCreds = await getClusterCreds(clusterID, userID);
     }
 
-    // Default to filter params or empty array
-    const dataParams = configuration?.filterParams || [];
+    // Default filter params to empty array to get whole dataset
+    const dataParams = [];
     const options = { params: dataParams, source };
 
     switch (source.type) {
