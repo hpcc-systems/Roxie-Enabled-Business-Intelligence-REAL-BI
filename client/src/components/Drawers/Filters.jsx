@@ -86,13 +86,14 @@ const FilterDrawer = ({ showDrawer, toggleDrawer }) => {
 
   const getFiltersData = filters => {
     const compData = filters.reduce((acc, filter) => {
-      const filterHpccID = filter.source.hpccID;
+      const filterHpccID = filter?.source?.hpccID;
+      if (!filterHpccID) return acc;
       // find biggest dataset for this source;
       let chartWithMostData = null;
       let longestSet = 0;
 
       for (const chart of charts) {
-        if (chart.loading || chart.error) continue;
+        if (chart.loading || chart.error || !chart.source) continue;
         if (chart.source.hpccID === filterHpccID) {
           const dataLength = chart.data.length;
           if (dataLength > longestSet) {
