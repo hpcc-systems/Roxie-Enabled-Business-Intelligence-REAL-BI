@@ -87,6 +87,11 @@ const SelectDataset = ({ dashboard, handleChange, localState, formFieldsUpdate }
     }
   }, [clusterID, handleChange, selectedSource, sourceType]);
 
+  const selectDataset = e => {
+    const dataset = datasets.find(set => set.name === e.target.value);
+    formFieldsUpdate({ sourceDataset: e.target.value, selectedDataset: { ...selectedDataset, ...dataset } });
+  };
+
   /*
     Don't render component to screen
     Still mount the component so the useEffect runs
@@ -107,7 +112,7 @@ const SelectDataset = ({ dashboard, handleChange, localState, formFieldsUpdate }
           <Select
             name='sourceDataset'
             value={sourceDataset}
-            onChange={handleChange}
+            onChange={selectDataset}
             disabled={!localState.isFilterReady}
             error={sourceDatasetErr !== undefined}
           >
