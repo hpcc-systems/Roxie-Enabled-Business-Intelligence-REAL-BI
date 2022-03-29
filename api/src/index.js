@@ -31,6 +31,9 @@ app.use('/api', routes);
     await sequelize.authenticate();
     await app.listen(port);
   } catch (error) {
+    console.log('-error-----------------------------------------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
     return logger.error(error);
   }
 
