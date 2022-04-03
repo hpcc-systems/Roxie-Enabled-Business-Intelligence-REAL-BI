@@ -8,18 +8,9 @@ const CustomTooltip = withStyles(theme => ({
   },
 }))(MUItooltip);
 
-function Tooltip({ title, disableHoverListener = false, children }) {
+function Tooltip({ title, children }) {
   return (
-    <CustomTooltip
-      arrow
-      placement='top'
-      title={title}
-      interactive
-      enterDelay={2000}
-      enterNextDelay={1000}
-      leaveDelay={1500}
-      disableHoverListener={disableHoverListener}
-    >
+    <CustomTooltip arrow interactive placement='top' title={title} enterDelay={500}>
       {children}
     </CustomTooltip>
   );
