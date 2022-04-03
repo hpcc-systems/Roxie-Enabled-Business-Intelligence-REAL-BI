@@ -12,7 +12,6 @@ import CustomTooltip from '../Common/Tooltip';
 // Utils
 import { canEditCharts } from '../../utils/misc';
 import { useSelector } from 'react-redux';
-import debounce from 'lodash/debounce';
 
 const useStyles = makeStyles(() => ({
   centerSvg: {
@@ -30,38 +29,9 @@ const ChartToolbar = props => {
   const { permission, fileName } = useSelector(state => state.dashboard.dashboard);
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isDescriptionFits, setIsDescriptionFits] = useState(true);
-  const [isTitleFits, setIsTitleFits] = useState(true);
 
   const descriptionRef = useRef();
   const titleRef = useRef();
-
-  React.useEffect(() => {
-    let active = true; //prevents updating state on unmounted component
-    const handleTooltip = debounce(elements => {
-      const [title, description] = elements;
-      if (title?.target?.scrollWidth > title?.target?.offsetWidth) {
-        active && setIsTitleFits(false);
-      } else {
-        active && setIsTitleFits(true);
-      }
-
-      if (description?.target?.scrollWidth > description?.target?.offsetWidth) {
-        active && setIsDescriptionFits(false);
-      } else {
-        active && setIsDescriptionFits(true);
-      }
-    }, 1000);
-
-    const resizer = new ResizeObserver(handleTooltip);
-    resizer.observe(titleRef.current);
-    resizer.observe(descriptionRef.current);
-
-    return () => {
-      active = false;
-      resizer.disconnect();
-    };
-  }, [configuration]);
 
   const showMenu = event => {
     setAnchorEl(event.currentTarget);
@@ -79,25 +49,17 @@ const ChartToolbar = props => {
             {source.name} [{source.target}] {fileName === source.name && ' (source: Tombolo)'}
           </Typography>
         )}
-        {!isTitleFits && (
-          <Typography variant='subtitle1' align='center' component='p'>
-            {title}
-          </Typography>
-        )}
-        {!isDescriptionFits && (
-          <Typography variant='body2' component='p'>
-            {chartDescription}
-          </Typography>
-        )}
+
+        <Typography variant='subtitle1' align='center' component='p'>
+          {title}
+        </Typography>
       </>
     );
   };
 
-  const disableTooltip = isStatic && isTitleFits && isDescriptionFits;
-
   return (
     <>
-      <CustomTooltip disableHoverListener={disableTooltip} title={<TooltipText />}>
+      <CustomTooltip title={<TooltipText />}>
         <Grid container justifyContent='space-between' alignItems='center' wrap='nowrap'>
           <Grid item className={classes.centerSvg}>
             {canEditCharts(permission) && (
