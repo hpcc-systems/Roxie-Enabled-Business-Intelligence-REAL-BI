@@ -34,11 +34,16 @@ const TextBox = ({ data, configuration }) => {
   if (data && data.length > 0) {
     const dataField = data[0];
     const fields = Object.keys(dataField);
+
     fields.forEach(field => {
       const rgx = new RegExp(`{{${field}}}`, 'gi');
+
       let fieldVal = dataField[field];
-      const date = isDate(parseInt(fieldVal));
-      if (date) fieldVal = moment(fieldVal).format('MM/DD/YYYY');
+
+      if (parseInt(fieldVal).toString() === fieldVal) {
+        const date = isDate(parseInt(fieldVal));
+        if (date) fieldVal = moment(fieldVal).format('MM/DD/YYYY');
+      }
 
       textBoxContent = textBoxContent.replace(rgx, fieldVal);
     });
