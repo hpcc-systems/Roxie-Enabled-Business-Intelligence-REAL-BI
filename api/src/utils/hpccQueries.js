@@ -1,166 +1,122 @@
-const qs = require('qs');
-const axios = require('axios');
 const moment = require('moment');
-const { getClusterCreds } = require('./clusterCredentials');
-const { getValueType } = require('./misc');
+const { getHPCCService } = require('./hpccService');
 
 const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => {
-  const { host, id: clusterID, infoPort } = cluster;
-
-  let queries;
-
   try {
-    if (!clusterCreds) {
-      clusterCreds = await getClusterCreds(clusterID, userID);
+    const WUService = await getHPCCService('wu', userID, cluster, clusterCreds);
+
+    const response = await WUService.WUListQueries({
+      Activated: true,
+      QuerySetName: 'roxie',
+      QueryName: `*${keyword}*`,
+    });
+
+    const exceptions = response?.Exceptions?.Exception;
+
+    if (exceptions?.length) {
+      const message = exceptions.map(exception => exception.Message).join(', ');
+      throw new Error(message);
     }
 
-    const response = await axios.get(
-      `${host}:${infoPort}/WsWorkunits/WUListQueries.json?Activated=true&QuerySetName=roxie&QueryName=*${keyword}*`,
-      { auth: clusterCreds },
+    const queries = response.QuerysetQueries?.QuerySetQuery;
+    if (!queries?.length) throw new Error(`No query with name like "*${keyword}*`);
+
+    const reduced = queries.reduce(
+      (acc, el) => {
+        if (!acc.duplicates.includes(el.Id)) {
+          acc.duplicates.push(el.Id);
+          const cluster = el.Clusters.ClusterQueryState[0].Cluster;
+          const query = { cluster, hpccID: el.Id, name: el.Name, target: el.QuerySetId };
+          acc.result.push(query);
+        }
+        return acc;
+      },
+      {
+        duplicates: [],
+        result: [],
+      },
     );
-    queries = response.data.WUListQueriesResponse.QuerysetQueries;
+
+    return reduced.result;
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    console.log('-getQueriesFromCluster error -------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+    throw error;
   }
-
-  if (!queries || queries.QuerySetQuery.length === 0) {
-    throw new Error(`No query with name like "*${keyword}*`);
-  }
-
-  queries = queries.QuerySetQuery;
-
-  // Remove duplicates from queries array
-  queries = Array.from(new Set(queries.map(({ Id }) => Id))).map(Id => {
-    return queries.find(({ Id: Id2 }) => Id2 === Id);
-  });
-
-  // Reduce objects to only desired keys
-  queries = queries.map(({ Clusters, Id, Name, QuerySetId }) => {
-    const cluster = Clusters.ClusterQueryState[0].Cluster;
-    return { cluster, hpccID: Id, name: Name, target: QuerySetId };
-  });
-
-  return queries;
 };
-
 const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds) => {
-  const { host, id: clusterID, dataPort } = cluster;
-  const { name, target } = source;
-
-  let datasets;
-
   try {
-    if (!clusterCreds) {
-      clusterCreds = await getClusterCreds(clusterID, userID);
+    const { name, target } = source;
+
+    const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
+
+    const response = await EclService.responseJson(target, name);
+
+    const datasets = [];
+
+    for (const dataset in response) {
+      const serialized = {
+        name: dataset,
+        fields: response[dataset].map(field => ({ name: field.id, type: field.type })),
+      };
+      datasets.push(serialized);
     }
-    const response = await axios.get(
-      `${host}:${dataPort}/WsEcl/example/response/query/${target}/${name}/json?display`,
-      { auth: clusterCreds },
-    );
-    datasets = response?.data[`${name}Response`].Results;
+
+    return datasets;
   } catch (error) {
-    throw new Error(`${error?.response?.data || 'Unknown error'}`);
+    console.log('-getQueryDatasetsFromCluster error -------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+    throw error;
   }
-
-  if (!datasets) {
-    throw new Error('No dataset results for given query');
-  }
-
-  // Create array of formatted objects
-  datasets = Object.keys(datasets).map(dataset => ({
-    name: dataset,
-    fields: getDatasetFields(datasets[dataset].Row),
-  }));
-
-  return datasets;
 };
 
 const getQueryParamsFromCluster = async (cluster, source, userID, clusterCreds) => {
-  const { host, id: clusterID, dataPort } = cluster;
-  const { name, target } = source;
-
   try {
-    if (!clusterCreds) {
-      clusterCreds = await getClusterCreds(clusterID, userID);
-    }
+    const { name, target } = source;
 
-    const response = await axios.get(
-      `${host}:${dataPort}/WsEcl/example/request/query/${target}/${name}/json?display`,
-      { auth: clusterCreds },
-    );
+    const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
 
-    // Format query parameters into array of objects
-    const params = Object.keys(response.data[name]).map(key => ({
-      name: key,
-      type: getValueType(response.data[name][key]),
-      value: '',
-    }));
+    const response = await EclService.requestJson(target, name);
 
-    return params;
+    return response.map(field => ({ name: field.id, type: field.type, value: '' }));
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    console.log('--getQueryParamsFromCluster error---------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+    throw error;
   }
 };
 
 const getQueryDataFromCluster = async (cluster, options, userID, clusterCreds) => {
-  const { id: clusterID, host, dataPort } = cluster;
-  const { name, target } = options.source;
-
-  const paramsList = createUrlParamsString(options.params);
-  let data;
-
   try {
-    if (!clusterCreds) {
-      clusterCreds = await getClusterCreds(clusterID, userID);
+    const { name, target } = options.source;
+
+    const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
+
+    const response = await EclService.submit(target, name);
+
+    const dataset = response[options.dataset]?.Row;
+
+    if (!dataset) {
+      console.log(' EclService.submit - NO DATASET-----------');
+      console.dir({ response }, { depth: null });
+      console.log('------------------------------------------');
+      throw new Error('Dataset is not found');
     }
-    const response = await axios.get(
-      `${host}:${dataPort}/WsEcl/submit/query/${target}/${name}/json${paramsList}`,
-      { auth: clusterCreds },
-    );
-    data = response.data[`${name}Response`];
+
+    return { data: dataset, lastModifiedDate: createQueryLastModifiedDate() };
   } catch (error) {
-    throw new Error(`${error.response.data ? error.response.data : 'Unknown error'}`);
+    console.log('-getQueryDataFromCluster error------------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+    throw error;
   }
-
-  if (!data.Results || data.Results.length === 0) {
-    throw new Error('No data received from cluster');
-  }
-
-  data = data.Results[options.dataset].Row || [];
-
-  return { data, lastModifiedDate: createQueryLastModifiedDate() };
-};
-
-const getDatasetFields = dataset => {
-  const fields = [];
-
-  dataset.forEach(datasetObj => {
-    Object.keys(datasetObj).forEach(key => {
-      fields.push({ name: key, type: getValueType(datasetObj[key]) });
-    });
-  });
-
-  return fields;
-};
-
-const createUrlParamsString = params => {
-  if (!params || params.length === 0) return '';
-
-  let urlString = '';
-  params = params.filter(({ value }) => value !== '' && value !== null);
-  params.forEach(
-    ({ name, value }) => (urlString += `${qs.stringify({ [name]: value }, { encodeValuesOnly: true })}&`),
-  );
-
-  // Remove extra '&' at end of string
-  urlString = urlString.substring(0, urlString.length - 1);
-
-  return `?${urlString}`;
 };
 
 const createQueryLastModifiedDate = () => {
   const datetime = moment().utc().format('L HH:mm:ss');
-
   return `${datetime} UTC`;
 };
 
