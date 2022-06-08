@@ -47,6 +47,7 @@ const initState = {
   sourceID: '',
   sources: [],
   sourceType: 'query',
+  targetCluster: '',
   params: [{ targetChart: '', targetParam: '' }],
   isAutoCompleteLoading: false,
   isFilterReady: false,

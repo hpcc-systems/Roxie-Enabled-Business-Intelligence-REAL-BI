@@ -71,6 +71,7 @@ const initState = {
   selectedDataset: { loading: false, name: '', fields: [] },
   selectedSource: {},
   sourceType: 'query',
+  targetCluster: '',
   keywordfromExplorer: false,
   isAutoCompleteLoading: false,
   isIntegration: false,

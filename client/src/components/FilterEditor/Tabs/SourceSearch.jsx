@@ -6,10 +6,20 @@ import { Autocomplete } from '@material-ui/lab';
 import { getKeywordSearchResults } from '../../../utils/hpcc';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import { useSnackbar } from 'notistack';
 
 const SourceSearch = ({ dashboard, filter, handleChange, formFieldsUpdate, localState }) => {
-  const { chartID, errors, keyword, sources = [], sourceType, isAutoCompleteLoading } = localState;
+  const {
+    chartID,
+    errors,
+    keyword,
+    sources = [],
+    sourceType,
+    targetCluster,
+    isAutoCompleteLoading,
+  } = localState;
   const { id: clusterID } = dashboard.cluster;
+  const { enqueueSnackbar } = useSnackbar();
 
   const isMounted = useRef(); // Using this variable to unsubscribe from state update if component is unmounted
 
@@ -19,9 +29,27 @@ const SourceSearch = ({ dashboard, filter, handleChange, formFieldsUpdate, local
 
   const updateAutocomplete = async (clusterID, keyword) => {
     if (!isMounted.current) return;
+    if (sourceType === 'query' && !targetCluster) {
+      return enqueueSnackbar('Target Cluster is not selected, please select Target Cluster', {
+        variant: 'warning',
+        autoHideDuration: 2000,
+        preventDuplicate: true,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+          preventDuplicate: true,
+        },
+      });
+    }
     formFieldsUpdate({ isAutoCompleteLoading: true });
     try {
-      const data = await getKeywordSearchResults(clusterID, keyword, sourceType, dashboard.accessOnBehalf);
+      const data = await getKeywordSearchResults(
+        clusterID,
+        keyword,
+        sourceType,
+        targetCluster,
+        dashboard.accessOnBehalf,
+      );
       if (!isMounted.current) return;
       const updateFields = { error: '', sources: data, isAutoCompleteLoading: false };
 
@@ -36,7 +64,10 @@ const SourceSearch = ({ dashboard, filter, handleChange, formFieldsUpdate, local
     }
   };
 
-  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [sourceType]);
+  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [
+    sourceType,
+    targetCluster,
+  ]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -57,6 +88,17 @@ const SourceSearch = ({ dashboard, filter, handleChange, formFieldsUpdate, local
     // Confirm variable has a value
     newValue = newValue ? newValue : {};
     handleChange(null, { name: 'selectedSource', value: newValue });
+    newValue.name &&
+      enqueueSnackbar(`${newValue.name} file selected`, {
+        variant: 'success',
+        autoHideDuration: 3000,
+        preventDuplicate: true,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+          preventDuplicate: true,
+        },
+      });
   };
 
   const selectedSourceErr = errors.find(err => err['selectedSource']);

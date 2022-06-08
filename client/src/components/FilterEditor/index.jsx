@@ -27,15 +27,20 @@ const useStyles = makeStyles(theme => ({
 const tabOptions = ['ECL Script', 'Source', 'Parameters', 'Targets'];
 
 const FilterEditor = props => {
-  const { handleChange, localState } = props;
-  const { errors = [], filterType, name, sourceType } = localState;
+  const { handleChange, localState, dashboard } = props;
+  const { errors = [], filterType, name, sourceType, targetCluster } = localState;
   const [tabIndex, setTabIndex] = useState(0);
   const [tabPercentage, setTabPercentage] = useState('');
   const { appbar, grid } = useStyles();
+  const { targetClusters } = dashboard;
 
   const changeSourceType = event => {
     handleChange(null, { name: 'selectedSource', value: {} });
     handleChange(event);
+  };
+
+  const changeTargetCluster = event => {
+    handleChange(null, { name: 'targetCluster', value: event.target.value });
   };
 
   const resetTabIndex = event => {
@@ -90,25 +95,42 @@ const FilterEditor = props => {
         />
       </Grid>
       {!isDateField ? (
-        <Grid item xs={12}>
-          <FormControl fullWidth>
-            <InputLabel>Source Type</InputLabel>
-            <Select
-              name='sourceType'
-              value={sourceType}
-              onChange={changeSourceType}
-              disabled={!localState.isFilterReady}
-            >
-              {sourceOptions.map((option, index) => {
-                return (
-                  <MenuItem key={index} value={option}>
-                    {option}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </Grid>
+        <>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Source Type</InputLabel>
+              <Select
+                name='sourceType'
+                value={sourceType}
+                onChange={changeSourceType}
+                disabled={!localState.isFilterReady}
+              >
+                {sourceOptions.map((option, index) => {
+                  return (
+                    <MenuItem key={index} value={option}>
+                      {option}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {sourceType === 'query' ? (
+            <FormControl fullWidth>
+              <InputLabel>Select Target Cluster</InputLabel>
+              <Select name='targetCluster' value={targetCluster} onChange={changeTargetCluster}>
+                {targetClusters.map((cluster, index) => {
+                  return (
+                    <MenuItem key={index} value={cluster.Name}>
+                      {cluster.Name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          ) : null}
+        </>
       ) : null}
 
       <AppBar className={appbar} position='static' color='inherit'>

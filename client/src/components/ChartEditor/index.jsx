@@ -37,10 +37,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ChartEditor = props => {
-  const { eclRef, handleChange, formFieldsUpdate, localState, initialChartFormFields } = props;
-  const { chartID, configuration, dataObj, dataset, error, sourceType } = localState;
+  const { eclRef, handleChange, formFieldsUpdate, localState, initialChartFormFields, dashboard } = props;
+  const { chartID, configuration, dataObj, dataset, error, sourceType, targetCluster } = localState;
   const { data: eclData, dataset: eclDataset, toggleUpdate = false, loading: eclLoading } = eclRef.current;
   const { isStatic = false, type } = configuration;
+  const { targetClusters } = dashboard;
 
   const [tabIndex, setTabIndex] = useState(0);
   const [duplicatedRecords, setDuplicatedRecords] = useState([]);
@@ -55,6 +56,13 @@ const ChartEditor = props => {
     formFieldsUpdate({
       ...initialChartFormFields,
       sourceType: event.target.value,
+    });
+  };
+
+  const changeTargetCluster = event => {
+    formFieldsUpdate({
+      ...initialChartFormFields,
+      targetCluster: event.target.value,
     });
   };
 
@@ -126,6 +134,22 @@ const ChartEditor = props => {
             </Select>
           </FormControl>
         )}
+
+        {sourceType === 'query' ? (
+          <FormControl fullWidth>
+            <InputLabel>Select Target Cluster</InputLabel>
+            <Select name='targetCluster' value={targetCluster} onChange={changeTargetCluster}>
+              {targetClusters.map((cluster, index) => {
+                return (
+                  <MenuItem key={index} value={cluster.Name}>
+                    {cluster.Name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        ) : null}
+
         {sourceType !== 'ecl' && (
           <Fragment>
             <SourceSearch {...props} />
