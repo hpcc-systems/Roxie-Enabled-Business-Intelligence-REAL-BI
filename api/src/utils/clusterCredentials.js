@@ -5,7 +5,6 @@ const {
 } = require('../models');
 const { decryptHash, encryptPassword } = require('./auth');
 const { unNestSequelizeObj } = require('./sequelize');
-const axios = require('axios');
 
 const createClusterCreds = async (clusterID, password, userID, username) => {
   const hash = password ? encryptPassword(password) : '';
@@ -81,17 +80,6 @@ const updateClusterCreds = async (clusterID, password, userID, username, onBehal
   return { onBehalfOf: false, credsId: creds.id };
 };
 
-const isClusterCredsValid = async (cluster, username, password) => {
-  const result = await axios.get(`${cluster.host}:${cluster.infoPort}/WsTopology/TpListTargetClusters.json`, {
-    auth: { username, password },
-  });
-  if (result.data.TpListTargetClustersResponse) {
-    return result;
-  } else {
-    throw new Error('Can not access HPCC cluster');
-  }
-};
-
 const getAccessOnBehalf = async id => {
   const creds = await AccessOnBehalf.findOne({ where: { id } });
   if (!creds) return null;
@@ -104,5 +92,4 @@ module.exports = {
   createClusterCreds,
   getClusterCreds,
   updateClusterCreds,
-  isClusterCredsValid,
 };
