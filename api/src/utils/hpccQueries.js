@@ -7,7 +7,7 @@ const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => 
 
     const response = await WUService.WUListQueries({
       Activated: true,
-      QuerySetName: 'roxie',
+      QuerySetName: cluster.targetCluster || 'roxie',
       QueryName: `*${keyword}*`,
     });
 
@@ -25,7 +25,7 @@ const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => 
       (acc, el) => {
         if (!acc.duplicates.includes(el.Id)) {
           acc.duplicates.push(el.Id);
-          const cluster = el.Clusters.ClusterQueryState[0].Cluster;
+          const cluster = el.Clusters?.ClusterQueryState?.[0]?.Cluster;
           const query = { cluster, hpccID: el.Id, name: el.Name, target: el.QuerySetId };
           acc.result.push(query);
         }
@@ -45,6 +45,7 @@ const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => 
     throw error;
   }
 };
+
 const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds) => {
   try {
     const { name, target } = source;
@@ -66,8 +67,6 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds
     return datasets;
   } catch (error) {
     console.log('-getQueryDatasetsFromCluster error -------');
-    console.dir({ error }, { depth: null });
-    console.log('------------------------------------------');
     throw error;
   }
 };
@@ -83,8 +82,6 @@ const getQueryParamsFromCluster = async (cluster, source, userID, clusterCreds) 
     return response.map(field => ({ name: field.id, type: field.type, value: '' }));
   } catch (error) {
     console.log('--getQueryParamsFromCluster error---------');
-    console.dir({ error }, { depth: null });
-    console.log('------------------------------------------');
     throw error;
   }
 };
@@ -109,8 +106,6 @@ const getQueryDataFromCluster = async (cluster, options, userID, clusterCreds) =
     return { data: dataset, lastModifiedDate: createQueryLastModifiedDate() };
   } catch (error) {
     console.log('-getQueryDataFromCluster error------------');
-    console.dir({ error }, { depth: null });
-    console.log('------------------------------------------');
     throw error;
   }
 };
@@ -120,10 +115,32 @@ const createQueryLastModifiedDate = () => {
   return `${datetime} UTC`;
 };
 
+//  THIS IS A HACK TO AVOID ERROR DUE TO ROUND ROBIN DATA PULLING ON HPCC SIDE, WE WILL JUST ATTEMPT TO CALL FUNCTION AGAIN IF IT DOES NOT RETURN RESULT
+const callCb = async (num, cb, args) => {
+  for (let i = 1; i <= num; i++) {
+    try {
+      console.log(`Calling ${cb.name} #${i}`);
+      // if call is successfull we will return the result, otherwise call will throw error and we will try to call it again
+      return await cb(...args);
+    } catch (error) {
+      // if we reached limit in tries and still getting error then we will pass it forward.
+      if (i === num) {
+        console.dir({ error }, { depth: null });
+        throw error;
+      }
+      continue;
+    }
+  }
+};
+
+const DEFAULT_TRIES = 4;
+
+const reTryCalling = (cb, tries = DEFAULT_TRIES) => async (...args) => await callCb(tries, cb, args);
+
 module.exports = {
   createQueryLastModifiedDate,
-  getQueriesFromCluster,
-  getQueryDataFromCluster,
-  getQueryDatasetsFromCluster,
-  getQueryParamsFromCluster,
+  getQueriesFromCluster: reTryCalling(getQueriesFromCluster),
+  getQueryDataFromCluster: reTryCalling(getQueryDataFromCluster),
+  getQueryParamsFromCluster: reTryCalling(getQueryParamsFromCluster),
+  getQueryDatasetsFromCluster: reTryCalling(getQueryDatasetsFromCluster),
 };

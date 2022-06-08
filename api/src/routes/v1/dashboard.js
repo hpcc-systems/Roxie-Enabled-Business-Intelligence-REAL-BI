@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
-const { getClusterCreds, isClusterCredsValid, getAccessOnBehalf } = require('../../utils/clusterCredentials');
+const { isClusterCredsValid } = require('../../utils/hpccService');
+const { getClusterCreds, getAccessOnBehalf } = require('../../utils/clusterCredentials');
 // Utils
 const {
   createDashboard,
@@ -50,8 +51,13 @@ router.get('/info', async (req, res, next) => {
         clusterCreds = await getClusterCreds(dashboard.cluster.id, userID);
       }
       try {
-        await isClusterCredsValid(dashboard.cluster, clusterCreds.username, clusterCreds.password);
+        const targetClusters = await isClusterCredsValid(
+          dashboard.cluster,
+          clusterCreds.username,
+          clusterCreds.password,
+        );
         dashboard.isClusterCredsValid = true;
+        dashboard.targetClusters = targetClusters;
       } catch (err) {
         dashboard.isClusterCredsValid = false;
       }

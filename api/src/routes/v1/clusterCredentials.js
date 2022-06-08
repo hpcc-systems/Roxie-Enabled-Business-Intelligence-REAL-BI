@@ -5,8 +5,8 @@ const {
   checkForClusterCreds,
   createClusterCreds,
   updateClusterCreds,
-  isClusterCredsValid,
 } = require('../../utils/clusterCredentials');
+const { isClusterCredsValid } = require('../../utils/hpccService');
 
 router.post('/', async (req, res, next) => {
   const {
