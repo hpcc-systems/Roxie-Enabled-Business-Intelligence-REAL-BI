@@ -90,6 +90,7 @@ export const setEditorState = chart => {
     params,
     selectedDataset: { loading: isStatic ? false : true, name: '', fields: [] }, // setting initial state to loading true on editing chart dialog will prevent user to see empty fields, as data is not yet available
     selectedSource: {},
+    targetCluster: source.target,
     sources: [],
     sourceType: source?.type,
     ...chartKeys,

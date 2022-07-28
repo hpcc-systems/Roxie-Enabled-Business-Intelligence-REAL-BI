@@ -1,10 +1,16 @@
 /* eslint-disable no-throw-literal */
 import axios from 'axios';
 
-export const getKeywordSearchResults = async (clusterID, keyword, sourceType, accessOnBehalf = '') => {
+export const getKeywordSearchResults = async (
+  clusterID,
+  keyword,
+  sourceType,
+  targetCluster,
+  accessOnBehalf = '',
+) => {
   try {
     const response = await axios.get('/api/v1/hpcc/keyword', {
-      params: { clusterID, keyword, sourceType, accessOnBehalf },
+      params: { clusterID, keyword, sourceType, targetCluster, accessOnBehalf },
     });
     return response.data;
   } catch (error) {

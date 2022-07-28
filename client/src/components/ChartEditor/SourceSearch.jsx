@@ -25,6 +25,7 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     sources = [],
     keywordfromExplorer,
     sourceType,
+    targetCluster,
     isIntegration,
     isAutoCompleteLoading,
   } = localState;
@@ -34,9 +35,27 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
 
   const updateAutocomplete = async (clusterID, keyword) => {
     if (!isMounted.current) return;
+    if (sourceType === 'query' && !targetCluster) {
+      return enqueueSnackbar('Target Cluster is not selected, please select Target Cluster', {
+        variant: 'warning',
+        autoHideDuration: 2000,
+        preventDuplicate: true,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+          preventDuplicate: true,
+        },
+      });
+    }
     formFieldsUpdate({ isAutoCompleteLoading: true });
     try {
-      const data = await getKeywordSearchResults(clusterID, keyword, sourceType, dashboard.accessOnBehalf);
+      const data = await getKeywordSearchResults(
+        clusterID,
+        keyword,
+        sourceType,
+        targetCluster,
+        dashboard.accessOnBehalf,
+      );
       if (!isMounted.current) return;
       formFieldsUpdate({ error: '', sources: data, isAutoCompleteLoading: false });
       if (chartID || isIntegration) {
@@ -53,7 +72,10 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
     }
   };
 
-  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [sourceType]);
+  const updateAutocompleteDebounced = useCallback(debounce(updateAutocomplete, 1000), [
+    sourceType,
+    targetCluster,
+  ]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -84,8 +106,8 @@ const SourceSearch = ({ dashboard, handleChange, localState, formFieldsUpdate })
         autoHideDuration: 3000,
         preventDuplicate: true,
         anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'left',
+          vertical: 'top',
+          horizontal: 'center',
           preventDuplicate: true,
         },
       });

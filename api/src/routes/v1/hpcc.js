@@ -23,7 +23,7 @@ const { getAccessOnBehalf, getClusterCreds } = require('../../utils/clusterCrede
 
 router.get('/keyword', async (req, res, next) => {
   const {
-    query: { clusterID, keyword = '*', sourceType = 'query', accessOnBehalf = '' },
+    query: { clusterID, keyword = '*', sourceType = 'query', targetCluster, accessOnBehalf = '' },
     user: { id: userID },
   } = req;
 
@@ -36,6 +36,7 @@ router.get('/keyword', async (req, res, next) => {
     }
 
     const cluster = await getClusterByID(clusterID);
+    cluster.targetCluster = targetCluster;
     let results;
 
     switch (sourceType) {
