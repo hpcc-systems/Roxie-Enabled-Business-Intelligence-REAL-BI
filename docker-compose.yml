@@ -3,7 +3,6 @@ version: '3.8'
 networks:
   realbi_network:
     name: realbi_network
-
 services:
   db:
     container_name: realbi_db
@@ -21,36 +20,30 @@ services:
     volumes:
       - ./db/data:/var/lib/mysql
   api:
+    container_name: realbi_api
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: realbi_api
+    restart: always
     depends_on:
       - db
     env_file:
       - .env
     networks:
       - realbi_network
-    restart: always
-    volumes:
-      - ./api:/app
-      - /app/node_modules
   client:
+    container_name: realbi_client
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: realbi_client
+    restart: always
     depends_on:
       - api
     env_file:
       - .env
     networks:
       - realbi_network
-    restart: always
-    stdin_open: true
-    volumes:
-      - ./client:/app
-      - /app/node_modules
+
   nginx:
     build:
       context: ./nginx

@@ -5,13 +5,22 @@ module.exports.getHPCCService = async (service = 'wu', userID = '', cluster, clu
   if (!service) throw new Error('Service type is not provided');
   if (!userID && !clusterCreds) throw new Error('Provide userID or clusterCreds');
 
-  const { id: clusterID, host, dataPort, infoPort } = cluster;
+  const { id: clusterID, host, dataPort, infoPort, roxie_ip } = cluster;
   if (!clusterCreds) clusterCreds = await getClusterCreds(clusterID, userID);
 
-  const port = service === 'ecl' ? dataPort : infoPort;
+  let port = infoPort;
+  let baseUrl = `${host}:${port}`;
+
+  if (service === 'ecl') {
+    if (roxie_ip) {
+      baseUrl = roxie_ip;
+    } else {
+      port = dataPort;
+    }
+  }
 
   const connectionSettings = {
-    baseUrl: `${host}:${port}`,
+    baseUrl,
     userID: clusterCreds.usename || '',
     password: clusterCreds.password || '',
   };
@@ -25,18 +34,25 @@ module.exports.getHPCCService = async (service = 'wu', userID = '', cluster, clu
 
 // moved from clusterCredentials.js because of circular dependency error with that was caused by importing getHPCCService in clusterCredentials.js that is using exported getClusterCreds;
 module.exports.isClusterCredsValid = async (cluster, username, password) => {
-  const topologyService = await module.exports.getHPCCService('topology', null, cluster, {
-    username,
-    password,
-  });
-  const response = await topologyService.TpListTargetClusters();
+  const creds = { username, password };
+  try {
+    const topologyService = await module.exports.getHPCCService('topology', null, cluster, creds);
 
-  const exceptions = response.Exceptions?.Exception;
+    const response = await topologyService.TpLogicalClusterQuery();
 
-  if (exceptions?.length) {
-    const message = exceptions.map(exception => exception.Message).join(', ');
-    throw new Error('Can not access HPCC cluster,\n' + message);
+    const exceptions = response.Exceptions?.Exception;
+
+    if (exceptions?.length) {
+      const message = exceptions.map(exception => exception.Message).join(', ');
+      throw new Error('Can not access HPCC cluster,\n' + message);
+    }
+
+    return response.TpLogicalClusters?.TpLogicalCluster || [];
+  } catch (error) {
+    console.log('- isClusterCredsValid error-----------------------------------------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+
+    throw error;
   }
-
-  return response.TargetClusters.TpClusterNameType;
 };

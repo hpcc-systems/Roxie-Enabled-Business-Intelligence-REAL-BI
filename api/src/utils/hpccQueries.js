@@ -67,6 +67,9 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds
     return datasets;
   } catch (error) {
     console.log('-getQueryDatasetsFromCluster error -------');
+    console.dir({ error }, { depth: null });
+    console.log('------------------------------------------');
+
     throw error;
   }
 };
@@ -119,7 +122,7 @@ const createQueryLastModifiedDate = () => {
 const callCb = async (num, cb, args) => {
   for (let i = 1; i <= num; i++) {
     try {
-      console.log(`Calling ${cb.name} #${i}`);
+      // console.log(`Calling ${cb.name} #${i}`);
       // if call is successfull we will return the result, otherwise call will throw error and we will try to call it again
       return await cb(...args);
     } catch (error) {
