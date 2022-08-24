@@ -175,6 +175,9 @@ router.get('/data', async (req, res, next) => {
       });
     }
 
+    const host_ip = configuration.host_ip;
+    if (host_ip) source.host_ip = host_ip;
+
     const options = { params: dataParams, source };
 
     switch (source.type) {

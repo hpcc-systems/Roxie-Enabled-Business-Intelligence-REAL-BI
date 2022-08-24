@@ -21,6 +21,7 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
     params,
     selectedSource = {},
     sourceType,
+    host_ip,
   } = localState;
 
   let selectedDataset = localState.selectedDataset;
@@ -34,6 +35,8 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
       (async () => {
         try {
           formFieldsUpdate({ selectedDataset: { loading: true, name: '', fields: [] } });
+          // when we edit chart host_ip might be present in local state, use it to request datasets
+          if (!selectedSource.host_ip && host_ip) selectedSource.host_ip = host_ip;
 
           const data = await getDatasetsFromSource(
             clusterID,
@@ -72,7 +75,10 @@ const SelectDataset = ({ dashboard, handleChange, formFieldsUpdate, handleChange
             handleChange(null, { name: 'params', value: newParams });
           }
         } catch (error) {
-          handleChange(null, { name: 'error', value: error.message });
+          formFieldsUpdate({
+            selectedDataset: { ...selectedDataset, loading: false },
+            error: error.message,
+          });
         }
       })();
     }

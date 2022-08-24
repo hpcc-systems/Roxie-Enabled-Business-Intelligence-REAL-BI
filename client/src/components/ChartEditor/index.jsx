@@ -1,6 +1,18 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Box, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
+import {
+  AppBar,
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Tab,
+  Tabs,
+  TextField,
+} from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
 // React Components
@@ -13,6 +25,7 @@ import DuplicateRecordsWarning from './DuplicateRecordsWarning';
 // Constants
 import { hasGroupByOption, hasSortOptions } from '../../utils/misc';
 import { sourceOptions } from '../../constants';
+import { debounce } from 'lodash';
 
 const tabOptions = ['ECL Script', 'General', 'Parameters', 'Group By', 'Sort By', 'Conditional Formatting'];
 
@@ -34,11 +47,26 @@ const useStyles = makeStyles(theme => ({
   tabs: {
     justifyContent: ' center',
   },
+  alert: {
+    '& .MuiAlert-message': {
+      flex: 1,
+    },
+  },
 }));
 
 const ChartEditor = props => {
   const { eclRef, handleChange, formFieldsUpdate, localState, initialChartFormFields, dashboard } = props;
-  const { chartID, configuration, dataObj, dataset, error, sourceType, targetCluster } = localState;
+  const {
+    chartID,
+    configuration,
+    dataObj,
+    dataset,
+    error,
+    sourceType,
+    targetCluster,
+    selectedSource,
+    host_ip,
+  } = localState;
   const { data: eclData, dataset: eclDataset, toggleUpdate = false, loading: eclLoading } = eclRef.current;
   const { isStatic = false, type } = configuration;
   const { targetClusters } = dashboard;
@@ -46,7 +74,7 @@ const ChartEditor = props => {
   const [tabIndex, setTabIndex] = useState(0);
   const [duplicatedRecords, setDuplicatedRecords] = useState([]);
 
-  const { appbar, formControl, gridContainer, splitScreen, tabs } = useStyles();
+  const { appbar, formControl, gridContainer, splitScreen, tabs, alert } = useStyles();
 
   const changeTabIndex = (event, newValue) => {
     setTabIndex(newValue);
@@ -65,6 +93,13 @@ const ChartEditor = props => {
       targetCluster: event.target.value,
     });
   };
+
+  const changeHost = e => formFieldsUpdate({ [e.target.name]: e.target.value });
+
+  const addNewRoxieToSource = debounce(() => {
+    // when host_ip added to selectedSource SelectedDataset will make new request to host_ip
+    formFieldsUpdate({ selectedSource: { ...selectedSource, host_ip } });
+  }, 200);
 
   const updateAxisKey = event => {
     const { name, value } = event.target;
@@ -111,12 +146,47 @@ const ChartEditor = props => {
     [dataObj.loading],
   );
 
+  const showRoxieIpInput =
+    (error.includes('Not Found') || error.includes('URL') || host_ip) && sourceType === 'query';
+
   return (
     <Grid container spacing={4} className={gridContainer}>
       <Grid item xs={12} md={6} className={splitScreen}>
-        {error !== '' && (
+        {(error !== '' || showRoxieIpInput) && (
           <Box mb={1}>
-            <Alert severity='error'>{error}</Alert>
+            {showRoxieIpInput ? (
+              <Alert severity={error ? 'error' : 'success'} variant='outlined' className={alert}>
+                <span>
+                  {error
+                    ? error + ' | Try to get data sets from different host:'
+                    : 'Success, select Dataset from dropdown'}{' '}
+                </span>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 10,
+                    alignItems: 'baseline',
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    style={{ maxWidth: '500px' }}
+                    name='host_ip'
+                    value={host_ip}
+                    label='Host ip address'
+                    onChange={changeHost}
+                    placeholder='http://my-host.com:8002'
+                  />
+                  <Button disabled={!host_ip} variant='contained' onClick={addNewRoxieToSource}>
+                    search
+                  </Button>
+                </div>
+              </Alert>
+            ) : (
+              <Alert severity='error'>{error}</Alert>
+            )}
           </Box>
         )}
         {/* Only display when not editing an existing chart */}

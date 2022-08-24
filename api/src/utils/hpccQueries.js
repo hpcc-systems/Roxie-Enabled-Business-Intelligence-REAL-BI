@@ -48,7 +48,8 @@ const getQueriesFromCluster = async (cluster, keyword, userID, clusterCreds) => 
 
 const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds) => {
   try {
-    const { name, target } = source;
+    const { name, target, host_ip } = source;
+    if (host_ip) cluster.host_ip = host_ip;
 
     const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
 
@@ -76,7 +77,8 @@ const getQueryDatasetsFromCluster = async (cluster, source, userID, clusterCreds
 
 const getQueryParamsFromCluster = async (cluster, source, userID, clusterCreds) => {
   try {
-    const { name, target } = source;
+    const { name, target, host_ip } = source;
+    if (host_ip) cluster.host_ip = host_ip;
 
     const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
 
@@ -91,7 +93,8 @@ const getQueryParamsFromCluster = async (cluster, source, userID, clusterCreds) 
 
 const getQueryDataFromCluster = async (cluster, options, userID, clusterCreds) => {
   try {
-    const { name, target } = options.source;
+    const { name, target, host_ip } = options.source;
+    if (host_ip) cluster.host_ip = host_ip;
 
     const EclService = await getHPCCService('ecl', userID, cluster, clusterCreds);
 

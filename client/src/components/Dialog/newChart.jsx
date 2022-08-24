@@ -71,6 +71,7 @@ const initState = {
   selectedDataset: { loading: false, name: '', fields: [] },
   selectedSource: {},
   sourceType: 'query',
+  host_ip: '',
   targetCluster: '',
   keywordfromExplorer: false,
   isAutoCompleteLoading: false,
@@ -146,7 +147,7 @@ const NewChartDialog = ({ show, toggleDialog }) => {
     if (event.nativeEvent.submitter.name === 'update') {
       return updateChartPreview();
     }
-    const { configuration, dataset } = localState;
+    const { configuration, dataset, selectedSource } = localState;
     const { isStatic } = configuration;
     const { id: dashboardID } = dashboard;
     let sourceID;
@@ -171,6 +172,9 @@ const NewChartDialog = ({ show, toggleDialog }) => {
 
       const sourceObj = createSourceObj(localState, eclRef.current);
       const newChartObj = createChartObj(localState, eclRef.current);
+
+      const host_ip = selectedSource.host_ip;
+      if (host_ip) newChartObj.host_ip = host_ip;
 
       try {
         const newSource = await createSource(sourceObj);

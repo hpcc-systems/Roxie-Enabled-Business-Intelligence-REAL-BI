@@ -16,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       infoPort: createNumber(DataTypes),
       dataPort: createNumber(DataTypes),
-      roxie_ip: DataTypes.STRING,
       ...createDateTimeStamps(DataTypes),
     },
     { charset: 'utf8', collate: 'utf8_general_ci', paranoid: true, tableName: tableNames.cluster },

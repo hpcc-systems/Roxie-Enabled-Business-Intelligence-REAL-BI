@@ -82,6 +82,10 @@ router.get('/datasets', async (req, res, next) => {
     }
 
     const cluster = await getClusterByID(clusterID);
+
+    const host_ip = JSON.parse(source)?.host_ip;
+    if (host_ip) cluster.host_ip = host_ip;
+
     let sourceInfo;
 
     switch (sourceType) {

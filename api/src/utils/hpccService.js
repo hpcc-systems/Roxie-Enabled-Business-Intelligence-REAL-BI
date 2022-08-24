@@ -5,15 +5,15 @@ module.exports.getHPCCService = async (service = 'wu', userID = '', cluster, clu
   if (!service) throw new Error('Service type is not provided');
   if (!userID && !clusterCreds) throw new Error('Provide userID or clusterCreds');
 
-  const { id: clusterID, host, dataPort, infoPort, roxie_ip } = cluster;
+  const { id: clusterID, host, dataPort, infoPort, host_ip } = cluster;
   if (!clusterCreds) clusterCreds = await getClusterCreds(clusterID, userID);
 
   let port = infoPort;
   let baseUrl = `${host}:${port}`;
 
   if (service === 'ecl') {
-    if (roxie_ip) {
-      baseUrl = roxie_ip;
+    if (host_ip) {
+      baseUrl = host_ip;
     } else {
       port = dataPort;
     }
