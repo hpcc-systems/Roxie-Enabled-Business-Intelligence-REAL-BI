@@ -20,7 +20,7 @@
     "passport": "^0.6.0",
     "passport-azure-ad": "^4.3.4",
     "qs": "^6.9.3",
-    "sequelize": "^6.3.5",
+    "sequelize": "^6.28.2",
     "sequelize-cli": "^6.2.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
