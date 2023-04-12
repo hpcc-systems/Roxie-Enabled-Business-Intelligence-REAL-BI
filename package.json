@@ -1,0 +1,31 @@
+{
+  "name": "real_bi",
+  "version": "1.0.0",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hpcc-systems/REAL-BI.git"
+  },
+  "scripts": {
+    "start": "concurrently \"cd api && npm run start:dev\" \"cd client && npm start\"",
+    "postinstall": "(cd api && npm install) && (cd ../client && npm install)"
+  },
+  "keywords": [],
+  "author": "Chris Human",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.2.2",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^10.5.3",
+    "prettier": "^2.2.1"
+  }
+}

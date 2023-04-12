@@ -1,0 +1,21 @@
+# Dependency directories
+node_modules/
+*.env
+*.env.development
+!*.env.example
+/client/.eslintcache
+
+data/
+
+# Logs
+*.log
+
+# Databases
+!example.sql
+/api/src/seeders/*clusters.js
+/db/*
+!/db/.gitkeep
+
+# SSL Certificates and Keys
+*.key
+*.pem

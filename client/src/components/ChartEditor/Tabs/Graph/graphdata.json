@@ -1,0 +1,78 @@
+{
+  "nodes": {
+    "Row": [
+      {
+        "id": "-3",
+        "value": {
+          "title": "Source page A",
+          "items": { "Row": [{ "text": "Exposure PV", "value": "10.30" }] }
+        }
+      },
+      {
+        "id": "-2",
+        "value": {
+          "title": "Source page B",
+          "items": { "Row": [{ "text": "Click UV", "value": "10.30" }] }
+        }
+      },
+      {
+        "id": "-1",
+        "value": {
+          "title": "Source page C",
+          "items": { "Row": [{ "text": "Visit page UV", "value": "10.30" }] }
+        }
+      },
+      {
+        "id": "0",
+        "value": { "title": "Activity page", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "1",
+        "value": { "title": "Go to page A", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "2",
+        "value": { "title": "Go to page B", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "3",
+        "value": { "title": "Go to page C", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "4",
+        "value": { "title": "Go to page D", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "5",
+        "value": { "title": "Go to page E", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "6",
+        "value": { "title": "Go to page F", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "7",
+        "value": { "title": "Go to page G", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      },
+      {
+        "id": "8",
+        "value": { "title": "Go to page H", "items": { "Row": [{ "text": "Visit page UV" }] } }
+      }
+    ]
+  },
+  "edges": {
+    "Row": [
+      { "source": "-3", "target": "0", "value": "Source A" },
+      { "source": "-2", "target": "0", "value": "Source B" },
+      { "source": "-1", "target": "0", "value": "Source C" },
+      { "source": "0", "target": "1" },
+      { "source": "0", "target": "2" },
+      { "source": "0", "target": "3" },
+      { "source": "0", "target": "4" },
+      { "source": "0", "target": "5" },
+      { "source": "2", "target": "6" },
+      { "source": "3", "target": "7" },
+      { "source": "4", "target": "8" }
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+upstream client {
+  server client:3000;
+}
+
+upstream api {
+  server api:$NODE_PORT;
+}
+
+# --- Uncomment line this block when running with ssl certificate
+#server {
+#   listen $EXTERNAL_HTTP_PORT;
+#
+#   server_name $HOST_HOSTNAME;
+#
+#   return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+#}
+
+server {
+ # --- Uncomment line 20 when running with ssl certificate
+ # listen $EXTERNAL_HTTPS_PORT ssl;
+ #Comment out line  22 when running with ssl certificate
+  listen $EXTERNAL_HTTP_PORT;
+
+  server_name $HOST_HOSTNAME;
+
+ # ---Uncomment line 27, 28 when running with ssl_certificate
+ #ssl_certificate <Path to certs inside container>/live/<your domain name>/fullchain.pem;
+ #ssl_certificate_key <Path to certs inside container>/live/<your domain name>/privkey.pem;
+
+  add_header Strict-Transport-Security "max-age=31536000;" always;
+  add_header X-XSS-Protection "1; mode=block";
+  add_header X-Permitted-Cross-Domain-Policies "none";
+  add_header X-Frame-Options "deny";
+  add_header X-Content-Type-Options "nosniff";
+
+  gzip on;
+  gzip_disable "msie6";
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 6;
+  gzip_buffers 16 8k;
+  gzip_http_version 1.1;
+  gzip_min_length 0;
+  gzip_types text/plain application/javascript text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype;
+
+  location / {
+    proxy_set_header Host ${DOLLAR}host;
+    proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+    proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host ${DOLLAR}server_name;
+
+    proxy_hide_header X-Powered-By;
+    proxy_hide_header Server;
+
+    expires -1;
+
+    proxy_pass http://client;
+
+    proxy_redirect off;
+  }
+
+
+  location /api {
+    proxy_set_header Host ${DOLLAR}host;
+    proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+    proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host ${DOLLAR}server_name;
+
+    proxy_hide_header X-Powered-By;
+    proxy_hide_header Server;
+
+    expires -1;
+
+    proxy_pass http://api;
+
+    proxy_redirect off;
+  }
+}
