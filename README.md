@@ -1,4 +1,4 @@
-# REAL BI
+# Roxie Enabled Business Intelligence (REAL BI)
 
 ![](/client/public/docs/realbidemo.jpg)
 
