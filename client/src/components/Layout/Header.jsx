@@ -150,7 +150,7 @@ const Header = ({ toggleDrawer }) => {
             color='inherit'
             className={clsx(typography, { [typography2]: isChangePwdScreen })}
           >
-            REAL BI
+            Roxie Enabled Business Intelligence (REAL BI)
           </Typography>
 
           {userID && (
